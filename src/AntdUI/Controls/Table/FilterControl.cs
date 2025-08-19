@@ -96,7 +96,8 @@ namespace AntdUI
                 edit.DecimalPlaces = type == typeof(int) || type == typeof(short) || type == typeof(long) ? 0 : 7;
                 try
                 {
-                    edit.Value = Option.FilterValues != null && Option.FilterValues.Count == 1 ? Convert.ToDecimal(Option.FilterValues[0]) : 0;
+
+                    edit.Value = Option.FilterValues != null && Option.FilterValues.Count == 1 ? Convert.ToDouble(Option.FilterValues[0]) : null;
                 }
                 catch { }
                 edit.ValueChanged += Edit_ValueChanged;
@@ -373,7 +374,14 @@ namespace AntdUI
             if (EditLocked) return;
             if (sender is InputNumber editNum)
             {
-                if (decimal.TryParse(editNum.Text, out var num)) Edit_ValueChanged(sender, new DecimalEventArgs(num));
+                if (editNum.Text == null)
+                {
+                    Edit_ValueChanged(sender, new DecimalEventArgs(null));
+                }
+                else
+                {
+                    if (double.TryParse(editNum.Text, out var num)) Edit_ValueChanged(sender, new DecimalEventArgs(num));
+                }
                 return;
             }
             if (sender is DatePicker editDate)
@@ -401,12 +409,20 @@ namespace AntdUI
             ItemFilterEnabled.Enabled = Option.Enabled;
         }
 
-        decimal beforeValue = 0;
+        double? beforeValue = null;
         void Edit_ValueChanged(object sender, DecimalEventArgs e)
         {
             if (beforeValue == e.Value) return;
             beforeValue = e.Value;
-            Option.FilterValues = new List<object> { e.Value };
+            if (e.Value != null)
+            {
+                Option.FilterValues = new List<object> { e.Value };
+            }
+            else
+            {
+                Option.FilterValues = new List<object>();
+            }
+
             Option.UpdateFilter();
             ItemFilterEnabled.Enabled = Option.Enabled;
 

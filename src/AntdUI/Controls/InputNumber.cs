@@ -47,9 +47,9 @@ namespace AntdUI
             set => base.AllowClear = false;
         }
 
-        decimal? minimum, maximum;
+        double? minimum, maximum;
         [Description("最小值"), Category("数据"), DefaultValue(null)]
-        public decimal? Minimum
+        public double? Minimum
         {
             get => minimum;
             set
@@ -61,7 +61,7 @@ namespace AntdUI
         }
 
         [Description("最大值"), Category("数据"), DefaultValue(null)]
-        public decimal? Maximum
+        public double? Maximum
         {
             get => maximum;
             set
@@ -72,16 +72,17 @@ namespace AntdUI
             }
         }
 
-        decimal Constrain(decimal value)
+        double? Constrain(double? value)
         {
+            if (value == null) return null;
             if (minimum.HasValue && value < minimum.Value) value = minimum.Value;
             if (maximum.HasValue && value > maximum.Value) value = maximum.Value;
             return value;
         }
 
-        decimal currentValue = 0;
-        [Description("当前值"), Category("数据"), DefaultValue(typeof(decimal), "0")]
-        public decimal Value
+        double? currentValue = null;
+        [Description("当前值"), Category("数据"), DefaultValue(typeof(double?), null)]
+        public double? Value
         {
             get => currentValue;
             set
@@ -180,17 +181,21 @@ namespace AntdUI
         [Description("当按下箭头键时，是否持续增加/减少"), Category("行为"), DefaultValue(true)]
         public bool InterceptArrowKeys { get; set; } = true;
 
-        string GetNumberText(decimal num)
+        string GetNumberText(double? num)
         {
-            if (Hexadecimal) return ((long)num).ToString("X", CultureInfo.InvariantCulture);
-            return num.ToString((ThousandsSeparator ? "N" : "F") + DecimalPlaces.ToString(CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
+            if (num == null)
+            {
+                return null;
+            }
+            if (Hexadecimal) return ((long)num.Value).ToString("X", CultureInfo.InvariantCulture);
+            return num.Value.ToString(CultureInfo.CurrentCulture);
         }
 
         /// <summary>
         /// 每次单击箭头键时增加/减少的数量
         /// </summary>
-        [Description("每次单击箭头键时增加/减少的数量"), Category("数据"), DefaultValue(typeof(decimal), "1")]
-        public decimal Increment { get; set; } = 1;
+        [Description("每次单击箭头键时增加/减少的数量"), Category("数据"), DefaultValue(typeof(double), "1")]
+        public double Increment { get; set; } = 1;
 
         protected override void OnHandleCreated(EventArgs e)
         {
@@ -385,7 +390,23 @@ namespace AntdUI
         {
             if (showcontrol && !ReadOnly && rect_button.Contains(e.X, e.Y))
             {
-                if (decimal.TryParse(Text, out var _d)) Value = _d;
+                if (Text == null)
+                {
+                    currentValue = minimum ?? 0;
+                }
+                else
+                {
+                    if (hexadecimal)
+                    {
+                        currentValue = Convert.ToInt64(Text, 16);
+                    }
+                    else if (double.TryParse(Text, out var _d))
+                    {
+                        currentValue = _d;
+                    }
+
+                }
+
                 if (rect_button_up.Contains(e.X, e.Y))
                 {
                     Value = currentValue + Increment;
@@ -431,7 +452,12 @@ namespace AntdUI
         {
             if (keyData == Keys.Enter)
             {
-                if (decimal.TryParse(Text, out var _d)) Value = _d;
+                if (Text == null)
+                {
+                    Value = null;
+                }
+
+                if (double.TryParse(Text, out var _d)) Value = _d;
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
@@ -448,11 +474,20 @@ namespace AntdUI
             {
                 if (IsTextEmpty)
                 {
-                    Value = minimum ?? 0;
                     return;
                 }
-                if (decimal.TryParse(Text, out var _d)) Value = _d;
-                Text = GetNumberText(currentValue);
+                if (hexadecimal)
+                {
+                    Value = Convert.ToInt64(Text, 16);
+                }
+                else
+                {
+                    if (double.TryParse(Text, out var _d))
+                    {
+                        Value = _d;
+                    }
+                }
+
             }
         }
 

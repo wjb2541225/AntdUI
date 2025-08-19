@@ -82,18 +82,18 @@ namespace Demo.Controls
             input1.Size = new Size(220, 44);
             input1.TabIndex = 0;
             input1.Text = "1";
-            input1.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            input1.Value = 1;
             // 
             // input2
             // 
-            input2.DecimalPlaces = 1;
-            input2.Increment = new decimal(new int[] { 1, 0, 0, 65536 });
+            input2.DecimalPlaces = 3;
+            input2.Increment = 1;
             input2.Location = new Point(18, 54);
             input2.Name = "input2";
             input2.Size = new Size(220, 44);
             input2.TabIndex = 2;
             input2.Text = "1.0";
-            input2.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            input2.Value = 1;
             // 
             // input3
             // 
@@ -104,20 +104,21 @@ namespace Demo.Controls
             input3.Radius = 0;
             input3.Size = new Size(220, 44);
             input3.TabIndex = 1;
+            input3.Minimum = 0d;
             input3.Text = "0";
             // 
             // input4
             // 
-            input4.Increment = new decimal(new int[] { 1000, 0, 0, 0 });
+            input4.Increment = 1000;
             input4.Location = new Point(244, 54);
             input4.Name = "input4";
             input4.Radius = 0;
-            input4.ReadOnly = true;
+            input4.ReadOnly = false;
             input4.Size = new Size(220, 44);
             input4.TabIndex = 3;
             input4.Text = "10,000";
             input4.ThousandsSeparator = true;
-            input4.Value = new decimal(new int[] { 10000, 0, 0, 0 });
+            input4.Value = 10000;
             // 
             // input5
             // 
@@ -127,7 +128,7 @@ namespace Demo.Controls
             input5.Size = new Size(220, 44);
             input5.TabIndex = 4;
             input5.Text = "10";
-            input5.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            input5.Value =10;
             // 
             // input6
             // 
@@ -137,7 +138,7 @@ namespace Demo.Controls
             input6.Size = new Size(220, 44);
             input6.TabIndex = 5;
             input6.Text = "1";
-            input6.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            input6.Value = 1;
             // 
             // panel1
             // 

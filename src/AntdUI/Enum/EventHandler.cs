@@ -58,9 +58,9 @@ namespace AntdUI
 
     #region Decimal
 
-    public class DecimalEventArgs : VEventArgs<decimal>
+    public class DecimalEventArgs : VEventArgs<double?>
     {
-        public DecimalEventArgs(decimal value) : base(value) { }
+        public DecimalEventArgs(double? value) : base(value) { }
     }
 
     /// <summary>
