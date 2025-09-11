@@ -30,6 +30,7 @@ namespace AntdUI
     /// <summary>
     /// Select 选择器
     /// </summary>
+    /// <seealso cref="Input"/>
     /// <remarks>下拉选择器。</remarks>
     [Description("Select 选择器")]
     [ToolboxItem(true)]
@@ -730,6 +731,8 @@ namespace AntdUI
         /// </summary>
         public IList<object>? Sub { get; set; }
 
+        public int MaxCount { get; set; }
+
         public object Tag { get; set; }
 
         #region 主题
@@ -839,6 +842,12 @@ namespace AntdUI
         public SelectItem SetSub(params object[] value)
         {
             Sub = value;
+            return this;
+        }
+
+        public SelectItem SetSub(int value)
+        {
+            MaxCount = value;
             return this;
         }
 
@@ -1075,8 +1084,12 @@ namespace AntdUI
             ForeSub = item.ForeSub;
             BackActive = item.BackActive;
             BackActiveExtend = item.BackActiveExtend;
+            MaxCount = item.MaxCount;
         }
 
+        /// <summary>
+        /// 线条布局
+        /// </summary>
         public ObjectItem(int i, Rectangle rect)
         {
             I = i;
@@ -1119,6 +1132,8 @@ namespace AntdUI
         /// 子选项
         /// </summary>
         public IList<object>? Sub { get; set; }
+
+        public int MaxCount { get; set; }
 
         public object Tag { get; set; }
         public SelectItem? Select { get; set; }
@@ -1262,6 +1277,7 @@ namespace AntdUI
             BackActiveExtend = item.BackActiveExtend;
             Rect = rect;
             RectCheck = rect_check;
+            MaxCount = item.MaxCount;
         }
 
         public ObjectItemCheck(Rectangle rect)
@@ -1305,6 +1321,8 @@ namespace AntdUI
         /// 子选项
         /// </summary>
         public IList<object>? Sub { get; set; }
+
+        public int MaxCount { get; set; }
 
         public object Tag { get; set; }
 

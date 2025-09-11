@@ -40,6 +40,22 @@ namespace AntdUI
     {
         #region 属性
 
+        /// <summary>
+        /// 自动大小
+        /// </summary>
+        [Browsable(true)]
+        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        public override bool AutoSize
+        {
+            get => base.AutoSize;
+            set
+            {
+                if (base.AutoSize == value) return;
+                base.AutoSize = value;
+                LoadLayout(false);
+            }
+        }
+
         Color? fore;
         /// <summary>
         /// 文字颜色
@@ -54,6 +70,22 @@ namespace AntdUI
                 if (fore == value) return;
                 fore = value;
                 Invalidate();
+            }
+        }
+
+        Color? foreActive;
+        /// <summary>
+        /// 文字激活颜色
+        /// </summary>
+        [Description("文字激活颜色"), Category("外观"), DefaultValue(null)]
+        [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
+        public Color? ForeActive
+        {
+            get => foreActive;
+            set
+            {
+                if (foreActive == value) return;
+                foreActive = value;
             }
         }
 
@@ -239,17 +271,9 @@ namespace AntdUI
             set
             {
                 if (fontExpand == value) return;
-
                 fontExpand = value;
                 Invalidate();
-
             }
-        }
-
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-            if (fontExpand == null) fontExpand = new Font(Font, FontStyle.Bold);
         }
 
         #endregion
@@ -262,9 +286,10 @@ namespace AntdUI
             LoadLayout(false);
         }
 
+        internal bool canset = true;
         protected override void OnSizeChanged(EventArgs e)
         {
-            LoadLayout(false);
+            if (canset) LoadLayout(false);
             base.OnSizeChanged(e);
         }
 
@@ -359,6 +384,13 @@ namespace AntdUI
                         int y = rect.Y + use_y;
                         use_y += LoadLayout(g, it, rect, size, title_height, gap, gap_x, gap_y, content_x, content_y, full_h, it.Full, y);
                     }
+                }
+
+                if (AutoSize)
+                {
+                    int rh = use_y + Margin.Vertical;
+                    if (InvokeRequired) BeginInvoke(() => Height = rh);
+                    else Height = rh;
                 }
             });
         }
@@ -660,8 +692,6 @@ namespace AntdUI
         void PaintItemIconText(Canvas g, CollapseItem item, SolidBrush fore)
         {
             Rectangle rect = item.RectText;
-            Color foreColor = fore.Color;
-            if (item.Expand) fore.Color = AntdUI.Style.Db.PrimaryActive;
             if (item.HasIcon)
             {
                 int height = rect.Height * 2;
@@ -680,8 +710,8 @@ namespace AntdUI
                 int fs = (int)(fnt.Size - Font.Size);
                 rect.Inflate(fs, fs);
             }
-            g.String(item.Text, fnt, fore, rect, s_l);
-            fore.Color = foreColor;
+            if (item.Expand && foreActive.HasValue) g.String(item.Text, fnt, foreActive.Value, rect, s_l);
+            else g.String(item.Text, fnt, fore, rect, s_l);
         }
         void PaintItem(Canvas g, CollapseItem item, SolidBrush fore, Pen pen_arr)
         {
@@ -1135,6 +1165,7 @@ namespace AntdUI
                 if (value) PARENT?.UniqueOne(this);
                 if (PARENT != null && PARENT.IsHandleCreated && Config.HasAnimation(nameof(Collapse)))
                 {
+                    if (PARENT.AutoSize) PARENT.canset = false;
                     Location = new Point(-Width, -Height);
                     ThreadExpand?.Dispose();
                     float oldval = -1;
@@ -1149,6 +1180,7 @@ namespace AntdUI
                             PARENT.LoadLayout();
                         }, () =>
                         {
+                            if (PARENT.AutoSize) PARENT.canset = true;
                             ExpandProg = 1F;
                             ExpandThread = false;
                             PARENT.LoadLayout();
@@ -1162,6 +1194,7 @@ namespace AntdUI
                             PARENT.LoadLayout();
                         }, () =>
                         {
+                            if (PARENT.AutoSize) PARENT.canset = true;
                             ExpandProg = 1F;
                             ExpandThread = false;
                             PARENT.LoadLayout();
@@ -1277,6 +1310,7 @@ namespace AntdUI
         internal bool HasIcon => iconSvg != null || Icon != null;
 
         #endregion
+
         #endregion
 
         #region 坐标

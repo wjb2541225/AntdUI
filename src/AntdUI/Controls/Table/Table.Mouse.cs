@@ -73,7 +73,7 @@ namespace AntdUI
                     }
                     shift_index = i_row;
                     if (dataSource is BindingSource bindingSource) bindingSource.Position = i_row - 1;
-                    var it = rows[i_row];
+                    var it = cell.ROW;
                     if (mode > 0)
                     {
                         if (moveheaders.Length > 0)
@@ -734,7 +734,8 @@ namespace AntdUI
                         int countmove = 0;
                         for (int i = 1; i < rows.Length; i++)
                         {
-                            if (i == i_row)
+                            var row = rows[i];
+                            if (row.INDEX == i_row)
                             {
                                 if (cel_sel is TCellSort sort)
                                 {

@@ -23,10 +23,11 @@ using System.Windows.Forms;
 
 namespace AntdUI
 {
-    public class ScrollBar
+    public class ScrollBar : IScrollBar
     {
         #region 属性
 
+        IScrollBar? Target { get; set; }
         internal int Radius { get; set; }
         internal bool RB { get; set; }
 
@@ -79,6 +80,7 @@ namespace AntdUI
             EnabledX = enabledX;
             EnabledY = enabledY;
             Init();
+            if (control is IScrollBar scroll) Target = scroll;
         }
 
         void Init()
@@ -131,9 +133,11 @@ namespace AntdUI
             {
                 if (showY == value) return;
                 showY = value;
+                OnShowYChanged(value);
+                Target?.OnShowYChanged(value);
+                ShowYChanged?.Invoke(this, EventArgs.Empty);
                 Invalidate(null);
                 ChangeSize?.Invoke();
-                ShowYChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -154,8 +158,10 @@ namespace AntdUI
                 }
                 if (valueY == value) return;
                 valueY = value;
-                Invalidate(null);
+                OnValueYChanged(value);
+                Target?.OnValueYChanged(value);
                 ValueYChanged?.Invoke(this, EventArgs.Empty);
+                Invalidate(null);
             }
         }
 
@@ -245,9 +251,11 @@ namespace AntdUI
             {
                 if (showX == value) return;
                 showX = value;
+                OnShowXChanged(value);
+                Target?.OnShowXChanged(value);
+                ShowXChanged?.Invoke(this, EventArgs.Empty);
                 Invalidate(null);
                 ChangeSize?.Invoke();
-                ShowXChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -268,8 +276,10 @@ namespace AntdUI
                 }
                 if (valueX == value) return;
                 valueX = value;
-                Invalidate(null);
+                OnValueXChanged(value);
+                Target?.OnValueXChanged(value);
                 ValueXChanged?.Invoke(this, EventArgs.Empty);
+                Invalidate(null);
             }
         }
 
@@ -343,11 +353,13 @@ namespace AntdUI
 
         #region 布局
 
+        Rectangle Rect;
         /// <summary>
         /// 设置容器大小
         /// </summary>
         public void SizeChange(Rectangle rect)
         {
+            Rect = rect;
             if (SIZE > 0)
             {
                 RectX = new Rectangle(rect.X, rect.Bottom - SIZE, rect.Width, SIZE);
@@ -427,9 +439,10 @@ namespace AntdUI
         public virtual void Paint(Canvas g, Color baseColor)
         {
             if (SIZE == 0) return;
+            bool showy = showY && EnabledY, showx = showX && EnabledX;
             if (Config.ScrollBarHide)
             {
-                if (showY && showX)
+                if (showy && showx)
                 {
                     if (Back && ((hoverY || AnimationHoverY) || (hoverX || AnimationHoverX)))
                     {
@@ -467,7 +480,7 @@ namespace AntdUI
                     PaintX(g, baseColor);
                     PaintY(g, baseColor);
                 }
-                else if (showY)
+                else if (showy)
                 {
                     if (Back && (hoverY || AnimationHoverY))
                     {
@@ -486,7 +499,7 @@ namespace AntdUI
                     }
                     PaintY(g, baseColor);
                 }
-                else if (showX)
+                else if (showx)
                 {
                     if (Back && (hoverX || AnimationHoverX))
                     {
@@ -508,7 +521,7 @@ namespace AntdUI
             }
             else
             {
-                if (showY && showX)
+                if (showy && showx)
                 {
                     if (Back)
                     {
@@ -541,7 +554,7 @@ namespace AntdUI
                     PaintX(g, baseColor);
                     PaintY(g, baseColor);
                 }
-                else if (showY)
+                else if (showy)
                 {
                     if (Back)
                     {
@@ -560,7 +573,7 @@ namespace AntdUI
                     }
                     PaintY(g, baseColor);
                 }
-                else if (showX)
+                else if (showx)
                 {
                     if (Back)
                     {
@@ -700,7 +713,7 @@ namespace AntdUI
                 if (slider.Contains(X, Y)) SliderX = slider.X;
                 else
                 {
-                    float read = RectX.Width - (showY ? SIZE : 0), x = (X - slider.Width / 2F) / read;
+                    float read = RectX.Width - (showY ? SIZE : 0), x = ((X - RectX.X) - slider.Width / 2F) / read;
                     ValueX = (int)Math.Round(x * maxX);
                     SliderX = RectSliderFullX().X;
                 }
@@ -724,7 +737,7 @@ namespace AntdUI
                 if (slider.Contains(X, Y)) SliderY = slider.Y;
                 else
                 {
-                    float read = RectY.Height - (showX ? SIZE : 0), y = (Y - slider.Height / 2F) / read;
+                    float read = RectY.Height - (showX ? SIZE : 0), y = ((Y - RectY.Y) - slider.Height / 2F) / read;
                     ValueY = (int)Math.Round(y * maxY);
                     SliderY = RectSliderFullY().Y;
                 }
@@ -748,7 +761,7 @@ namespace AntdUI
                 {
                     HoverX = true;
                     var slider = RectSliderFullX();
-                    float read = RectX.Width - (showY ? SIZE : 0), x = SliderX + X - oldX;
+                    float read = RectX.Width - (showY ? SIZE : 0), x = SliderX + ((X - RectX.X) - oldX);
                     ValueX = (int)(x / (read - slider.Width) * (maxX - RectX.Width));
                     return false;
                 }
@@ -770,7 +783,7 @@ namespace AntdUI
                 {
                     HoverY = true;
                     var slider = RectSliderFullY();
-                    float read = RectY.Height - (showX ? SIZE : 0), y = SliderY + Y - oldY;
+                    float read = RectY.Height - (showX ? SIZE : 0), y = SliderY + ((Y - RectY.Y) - oldY);
                     ValueY = (int)(y / (read - slider.Height) * (maxY - RectY.Height));
                     return false;
                 }
@@ -1006,6 +1019,27 @@ namespace AntdUI
 
         #endregion
 
+        #region 方法
+
+        public bool Contains(Point e) => Contains(e.X, e.Y);
+        public bool Contains(int X, int Y)
+        {
+            if ((EnabledX || EnabledY) && Rect.Contains(X, Y)) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// 判断是否到达纵向滚动条最底部
+        /// </summary>
+        public bool IsAtBottom => showY ? valueY >= (maxY - RectY.Height) : false;
+
+        /// <summary>
+        /// 判断是否到达横向滚动条最右边
+        /// </summary>
+        public bool IsAtRight => showX ? valueX >= (maxX - RectX.Width) : false;
+
+        #endregion
+
         #region 事件
 
         public event EventHandler? ShowYChanged;
@@ -1013,9 +1047,22 @@ namespace AntdUI
         public event EventHandler? ValueYChanged;
         public event EventHandler? ValueXChanged;
 
+        public virtual void OnShowXChanged(bool value) { }
+        public virtual void OnShowYChanged(bool value) { }
+        public virtual void OnValueXChanged(int value) { }
+        public virtual void OnValueYChanged(int value) { }
+
         #endregion
 
         public void Dispose()
         { ThreadHoverY?.Dispose(); ThreadHoverX?.Dispose(); }
+    }
+
+    public interface IScrollBar
+    {
+        void OnShowXChanged(bool value);
+        void OnShowYChanged(bool value);
+        void OnValueXChanged(int value);
+        void OnValueYChanged(int value);
     }
 }
