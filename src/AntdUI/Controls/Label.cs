@@ -839,18 +839,16 @@ namespace AntdUI
         {
             tooltipForm?.Close();
             tooltipForm = null;
-            if (ellipsis && ShowTooltip && Text != null)
+            if (ellipsis && ShowTooltip && Text != null && tooltipForm == null)
             {
-                if (tooltipForm == null)
+                tooltipForm = new TooltipForm(this, Text, TooltipConfig ?? new TooltipConfig
                 {
-                    tooltipForm = new TooltipForm(this, Text, TooltipConfig ?? new TooltipConfig
-                    {
-                        Font = Font,
-                        ArrowAlign = TAlign.Top,
-                    });
-                    tooltipForm.Show(this);
-                }
+                    Font = Font,
+                    ArrowAlign = TAlign.Top
+                });
+                tooltipForm.Show(this);
             }
+
             base.OnMouseHover(e);
         }
 
@@ -903,6 +901,22 @@ namespace AntdUI
         /// </summary>
         [Description("自动大小填充边距（仅 MiddleCenter）"), Category("外观"), DefaultValue(false)]
         public bool AutoSizePadding { get; set; }
+
+        public void ShowToolTip()
+        {
+            tooltipForm?.Close();
+            tooltipForm = null;
+            if (ellipsis && ShowTooltip && Text != null && tooltipForm == null)
+            {
+                tooltipForm = new TooltipForm(this, Text, TooltipConfig ?? new TooltipConfig
+                {
+                    Font = Font,
+                    ArrowAlign = TAlign.Top
+                });
+                tooltipForm.Show(this);
+            }
+        }
+
 
         protected override void OnFontChanged(EventArgs e)
         {

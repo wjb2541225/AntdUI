@@ -379,7 +379,7 @@ namespace AntdUI
 
         protected override void OnClick(EventArgs e)
         {
-            if (AutoCheck) Checked = !_checked;
+            if (AutoCheck && Enabled) Checked = !_checked;
             base.OnClick(e);
         }
 
