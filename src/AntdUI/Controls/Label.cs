@@ -22,7 +22,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Runtime.ConstrainedExecution;
 
 namespace AntdUI
 {
@@ -210,29 +209,9 @@ namespace AntdUI
             }
         }
 
-        private Size? _prefixImageSize;
-        [Description("前缀图片大小"), Category("外观"), DefaultValue(null)]
-        public Size? PrefixImageSize
-        {
-            get
-            {
-                return _prefixImageSize;
-            }
-            set
-            {
-                if (_prefixImageSize != value)
-                {
-                    _prefixImageSize = value;
-                    IOnSizeChanged();
-                    if (BeforeAutoSize()) Invalidate();
-                    OnPropertyChanged(nameof(PrefixImageSize));
-                }
-            }
-        }
-
         private Image? _suffixImage;
 
-        [Description("后缀图片"), Category("外观"), DefaultValue(null)]
+        [Description("前缀图片"), Category("外观"), DefaultValue(null)]
         public Image? SuffixImage
         {
             get
@@ -247,26 +226,6 @@ namespace AntdUI
                     IOnSizeChanged();
                     if (BeforeAutoSize()) Invalidate();
                     OnPropertyChanged(nameof(SuffixImage));
-                }
-            }
-        }
-
-        private Size? _suffixImageSize;
-        [Description("后缀图片大小"), Category("外观"), DefaultValue(null)]
-        public Size? SuffixImageSize
-        {
-            get
-            {
-                return _suffixImageSize;
-            }
-            set
-            {
-                if (_suffixImageSize != value)
-                {
-                    _suffixImageSize = value;
-                    IOnSizeChanged();
-                    if (BeforeAutoSize()) Invalidate();
-                    OnPropertyChanged(nameof(SuffixImageSize));
                 }
             }
         }
@@ -628,58 +587,18 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     var rect_l = RecFixAuto(xOffset, icon_size, rect_read, font_size);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                        var height = _prefixImageSize.Value.Height;
-                        if (_prefixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_l = RecFixAuto(xOffset, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_prefixImage!, rect_l);
                     xOffset += icon_size + gap;
                 }
 
                 // 计算可用宽度
                 int availableWidth = rect_read.Width;
-                if (has_suffix || has_suffixText || _prefixImage != null)
-                {
-                    availableWidth -= gap;
-                }// 为后缀留出间隙
-                if (has_prefix || PrefixImage != null)
-                {
-                    int icon_size = (int)(font_size.Height * iconratio);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                    }
-                    availableWidth -= icon_size;
-                }
-                else if (has_prefixText)
-                {
-                    availableWidth -= g.MeasureText(Prefix, Font, 0, stringCNoWrap).Width;
-                }
-                if (has_suffix || _suffixImage != null)
-                {
-                    var width = (int)(font_size.Height * iconratio);
-                    if (_prefixImageSize != null)
-                    {
-                        width = _prefixImageSize.Value.Width;
-                    }
-                    availableWidth -= width;
-                }
-                else if (has_suffixText)
-                {
-                    availableWidth -= g.MeasureText(Suffix, Font, 0, stringCNoWrap).Width;
-                }
+                if (has_suffix || has_suffixText) availableWidth -= gap; // 为后缀留出间隙
 
+                if (has_suffix) availableWidth -= (int)(font_size.Height * iconratio);
+                else if (has_suffixText) availableWidth -= g.MeasureText(Suffix, Font, 0, stringCNoWrap).Width;
 
-                if (text_width > availableWidth)
-                {
-                    text_width = availableWidth;
-                }
+                if (text_width > availableWidth) text_width = availableWidth;
 
                 Rectangle textRect = new Rectangle(xOffset, rect_read.Y, text_width, rect_read.Height);
 
@@ -705,20 +624,7 @@ namespace AntdUI
                 {
                     int suffixX = xOffset + text_width + gap;
                     int icon_size = (int)(font_size.Height * iconratio);
-                    if (_suffixImageSize != null)
-                    {
-                        icon_size = _suffixImageSize.Value.Width;
-                    }
                     var rect_r = RecFixAuto(suffixX, icon_size, rect_read, font_size);
-                    if (_suffixImageSize != null)
-                    {
-                        var height = _suffixImageSize.Value.Height;
-                        if (_suffixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_r = RecFixAuto(xOffset, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_suffixImage!, rect_r);
                 }
 
@@ -727,10 +633,7 @@ namespace AntdUI
             else
             {
                 // Highlight 为 false 时，文本左对齐，但仍需渲染前后缀
-                if (text_width > rect_read.Width)
-                {
-                    text_width = rect_read.Width;
-                }
+                if (text_width > rect_read.Width) text_width = rect_read.Width;
 
                 Rectangle textRect = new Rectangle(xOffset, rect_read.Y, text_width, rect_read.Height);
 
@@ -751,16 +654,6 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     Rectangle rect_l = RecFixAuto(xOffset - icon_size - gap, icon_size, rect_read, font_size);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                        var height = _prefixImageSize.Value.Height;
-                        if (_prefixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_l = RecFixAuto(xOffset - icon_size - gap, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_prefixImage!, rect_l);
                 }
 
@@ -781,16 +674,6 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     Rectangle rect_r = RecFixAuto(xOffset + text_width + gap, icon_size, rect_read, font_size);
-                    if (_suffixImageSize != null)
-                    {
-                        icon_size = _suffixImageSize.Value.Width;
-                        var height = _suffixImageSize.Value.Height;
-                        if (_suffixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_r = RecFixAuto(xOffset + text_width + gap, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_suffixImage!, rect_r);
                 }
                 return textRect;
@@ -825,46 +708,18 @@ namespace AntdUI
                 else if (_suffixImage != null)
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
-                    if (_suffixImageSize != null)
-                    {
-                        icon_size = _suffixImageSize.Value.Width;
-                    }
                     int suffixX = rightEdge - icon_size;
                     var rect_r = RecFixAuto(suffixX, icon_size, rect_read, font_size);
-                    if (_suffixImageSize != null)
-                    {
-                        var height = _suffixImageSize.Value.Height;
-                        if (_suffixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_r = RecFixAuto(suffixX, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_suffixImage!, rect_r);
                     rightEdge -= icon_size + gap;
                 }
 
                 // 计算可用宽度
                 int availableWidth = rightEdge - rect_read.X;
-                if (has_prefix || has_prefixText || PrefixImage != null)
-                {
+                if (has_prefix || has_prefixText) availableWidth -= gap; // 为前缀留出间隙
 
-                    availableWidth -= gap;
-                } // 为前缀留出间隙
-
-                if (has_prefix || PrefixImage != null)
-                {
-                    int icon_size = (int)(font_size.Height * iconratio);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                    }
-                    availableWidth -= icon_size;
-                }
-                else if (has_prefixText)
-                {
-                    availableWidth -= g.MeasureText(Prefix, Font, 0, stringCNoWrap).Width;
-                }
+                if (has_prefix) availableWidth -= (int)(font_size.Height * iconratio);
+                else if (has_prefixText) availableWidth -= g.MeasureText(Prefix, Font, 0, stringCNoWrap).Width;
 
                 if (text_width > availableWidth) text_width = availableWidth;
 
@@ -895,22 +750,8 @@ namespace AntdUI
                 {
                     int prefixX = textX - gap;
                     int icon_size = (int)(font_size.Height * iconratio);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                    }
                     prefixX -= icon_size;
                     var rect_l = RecFixAuto(prefixX, icon_size, rect_read, font_size);
-                    if (_prefixImageSize != null)
-                    {
-
-                        var height = _prefixImageSize.Value.Height;
-                        if (_prefixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_l = RecFixAuto(prefixX, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_prefixImage!, rect_l);
                 }
 
@@ -941,16 +782,6 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     Rectangle rect_l = RecFixAuto(textX - icon_size - gap, icon_size, rect_read, font_size);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                        var height = _prefixImageSize.Value.Height;
-                        if (_prefixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_l = RecFixAuto(textX - icon_size - gap, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_prefixImage!, rect_l);
                 }
 
@@ -971,16 +802,6 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     Rectangle rect_r = RecFixAuto(textX + text_width + gap, icon_size, rect_read, font_size);
-                    if (_suffixImageSize != null)
-                    {
-                        icon_size = _suffixImageSize.Value.Width;
-                        var height = _suffixImageSize.Value.Height;
-                        if (_suffixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_r = RecFixAuto(textX + text_width + gap, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_suffixImage!, rect_r);
                 }
 
@@ -996,40 +817,12 @@ namespace AntdUI
             {
                 // 计算前缀宽度
                 int prefixWidth = 0;
-                if (has_prefix)
-                {
-                    prefixWidth = (int)(font_size.Height * iconratio) + gap;
-                }
-                else if (PrefixImage != null)
-                {
-                    if (_prefixImageSize == null)
-                    {
-                        prefixWidth = (int)(font_size.Height * iconratio) + gap;
-                    }
-                    else
-                    {
-                        prefixWidth = _prefixImageSize.Value.Width + gap;
-                    }
-                }
+                if (has_prefix) prefixWidth = (int)(font_size.Height * iconratio) + gap;
                 else if (has_prefixText) prefixWidth = g.MeasureText(Prefix, Font, 0, stringCNoWrap).Width + gap;
 
                 // 计算后缀宽度
                 int suffixWidth = 0;
-                if (has_suffix)
-                {
-                    suffixWidth = (int)(font_size.Height * iconratio) + gap;
-                }
-                else if (SuffixImage != null)
-                {
-                    if (_suffixImageSize == null)
-                    {
-                        suffixWidth = (int)(font_size.Height * iconratio) + gap;
-                    }
-                    else
-                    {
-                        suffixWidth = _suffixImageSize.Value.Width + gap;
-                    }
-                }
+                if (has_suffix) suffixWidth = (int)(font_size.Height * iconratio) + gap;
 
                 else if (has_suffixText) suffixWidth = g.MeasureText(Suffix, Font, 0, stringCNoWrap).Width + gap;
 
@@ -1056,16 +849,6 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     Rectangle rect_l = RecFixAuto(cex, icon_size, rect_read, font_size);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                        var height = _prefixImageSize.Value.Height;
-                        if (_prefixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_l = RecFixAuto(cex, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_prefixImage!, rect_l);
                     cex += icon_size + gap;
                 }
@@ -1094,21 +877,8 @@ namespace AntdUI
                 else if (_suffixImage != null)
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
-                    if (_suffixImageSize != null)
-                    {
-                        icon_size = _suffixImageSize.Value.Width;
-                    }
                     int suffixX = cex + text_width + gap;
                     Rectangle rect_r = RecFixAuto(suffixX, icon_size, rect_read, font_size);
-                    if (_suffixImageSize != null)
-                    {
-                        var height = _suffixImageSize.Value.Height;
-                        if (_suffixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_r = RecFixAuto(suffixX, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_suffixImage!, rect_r);
                 }
 
@@ -1138,16 +908,6 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     Rectangle rect_l = RecFixAuto(cex - icon_size - gap, icon_size, rect_read, font_size);
-                    if (_prefixImageSize != null)
-                    {
-                        icon_size = _prefixImageSize.Value.Width;
-                        var height = _prefixImageSize.Value.Height;
-                        if (_prefixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_l = RecFixAuto(cex - icon_size - gap, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_prefixImage!, rect_l);
                 }
 
@@ -1168,16 +928,6 @@ namespace AntdUI
                 {
                     int icon_size = (int)(font_size.Height * iconratio);
                     Rectangle rect_r = RecFixAuto(cex + text_width + gap, icon_size, rect_read, font_size);
-                    if (_suffixImageSize != null)
-                    {
-                        icon_size = _suffixImageSize.Value.Width;
-                        var height = _suffixImageSize.Value.Height;
-                        if (_suffixImageSize.Value.Height > rect_read.Height)
-                        {
-                            height = rect_read.Height;
-                        }
-                        rect_r = RecFixAuto(cex + text_width + gap, icon_size, height, rect_read, font_size);
-                    }
                     g.GetImgExtend(_suffixImage!, rect_r);
                 }
 
@@ -1203,27 +953,6 @@ namespace AntdUI
         Rectangle RecFix(int x, int w, Rectangle rect_read) => new Rectangle(x, rect_read.Y, w, rect_read.Height);
         Rectangle RecFixT(int x, int w, Rectangle rect_read, Size font_size) => new Rectangle(x, rect_read.Y, w, font_size.Height);
         Rectangle RecFixB(int x, int w, Rectangle rect_read, Size font_size) => new Rectangle(x, rect_read.Bottom - font_size.Height, w, font_size.Height);
-
-
-        Rectangle RecFixAuto(int x, int w, int h, Rectangle rect_read, Size font_size)
-        {
-            switch (textAlign)
-            {
-                case ContentAlignment.TopLeft:
-                case ContentAlignment.TopRight:
-                case ContentAlignment.TopCenter:
-                    return RecFixT(x, w, h, rect_read, font_size);
-                case ContentAlignment.BottomLeft:
-                case ContentAlignment.BottomCenter:
-                case ContentAlignment.BottomRight:
-                    return RecFixB(x, w, h, rect_read, font_size);
-                default: return RecFix(x, w, h, rect_read);
-            }
-        }
-        Rectangle RecFix(int x, int w, int h, Rectangle rect_read) => new Rectangle(x, rect_read.Y + (rect_read.Height - h) / 2, w, h);
-        Rectangle RecFixT(int x, int w, int h, Rectangle rect_read, Size font_size) => new Rectangle(x, rect_read.Y, w, h);
-        Rectangle RecFixB(int x, int w, int h, Rectangle rect_read, Size font_size) => new Rectangle(x, rect_read.Bottom - h, w, h);
-
 
         #endregion
 
@@ -1334,50 +1063,20 @@ namespace AntdUI
                 {
                     var font_size = g.MeasureText(Text ?? Config.NullText, Font);
                     if (string.IsNullOrWhiteSpace(Text)) font_size.Width = 0;
-                    if (has_prefixText || has_suffixText || has_prefix || has_suffix || PrefixImage != null || SuffixImage != null)
+                    if (has_prefixText || has_suffixText || has_prefix || has_suffix)
                     {
                         float add = 0;
-                        if (has_prefix)
-                        {
-                            add += (int)(font_size.Height * iconratio);
-                        }
+                        if (has_prefix) add += (int)(font_size.Height * iconratio);
                         else if (has_prefixText)
                         {
                             var font_size_prefix = g.MeasureText(Prefix, Font).Width;
                             add += font_size_prefix;
                         }
-                        else if (PrefixImage != null)
-                        {
-                            if (PrefixImageSize != null)
-                            {
-                                add += PrefixImageSize.Value.Width;
-                            }
-                            else
-                            {
-                                add += (int)(font_size.Height * iconratio);
-                            }
-                        }
-
-
-                        if (has_suffix)
-                        {
-                            add += (int)(font_size.Height * iconratio);
-                        }
+                        if (has_suffix) add += (int)(font_size.Height * iconratio);
                         else if (has_suffixText)
                         {
                             var font_size_suffix = g.MeasureText(Suffix, Font).Width;
                             add += font_size_suffix;
-                        }
-                        else if (SuffixImage != null)
-                        {
-                            if (SuffixImageSize != null)
-                            {
-                                add += SuffixImageSize.Value.Width;
-                            }
-                            else
-                            {
-                                add += (int)(font_size.Height * iconratio);
-                            }
                         }
                         if (AutoSizePadding && textAlign == ContentAlignment.MiddleCenter) font_size = font_size.SizeEm(Font);
                         var tmp = font_size.SizeEm(Font).DeflateSize(Padding);
