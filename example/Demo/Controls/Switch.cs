@@ -29,10 +29,5 @@ namespace Demo.Controls
             form = _form;
             InitializeComponent();
         }
-
-        private void switch3_CheckedChanged(object sender, AntdUI.BoolEventArgs e)
-        {
-            switch1.Enabled = e.Value;
-        }
     }
 }
