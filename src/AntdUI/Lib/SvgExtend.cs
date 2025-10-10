@@ -42,16 +42,6 @@ namespace AntdUI
             return false;
         }
 
-        public static bool GetImgExtend(this Canvas g, Image img, Rectangle rect)
-        {
-            if (img != null && rect.Width > 0 && rect.Height > 0)
-            {
-                g.Image(img, rect);
-                return true;
-            }
-            return false;
-        }
-
         /// <summary>
         /// SVG转图片
         /// </summary>

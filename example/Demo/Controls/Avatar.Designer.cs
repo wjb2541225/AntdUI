@@ -48,7 +48,6 @@ namespace Demo.Controls
         {
             header1 = new AntdUI.PageHeader();
             panel1 = new System.Windows.Forms.Panel();
-            label1 = new AntdUI.Label();
             avatar11 = new AntdUI.Avatar();
             avatar10 = new AntdUI.Avatar();
             avatar9 = new AntdUI.Avatar();
@@ -80,7 +79,6 @@ namespace Demo.Controls
             // 
             // panel1
             // 
-            panel1.Controls.Add(label1);
             panel1.Controls.Add(avatar11);
             panel1.Controls.Add(avatar10);
             panel1.Controls.Add(avatar9);
@@ -97,17 +95,6 @@ namespace Demo.Controls
             panel1.Name = "panel1";
             panel1.Size = new Size(614, 372);
             panel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            label1.AutoSizeMode = AntdUI.TAutoSize.Auto;
-            label1.BackColor = Color.Transparent;
-            label1.Location = new Point(368, 125);
-            label1.Name = "label1";
-            label1.PrefixImage = Properties.Resources.img1;
-            label1.Size = new Size(54, 24);
-            label1.TabIndex = 11;
-            label1.Text = "label1";
             // 
             // avatar11
             // 
@@ -240,7 +227,6 @@ namespace Demo.Controls
             Name = "Avatar";
             Size = new Size(614, 446);
             panel1.ResumeLayout(false);
-            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -259,6 +245,5 @@ namespace Demo.Controls
         private AntdUI.Avatar avatar9;
         private AntdUI.Avatar avatar10;
         private AntdUI.Avatar avatar11;
-        private AntdUI.Label label1;
     }
 }
