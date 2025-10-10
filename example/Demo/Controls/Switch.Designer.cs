@@ -83,6 +83,7 @@ namespace Demo.Controls
             // switch4
             // 
             switch4.CheckedText = "on";
+            switch4.Enabled = false;
             switch4.Location = new Point(109, 167);
             switch4.Name = "switch4";
             switch4.Size = new Size(90, 38);
@@ -122,6 +123,7 @@ namespace Demo.Controls
             switch3.Size = new Size(90, 38);
             switch3.TabIndex = 10;
             switch3.UnCheckedText = "关闭";
+            switch3.CheckedChanged += switch3_CheckedChanged;
             // 
             // switch5
             // 
