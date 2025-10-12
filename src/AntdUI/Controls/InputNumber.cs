@@ -57,7 +57,7 @@ namespace AntdUI
             {
                 minimum = value;
                 if (minimum.HasValue && maximum.HasValue && minimum.Value > maximum.Value) maximum = minimum.Value;
-                Value = Constrain(currentValue);
+                Value = Constrain(Value);
             }
         }
 
@@ -69,7 +69,7 @@ namespace AntdUI
             {
                 maximum = value;
                 if (minimum.HasValue && maximum.HasValue && minimum.Value > maximum.Value) minimum = maximum.Value;
-                Value = Constrain(currentValue);
+                Value = Constrain(Value);
             }
         }
 
@@ -83,7 +83,7 @@ namespace AntdUI
 
         double? currentValue = null;
         [Description("当前值"), Category("数据"), DefaultValue(typeof(double?), null)]
-        public double? Value
+        public virtual double? Value
         {
             get => currentValue;
             set
@@ -140,7 +140,7 @@ namespace AntdUI
             {
                 if (decimalPlaces == value) return;
                 decimalPlaces = value;
-                Text = GetNumberText(currentValue);
+                Text = GetNumberText(Value);
             }
         }
 
@@ -156,7 +156,7 @@ namespace AntdUI
             {
                 if (thousandsSeparator == value) return;
                 thousandsSeparator = value;
-                Text = GetNumberText(currentValue);
+                Text = GetNumberText(Value);
             }
         }
 
@@ -172,7 +172,7 @@ namespace AntdUI
             {
                 if (hexadecimal == value) return;
                 hexadecimal = value;
-                Text = GetNumberText(currentValue);
+                Text = GetNumberText(Value);
             }
         }
 
@@ -201,7 +201,7 @@ namespace AntdUI
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            Text = GetNumberText(currentValue);
+            Text = GetNumberText(Value);
         }
 
         #endregion
@@ -393,29 +393,29 @@ namespace AntdUI
             {
                 if (Text == null)
                 {
-                    currentValue = minimum ?? 0;
+                    Value = minimum ?? 0;
                 }
                 else
                 {
                     if (hexadecimal)
                     {
-                        currentValue = Convert.ToInt64(Text, 16);
+                        Value = Convert.ToInt64(Text, 16);
                     }
                     else if (double.TryParse(Text, out var _d))
                     {
-                        currentValue = _d;
+                        Value = _d;
                     }
 
                 }
 
                 if (rect_button_up.Contains(e.X, e.Y))
                 {
-                    Value = currentValue + Increment;
+                    Value = Value + Increment;
                     isdownup = true;
                 }
                 else
                 {
-                    Value = currentValue - Increment;
+                    Value = Value - Increment;
                     isdowndown = true;
                 }
                 if ((isdownup || isdowndown) && InterceptArrowKeys)
@@ -428,13 +428,13 @@ namespace AntdUI
                         System.Threading.Thread.Sleep(500);
                         while (isdownup || isdowndown && _downid == downid)
                         {
-                            var old = currentValue;
+                            var old = Value;
                             Invoke(() =>
                             {
-                                if (isdownup) Value = currentValue + Increment;
-                                else if (isdowndown) Value = currentValue - Increment;
+                                if (isdownup) Value = Value + Increment;
+                                else if (isdowndown) Value = Value - Increment;
                             });
-                            if (old == currentValue) return;
+                            if (old == Value) return;
                             System.Threading.Thread.Sleep(200);
                         }
                     });
@@ -496,8 +496,8 @@ namespace AntdUI
         {
             base.OnMouseWheel(e);
             if (ReadOnly || !wheelModifyEnabled) return;
-            if (e.Delta > 0) Value = currentValue + Increment;
-            else Value = currentValue - Increment;
+            if (e.Delta > 0) Value = Value + Increment;
+            else Value = Value - Increment;
             if (e is HandledMouseEventArgs handled) handled.Handled = true;
         }
 
