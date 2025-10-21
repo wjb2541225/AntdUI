@@ -29,5 +29,18 @@ namespace Demo.Controls
             form = _form;
             InitializeComponent();
         }
+
+        private void InputNumber_Load(object sender, System.EventArgs e)
+        {
+            input1.Text = "3";
+            input1.TextChanged += Input1_TextChanged;
+
+            
+        }
+
+        private void Input1_TextChanged(object sender, System.EventArgs e)
+        {
+            input2.Text = input1.Value?.ToString();
+        }
     }
 }
