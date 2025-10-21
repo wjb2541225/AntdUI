@@ -276,6 +276,14 @@ namespace AntdUI
         [Description("数据为空显示图片"), Category("外观"), DefaultValue(null)]
         public Image? EmptyImage { get; set; }
 
+        [Description("选中时的复选框图片"), Category("外观"), DefaultValue(null)]
+        public Image CheckedIamge { get; set; }
+        [Description("未选中时的复选框图片"), Category("外观"), DefaultValue(null)]
+
+        public Image UnCheckImage { get; set; }
+        [Description("半选中时的复选框图片"), Category("外观"), DefaultValue(null)]
+        public Image IndeterminateImage { get; set; }
+
         #endregion
 
         #region 事件
@@ -396,10 +404,28 @@ namespace AntdUI
                         foreach (var item in dir)
                         {
                             int check_count = 0;
+                            var state = CheckState.Unchecked;
                             foreach (var sub in item.Sub)
-                            { if (sub.CheckState == CheckState.Checked || sub.CheckState == CheckState.Indeterminate) check_count++; }
-                            if (check_count > 0) item.CheckState = check_count == item.Sub.Count ? CheckState.Checked : CheckState.Indeterminate;
-                            else item.CheckState = CheckState.Unchecked;
+                            {
+                                if (sub.CheckState == CheckState.Indeterminate)
+                                {
+                                    state = CheckState.Indeterminate;
+                                    break;
+                                }
+                                else if (sub.CheckState == CheckState.Checked)
+                                {
+                                    state = CheckState.Indeterminate;
+                                    check_count++;
+                                }
+                            }
+                            if (check_count == item.Sub.Count)
+                            {
+                                item.CheckState = CheckState.Checked;
+                            }
+                            else
+                            {
+                                item.CheckState = state;
+                            }
                         }
                     }
                     ChangeList(g, rect, null, items!, has, ref x, ref y, height, depth_gap, icon_size, gap, gapI, 0, true);
@@ -612,15 +638,42 @@ namespace AntdUI
                         }
                         else if (item.CheckState == CheckState.Indeterminate)
                         {
-                            g.Draw(Colour.BorderColor.Get("Tree", ColorScheme), bor2, path_check);
-                            g.Fill(Colour.Primary.Get("Tree", ColorScheme), PaintBlock(item.check_rect));
+                            if (IndeterminateImage == null)
+                            {
+                                g.Draw(Colour.BorderColor.Get("Tree", ColorScheme), bor2, path_check);
+                                g.Fill(Colour.Primary.Get("Tree", ColorScheme), PaintBlock(item.check_rect));
+                            }
+                            else
+                            {
+                                g.Image(IndeterminateImage, item.check_rect);
+                            }
+
+
                         }
                         else if (item.Checked)
                         {
-                            g.Fill(Colour.Primary.Get("Tree", ColorScheme), path_check);
-                            g.DrawLines(Colour.BgBase.Get("Tree", ColorScheme), bor2, PaintArrow(item.check_rect));
+                            if (CheckedIamge == null)
+                            {
+                                g.Fill(Colour.Primary.Get("Tree", ColorScheme), path_check);
+                                g.DrawLines(Colour.BgBase.Get("Tree", ColorScheme), bor2, PaintArrow(item.check_rect));
+                            }
+                            else
+                            {
+                                g.Image(CheckedIamge, item.check_rect);
+                            }
                         }
-                        else g.Draw(Colour.BorderColor.Get("Tree", ColorScheme), bor2, path_check);
+                        else
+                        {
+                            if (UnCheckImage == null)
+                            {
+                                g.Draw(Colour.BorderColor.Get("Tree", ColorScheme), bor2, path_check);
+                            }
+                            else
+                            {
+                                g.Image(UnCheckImage, item.check_rect);
+
+                            }
+                        }
                     }
                     else
                     {

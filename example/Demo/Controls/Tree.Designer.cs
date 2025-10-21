@@ -70,11 +70,13 @@ namespace Demo.Controls
             // tree1
             // 
             tree1.Checkable = true;
+            tree1.CheckedIamge = Properties.Resources.bg6;
             tree1.Dock = DockStyle.Left;
             tree1.Location = new Point(0, 74);
             tree1.Name = "tree1";
             tree1.Size = new Size(328, 328);
             tree1.TabIndex = 0;
+            tree1.UnCheckImage = Properties.Resources.bg2;
             tree1.NodeMouseClick += tree1_NodeMouseClick;
             // 
             // tree2
