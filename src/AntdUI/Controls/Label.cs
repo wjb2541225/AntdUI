@@ -844,7 +844,7 @@ namespace AntdUI
                     rightEdge -= icon_size + gap;
                 }
                 //避免从0开始绘制文本
-                rightEdge = rightEdge - 1;
+                rightEdge = rightEdge - 2;
                 // 计算可用宽度
                 int availableWidth = rightEdge - rect_read.X;
                 if (has_prefix || has_prefixText || PrefixImage != null)
@@ -869,7 +869,7 @@ namespace AntdUI
 
                 if (text_width > availableWidth) text_width = availableWidth;
 
-                int textX = rightEdge - text_width;
+                int textX = rightEdge - text_width + 2;
                 Rectangle textRect = new Rectangle(textX, rect_read.Y, text_width, rect_read.Height);
 
                 // 处理前缀

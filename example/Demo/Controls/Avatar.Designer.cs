@@ -101,17 +101,16 @@ namespace Demo.Controls
             // label1
             // 
             label1.AutoEllipsis = true;
-            label1.AutoSizeMode = AntdUI.TAutoSize.Width;
             label1.BackColor = Color.Transparent;
-            label1.IconGap = 4;
-            label1.Location = new Point(368, 125);
+            label1.IconGap = 8;
+            label1.Location = new Point(415, 127);
             label1.MaximumSize = new Size(92, 62);
             label1.Name = "label1";
-            label1.Size = new Size(92, 51);
+            label1.Size = new Size(27, 56);
             label1.SuffixImage = Properties.Resources.img1;
             label1.SuffixImageSize = new Size(20, 20);
             label1.TabIndex = 11;
-            label1.Text = "label1dddrdddd";
+            label1.Text = "label1rollback";
             label1.TextAlign = ContentAlignment.MiddleRight;
             // 
             // avatar11
@@ -245,7 +244,6 @@ namespace Demo.Controls
             Name = "Avatar";
             Size = new Size(614, 446);
             panel1.ResumeLayout(false);
-            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
