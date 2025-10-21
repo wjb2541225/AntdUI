@@ -107,11 +107,12 @@ namespace Demo.Controls
             label1.Location = new Point(368, 125);
             label1.MaximumSize = new Size(92, 62);
             label1.Name = "label1";
-            label1.PrefixImage = Properties.Resources.img1;
-            label1.PrefixImageSize = new Size(20, 20);
             label1.Size = new Size(92, 51);
+            label1.SuffixImage = Properties.Resources.img1;
+            label1.SuffixImageSize = new Size(20, 20);
             label1.TabIndex = 11;
             label1.Text = "label1dddrdddd";
+            label1.TextAlign = ContentAlignment.MiddleRight;
             // 
             // avatar11
             // 
