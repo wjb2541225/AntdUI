@@ -172,7 +172,7 @@ namespace Demo.Controls
             // inputNumberWithValueFormatter
             // 
             inputNumberWithValueFormatter.DecimalPlaces = 2;
-            inputNumberWithValueFormatter.Increment = new decimal(new int[] { 1000, 0, 0, 0 });
+            inputNumberWithValueFormatter.Increment =(double) new decimal(new int[] { 1000, 0, 0, 0 });
             inputNumberWithValueFormatter.Location = new Point(244, 152);
             inputNumberWithValueFormatter.Name = "inputNumberWithValueFormatter";
             inputNumberWithValueFormatter.Radius = 0;
@@ -180,12 +180,12 @@ namespace Demo.Controls
             inputNumberWithValueFormatter.TabIndex = 3;
             inputNumberWithValueFormatter.Text = "10,000.00";
             inputNumberWithValueFormatter.ThousandsSeparator = true;
-            inputNumberWithValueFormatter.Value = new decimal(new int[] { 10000, 0, 0, 0 });
+            inputNumberWithValueFormatter.Value = (double)new decimal(new int[] { 10000, 0, 0, 0 });
             // 
             // inputNumberWithoutValueFormatter
             // 
             inputNumberWithoutValueFormatter.DecimalPlaces = 2;
-            inputNumberWithoutValueFormatter.Increment = new decimal(new int[] { 1000, 0, 0, 0 });
+            inputNumberWithoutValueFormatter.Increment = (double)new decimal(new int[] { 1000, 0, 0, 0 });
             inputNumberWithoutValueFormatter.Location = new Point(18, 152);
             inputNumberWithoutValueFormatter.Name = "inputNumberWithoutValueFormatter";
             inputNumberWithoutValueFormatter.Radius = 0;
@@ -193,7 +193,7 @@ namespace Demo.Controls
             inputNumberWithoutValueFormatter.TabIndex = 3;
             inputNumberWithoutValueFormatter.Text = "10,000.00";
             inputNumberWithoutValueFormatter.ThousandsSeparator = true;
-            inputNumberWithoutValueFormatter.Value = new decimal(new int[] { 10000, 0, 0, 0 });
+            inputNumberWithoutValueFormatter.Value = (double)new decimal(new int[] { 10000, 0, 0, 0 });
             // 
             // InputNumber
             // 
