@@ -31,7 +31,11 @@ namespace AntdUI
     [Localizable(true)]
     public class IControl : Control, BadgeConfig
     {
-        public IControl(ControlType ctype = ControlType.Default)
+        public IControl() : this(ControlType.Default)
+        {
+
+        }
+        public IControl(ControlType ctype)
         {
             switch (ctype)
             {

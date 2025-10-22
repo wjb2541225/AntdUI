@@ -100,13 +100,13 @@ namespace Demo.Controls
             // 
             // label1
             // 
-            label1.AutoEllipsis = true;
+            label1.AutoSizeMode = AntdUI.TAutoSize.Height;
             label1.BackColor = Color.Transparent;
             label1.IconGap = 8;
             label1.Location = new Point(415, 127);
             label1.MaximumSize = new Size(92, 62);
             label1.Name = "label1";
-            label1.Size = new Size(27, 56);
+            label1.Size = new Size(92, 54);
             label1.SuffixImage = Properties.Resources.img1;
             label1.SuffixImageSize = new Size(20, 20);
             label1.TabIndex = 11;
@@ -244,6 +244,7 @@ namespace Demo.Controls
             Name = "Avatar";
             Size = new Size(614, 446);
             panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
         }
 

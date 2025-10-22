@@ -732,7 +732,7 @@ namespace AntdUI
                         {
                             height = rect_read.Height;
                         }
-                        rect_r = RecFixAuto(xOffset, icon_size, height, rect_read, font_size);
+                        rect_r = RecFixAuto(suffixX, icon_size, height, rect_read, font_size);
                     }
                     g.GetImgExtend(_suffixImage!, rect_r);
                 }
@@ -1350,6 +1350,14 @@ namespace AntdUI
                 {
                     var font_size = g.MeasureText(Text ?? Config.NullText, Font);
                     if (string.IsNullOrWhiteSpace(Text)) font_size.Width = 0;
+                    else
+                    {
+                        if (autoSize == TAutoSize.Height && font_size.Width > Width)
+                        {
+                            var rowGap = (Padding.Bottom == 0 ? 4 : Padding.Bottom);
+                            font_size.Height = (int)Math.Ceiling((double)font_size.Width / Width) * (Font.Height + rowGap) - rowGap;
+                        }
+                    }
                     if (has_prefixText || has_suffixText || has_prefix || has_suffix || PrefixImage != null || SuffixImage != null)
                     {
                         float add = 0;
@@ -1399,8 +1407,14 @@ namespace AntdUI
                         var tmp = font_size.SizeEm(Font).DeflateSize(Padding);
                         return new Size((int)Math.Ceiling(tmp.Width + add), tmp.Height);
                     }
-                    else if (AutoSizePadding && textAlign == ContentAlignment.MiddleCenter) return font_size.SizeEm(Font).DeflateSize(Padding);
-                    else return font_size.DeflateSize(Padding);
+                    else
+                    {
+
+
+                        if (AutoSizePadding && textAlign == ContentAlignment.MiddleCenter) return font_size.SizeEm(Font).DeflateSize(Padding);
+                        else return font_size.DeflateSize(Padding);
+                    }
+
                 });
             }
         }
