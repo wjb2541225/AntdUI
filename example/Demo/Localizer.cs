@@ -76,7 +76,7 @@ namespace Demo
 
                 #region DEMO
 
-                case "Overview.txt_search":// ‰»Îπÿº¸◊÷À—À˜...
+                case "Overview.txt_search"://ËæìÂÖ•ÂÖ≥ÈîÆÂ≠óÊêúÁ¥¢...
                     return "Keywords to search";
                 case "CopyOK":
                     return "copied";
@@ -376,6 +376,8 @@ namespace Demo
                     return "More types";
                 case "Message.divider2":
                     return "Message with loading indicator";
+                case "Message.divider3":
+                    return "System Sound";
 
                 //Modal ----------------------------
                 case "Modal.Text":
@@ -394,6 +396,8 @@ namespace Demo
                     return "Placement";
                 case "Notification.divider2":
                     return "More types";
+                case "Notification.divider3":
+                    return "System Sound";
 
                 //PageHeader ----------------------------
                 case "PageHeader.Text":
@@ -569,6 +573,10 @@ namespace Demo
                     return "EditMode";
                 case "Table.selectEditStyle":
                     return "EditStyle";
+                case "Table.selectFocusedStyle":
+                    return "FocusedStyle";
+                case "Table.checkScrollBarAvoidHeader":
+                    return "ScrollBar AvoidHeader";
                 case "Table.Column.name":
                     return "Name";
                 case "Table.Column.checkTitle":
@@ -801,11 +809,50 @@ namespace Demo
                 case "Watermark.btnClear":
                     return "Clear watermark";
 
+                case "Transfer.Text":
+                    return "Transfer";
+                case "Transfer.Description":
+                    return "Double column transfer choice box.";
+                case "Transfer.One":
+                    return "One Way";
+                case "Transfer.Reload":
+                    return "Reload";
+                case "Transfer.Items":
+                    return " items";
+                case "Transfer.Content":
+                    return "content";
+                case "Transfer.Option":
+                    return "option";
+                case "Transfer.Source":
+                    return "Source";
+                case "Transfer.Target":
+                    return "Target";
+                case "Transfer.SourceT":
+                    return "Source: ";
+                case "Transfer.TargetT":
+                    return "Target: ";
+
                 //Chart ----------------------------
                 case "Chart.Text":
                     return "Chart";
                 case "Chart.Description":
                     return "Visual chart library.";
+
+                //HyperlinkLabel ----------------------------
+                case "HyperlinkLabel.Text":
+                    return "HyperlinkLabel";
+                case "HyperlinkLabel.Description":
+                    return "Hyperlink text<a>";
+                case "HyperlinkLabel.divider1":
+                    return "Basic";
+                case "HyperlinkLabel.divider2":
+                    return "Center alignment";
+                case "HyperlinkLabel.divider3":
+                    return "Link with badge";
+                case "HyperlinkLabel.divider4":
+                    return "Custom Style";
+                case "HyperlinkLabel.divider5":
+                    return "Multiple links";
 
                 #endregion
 

@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -18,8 +18,10 @@
 // QQ: 17379620
 
 using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace AntdUI
@@ -62,13 +64,38 @@ namespace AntdUI
         /// </summary>
         public void EditModeClose()
         {
-            if (inEditMode)
+            if (inEditMode || _editControls.Count > 0)
             {
-                ScrollBar.OnInvalidate = null;
-                if (!focused)
+                var ids = _editControls.Keys.ToArray();
+                foreach (var id in ids)
                 {
-                    if (InvokeRequired) Invoke(Focus);
-                    else Focus();
+                    if (_editControls.TryRemove(id, out var obj))
+                    {
+                        id.LostFocus -= InputEdit_LostFocus;
+                        if (id is Select select)
+                        {
+                            select.SelectedValueChanged -= InputEdit_SelectedValueChanged;
+                            select.ClosedItem -= InputEdit_SelectedValueChanged;
+                            if (obj[1] is Action<bool, object?> call)
+                            {
+                                obj[1] = null;
+                                call(obj[0] == select.SelectedValue, select.SelectedValue);
+                            }
+                        }
+                        else id.KeyPress -= InputEdit_KeyPress;
+
+                        if (obj[1] != null)
+                        {
+                            if (obj[1] is Action<bool, string> call)
+                            {
+                                obj[1] = null;
+                                call(((string)obj[0]!) == id.Text, id.Text);
+                            }
+                        }
+                        Focus();
+                        id.Dispose();
+                        Controls.Remove(id);
+                    }
                 }
                 inEditMode = false;
             }
@@ -100,7 +127,53 @@ namespace AntdUI
                 it.ThreadHover = null;
             }
             bool multiline = cell.COLUMN.LineBreak;
-            if (cell is TCellText cellText)
+            if (column is ColumnSelect columnSelect)
+            {
+                object? value = null, val = null;
+                if (cell is TCellSelect cellSelect)
+                {
+                    value = cellSelect.value?.Tag;
+                    val = cellSelect.value;
+                }
+                bool isok = true;
+                if (CellBeginEdit != null) isok = CellBeginEdit(this, new TableEventArgs(value, it.RECORD, i_row, i_col, column));
+                if (!isok) return;
+                inEditMode = true;
+
+                BeginInvoke(() =>
+                {
+                    for (int i = 0; i < rows.Length; i++) rows[i].hover = i == i_row;
+                    var tmp_input = CreateInput(cell, sx, sy, multiline, val, rect);
+                    if (columnSelect.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
+                    else if (columnSelect.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
+                    var arge = new TableBeginEditInputStyleEventArgs(value, it.RECORD, i_row, i_col, column, tmp_input);
+                    CellBeginEditInputStyle?.Invoke(this, arge);
+                    if (arge.Input is Select select)
+                    {
+                        ShowSelect(select, (cf, _value) =>
+                        {
+                            bool isok_end = CellEndValueEdit?.Invoke(this, new TableEndValueEditEventArgs(_value, it.RECORD, i_row, i_col, column)) ?? true;
+                            if (isok_end && !cf)
+                            {
+                                if (cell is TCellSelect cellSelect)
+                                {
+                                    cellSelect!.value = cellSelect.COLUMN[_value];
+                                    SetValue(cell, _value);
+                                    if (multiline) LoadLayout();
+                                }
+                                else
+                                {
+                                    SetValue(cell, _value);
+                                    LoadLayout();
+                                }
+                                CellEditComplete?.Invoke(this, new ITableEventArgs(it.RECORD, i_row, i_col, column));
+                            }
+                        });
+                    }
+                    else arge.Input.Dispose();
+                });
+            }
+            else if (cell is TCellText cellText)
             {
                 object? value = null;
                 if (cell.PROPERTY != null && cell.VALUE != null) value = cell.PROPERTY.GetValue(cell.VALUE);
@@ -112,7 +185,6 @@ namespace AntdUI
                 if (!isok) return;
                 inEditMode = true;
 
-                ScrollBar.OnInvalidate = () => EditModeClose();
                 BeginInvoke(() =>
                 {
                     for (int i = 0; i < rows.Length; i++) rows[i].hover = i == i_row;
@@ -138,44 +210,6 @@ namespace AntdUI
                             CellEditComplete?.Invoke(this, new ITableEventArgs(it.RECORD, i_row, i_col, column));
                         }
                     });
-                    Controls.Add(arge.Input);
-                    arge.Input.Focus();
-                });
-            }
-            else if (cell is TCellSelect cellSelect)
-            {
-                object? value = cellSelect.value?.Tag;
-                bool isok = true;
-                if (CellBeginEdit != null) isok = CellBeginEdit(this, new TableEventArgs(value, it.RECORD, i_row, i_col, column));
-                if (!isok) return;
-                inEditMode = true;
-
-                ScrollBar.OnInvalidate = () => EditModeClose();
-                BeginInvoke(() =>
-                {
-                    for (int i = 0; i < rows.Length; i++) rows[i].hover = i == i_row;
-                    var tmp_input = CreateInput(cell, sx, sy, multiline, cellSelect.value, rect);
-                    if (cellSelect.COLUMN.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
-                    else if (cellSelect.COLUMN.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
-                    var arge = new TableBeginEditInputStyleEventArgs(value, it.RECORD, i_row, i_col, column, tmp_input);
-                    CellBeginEditInputStyle?.Invoke(this, arge);
-                    if (arge.Input is Select select)
-                    {
-                        ShowSelect(select, (cf, _value) =>
-                        {
-                            bool isok_end = CellEndValueEdit?.Invoke(this, new TableEndValueEditEventArgs(_value, it.RECORD, i_row, i_col, column)) ?? true;
-                            if (isok_end && !cf)
-                            {
-                                cellSelect.value = cellSelect.COLUMN[_value];
-                                SetValue(cell, _value);
-                                if (multiline) LoadLayout();
-                                CellEditComplete?.Invoke(this, new ITableEventArgs(it.RECORD, i_row, i_col, column));
-                            }
-                        });
-                        Controls.Add(arge.Input);
-                        arge.Input.Focus();
-                    }
-                    else arge.Input.Dispose();
                 });
             }
             else if (cell is Template templates)
@@ -193,7 +227,6 @@ namespace AntdUI
                         if (!isok) return;
                         inEditMode = true;
 
-                        ScrollBar.OnInvalidate = () => EditModeClose();
                         BeginInvoke(() =>
                         {
                             for (int i = 0; i < rows.Length; i++) rows[i].hover = i == i_row;
@@ -222,8 +255,6 @@ namespace AntdUI
                                     CellEditComplete?.Invoke(this, new ITableEventArgs(it.RECORD, i_row, i_col, column));
                                 }
                             });
-                            Controls.Add(arge.Input);
-                            arge.Input.Focus();
                         });
                         return;
                     }
@@ -260,6 +291,14 @@ namespace AntdUI
             else if (value is float)
             {
                 if (float.TryParse(_value, out var v))
+                {
+                    read = v;
+                    return true;
+                }
+            }
+            else if (value is DateTime)
+            {
+                if (DateTime.TryParse(_value, out var v))
                 {
                     read = v;
                     return true;
@@ -370,89 +409,65 @@ namespace AntdUI
                     ReadOnly = column.ReadOnly
                 };
             }
-            if (input.ReadOnly) input.BackColor = Style.Db.BorderSecondary;
+            if (input.ReadOnly) input.BackColor = Colour.BorderSecondary.Get(nameof(Table));
             if (EditSelection == TEditSelection.All) input.SelectAll();
             return input;
         }
         void ShowInput(Input input, Action<bool, string> call)
         {
-            string old = input.Text;
-            bool isone = true;
-            input.KeyPress += (a, b) =>
+            var old = input.Text;
+            if (AddEditInput(input, old, call))
             {
-                if (a is Input input && isone)
-                {
-                    if (b.KeyChar == 13)
-                    {
-                        isone = false;
-                        b.Handled = true;
-                        ScrollBar.OnInvalidate = null;
-                        call(old == input.Text, input.Text);
-                        inEditMode = false;
-                        input.Dispose();
-                    }
-                }
-            };
-            input.LostFocus += (a, b) =>
-            {
-                if (a is Input input && isone)
-                {
-                    isone = false;
-                    input.Visible = false;
-                    ScrollBar.OnInvalidate = null;
-                    call(old == input.Text, input.Text);
-                    inEditMode = false;
-                    Focus();
-                    if (Modal.ModalCount > 0)
-                    {
-                        ITask.Run(() =>
-                        {
-                            System.Threading.Thread.Sleep(200);
-                            BeginInvoke(() => input.Dispose());
-                        });
-                        return;
-                    }
-                    input.Dispose();
-                }
-            };
+                input.KeyPress += InputEdit_KeyPress;
+                input.Focus();
+            }
         }
+
         void ShowSelect(Select select, Action<bool, object?> call)
         {
             var old = select.SelectedValue;
-            bool isone = true;
-            select.SelectedValueChanged += (a, b) =>
+            if (AddEditInput(select, old, call))
             {
-                if (isone)
-                {
-                    isone = false;
-                    ScrollBar.OnInvalidate = null;
-                    call(old == select.SelectedValue, select.SelectedValue);
-                    inEditMode = false;
-                    select.Dispose();
-                }
-            };
-            select.LostFocus += (a, b) =>
+                select.SelectedValueChanged += InputEdit_SelectedValueChanged;
+                select.ClosedItem += InputEdit_SelectedValueChanged;
+                select.Focus();
+            }
+        }
+
+        void InputEdit_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            if (sender is Input input)
             {
-                if (isone)
+                if (e.KeyChar == 13)
                 {
-                    isone = false;
-                    select.Visible = false;
-                    ScrollBar.OnInvalidate = null;
-                    call(old == select.SelectedValue, select.SelectedValue);
-                    inEditMode = false;
-                    Focus();
-                    if (Modal.ModalCount > 0)
-                    {
-                        ITask.Run(() =>
-                        {
-                            System.Threading.Thread.Sleep(200);
-                            BeginInvoke(() => select.Dispose());
-                        });
-                        return;
-                    }
-                    select.Dispose();
+                    e.Handled = true;
+                    EditModeClose();
                 }
-            };
+            }
+        }
+        void InputEdit_SelectedValueChanged(object? sender, ObjectNEventArgs e) => EditModeClose();
+        void InputEdit_LostFocus(object? sender, EventArgs e) => EditModeClose();
+
+        #endregion
+
+        #region 集合处理
+
+        ConcurrentDictionary<Input, object?[]> _editControls = new ConcurrentDictionary<Input, object?[]>();
+
+        /// <summary>
+        /// 添加空间到编辑
+        /// </summary>
+        bool AddEditInput(Input input, object? txt, object? action)
+        {
+            if (_editControls.TryAdd(input, new object?[] { txt, action }))
+            {
+                Controls.Add(input);
+                if (OS.Win7OrLower) return true;
+                input.LostFocus += InputEdit_LostFocus;
+                return true;
+            }
+            else input.Dispose();
+            return false;
         }
 
         #endregion

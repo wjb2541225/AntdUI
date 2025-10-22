@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -158,6 +158,22 @@ namespace AntdUI
             public Font? Font { get; set; }
 
             /// <summary>
+            /// 背景色
+            /// </summary>
+
+            public Color? Back { get; set; }
+
+            /// <summary>
+            /// 文本色
+            /// </summary>
+            public Color? Fore { get; set; }
+
+            /// <summary>
+            /// 色彩模式
+            /// </summary>
+            public TAMode ColorScheme { get; set; } = TAMode.Auto;
+
+            /// <summary>
             /// 控件显示后回调
             /// </summary>
             public Action? OnControlLoad { get; set; }
@@ -229,6 +245,21 @@ namespace AntdUI
             public Config SetFont(Font? value)
             {
                 Font = value;
+                return this;
+            }
+            public Config SetFore(Color? value)
+            {
+                Fore = value;
+                return this;
+            }
+            public Config SetBack(Color? value)
+            {
+                Back = value;
+                return this;
+            }
+            public Config SetColorScheme(TAMode value)
+            {
+                ColorScheme = value;
                 return this;
             }
             public Config SetAutoClose(int value)

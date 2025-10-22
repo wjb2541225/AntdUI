@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -506,7 +506,7 @@ namespace AntdUI
         {
             if (items == null || items.Count == 0)
             {
-                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, fore ?? Colour.Text.Get("Tree", ColorScheme), EmptyText, EmptyImage, 0);
+                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, fore ?? Colour.Text.Get(nameof(Tree), "emptyFore", ColorScheme), EmptyText, EmptyImage, 0);
                 base.OnDraw(e);
                 return;
             }
@@ -514,16 +514,16 @@ namespace AntdUI
             int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
             g.TranslateTransform(-sx, -sy);
             float _radius = radius * Config.Dpi;
-            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get("Tree", ColorScheme)))
-            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get("Tree", ColorScheme)))
-            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get("Tree", ColorScheme)))
-            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get("Tree", ColorScheme)))
-            using (var brush_TextTertiary = new SolidBrush(Colour.TextTertiary.Get("Tree", ColorScheme)))
+            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get(nameof(Tree), ColorScheme)))
+            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get(nameof(Tree), ColorScheme)))
+            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get(nameof(Tree), ColorScheme)))
+            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(nameof(Tree), ColorScheme)))
+            using (var brush_TextTertiary = new SolidBrush(Colour.TextTertiary.Get(nameof(Tree), "subFore", ColorScheme)))
             {
                 PaintItem(g, e.Rect, sx, sy, items, brush_fore, brush_fore_active, brush_hover, brush_active, brush_TextTertiary, _radius);
             }
             g.ResetTransform();
-            ScrollBar.Paint(g);
+            ScrollBar.Paint(g, ColorScheme);
             base.OnDraw(e);
         }
         void PaintItem(Canvas g, Rectangle rect, int sx, int sy, TreeItemCollection items, SolidBrush fore, SolidBrush fore_active, SolidBrush hover, SolidBrush active, SolidBrush brushTextTertiary, float radius)
@@ -596,7 +596,7 @@ namespace AntdUI
                 if (item.Enabled) PaintItemText(g, item, fore, brushTextTertiary);
                 else
                 {
-                    using (var brush = new SolidBrush(Colour.TextQuaternary.Get("Tree", ColorScheme)))
+                    using (var brush = new SolidBrush(Colour.TextQuaternary.Get(nameof(Tree), ColorScheme)))
                     {
                         PaintItemText(g, item, brush, brushTextTertiary);
                     }
@@ -615,25 +615,25 @@ namespace AntdUI
 
                             if (item.CheckState == CheckState.Indeterminate || (item.checkStateOld == CheckState.Indeterminate && !item.Checked))
                             {
-                                g.Draw(Colour.BorderColor.Get("Tree", ColorScheme), bor2, path_check);
-                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get("Tree", ColorScheme)), PaintBlock(item.check_rect));
+                                g.Draw(Colour.BorderColor.Get(nameof(Tree), ColorScheme), bor2, path_check);
+                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(nameof(Tree), ColorScheme)), PaintBlock(item.check_rect));
                             }
                             else
                             {
                                 float dot = item.check_rect.Width * 0.3F;
 
-                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get("Tree", ColorScheme)), path_check);
-                                g.DrawLines(Helper.ToColor(alpha, Colour.BgBase.Get("Tree", ColorScheme)), 3F * Config.Dpi, PaintArrow(item.check_rect));
+                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(nameof(Tree), ColorScheme)), path_check);
+                                g.DrawLines(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Tree), ColorScheme)), 3F * Config.Dpi, PaintArrow(item.check_rect));
 
                                 if (item.Checked)
                                 {
                                     float max = item.check_rect.Height + item.check_rect.Height * item.AnimationCheckValue, alpha2 = 100 * (1F - item.AnimationCheckValue);
-                                    using (var brush = new SolidBrush(Helper.ToColor(alpha2, Colour.Primary.Get("Tree", ColorScheme))))
+                                    using (var brush = new SolidBrush(Helper.ToColor(alpha2, Colour.Primary.Get(nameof(Tree), ColorScheme))))
                                     {
                                         g.FillEllipse(brush, new RectangleF(item.check_rect.X + (item.check_rect.Width - max) / 2F, item.check_rect.Y + (item.check_rect.Height - max) / 2F, max, max));
                                     }
                                 }
-                                g.Draw(Colour.Primary.Get("Tree", ColorScheme), 2F * Config.Dpi, path_check);
+                                g.Draw(Colour.Primary.Get(nameof(Tree), ColorScheme), 2F * Config.Dpi, path_check);
                             }
                         }
                         else if (item.CheckState == CheckState.Indeterminate)
@@ -677,10 +677,10 @@ namespace AntdUI
                     }
                     else
                     {
-                        g.Fill(Colour.FillQuaternary.Get("Tree", ColorScheme), path_check);
-                        if (item.CheckState == CheckState.Indeterminate) g.Fill(Colour.TextQuaternary.Get("Tree", ColorScheme), PaintBlock(item.check_rect));
-                        else if (item.Checked) g.DrawLines(Colour.TextQuaternary.Get("Tree", ColorScheme), bor2, PaintArrow(item.check_rect));
-                        g.Draw(Colour.BorderColorDisable.Get("Tree", ColorScheme), bor2, path_check);
+                        g.Fill(Colour.FillQuaternary.Get(nameof(Tree), "bgDisabled", ColorScheme), path_check);
+                        if (item.CheckState == CheckState.Indeterminate) g.Fill(Colour.TextQuaternary.Get(nameof(Tree), "foreDisabled", ColorScheme), PaintBlock(item.check_rect));
+                        else if (item.Checked) g.DrawLines(Colour.TextQuaternary.Get(nameof(Tree), "foreDisabled", ColorScheme), bor2, PaintArrow(item.check_rect));
+                        g.Draw(Colour.BorderColorDisable.Get(nameof(Tree), "borderColorDisabled", ColorScheme), bor2, path_check);
                     }
                 }
             }
@@ -704,7 +704,7 @@ namespace AntdUI
                 {
                     float loading_size = item.ico_rect.Height * .14F;
                     var bor3 = 3F * Config.Dpi;
-                    g.DrawEllipse(Colour.Fill.Get("Tree"), bor3, item.ico_rect);
+                    g.DrawEllipse(Colour.Fill.Get(nameof(Tree)), bor3, item.ico_rect);
                     using (var pen = new Pen(color, loading_size))
                     {
                         pen.StartCap = pen.EndCap = LineCap.Round;
@@ -805,19 +805,23 @@ namespace AntdUI
         }
         bool IMouseDown(MouseEventArgs e, TreeItem item)
         {
-            var down = item.Contains(e.X, e.Y, ScrollBar.ValueX, ScrollBar.ValueY, checkable, blockNode);
-            if (down > 0)
+            try
             {
-                MDown = item;
-                return true;
-            }
-            if (item.ICanExpand && item.Expand)
-            {
-                foreach (var sub in item.Sub)
+                var down = item.Contains(e.X, e.Y, ScrollBar.ValueX, ScrollBar.ValueY, checkable, blockNode);
+                if (down > 0)
                 {
-                    if (IMouseDown(e, sub)) return true;
+                    MDown = item;
+                    return true;
+                }
+                if (item.ICanExpand && item.Expand)
+                {
+                    foreach (var sub in item.Sub)
+                    {
+                        if (IMouseDown(e, sub)) return true;
+                    }
                 }
             }
+            catch { }
             return false;
         }
 
@@ -825,37 +829,27 @@ namespace AntdUI
         TreeItem? shift_index;
         bool IMouseUp(MouseEventArgs e, TreeItem item, TreeItem MDown)
         {
-            bool can = item.ICanExpand;
-            if (MDown == item)
+            try
             {
-                var down = item.Contains(e.X, e.Y, ScrollBar.ValueX, ScrollBar.ValueY, checkable, blockNode);
-                if (down > 0)
+                bool can = item.ICanExpand;
+                if (MDown == item)
                 {
-                    if (e.Button == MouseButtons.Left)
+                    var down = item.Contains(e.X, e.Y, ScrollBar.ValueX, ScrollBar.ValueY, checkable, blockNode);
+                    if (down > 0)
                     {
-                        if (down == TreeCType.Check && item.Enabled)
+                        if (e.Button == MouseButtons.Left)
                         {
-                            item.Checked = !item.Checked;
-                            if (CheckStrictly)
+                            if (down == TreeCType.Check && item.Enabled)
                             {
-                                SetCheck(item, item.Checked);
-                                SetCheckStrictly(item.PARENTITEM);
+                                if (CheckStrictly)
+                                {
+                                    bool targetChecked = ShouldCheckTarget(item);
+                                    item.CheckState = SetCheck(item, targetChecked);
+                                    SetCheckStrictly(item.PARENTITEM);
+                                }
+                                else item.Checked = !item.Checked;
                             }
-                        }
-                        else if (down == TreeCType.Arrow && can)
-                        {
-                            bool value = !item.Expand;
-                            if (BeforeExpand == null) item.Expand = value;
-                            else
-                            {
-                                var arge = new TreeExpandEventArgs(item, value);
-                                BeforeExpand(this, arge);
-                                if (arge.CanExpand) item.Expand = value;
-                            }
-                        }
-                        else
-                        {
-                            if (doubleClick && can)
+                            else if (down == TreeCType.Arrow && can)
                             {
                                 bool value = !item.Expand;
                                 if (BeforeExpand == null) item.Expand = value;
@@ -868,51 +862,66 @@ namespace AntdUI
                             }
                             else
                             {
-                                selectItem = item;
-                                if (Multiple && ModifierKeys.HasFlag(Keys.Shift))
+                                if (doubleClick && can)
                                 {
-                                    _multiple = true;
-                                    if (shift_index == null) item.SetSelect();
+                                    bool value = !item.Expand;
+                                    if (BeforeExpand == null) item.Expand = value;
                                     else
                                     {
-                                        if (item == shift_index) item.SetSelect();
-                                        else if (shift_index.rect.Y > item.rect.Y) SetSelects(items!, item, shift_index);
-                                        else SetSelects(items!, shift_index, item);
+                                        var arge = new TreeExpandEventArgs(item, value);
+                                        BeforeExpand(this, arge);
+                                        if (arge.CanExpand) item.Expand = value;
                                     }
-                                }
-                                else if (Multiple && ModifierKeys.HasFlag(Keys.Control))
-                                {
-                                    _multiple = true;
-                                    item.SetSelect();
                                 }
                                 else
                                 {
-                                    if (_multiple)
+                                    selectItem = item;
+                                    if (Multiple && ModifierKeys.HasFlag(Keys.Shift))
                                     {
-                                        _multiple = false;
-                                        if (item.Select) USelect(false);
-                                        item.Select = true;
+                                        _multiple = true;
+                                        if (shift_index == null) item.SetSelect();
+                                        else
+                                        {
+                                            if (item == shift_index) item.SetSelect();
+                                            else if (shift_index.rect.Y > item.rect.Y) SetSelects(items!, item, shift_index);
+                                            else SetSelects(items!, shift_index, item);
+                                        }
                                     }
-                                    else item.Select = true;
+                                    else if (Multiple && ModifierKeys.HasFlag(Keys.Control))
+                                    {
+                                        _multiple = true;
+                                        item.SetSelect();
+                                    }
+                                    else
+                                    {
+                                        if (_multiple)
+                                        {
+                                            _multiple = false;
+                                            if (item.Select) USelect(false);
+                                            item.Select = true;
+                                        }
+                                        else item.Select = true;
+                                    }
+                                    shift_index = item;
+                                    OnSelectChanged(item, down, e);
+                                    Invalidate();
                                 }
-                                shift_index = item;
-                                OnSelectChanged(item, down, e);
-                                Invalidate();
                             }
                         }
+                        if (doubleClick) OnNodeMouseDoubleClick(item, down, e);
+                        else OnNodeMouseClick(item, down, e);
                     }
-                    if (doubleClick) OnNodeMouseDoubleClick(item, down, e);
-                    else OnNodeMouseClick(item, down, e);
+                    return true;
                 }
-                return true;
-            }
-            if (can && item.Expand)
-            {
-                foreach (var sub in item.Sub)
+                if (can && item.Expand)
                 {
-                    if (IMouseUp(e, sub, MDown)) return true;
+                    foreach (var sub in item.Sub)
+                    {
+                        if (IMouseUp(e, sub, MDown)) return true;
+                    }
                 }
             }
+            catch { }
             return false;
         }
 
@@ -940,16 +949,107 @@ namespace AntdUI
             return false;
         }
 
-        public void SetCheck(TreeItem item, bool value)
+        /// <summary>
+        /// 获取当前节点是否该被选中
+        /// </summary>
+        bool ShouldCheckTarget(TreeItem item)
         {
-            if (item.items != null && item.items.Count > 0)
+            if (item.items == null || item.items.Count == 0) return !item.Checked;
+            bool hasUncheckedItem = false;
+            foreach (var sub in item.items)
             {
-                foreach (var it in item.items)
+                if (sub.items != null && sub.items.Count > 0) return ShouldCheckTarget(sub);
+                if (sub.Enabled)
                 {
-                    it.Checked = value;
-                    SetCheck(it, value);
+                    if (!sub.Checked)
+                    {
+                        hasUncheckedItem = true;
+                        return true;
+                    }
                 }
             }
+            return hasUncheckedItem;
+        }
+
+        /// <summary>
+        /// 反选节点
+        /// </summary>
+        CheckState ReverseCheck(TreeItem item)
+        {
+            // 处理叶子节点
+            if (item.items == null || item.items.Count == 0)
+            {
+                item.Checked = !item.Checked;
+                return item.CheckState;
+            }
+            bool checkChanged = false;
+            CheckState? lastState = null;
+
+            // 处理子节点
+            foreach (var sub in item.items)
+            {
+                // 检查状态是否发生变化
+                if (lastState.HasValue)
+                {
+                    if (sub.CheckState != lastState.Value) checkChanged = true;
+                }
+                else lastState = sub.CheckState;
+
+                // 递归处理子节点
+                if (sub.items != null && sub.items.Count > 0)
+                {
+                    var oldState = sub.CheckState;
+                    sub.CheckState = ReverseCheck(sub);
+                    // 检查递归调用后状态是否改变
+                    if (sub.CheckState != oldState) checkChanged = true;
+                }
+                // 对于叶子节点，切换选中状态
+                else if (sub.Enabled)
+                {
+                    bool oldChecked = sub.Checked;
+                    sub.Checked = !sub.Checked;
+                    // 检查选中状态是否改变
+                    if (sub.Checked != oldChecked) checkChanged = true;
+                }
+            }
+            // 返回适当的检查状态
+            return checkChanged ? CheckState.Indeterminate : lastState ?? CheckState.Unchecked;
+        }
+
+        public CheckState SetCheck(TreeItem item, bool value)
+        {
+            bool hasDisabledNodes = false;
+            if (item.items != null && item.items.Count > 0)
+            {
+                bool disabledCheckChanged = false;
+                CheckState? lastDisabledState = null;
+                int itemCount = item.items.Count;
+                foreach (var it in item.items)
+                {
+                    if (it.Enabled)
+                    {
+                        // 启用节点：设置状态并递归
+                        var childResult = SetCheck(it, value);
+                        it.CheckState = childResult;
+                        if (childResult == CheckState.Indeterminate) hasDisabledNodes = true;
+                    }
+                    else
+                    {
+                        itemCount--;
+                        // 检查状态是否发生变化
+                        if (lastDisabledState.HasValue)
+                        {
+                            if (it.CheckState != lastDisabledState.Value) disabledCheckChanged = true;
+                        }
+                        else lastDisabledState = it.CheckState;
+
+                        // 当前为禁用节点，检查其当前状态是否与目标一致
+                        if ((value && !it.Checked) || (!value && it.Checked)) hasDisabledNodes = true;
+                    }
+                }
+                if (itemCount == 0 && lastDisabledState.HasValue) return disabledCheckChanged ? CheckState.Indeterminate : lastDisabledState.Value;
+            }
+            return hasDisabledNodes ? CheckState.Indeterminate : (value ? CheckState.Checked : CheckState.Unchecked);
         }
 
         public void SetCheckStrictly(TreeItem? item)
@@ -978,9 +1078,13 @@ namespace AntdUI
                 if (OnTouchMove(e.X, e.Y))
                 {
                     if (items == null || items.Count == 0) return;
-                    int hand = 0;
-                    foreach (var it in items) IMouseMove(it, e.X, e.Y, ref hand);
-                    SetCursor(hand > 0);
+                    try
+                    {
+                        int hand = 0;
+                        foreach (var it in items) IMouseMove(it, e.X, e.Y, ref hand);
+                        SetCursor(hand > 0);
+                    }
+                    catch { }
                 }
             }
             else ILeave();
@@ -1020,12 +1124,16 @@ namespace AntdUI
         {
             SetCursor(false);
             if (items == null || items.Count == 0) return;
-            int count = 0;
-            foreach (var it in items)
+            try
             {
-                ILeave(it, ref count);
+                int count = 0;
+                foreach (var it in items)
+                {
+                    ILeave(it, ref count);
+                }
+                if (count > 0) Invalidate();
             }
-            if (count > 0) Invalidate();
+            catch { }
         }
         void ILeave(TreeItem item, ref int count)
         {
@@ -1287,6 +1395,14 @@ namespace AntdUI
                     ExpandAll(it.Sub, value);
                 }
             }
+        }
+
+        /// <summary>
+        /// 反选节点项
+        /// </summary>
+        public void ReverseCheckItem(TreeItem item)
+        {
+            if (Checkable) ReverseCheck(item);
         }
 
         #region 获取项

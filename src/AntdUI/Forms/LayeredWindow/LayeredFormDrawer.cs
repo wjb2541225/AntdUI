@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -54,8 +54,8 @@ namespace AntdUI
             padding = (int)Math.Round(config.Padding * Config.Dpi);
             Padding = new Padding(padding);
             HasBor = Helper.FormFrame(config.Form, out FrmRadius, out FrmBor);
-            config.Content.BackColor = Colour.BgElevated.Get("Drawer");
-            config.Content.ForeColor = Colour.Text.Get("Drawer");
+            config.Content.BackColor = Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme);
+            config.Content.ForeColor = Colour.Text.Get(nameof(Drawer), config.ColorScheme);
             SetPoint();
             SetSize(start_W, start_H);
             SetLocation(start_X, start_Y);
@@ -65,6 +65,7 @@ namespace AntdUI
             else
             {
                 config.Content.Tag = config.Content.Size;
+                Win32.WindowTheme(config.Content, Config.IsDark);
                 Helper.DpiAuto(Config.Dpi, config.Content);
             }
             config.Content.Location = Helper.OffScreenArea(tempContent.Width * 2, tempContent.Height * 2);
@@ -363,7 +364,7 @@ namespace AntdUI
             var hidelocation = Helper.OffScreenArea(rect.Width * 2, rect.Height * 2);
             if (config.Content is Form form_)
             {
-                form_.BackColor = Colour.BgElevated.Get("Drawer");
+                form_.BackColor = Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme);
                 form_.FormBorderStyle = FormBorderStyle.None;
                 form_.Location = hidelocation;
                 form_.ClientSize = rect.Size;
@@ -373,7 +374,7 @@ namespace AntdUI
             {
                 form = new DoubleBufferForm(this, config.Content)
                 {
-                    BackColor = Colour.BgElevated.Get("Drawer"),
+                    BackColor = Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme),
                     FormBorderStyle = FormBorderStyle.None,
                     Location = hidelocation,
                     ClientSize = rect.Size
@@ -621,7 +622,24 @@ namespace AntdUI
             task_start?.Dispose();
             config.OnClose?.Invoke();
             config.OnClose = null;
+            shadow_temp?.Dispose();
+            shadow_temp = null;
             base.Dispose(disposing);
+
+            if (config.ManualActivateParent)
+            {
+                // 在抽屉关闭后恢复主窗体的激活/置前
+                try
+                {
+                    var owner = config.Form;
+                    if (owner != null && owner.IsHandleCreated && owner.Visible)
+                    {
+                        if (owner.InvokeRequired) owner.BeginInvoke(new Action(() => owner.Activate()));
+                        else owner.Activate();
+                    }
+                }
+                catch { }
+            }
         }
 
         public void IRClose()
@@ -634,20 +652,20 @@ namespace AntdUI
 
         #region 渲染
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             Rectangle rect_t = TargetRectXY, rect = HasBor ? new Rectangle(FrmBor, 0, rect_t.Width - FrmBor * 2, rect_t.Height - FrmBor) : rect_t;
-            var original_bmp = new Bitmap(rect_t.Width, rect_t.Height);
-            using (var g = Graphics.FromImage(original_bmp).High())
+            var rbmp = new Bitmap(rect_t.Width, rect_t.Height);
+            using (var g = Graphics.FromImage(rbmp).High())
             {
                 var rect_read = DrawShadow(g, rect);
                 using (var path = rect_read.RoundPath(FrmRadius))
                 {
-                    g.Fill(Colour.BgElevated.Get("Drawer"), path);
+                    g.Fill(Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme), path);
                     if (tempContent != null) g.Image(tempContent, new Rectangle(rect_read.X + padding, rect_read.Y + padding, tempContent.Width, tempContent.Height));
                 }
             }
-            return original_bmp;
+            return rbmp;
         }
 
         SafeBitmap? shadow_temp;

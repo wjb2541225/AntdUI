@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -221,7 +221,7 @@ namespace AntdUI
                 AnimationChange = true;
                 var old = selectIndex;
                 selectIndex = value;
-                SelectIndexChanged?.Invoke(this, new IntEventArgs(value));
+                if (old != value) SelectIndexChanged?.Invoke(this, new IntEventArgs(value));
                 var speed = Math.Abs(end - AnimationChangeValue) / 50F;
                 if (speed < 8) speed = 8F;
                 if (left)
@@ -421,11 +421,6 @@ namespace AntdUI
         int AnimationChangeMaxWH = 0;
         float AnimationChangeValue = 0F;
         bool AnimationChange = false;
-        protected override void Dispose(bool disposing)
-        {
-            ThreadChange?.Dispose();
-            base.Dispose(disposing);
-        }
         ITask? ThreadChange;
 
         void LongTime()
@@ -445,6 +440,13 @@ namespace AntdUI
                 }
                 catch { }
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            bmp?.Dispose();
+            ThreadChange?.Dispose();
+            base.Dispose(disposing);
         }
 
         #endregion
@@ -533,6 +535,7 @@ namespace AntdUI
                         if (bmp == null || bmpcode != select_range.i)
                         {
                             bmpcode = select_range.i;
+                            bmp?.Dispose();
                             bmp = PaintBmpVertical(items, select_range, rect, _radius);
                         }
                         g.Image(bmp, rect.X, (int)(rect.Y - AnimationChangeValue), bmp.Width, bmp.Height);
@@ -543,6 +546,7 @@ namespace AntdUI
                         if (bmp == null || bmpcode != select_range.i)
                         {
                             bmpcode = select_range.i;
+                            bmp?.Dispose();
                             bmp = PaintBmpHorizontal(items, select_range, rect, _radius);
                         }
                         g.Image(bmp, (int)(rect.X - AnimationChangeValue), rect.Y, bmp.Width, bmp.Height);
@@ -552,7 +556,7 @@ namespace AntdUI
             }
             if (dot_list.Length > 0)
             {
-                using (var brush = new SolidBrush(Colour.BgBase.Get("Carousel", ColorScheme)))
+                using (var brush = new SolidBrush(Colour.BgBase.Get(nameof(Carousel), ColorScheme)))
                 using (var brush2 = new SolidBrush(Color.FromArgb(77, brush.Color)))
                 {
                     if (round || radius > 0)

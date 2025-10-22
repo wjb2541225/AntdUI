@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -151,43 +151,53 @@ namespace AntdUI
         /// </summary>
         public class Config
         {
-            public Config(Form _form)
+            public Config(Target target)
             {
-                Form = _form;
+                Target = target;
             }
-            public Config(Form _form, TType _icon, TAlignFrom _align)
+            public Config(Target target, TType icon, TAlignFrom _align)
             {
-                Form = _form;
+                Target = target;
                 Align = _align;
-                Icon = _icon;
+                Icon = icon;
             }
-            public Config(Form _form, string _title, string _text, TType _icon, TAlignFrom _align)
+            public Config(Target target, string title, string text, TType icon, TAlignFrom align)
             {
-                Form = _form;
-                Title = _title;
-                Text = _text;
-                Align = _align;
-                Icon = _icon;
+                Target = target;
+                Title = title;
+                Text = text;
+                Align = align;
+                Icon = icon;
             }
-            public Config(Form _form, string _title, string _text, TType _icon, TAlignFrom _align, Font? _font)
+            public Config(Target target, string title, string text, TType icon, TAlignFrom align, Font? font)
             {
-                Form = _form;
-                Font = _font;
-                Title = _title;
-                Text = _text;
-                Align = _align;
-                Icon = _icon;
+                Target = target;
+                Font = font;
+                Title = title;
+                Text = text;
+                Align = align;
+                Icon = icon;
             }
-            public Config(Form _form, string _title, string _text, TType _icon, TAlignFrom _align, Font? _font, int? autoClose)
+            public Config(Target target, string title, string text, TType icon, TAlignFrom align, Font? font, int? autoClose)
             {
-                Form = _form;
-                Font = _font;
-                Title = _title;
-                Text = _text;
-                Align = _align;
-                Icon = _icon;
+                Target = target;
+                Font = font;
+                Title = title;
+                Text = text;
+                Align = align;
+                Icon = icon;
                 if (autoClose.HasValue) AutoClose = autoClose.Value;
             }
+
+            #region 窗口
+
+            public Config(Form form) : this(new Target(form)) { }
+            public Config(Form form, TType icon, TAlignFrom align) : this(new Target(form), icon, align) { }
+            public Config(Form form, string title, string text, TType icon, TAlignFrom align) : this(new Target(form), title, text, icon, align) { }
+            public Config(Form form, string title, string text, TType icon, TAlignFrom align, Font? font) : this(new Target(form), title, text, icon, align, font) { }
+            public Config(Form form, string title, string text, TType icon, TAlignFrom align, Font? font, int? autoClose) : this(new Target(form), title, text, icon, align, font, autoClose) { }
+
+            #endregion
 
             /// <summary>
             /// ID
@@ -195,9 +205,15 @@ namespace AntdUI
             public string? ID { get; set; }
 
             /// <summary>
+            /// 所属目标
+            /// </summary>
+            public Target Target { get; set; }
+
+            /// <summary>
             /// 所属窗口
             /// </summary>
-            public Form Form { get; set; }
+            [Obsolete("use Target")]
+            public Control Form => Target.GetForm!;
 
             string? title;
             /// <summary>
@@ -300,6 +316,11 @@ namespace AntdUI
             /// 弹出在窗口
             /// </summary>
             public bool? ShowInWindow { get; set; }
+
+            /// <summary>
+            /// 是否启用声音
+            /// </summary>
+            public bool EnableSound { get; set; }
 
             #region 设置
 
@@ -429,6 +450,12 @@ namespace AntdUI
                 return this;
             }
 
+            public Config SetEnableSound(bool value = true)
+            {
+                EnableSound = value;
+                return this;
+            }
+
             public Config SetLink(string text, Func<bool> call)
             {
                 Link = new ConfigLink(text, call);
@@ -485,13 +512,11 @@ namespace AntdUI
             config = _config;
             Tag = id;
             if (config.TopMost) Helper.SetTopMost(Handle);
-            else config.Form.SetTopMost(Handle);
+            else config.Target.SetTopMost(Handle);
             shadow_size = (int)(shadow_size * Config.Dpi);
-            if (config.Font != null) Font = config.Font;
-            else if (Config.Font != null) Font = Config.Font;
-            else Font = config.Form.Font;
+            config.Target.SetFontConfig(config.Font, this);
+            config.Target.SetIcon(this);
             font_title = config.FontTitle ?? new Font(Font.FontFamily, Font.Size * 1.14F, config.FontStyleTitle ?? Font.Style);
-            Icon = config.Form.Icon;
             Helper.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
             close_button = new ITaskOpacity(name, this);
         }
@@ -501,6 +526,11 @@ namespace AntdUI
             config.OnClose?.Invoke();
             config.OnClose = null;
             close_button.Dispose();
+            s_f.Dispose();
+            s_f_left.Dispose();
+            s_f_left_left.Dispose();
+            shadow_temp?.Dispose();
+            shadow_temp = null;
             base.Dispose(disposing);
         }
 
@@ -510,7 +540,7 @@ namespace AntdUI
 
         public bool IInit()
         {
-            if (SetPosition(config.Form, config.ShowInWindow ?? Config.ShowInWindowByNotification)) return true;
+            if (SetPosition(config.Target, config.ShowInWindow ?? Config.ShowInWindowByNotification)) return true;
             if (config.AutoClose > 0)
             {
                 ITask.Run(() =>
@@ -518,6 +548,19 @@ namespace AntdUI
                     Sleep(config.AutoClose);
                     CloseMe();
                 });
+            }
+            // 播放声音
+            if (config.EnableSound)
+            {
+                MessageType soundType = config.Icon switch
+                {
+                    TType.Success => MessageType.Information,
+                    TType.Info => MessageType.Information,
+                    TType.Warn => MessageType.Warning,
+                    TType.Error => MessageType.Error,
+                    _ => MessageType.Information
+                };
+                SystemSoundHelper.PlaySound(soundType);
             }
             PlayAnimation();
             return false;
@@ -527,16 +570,16 @@ namespace AntdUI
 
         readonly StringFormat s_f = Helper.SF_ALL(), s_f_left = Helper.SF_ALL(lr: StringAlignment.Near), s_f_left_left = Helper.SF(StringAlignment.Near, StringAlignment.Near);
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
             var rect_read = rect.PaddingRect(Padding, shadow_size);
-            Bitmap original_bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(original_bmp).High())
+            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
+            using (var g = Graphics.FromImage(rbmp).High())
             {
                 using (var path = DrawShadow(g, rect, rect_read))
                 {
-                    g.Fill(Colour.BgElevated.Get("Notification"), path);
+                    g.Fill(Colour.BgElevated.Get(nameof(Notification)), path);
                 }
                 if (config.IconCustom != null) g.PaintIcons(config.IconCustom, rect_icon);
                 else if (config.Icon != TType.None) g.PaintIcons(config.Icon, rect_icon, "Notification", TAMode.Auto);
@@ -547,35 +590,35 @@ namespace AntdUI
                     {
                         using (var path = rect_close.RoundPath((int)(4 * Config.Dpi)))
                         {
-                            g.Fill(Helper.ToColor(close_button.Value, Colour.FillSecondary.Get("Notification")), path);
+                            g.Fill(Helper.ToColor(close_button.Value, Colour.FillSecondary.Get(nameof(Notification))), path);
                         }
-                        g.PaintIconClose(rect_close, Colour.Text.Get("Notification"), .6F);
+                        g.PaintIconClose(rect_close, Colour.Text.Get(nameof(Notification)), .6F);
                     }
                     else if (close_button.Switch)
                     {
                         using (var path = rect_close.RoundPath((int)(4 * Config.Dpi)))
                         {
-                            g.Fill(Colour.FillSecondary.Get("Notification"), path);
+                            g.Fill(Colour.FillSecondary.Get(nameof(Notification)), path);
                         }
-                        g.PaintIconClose(rect_close, Colour.Text.Get("Notification"), .6F);
+                        g.PaintIconClose(rect_close, Colour.Text.Get(nameof(Notification)), .6F);
                     }
-                    else g.PaintIconClose(rect_close, Colour.TextTertiary.Get("Notification"), .6F);
+                    else g.PaintIconClose(rect_close, Colour.TextTertiary.Get(nameof(Notification)), .6F);
                 }
-                using (var brush = new SolidBrush(Colour.TextBase.Get("Notification")))
+                using (var brush = new SolidBrush(Colour.TextBase.Get(nameof(Notification))))
                 {
                     g.DrawText(config.Title, font_title, brush, rect_title, s_f_left);
                     g.DrawText(config.Text, Font, brush, rect_txt, s_f_left_left);
                 }
                 if (config.Link != null)
                 {
-                    using (var pen = new Pen(Colour.Primary.Get("Notification"), Config.Dpi))
+                    using (var pen = new Pen(Colour.Primary.Get(nameof(Notification)), Config.Dpi))
                     {
-                        g.DrawText(config.Link.Text, Font, Colour.Primary.Get("Notification"), rect_link_text, s_f);
+                        g.DrawText(config.Link.Text, Font, Colour.Primary.Get(nameof(Notification)), rect_link_text, s_f);
                         g.DrawLines(pen, TAlignMini.Right.TriangleLines(rect_links));
                     }
                 }
             }
-            return original_bmp;
+            return rbmp;
         }
 
         SafeBitmap? shadow_temp;
@@ -673,7 +716,7 @@ namespace AntdUI
         {
             if (config.CloseIcon)
             {
-                close_button.MaxValue = Colour.FillSecondary.Get("Notification", TAMode.Auto).A;
+                close_button.MaxValue = Colour.FillSecondary.Get(nameof(Notification), TAMode.Auto).A;
                 close_button.Switch = rect_close.Contains(e.X, e.Y);
                 SetCursor(close_button.Switch);
                 if (close_button.Switch)

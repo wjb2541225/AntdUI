@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -29,24 +29,33 @@ namespace AntdUI
 
         IScrollBar? Target { get; set; }
         internal int Radius { get; set; }
+        internal bool RT { get; set; } = true;
         internal bool RB { get; set; }
 
         #region 布局容器
 
+        public ScrollBar(FlowLayoutPanel control)
+        {
+            EnabledY = true;
+            Invalidate = rect =>
+            {
+                if (rect.HasValue) control.Invalidate(rect.Value);
+                else control.Invalidate();
+            };
+            Init();
+        }
         public ScrollBar(FlowPanel control, bool enabledY = true, bool enabledX = false)
         {
-            ColorScheme = control.ColorScheme;
-            OnInvalidate = ChangeSize = () => control.IOnSizeChanged();
-            Invalidate = rect => OnInvalidate?.Invoke();
+            ChangeSize = () => control.IOnSizeChanged();
+            Invalidate = rect => control.IOnSizeChanged();
             EnabledX = enabledX;
             EnabledY = enabledY;
             Init();
         }
         public ScrollBar(StackPanel control)
         {
-            ColorScheme = control.ColorScheme;
-            OnInvalidate = ChangeSize = () => control.IOnSizeChanged();
-            Invalidate = rect => OnInvalidate?.Invoke();
+            ChangeSize = () => control.IOnSizeChanged();
+            Invalidate = rect => control.IOnSizeChanged();
             if (control.Vertical) EnabledY = true;
             else EnabledX = true;
             Init();
@@ -54,9 +63,8 @@ namespace AntdUI
         public ScrollBar(ILayeredForm control, TAMode colorScheme)
         {
             Back = false;
-            ColorScheme = colorScheme;
-            OnInvalidate = ChangeSize = () => control.Print();
-            Invalidate = rect => OnInvalidate?.Invoke();
+            ChangeSize = () => control.Print();
+            Invalidate = rect => control.Print();
             EnabledY = true;
             EnabledX = false;
             Init();
@@ -64,15 +72,12 @@ namespace AntdUI
 
         #endregion
 
-        TAMode ColorScheme;
         public ScrollBar(IControl control, bool enabledY = true, bool enabledX = false, int radius = 0, bool radiusy = false)
         {
-            ColorScheme = control.ColorScheme;
             Radius = radius;
             RB = radiusy;
             Invalidate = rect =>
             {
-                OnInvalidate?.Invoke();
                 if (rect.HasValue) control.Invalidate(rect.Value);
                 else control.Invalidate();
             };
@@ -92,7 +97,6 @@ namespace AntdUI
 
         Action? ChangeSize;
         Action<Rectangle?> Invalidate;
-        internal Action? OnInvalidate;
 
         /// <summary>
         /// 是否显示背景
@@ -435,7 +439,8 @@ namespace AntdUI
 
         #region 渲染
 
-        public virtual void Paint(Canvas g) => Paint(g, Colour.TextBase.Get("ScrollBar", ColorScheme));
+        public virtual void Paint(Canvas g) => Paint(g, Colour.TextBase.Get(nameof(ScrollBar)));
+        public virtual void Paint(Canvas g, TAMode colorScheme) => Paint(g, Colour.TextBase.Get(nameof(ScrollBar), colorScheme));
         public virtual void Paint(Canvas g, Color baseColor)
         {
             if (SIZE == 0) return;
@@ -453,7 +458,7 @@ namespace AntdUI
                                 if (Radius > 0)
                                 {
                                     float radius = Radius * Config.Dpi;
-                                    using (var path = Helper.RoundPath(RectY, radius, false, true, RB, false))
+                                    using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                     {
                                         g.Fill(brush, path);
                                     }
@@ -489,7 +494,7 @@ namespace AntdUI
                             if (Radius > 0)
                             {
                                 float radius = Radius * Config.Dpi;
-                                using (var path = Helper.RoundPath(RectY, radius, false, true, RB, false))
+                                using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                 {
                                     g.Fill(brush, path);
                                 }
@@ -531,7 +536,7 @@ namespace AntdUI
                             if (Radius > 0)
                             {
                                 float radius = Radius * Config.Dpi;
-                                using (var path = Helper.RoundPath(RectY, radius, false, true, RB, false))
+                                using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                 {
                                     g.Fill(brush, path);
                                 }
@@ -563,7 +568,7 @@ namespace AntdUI
                             if (Radius > 0)
                             {
                                 float radius = Radius * Config.Dpi;
-                                using (var path = Helper.RoundPath(RectY, radius, false, true, RB, false))
+                                using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                 {
                                     g.Fill(brush, path);
                                 }
@@ -1031,12 +1036,12 @@ namespace AntdUI
         /// <summary>
         /// 判断是否到达纵向滚动条最底部
         /// </summary>
-        public bool IsAtBottom => showY ? valueY >= (maxY - RectY.Height) : false;
+        public bool IsAtBottom => showY && valueY >= (maxY - RectY.Height);
 
         /// <summary>
         /// 判断是否到达横向滚动条最右边
         /// </summary>
-        public bool IsAtRight => showX ? valueX >= (maxX - RectX.Width) : false;
+        public bool IsAtRight => showX && valueX >= (maxX - RectX.Width);
 
         #endregion
 

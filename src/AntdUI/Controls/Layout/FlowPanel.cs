@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -137,7 +137,7 @@ namespace AntdUI
             var g = e.Canvas;
             PaintBack(g);
             base.OnDraw(e);
-            ScrollBar?.Paint(g);
+            ScrollBar?.Paint(g, ColorScheme);
         }
 
         #region Index 排序

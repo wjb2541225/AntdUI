@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -25,7 +25,7 @@ using System.Windows.Forms;
 
 namespace AntdUI
 {
-    public abstract class ILayeredForm : Form, IMessageFilter
+    public abstract class ILayeredForm : Form, IMessage
     {
         IntPtr? handle;
         IntPtr memDc;
@@ -56,14 +56,18 @@ namespace AntdUI
         public Func<Keys, bool>? KeyCall;
 
         Action actionLoadMessage;
+        MessageHandler? messageHandler;
         public virtual void LoadMessage()
         {
-            if (InvokeRequired)
+            if (messageHandler == null)
             {
-                Invoke(actionLoadMessage);
-                return;
+                if (InvokeRequired)
+                {
+                    Invoke(actionLoadMessage);
+                    return;
+                }
+                if (MessageEnable) messageHandler = new MessageHandler(this);
             }
-            if (MessageEnable) Application.AddMessageFilter(this);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -77,7 +81,8 @@ namespace AntdUI
         {
             handle = null;
             FunRun = false;
-            Application.RemoveMessageFilter(this);
+            messageHandler?.Dispose();
+            messageHandler = null;
             base.Dispose(disposing);
             Win32.Dispose(memDc, ref hBitmap, ref oldBits);
             if (memDc == IntPtr.Zero) return;
@@ -157,8 +162,8 @@ namespace AntdUI
 
         #endregion
 
-        public abstract Bitmap PrintBit();
-        public Bitmap Printmap()
+        public abstract Bitmap? PrintBit();
+        public Bitmap? Printmap()
         {
             RenderCache = false;
             Win32.Dispose(memDc, ref hBitmap, ref oldBits);
@@ -256,7 +261,7 @@ namespace AntdUI
             get
             {
                 var cp = base.CreateParams;
-                cp.ExStyle |= 0x00080000 | 0x08000000;
+                cp.ExStyle |= 0x00080000 | 0x08000000 | 0x00000080;
                 cp.Parent = IntPtr.Zero;
                 return cp;
             }
@@ -335,12 +340,38 @@ namespace AntdUI
 
         #endregion
 
-        public bool PreFilterMessage(ref System.Windows.Forms.Message m)
+        #region 鼠标键盘消息
+
+        public void IMOUSECLICK()
         {
-            //if (m.Msg == 0x31f || m.Msg == 0xc31a || m.Msg == 0x60 || m.Msg == 0xf || m.Msg == 0xc0a2 || m.Msg == 0x118 || m.Msg == 0x113) return false;
-            //0x2a1 (WM_MOUSEHOVER)
-            //0x2a3 (WM_MOUSELEAVE)
-            if ((m.Msg == 0x201 || m.Msg == 0x204 || m.Msg == 0x207 || m.Msg == 0xa0))
+            var mousePosition = MousePosition;
+            if (!target_rect.Contains(mousePosition))
+            {
+                try
+                {
+                    if (PARENT != null && PARENT.IsHandleCreated)
+                    {
+                        if (MessageClickMe)
+                        {
+                            if (ContainsPosition(PARENT, mousePosition)) return;
+                            if (new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size).Contains(mousePosition)) return;
+                        }
+
+                        #region 判断内容
+
+                        if (MessageCloseSub && FunSub(PARENT, mousePosition)) return;
+
+                        #endregion
+                    }
+                    IClose();
+                }
+                catch { }
+            }
+        }
+
+        public void IMOUSELEAVE()
+        {
+            if (MessageCloseMouseLeave)
             {
                 var mousePosition = MousePosition;
                 if (!target_rect.Contains(mousePosition))
@@ -349,56 +380,26 @@ namespace AntdUI
                     {
                         if (PARENT != null && PARENT.IsHandleCreated)
                         {
-                            if (MessageClickMe)
-                            {
-                                if (ContainsPosition(PARENT, mousePosition)) return false;
-                                if (new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size).Contains(mousePosition)) return false;
-                            }
+                            if (ContainsPosition(PARENT, mousePosition)) return;
+                            if (new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size).Contains(mousePosition)) return;
 
                             #region 判断内容
 
-                            if (MessageCloseSub && FunSub(PARENT, mousePosition)) return false;
+                            if (MessageCloseSub && FunSub(PARENT, mousePosition)) return;
 
                             #endregion
                         }
                         IClose();
                     }
                     catch { }
-                    return false;
                 }
             }
-            else if (m.Msg == 0x2a3 && MessageCloseMouseLeave)
-            {
-                var mousePosition = MousePosition;
-                if (!target_rect.Contains(mousePosition))
-                {
-                    try
-                    {
-                        if (PARENT != null && PARENT.IsHandleCreated)
-                        {
-                            if (ContainsPosition(PARENT, mousePosition)) return false;
-                            if (new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size).Contains(mousePosition)) return false;
+        }
 
-                            #region 判断内容
-
-                            if (MessageCloseSub && FunSub(PARENT, mousePosition)) return false;
-
-                            #endregion
-                        }
-                        IClose();
-                    }
-                    catch { }
-                    return false;
-                }
-            }
-            else if (m.Msg == 0x100 && KeyCall != null)
-            {
-                //0x100 (WM_KEYDOWN) 
-                //0x101 (WM_KEYUP)
-                var keys = (Keys)(int)m.WParam;
-                return KeyCall.Invoke(keys);
-            }
-            return false;
+        public bool IKEYS(Keys keys)
+        {
+            if (KeyCall == null) return false;
+            return KeyCall(keys);
         }
 
         bool FunSub(Control control, Point mousePosition)
@@ -448,6 +449,8 @@ namespace AntdUI
             catch { }
             return count;
         }
+
+        #endregion
 
         #region 鼠标悬停
 

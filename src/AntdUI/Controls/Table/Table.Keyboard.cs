@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -27,6 +27,15 @@ namespace AntdUI
         {
             switch (keyData)
             {
+                case Keys.Control | Keys.A:
+                    if (MultipleRows && dataTmp != null)
+                    {
+                        var list = new int[dataTmp.rows.Length];
+                        for (int i = 0; i < dataTmp.rows.Length; i++) list[i] = (i + 1);
+                        SelectedIndexs = list;
+                        if (HandShortcutKeys) return true;
+                    }
+                    break;
                 case Keys.Control | Keys.C:
                     if (ClipboardCopy && rows != null && !inEditMode && selectedIndex.Length > 0)
                     {
@@ -136,12 +145,18 @@ namespace AntdUI
         void IKeyEnter()
         {
             if (rows == null) return;
-            if (selectedIndex.Length > 0)
+            try
             {
-                var it = rows[selectedIndex[0]];
-                CellClick?.Invoke(this, new TableClickEventArgs(it.RECORD, selectedIndex[0], 0, null, RealRect(it.RECT, ScrollBar.ValueX, ScrollBar.ValueY), new MouseEventArgs(MouseButtons.None, 0, 0, 0, 0)));
-                if (EditMode != TEditMode.None && focusedCell != null) EnterEditMode(selectedIndex[0], focusedCell.INDEX);
+                if (selectedIndex.Length > 0)
+                {
+                    int index = selectedIndex[0];
+                    if (index > rows.Length) return;
+                    var it = rows[index];
+                    CellClick?.Invoke(this, new TableClickEventArgs(it.RECORD, index, 0, null, RealRect(it.RECT, ScrollBar.ValueX, ScrollBar.ValueY), new MouseEventArgs(MouseButtons.None, 0, 0, 0, 0)));
+                    if (EditMode != TEditMode.None && focusedCell != null) EnterEditMode(index, focusedCell.INDEX);
+                }
             }
+            catch { }
         }
 
         int NextIndexDown(RowTemplate[] rows, int value)

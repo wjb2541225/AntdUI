@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -134,7 +134,7 @@ namespace AntdUI
         StringFormat s_f = Helper.SF();
         public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
         {
-            using (var brush = new SolidBrush(Colour.BgElevated.Get("DatePicker", ColorScheme)))
+            using (var brush = new SolidBrush(Colour.BgElevated.Get(nameof(DatePicker), ColorScheme)))
             {
                 g.Fill(brush, path);
                 if (ArrowAlign != TAlign.None) g.FillPolygon(brush, ArrowAlign.AlignLines(ArrowSize, rect));
@@ -142,8 +142,8 @@ namespace AntdUI
         }
         public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
         {
-            using (var brush_fore = new SolidBrush(Colour.TextBase.Get("DatePicker", ColorScheme)))
-            using (var brush_bg = new SolidBrush(Colour.PrimaryBg.Get("DatePicker", ColorScheme)))
+            using (var brush_fore = new SolidBrush(Colour.TextBase.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_bg = new SolidBrush(Colour.PrimaryBg.Get(nameof(DatePicker), ColorScheme)))
             {
                 var state2 = g.Save();
                 int type = -1;
@@ -185,26 +185,26 @@ namespace AntdUI
                                 if (it.t == SelDate.Seconds) g.Fill(brush_bg, path);
                                 break;
                         }
-                        if (it.hover) g.Fill(Colour.FillTertiary.Get("DatePicker", ColorScheme), path);
+                        if (it.hover) g.Fill(Colour.FillTertiary.Get(nameof(DatePicker), ColorScheme), path);
                         g.String(it.v, Font, brush_fore, it.rect_read, s_f);
                     }
                 }
                 g.Restore(state2);
-                ScrollH.Paint(g);
-                ScrollM.Paint(g);
-                ScrollS.Paint(g);
+                ScrollH.Paint(g, ColorScheme);
+                ScrollM.Paint(g, ColorScheme);
+                ScrollS.Paint(g, ColorScheme);
 
-                var color_active = Colour.Primary.Get("DatePicker", ColorScheme);
+                var color_active = Colour.Primary.Get(nameof(DatePicker), ColorScheme);
 
                 if (ShowButtonNow)
                 {
-                    if (hover_button.Animation) g.String(button_text, Font, color_active.BlendColors(hover_button.Value, Colour.PrimaryActive.Get("DatePicker", ColorScheme)), rect_button, s_f);
-                    else if (hover_button.Switch) g.String(button_text, Font, Colour.PrimaryActive.Get("DatePicker", ColorScheme), rect_button, s_f);
+                    if (hover_button.Animation) g.String(button_text, Font, color_active.BlendColors(hover_button.Value, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme)), rect_button, s_f);
+                    else if (hover_button.Switch) g.String(button_text, Font, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme), rect_button, s_f);
                     else g.String(button_text, Font, color_active, rect_button, s_f);
                 }
 
-                if (hover_buttonok.Animation) g.String(OKButton, Font, color_active.BlendColors(hover_buttonok.Value, Colour.PrimaryActive.Get("DatePicker", ColorScheme)), rect_buttonok, s_f);
-                else if (hover_buttonok.Switch) g.String(OKButton, Font, Colour.PrimaryActive.Get("DatePicker", ColorScheme), rect_buttonok, s_f);
+                if (hover_buttonok.Animation) g.String(OKButton, Font, color_active.BlendColors(hover_buttonok.Value, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme)), rect_buttonok, s_f);
+                else if (hover_buttonok.Switch) g.String(OKButton, Font, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme), rect_buttonok, s_f);
                 else g.String(OKButton, Font, color_active, rect_buttonok, s_f);
             }
         }

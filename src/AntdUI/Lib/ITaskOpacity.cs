@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -86,7 +86,7 @@ namespace AntdUI
             set
             {
                 if (value && !enable) value = false;
-                if (_switch == value) return;
+                if (SwitchDown == value) return;
                 _switch = value;
                 if (Config.HasAnimation(key))
                 {
@@ -110,6 +110,7 @@ namespace AntdUI
                     }
                     else
                     {
+                        Down = false;
                         Thread = new ITask(control, () =>
                         {
                             Value -= prog;
@@ -126,11 +127,18 @@ namespace AntdUI
                 }
                 else
                 {
-                    Value = _switch ? MaxValue : 0;
+                    if (_switch) Value = MaxValue;
+                    else
+                    {
+                        Down = false;
+                        Value = _switch ? MaxValue : 0;
+                    }
                     action();
                 }
             }
         }
+
+        public bool SwitchDown => _down || _switch;
 
         bool _down = false;
         public bool Down
@@ -143,6 +151,13 @@ namespace AntdUI
                 Thread?.Dispose();
                 action();
             }
+        }
+
+        public void Clear()
+        {
+            Thread?.Dispose();
+            Thread = null;
+            Switch = Down = false;
         }
 
         public bool SetSwitch(bool value, ref int hand, ref int count)

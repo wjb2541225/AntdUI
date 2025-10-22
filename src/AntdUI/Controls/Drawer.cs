@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -135,6 +135,7 @@ namespace AntdUI
                 return null;
             });
         }
+
 #endif
 
         /// <summary>
@@ -164,6 +165,11 @@ namespace AntdUI
             public Control Content { get; set; }
 
             /// <summary>
+            /// 色彩模式
+            /// </summary>
+            public TAMode ColorScheme { get; set; } = TAMode.Auto;
+
+            /// <summary>
             /// 是否展示遮罩
             /// </summary>
             public bool Mask { get; set; } = true;
@@ -172,6 +178,11 @@ namespace AntdUI
             /// 点击蒙层是否允许关闭
             /// </summary>
             public bool MaskClosable { get; set; } = true;
+
+            /// <summary>
+            /// 关闭后手动激活父窗口
+            /// </summary>
+            public bool ManualActivateParent { get; set; }
 
             /// <summary>
             /// 边距
@@ -210,6 +221,11 @@ namespace AntdUI
 
             #region 设置
 
+            public Config SetColorScheme(TAMode value)
+            {
+                ColorScheme = value;
+                return this;
+            }
             public Config SetMask(bool value = false)
             {
                 Mask = value;
@@ -218,6 +234,11 @@ namespace AntdUI
             public Config SetMaskClosable(bool value = false)
             {
                 MaskClosable = value;
+                return this;
+            }
+            public Config SetManualActivateParent(bool value = true)
+            {
+                ManualActivateParent = value;
                 return this;
             }
             public Config SetPadding(int value)

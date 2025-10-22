@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -344,6 +344,28 @@ namespace AntdUI
         /// </summary>
         [Description("鼠标右键控制"), Category("交互"), DefaultValue(true)]
         public bool MouseRightCtrl { get; set; } = true;
+
+        #region 下拉
+
+        /// <summary>
+        /// 下拉边距
+        /// </summary>
+        [Description("下拉边距"), Category("外观"), DefaultValue(typeof(Size), "12, 5")]
+        public Size DropDownPadding { get; set; } = new Size(12, 5);
+
+        /// <summary>
+        /// 下拉图标比例
+        /// </summary>
+        [Description("下拉图标比例"), Category("外观"), DefaultValue(0.7F)]
+        public float DropIconRatio { get; set; } = 0.7F;
+
+        /// <summary>
+        /// 下拉图标边距比例
+        /// </summary>
+        [Description("下拉图标边距比例"), Category("外观"), DefaultValue(0.25F)]
+        public float DropIconGap { get; set; } = 0.25F;
+
+        #endregion
 
         #region 集合操作
 
@@ -773,22 +795,22 @@ namespace AntdUI
             if (scroll_show) g.SetClip(new Rectangle(e.Rect.X, e.Rect.Y, rect_r.Right - rect_r.Height, e.Rect.Height));
             int sy = ScrollBar.Value;
             g.TranslateTransform(0, -sy);
-            Color scroll_color = Colour.TextBase.Get("Menu", ColorScheme), color_fore, color_fore_active, fore_enabled = Colour.TextQuaternary.Get("Menu", ColorScheme), back_hover, back_active;
+            Color color_fore, color_fore_active, fore_enabled = Colour.TextQuaternary.Get(nameof(Menu), "foreDisabled", ColorScheme), back_hover, back_active;
             if (Config.IsDark || ColorScheme == TAMode.Dark)
             {
-                color_fore = fore ?? Colour.Text.Get("Menu", ColorScheme);
-                back_hover = color_fore_active = ForeActive ?? Colour.TextBase.Get("Menu", ColorScheme);
-                back_active = BackActive ?? Colour.Primary.Get("Menu", ColorScheme);
+                color_fore = fore ?? Colour.Text.Get(nameof(Menu), ColorScheme);
+                back_hover = color_fore_active = ForeActive ?? Colour.TextBase.Get(nameof(Menu), ColorScheme);
+                back_active = BackActive ?? Colour.Primary.Get(nameof(Menu), ColorScheme);
             }
             else
             {
-                color_fore = fore ?? Colour.TextBase.Get("Menu", ColorScheme);
-                color_fore_active = ForeActive ?? Colour.Primary.Get("Menu", ColorScheme);
-                back_hover = BackHover ?? Colour.FillSecondary.Get("Menu", ColorScheme);
-                back_active = BackActive ?? Colour.PrimaryBg.Get("Menu", ColorScheme);
+                color_fore = fore ?? Colour.TextBase.Get(nameof(Menu), ColorScheme);
+                color_fore_active = ForeActive ?? Colour.Primary.Get(nameof(Menu), ColorScheme);
+                back_hover = BackHover ?? Colour.FillSecondary.Get(nameof(Menu), ColorScheme);
+                back_active = BackActive ?? Colour.PrimaryBg.Get(nameof(Menu), ColorScheme);
             }
             float _radius = radius * Config.Dpi;
-            using (var sub_bg = new SolidBrush(Colour.FillQuaternary.Get("Menu", ColorScheme)))
+            using (var sub_bg = new SolidBrush(Colour.FillQuaternary.Get(nameof(Menu), ColorScheme)))
             {
                 PaintItems(g, e.Rect, sy, items, color_fore, color_fore_active, fore_enabled, back_hover, back_active, _radius, sub_bg);
             }
@@ -805,7 +827,7 @@ namespace AntdUI
                 }
                 SvgExtend.GetImgExtend(g, "EllipsisOutlined", rect_r_ico, color_fore);
             }
-            ScrollBar.Paint(g, scroll_color);
+            ScrollBar.Paint(g);
             base.OnDraw(e);
         }
 
@@ -1007,7 +1029,7 @@ namespace AntdUI
                     var rect_focus = new RectangleF(it.rect.X - wave, it.rect.Y - wave, it.rect.Width + wave2, it.rect.Height + wave2);
                     using (var path_focus = rect_focus.RoundPath(r))
                     {
-                        g.Draw(Colour.PrimaryBorder.Get("Menu", ColorScheme), wave, path_focus);
+                        g.Draw(Colour.PrimaryBorder.Get(nameof(Menu), ColorScheme), wave, path_focus);
                     }
                     break;
             }

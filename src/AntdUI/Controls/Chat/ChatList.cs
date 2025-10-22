@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -215,7 +215,7 @@ namespace AntdUI.Chat
             using (var selectionme = new SolidBrush(SelectionColorMe))
             using (var foreBubble = new SolidBrush(ForeBubble ?? Color.Black))
             using (var bgBubble = new SolidBrush(BackBubble ?? Color.White))
-            using (var bgActiveBubble = new SolidBrush(BackActiveBubble ?? Colour.FillQuaternary.Get("ChatList", ColorScheme)))
+            using (var bgActiveBubble = new SolidBrush(BackActiveBubble ?? Colour.FillQuaternary.Get(nameof(ChatList), ColorScheme)))
 
             using (var foreBubbleme = new SolidBrush(ForeBubbleMe ?? Color.White))
             using (var bgBubbleme = new SolidBrush(BackBubbleMe ?? Color.FromArgb(0, 153, 255)))
@@ -224,7 +224,7 @@ namespace AntdUI.Chat
                 foreach (var it in items) PaintItem(g, it, e.Rect, sy, radius, selection, selectionme, foreBubble, bgBubble, bgActiveBubble, foreBubbleme, bgBubbleme, bgActiveBubbleme);
             }
             g.ResetTransform();
-            ScrollBar.Paint(g);
+            ScrollBar.Paint(g, ColorScheme);
             base.OnDraw(e);
         }
 
@@ -239,7 +239,7 @@ namespace AntdUI.Chat
                 {
                     using (var path = text.rect_read.RoundPath(radius))
                     {
-                        using (var brush = new SolidBrush(Colour.TextTertiary.Get("ChatList", ColorScheme)))
+                        using (var brush = new SolidBrush(Colour.TextTertiary.Get(nameof(ChatList), ColorScheme)))
                         {
                             g.String(text.Name, Font, brush, text.rect_name, SFL);
                         }
@@ -831,6 +831,7 @@ namespace AntdUI.Chat
             item.cache_font = font_widths.ToArray();
 
             int usex = 0, usey = 0, maxx = 0, maxy = 0;
+            int? tmpimgsize = null;
             foreach (var it in item.cache_font)
             {
                 if (it.text == "\r")
@@ -847,10 +848,19 @@ namespace AntdUI.Chat
                 }
                 else if (usex + it.width > max_width)
                 {
-                    usey += font_height;
+                    if (tmpimgsize.HasValue)
+                    {
+                        usey += tmpimgsize.Value;
+                        tmpimgsize = null;
+                    }
+                    else usey += font_height;
                     usex = 0;
                 }
-                if (it.imageHeight.HasValue) it.rect = new Rectangle(usex, usey, it.width, it.imageHeight.Value);
+                if (it.imageHeight.HasValue)
+                {
+                    it.rect = new Rectangle(usex, usey, it.width, it.imageHeight.Value);
+                    tmpimgsize = it.imageHeight.Value;
+                }
                 else it.rect = new Rectangle(usex, usey, it.width, font_height);
                 if (maxx < it.rect.Right) maxx = it.rect.Right;
                 if (maxy < it.rect.Bottom) maxy = it.rect.Bottom;

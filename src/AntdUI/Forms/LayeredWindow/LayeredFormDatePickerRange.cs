@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -221,6 +221,30 @@ namespace AntdUI
                 rect_right.Enable = Helper.DateExceedMonth(value.AddMonths(1), minDate, maxDate);
                 rect_lefts.Enable = Helper.DateExceedYear(value.AddYears(-1), minDate, maxDate);
                 rect_rights.Enable = Helper.DateExceedYear(value.AddYears(1), minDate, maxDate);
+
+                if (badge_action == null) return;
+                var oldval = value;
+                ITask.Run(() =>
+                {
+                    var dir = badge_action(new DateTime[] { calendar_day[0].date, calendar_day[calendar_day.Count - 1].date });
+                    if (_Date == oldval)
+                    {
+                        badge_list.Clear();
+                        if (dir == null)
+                        {
+                            if (RunAnimation) DisposeTmp();
+                            else Print();
+                            return;
+                        }
+#if NET40 || NET46 || NET48
+                        foreach (var it in dir) badge_list.Add(it.Date, it);
+#else
+                        foreach (var it in dir) badge_list.TryAdd(it.Date, it);
+#endif
+                        if (RunAnimation) DisposeTmp();
+                        else Print();
+                    }
+                });
             }
         }
 
@@ -273,9 +297,9 @@ namespace AntdUI
         StringFormat s_f_L, s_f_R;
         public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
         {
-            using (var pen_arrow = new Pen(Colour.TextTertiary.Get("DatePicker", ColorScheme), 1.6F * Config.Dpi))
-            using (var pen_arrow_hover = new Pen(Colour.Text.Get("DatePicker", ColorScheme), pen_arrow.Width))
-            using (var pen_arrow_enable = new Pen(Colour.FillSecondary.Get("DatePicker", ColorScheme), pen_arrow.Width))
+            using (var pen_arrow = new Pen(Colour.TextTertiary.Get(nameof(DatePicker), ColorScheme), 1.6F * Config.Dpi))
+            using (var pen_arrow_hover = new Pen(Colour.Text.Get(nameof(DatePicker), ColorScheme), pen_arrow.Width))
+            using (var pen_arrow_enable = new Pen(Colour.FillSecondary.Get(nameof(DatePicker), ColorScheme), pen_arrow.Width))
             {
                 if (rect_lefts.Hover)
                 {
@@ -325,19 +349,19 @@ namespace AntdUI
                 if (left_buttons != null)
                 {
                     g.TranslateTransform(0, -ScrollButtons!.Value);
-                    using (var brush_fore = new SolidBrush(Colour.TextBase.Get("DatePicker", ColorScheme)))
+                    using (var brush_fore = new SolidBrush(Colour.TextBase.Get(nameof(DatePicker), ColorScheme)))
                     {
                         foreach (var it in left_buttons)
                         {
                             using (var path = it.rect_read.RoundPath(Radius))
                             {
-                                if (it.hover) g.Fill(Colour.FillTertiary.Get("DatePicker", ColorScheme), path);
+                                if (it.hover) g.Fill(Colour.FillTertiary.Get(nameof(DatePicker), ColorScheme), path);
                                 g.String(it.v, Font, brush_fore, it.rect_text, s_f_LE);
                             }
                         }
                     }
                     g.Restore(state);
-                    ScrollButtons.Paint(g);
+                    ScrollButtons.Paint(g, ColorScheme);
                 }
 
 
@@ -375,13 +399,13 @@ namespace AntdUI
 
         void PrintYear(Canvas g, GraphicsState state, Rectangle rect_read, List<ItemCalendari> datas)
         {
-            var color_fore = Colour.TextBase.Get("DatePicker", ColorScheme);
+            var color_fore = Colour.TextBase.Get(nameof(DatePicker), ColorScheme);
             using (var font = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
             {
                 g.String(year_str, font, color_fore, rect_year2.Rect, s_f);
             }
 
-            using (var brush_split = new SolidBrush(Colour.Split.Get("DatePicker", ColorScheme)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(DatePicker), ColorScheme)))
             {
                 foreach (var it in rects_split) g.Fill(brush_split, it);
             }
@@ -389,14 +413,14 @@ namespace AntdUI
         }
         void PrintYear(Canvas g, GraphicsState state, Rectangle rect_read, List<ItemCalendari> datas, List<ItemCalendari> datas2)
         {
-            var color_fore = Colour.TextBase.Get("DatePicker", ColorScheme);
+            var color_fore = Colour.TextBase.Get(nameof(DatePicker), ColorScheme);
             using (var font = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
             {
                 g.String(year_str, font, color_fore, rect_year2.Rect, s_f);
                 g.String(year_str2, font, color_fore, rect_year2_r.Rect, s_f);
             }
 
-            using (var brush_split = new SolidBrush(Colour.Split.Get("DatePicker", ColorScheme)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(DatePicker), ColorScheme)))
             {
                 foreach (var it in rects_split) g.Fill(brush_split, it);
             }
@@ -410,15 +434,15 @@ namespace AntdUI
 
         void PrintMonth(Canvas g, GraphicsState state, Rectangle rect_read, List<ItemCalendari> datas)
         {
-            var color_fore = Colour.TextBase.Get("DatePicker", ColorScheme);
+            var color_fore = Colour.TextBase.Get(nameof(DatePicker), ColorScheme);
             using (var font = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
             {
                 string yearStr = _Date.ToString(YearFormat, Culture);
-                if (rect_year2.Hover) g.String(yearStr, font, Colour.Primary.Get("DatePicker", ColorScheme), rect_year2.Rect, s_f);
+                if (rect_year2.Hover) g.String(yearStr, font, Colour.Primary.Get(nameof(DatePicker), ColorScheme), rect_year2.Rect, s_f);
                 else g.String(yearStr, font, color_fore, rect_year2.Rect, s_f);
             }
 
-            using (var brush_split = new SolidBrush(Colour.Split.Get("DatePicker", ColorScheme)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(DatePicker), ColorScheme)))
             {
                 foreach (var it in rects_split) g.Fill(brush_split, it);
             }
@@ -426,19 +450,19 @@ namespace AntdUI
         }
         void PrintMonth(Canvas g, GraphicsState state, Rectangle rect_read, List<ItemCalendari> datas, List<ItemCalendari> datas2)
         {
-            var color_fore = Colour.TextBase.Get("DatePicker", ColorScheme);
+            var color_fore = Colour.TextBase.Get(nameof(DatePicker), ColorScheme);
             using (var font = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
             {
                 string yearStr = _Date.ToString(YearFormat, Culture);
-                if (rect_year2.Hover) g.String(yearStr, font, Colour.Primary.Get("DatePicker", ColorScheme), rect_year2.Rect, s_f);
+                if (rect_year2.Hover) g.String(yearStr, font, Colour.Primary.Get(nameof(DatePicker), ColorScheme), rect_year2.Rect, s_f);
                 else g.String(yearStr, font, color_fore, rect_year2.Rect, s_f);
 
                 string year2Str = _Date_R.ToString(YearFormat, Culture);
-                if (rect_year2_r.Hover) g.String(year2Str, font, Colour.Primary.Get("DatePicker", ColorScheme), rect_year2_r.Rect, s_f);
+                if (rect_year2_r.Hover) g.String(year2Str, font, Colour.Primary.Get(nameof(DatePicker), ColorScheme), rect_year2_r.Rect, s_f);
                 else g.String(year2Str, font, color_fore, rect_year2_r.Rect, s_f);
             }
 
-            using (var brush_split = new SolidBrush(Colour.Split.Get("DatePicker", ColorScheme)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(DatePicker), ColorScheme)))
             {
                 foreach (var it in rects_split) g.Fill(brush_split, it);
             }
@@ -452,33 +476,33 @@ namespace AntdUI
 
         void PrintDay(Canvas g, GraphicsState state, Rectangle rect_read, List<ItemCalendari> datas, List<ItemCalendari> datas2)
         {
-            var color_fore = Colour.TextBase.Get("DatePicker", ColorScheme);
+            var color_fore = Colour.TextBase.Get(nameof(DatePicker), ColorScheme);
             using (var font = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
             {
                 string yearStr = _Date.ToString(YearFormat, Culture), monthStr = _Date.ToString(MonthFormat, Culture);
-                if (rect_year.Hover) g.String(yearStr, font, Colour.Primary.Get("DatePicker", ColorScheme), rect_year.Rect, s_f_L);
+                if (rect_year.Hover) g.String(yearStr, font, Colour.Primary.Get(nameof(DatePicker), ColorScheme), rect_year.Rect, s_f_L);
                 else g.String(yearStr, font, color_fore, rect_year.Rect, s_f_L);
 
-                if (rect_month.Hover) g.String(monthStr, font, Colour.Primary.Get("DatePicker", ColorScheme), rect_month.Rect, s_f_R);
+                if (rect_month.Hover) g.String(monthStr, font, Colour.Primary.Get(nameof(DatePicker), ColorScheme), rect_month.Rect, s_f_R);
                 else g.String(monthStr, font, color_fore, rect_month.Rect, s_f_R);
 
                 #region 右
 
                 string year2Str = _Date_R.ToString(YearFormat, Culture), month2Str = _Date_R.ToString(MonthFormat, Culture);
-                if (rect_year_r.Hover) g.String(year2Str, font, Colour.Primary.Get("DatePicker", ColorScheme), rect_year_r.Rect, s_f_L);
+                if (rect_year_r.Hover) g.String(year2Str, font, Colour.Primary.Get(nameof(DatePicker), ColorScheme), rect_year_r.Rect, s_f_L);
                 else g.String(year2Str, font, color_fore, rect_year_r.Rect, s_f_L);
 
-                if (rect_month_r.Hover) g.String(month2Str, font, Colour.Primary.Get("DatePicker", ColorScheme), rect_month_r.Rect, s_f_R);
+                if (rect_month_r.Hover) g.String(month2Str, font, Colour.Primary.Get(nameof(DatePicker), ColorScheme), rect_month_r.Rect, s_f_R);
                 else g.String(month2Str, font, color_fore, rect_month_r.Rect, s_f_R);
 
                 #endregion
             }
 
-            using (var brush_split = new SolidBrush(Colour.Split.Get("DatePicker", ColorScheme)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(DatePicker), ColorScheme)))
             {
                 foreach (var it in rects_split) g.Fill(brush_split, it);
             }
-            using (var brush = new SolidBrush(Colour.Text.Get("DatePicker", ColorScheme)))
+            using (var brush = new SolidBrush(Colour.Text.Get(nameof(DatePicker), ColorScheme)))
             {
                 g.String(MondayButton, Font, brush, rect_mon, s_f);
                 g.String(TuesdayButton, Font, brush, rect_tue, s_f);
@@ -502,19 +526,19 @@ namespace AntdUI
         }
         void PrintDay(Canvas g, GraphicsState state, Rectangle rect_read, List<ItemCalendari> datas, string? p = null)
         {
-            using (var brush_fore = new SolidBrush(Colour.TextBase.Get("DatePicker", ColorScheme)))
-            using (var brush_fore_disable = new SolidBrush(Colour.TextQuaternary.Get("DatePicker", ColorScheme)))
-            using (var brush_bg_disable = new SolidBrush(Colour.FillTertiary.Get("DatePicker", ColorScheme)))
-            using (var brush_active = new SolidBrush(Colour.Primary.Get("DatePicker", ColorScheme)))
-            using (var brush_active_bg = new SolidBrush(Colour.PrimaryBg.Get("DatePicker", ColorScheme)))
-            using (var brush_active_fore = new SolidBrush(Colour.PrimaryColor.Get("DatePicker", ColorScheme)))
+            using (var brush_fore = new SolidBrush(Colour.TextBase.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_fore_disable = new SolidBrush(Colour.TextQuaternary.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_bg_disable = new SolidBrush(Colour.FillTertiary.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_active = new SolidBrush(Colour.Primary.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_active_bg = new SolidBrush(Colour.PrimaryBg.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_active_fore = new SolidBrush(Colour.PrimaryColor.Get(nameof(DatePicker), ColorScheme)))
             {
                 foreach (var it in datas)
                 {
                     var rect = rect_div[p + it.id];
                     using (var path = rect.RectRead.RoundPath(Radius))
                     {
-                        switch (IfDSType(it.date))
+                        switch (IfDSType(it.date, it.date_str, "yyyy-MM-dd"))
                         {
                             case 0:
                                 if (it.enable)
@@ -528,7 +552,7 @@ namespace AntdUI
                                     g.Fill(brush_bg_disable, new Rectangle(rect.Rect.X, rect.RectRead.Y, rect.Rect.Width, rect.RectRead.Height));
                                     g.String(it.v, Font, brush_fore_disable, rect_div[p + it.id].Rect, s_f);
                                 }
-                                if (DateNow.ToString("yyyy-MM-dd") == it.date_str) g.Draw(Colour.Primary.Get("DatePicker", ColorScheme), bor, path);
+                                if (DateNow.ToString("yyyy-MM-dd") == it.date_str) g.Draw(Colour.Primary.Get(nameof(DatePicker), ColorScheme), bor, path);
                                 break;
                             case 1:
                                 g.Fill(brush_active, path);
@@ -568,19 +592,19 @@ namespace AntdUI
         }
         void PrintYM(Canvas g, GraphicsState state, Rectangle rect_read, List<ItemCalendari> datas, string f, string? p = null)
         {
-            using (var brush_fore = new SolidBrush(Colour.TextBase.Get("DatePicker", ColorScheme)))
-            using (var brush_fore_disable = new SolidBrush(Colour.TextQuaternary.Get("DatePicker", ColorScheme)))
-            using (var brush_bg_disable = new SolidBrush(Colour.FillTertiary.Get("DatePicker", ColorScheme)))
-            using (var brush_active = new SolidBrush(Colour.Primary.Get("DatePicker", ColorScheme)))
-            using (var brush_active_bg = new SolidBrush(Colour.PrimaryBg.Get("DatePicker", ColorScheme)))
-            using (var brush_active_fore = new SolidBrush(Colour.PrimaryColor.Get("DatePicker", ColorScheme)))
+            using (var brush_fore = new SolidBrush(Colour.TextBase.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_fore_disable = new SolidBrush(Colour.TextQuaternary.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_bg_disable = new SolidBrush(Colour.FillTertiary.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_active = new SolidBrush(Colour.Primary.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_active_bg = new SolidBrush(Colour.PrimaryBg.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_active_fore = new SolidBrush(Colour.PrimaryColor.Get(nameof(DatePicker), ColorScheme)))
             {
                 foreach (var it in datas)
                 {
                     var rect = rect_div[p + it.id];
                     using (var path = rect.RectRead.RoundPath(Radius))
                     {
-                        switch (IfDSType(it.date))
+                        switch (IfDSType(it.date, it.date_str, f))
                         {
                             case 0:
                                 if (it.enable)
@@ -593,7 +617,7 @@ namespace AntdUI
                                     g.Fill(brush_bg_disable, new Rectangle(rect.Rect.X, rect.RectRead.Y, rect.Rect.Width, rect.RectRead.Height));
                                     g.String(it.v, Font, brush_fore_disable, rect_div[p + it.id].Rect, s_f);
                                 }
-                                if (DateNow.ToString(f) == it.date_str) g.Draw(Colour.Primary.Get("DatePicker", ColorScheme), bor, path);
+                                if (DateNow.ToString(f) == it.date_str) g.Draw(Colour.Primary.Get(nameof(DatePicker), ColorScheme), bor, path);
                                 break;
                             case 1:
                                 g.Fill(brush_active, path);
@@ -634,18 +658,18 @@ namespace AntdUI
 
         #endregion
 
-        int IfDSType(DateTime date)
+        int IfDSType(DateTime date, string date_str, string f)
         {
             if (oldTimeHover.HasValue && oldTime.HasValue)
             {
                 bool c = oldTime.Value < oldTimeHover.Value;
-                if (date == oldTime.Value)
+                if (date_str == oldTime.Value.ToString(f))
                 {
                     if (oldTime.Value == oldTimeHover.Value) return 1;
                     if (c) return 3;// ←
                     else return 4;// →
                 }
-                else if (date == oldTimeHover.Value)
+                else if (date_str == oldTimeHover.Value.ToString(f))
                 {
                     if (oldTime.Value == oldTimeHover.Value) return 1;
                     if (c) return 4;// →
@@ -682,7 +706,7 @@ namespace AntdUI
         void LoadLayout() => Helper.GDI(g => LoadLayout(g));
         void LoadLayout(Canvas g)
         {
-            base.ClearShadow();
+            ClearShadow();
             var size = g.MeasureString(Config.NullText, Font);
             bor = (int)(size.Height * 0.1F);
             int sp = (int)(size.Height * 0.2F), sp2 = sp * 2;

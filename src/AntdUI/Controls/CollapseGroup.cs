@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -248,16 +248,16 @@ namespace AntdUI
             float _radius = radius * Config.Dpi;
             int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
             g.TranslateTransform(-sx, -sy);
-            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get("CollapseGroup", ColorScheme)))
-            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get("CollapseGroup", ColorScheme)))
-            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get("CollapseGroup", ColorScheme)))
-            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get("CollapseGroup", ColorScheme)))
-            using (var brush_TextQuaternary = new SolidBrush(Colour.TextQuaternary.Get("CollapseGroup", ColorScheme)))
+            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get(nameof(CollapseGroup), ColorScheme)))
+            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get(nameof(CollapseGroup), ColorScheme)))
+            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get(nameof(CollapseGroup), ColorScheme)))
+            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(nameof(CollapseGroup), ColorScheme)))
+            using (var brush_TextQuaternary = new SolidBrush(Colour.TextQuaternary.Get(nameof(CollapseGroup), ColorScheme)))
             {
                 PaintItem(g, e.Rect, sx, sy, items, brush_fore, brush_fore_active, brush_hover, brush_active, brush_TextQuaternary, _radius);
             }
             g.ResetTransform();
-            ScrollBar.Paint(g);
+            ScrollBar.Paint(g, ColorScheme);
             base.OnDraw(e);
         }
 
@@ -919,12 +919,6 @@ namespace AntdUI
             }
         }
 
-        internal override bool Show
-        {
-            get => Visible;
-            set => base.Show = Visible = value;
-        }
-
         bool switchMode = false;
         //[Obsolete("请使用EditType")]
         [Browsable(false)]
@@ -949,7 +943,7 @@ namespace AntdUI
         /// 编辑器, 参考EditType
         /// </summary>
         [Browsable(false)]
-        public IControl? Edit { get; protected set; } = null;
+        public IControl? Edit { get; protected set; }
 
         [Description("工具提示内容"), Category("外观"), DefaultValue(null)]
         public string? Tooltip { get; set; }

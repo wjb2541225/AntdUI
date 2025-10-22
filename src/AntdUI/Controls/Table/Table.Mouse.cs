@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -313,12 +313,20 @@ namespace AntdUI
                 if (rows == null) return;
                 if (OnTouchUp())
                 {
-                    if (cellMDown == null) return;
+                    if (cellMDown == null)
+                    {
+                        EditModeClose();
+                        return;
+                    }
                     MouseUpRow(rows, cellMDown, btnMDown, e);
                 }
                 else
                 {
-                    if (btnMDown == null) return;
+                    if (btnMDown == null)
+                    {
+                        EditModeClose();
+                        return;
+                    }
                     if (btnMDown.cell.ExtraMouseDown)
                     {
                         CellButtonUp?.Invoke(this, new TableButtonEventArgs(btnMDown.cell, btnMDown.row.RECORD, btnMDown.i_row, btnMDown.i_cel, btnMDown.cell.PARENT.COLUMN, RealRect(btnMDown), e));
@@ -690,6 +698,7 @@ namespace AntdUI
                     foreach (RowTemplate it in rows)
                     {
                         if (it.IsColumn) continue;
+                        hovers = -1;
                         it.Hover = false;
                         foreach (var cel_tmp in it.cells)
                         {
@@ -701,6 +710,7 @@ namespace AntdUI
                 }
                 else
                 {
+                    hovers = cel_sel.ROW.INDEX_REAL;
                     if (mode > 0)
                     {
                         for (int i = 1; i < rows.Length; i++)
@@ -974,6 +984,7 @@ namespace AntdUI
                 else if (it.Type == RowType.Summary) continue;
                 else if (it.Contains(ex, py, sethover))
                 {
+                    if (sethover) hovers = it.INDEX_REAL;
                     if (CellContains(it, ex, ey, sx, sy, px, py, out var tmp))
                     {
                         mode = 0;
@@ -1241,15 +1252,8 @@ namespace AntdUI
 
         #endregion
 
-        bool focused = false;
-        protected override void OnGotFocus(EventArgs e)
-        {
-            focused = true;
-            base.OnGotFocus(e);
-        }
         protected override void OnLostFocus(EventArgs e)
         {
-            focused = false;
             if (LostFocusClearSelection) SelectedIndex = -1;
             CloseTip();
             base.OnLostFocus(e);
@@ -1273,6 +1277,7 @@ namespace AntdUI
         {
             SetCursor(false);
             if (rows == null || inEditMode) return;
+            hovers = -1;
             foreach (var it in rows)
             {
                 it.Hover = false;

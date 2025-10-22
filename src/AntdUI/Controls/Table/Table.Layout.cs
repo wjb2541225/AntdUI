@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -32,7 +32,7 @@ namespace AntdUI
             if (LoadLayout()) Invalidate();
         }
 
-        string? show_oldrect = null;
+        string? show_oldrect;
         protected override void OnSizeChanged(EventArgs e)
         {
             var rect = ClientRectangle;
@@ -42,6 +42,7 @@ namespace AntdUI
                 if (show_oldrect == show_rect) return;
                 show_oldrect = show_rect;
                 LoadLayout(rect);
+                EditModeClose();
                 base.OnSizeChanged(e);
             }
         }
@@ -109,6 +110,15 @@ namespace AntdUI
                 else if (_rows.Count > 0)
                 {
                     rows = LayoutDesign(rect, _rows, Columns, ColWidth, KeyTreeIndex, out int x, out int y, out bool is_exceed);
+                    if (scrollBarAvoidHeader && visibleHeader && fixedHeader)
+                    {
+                        int headerHeight = rows[0].Height;
+                        if (headerHeight > 0 && rect.Height > headerHeight)
+                        {
+                            y -= headerHeight;
+                            rect = new Rectangle(rect.X, rect.Y + headerHeight, rect.Width, rect.Height - headerHeight);
+                        }
+                    }
                     ScrollBar.SetVrSize(is_exceed ? x : 0, y);
                     if (Processing && Config.HasAnimation(nameof(Table)))
                     {
@@ -271,25 +281,6 @@ namespace AntdUI
 
         RowTemplate[] LayoutDesign(Rectangle rect, List<RowTemplate?> _rows, List<Column> _columns, Dictionary<int, object> col_width, int KeyTreeINDEX, out int _x, out int _y, out bool _is_exceed)
         {
-            if (rows != null)
-            {
-                List<object?> dir_Select = new List<object?>(rows.Length), dir_Hover = new List<object?>(1);
-                foreach (var it in rows)
-                {
-                    if (it.Select) dir_Select.Add(it.RECORD);
-                    if (it.Hover) dir_Hover.Add(it.RECORD);
-                }
-                if (dir_Select.Count > 0 || dir_Hover.Count > 0)
-                {
-                    foreach (var it in _rows)
-                    {
-                        if (it == null) continue;
-                        if (dir_Select.Contains(it.RECORD)) it.Select = true;
-                        if (dir_Hover.Contains(it.RECORD)) it.Hover = true;
-                    }
-                }
-            }
-
             #region 添加表头
 
             var _cols = new List<TCellColumn>(_columns.Count);
@@ -310,8 +301,7 @@ namespace AntdUI
                 var font_size = g.MeasureString(Config.NullText, Font);
                 var gap = new TableGaps(_gap);
                 int check_size = (int)(_checksize * dpi), switchsize = (int)(_switchsize * dpi), treesize = (int)(TreeButtonSize * dpi),
-                 gapTree = (int)(_gapTree * dpi), gapTree2 = gapTree * 2, sort_size = (int)(DragHandleSize * dpi), sort_ico_size = (int)(DragHandleIconSize * dpi),
-                split = (int)(BorderCellWidth * dpi), split_move = (int)(6F * dpi);
+                 gapTree = (int)(_gapTree * dpi), gapTree2 = gapTree * 2, sort_size = (int)(DragHandleSize * dpi), sort_ico_size = (int)(DragHandleIconSize * dpi), split_move = (int)(6F * dpi);
 
                 check_radius = check_size * .12F * dpi;
                 check_border = check_size * .04F * dpi;
@@ -357,7 +347,7 @@ namespace AntdUI
                             else if (rowHeightHeader.HasValue) row.Height = (int)(rowHeightHeader.Value * dpi);
                             else if (rowHeight.HasValue) row.Height = (int)(rowHeight.Value * dpi);
                             else row.Height = max_height + gap.y2;
-                            tmp_width_cell = CalculateWidth(rect, ref rect_real, col_width, read_width_cell, gap.x2, check_size, sort_size, ref is_exceed);
+                            tmp_width_cell = CalculateWidth(rect, false, ref rect_real, col_width, read_width_cell, gap.x2, check_size, sort_size, ref is_exceed);
                             var del_tmp_width_cell = new List<int>(tmp_width_cell.Count);
                             foreach (var it in tmp_width_cell)
                             {
@@ -460,7 +450,7 @@ namespace AntdUI
                     }
                 }
 
-                var width_cell = CalculateWidth(rect, ref rect_real, col_width, read_width_cell, gap.x2, check_size, sort_size, ref is_exceed);
+                var width_cell = CalculateWidth(rect, true, ref rect_real, col_width, read_width_cell, gap.x2, check_size, sort_size, ref is_exceed);
 
                 #endregion
 
@@ -536,7 +526,6 @@ namespace AntdUI
 
                 #endregion
 
-                List<int[]> _dividerHs = new List<int[]>(firstrow.cells.Length), _dividers = new List<int[]>(_rows.Count);
                 int last_index = _rows.Count - 1;
                 var last_row = _rows[last_index];
                 while (!last_row!.ShowExpand)
@@ -547,34 +536,46 @@ namespace AntdUI
                 var last = last_row.cells[last_row.cells.Length - 1];
 
                 bool isempty = emptyHeader && _rows.Count == 1;
-                if ((rect.Y + rect.Height) > last.RECT.Bottom && !isempty) rect_real.Height = last.RECT.Bottom - rect.Y;
-
+                if (!isempty && (rect.Y + rect.Height) > last.RECT.Bottom) rect_real.Height = last.RECT.Bottom - rect.Y + (int)Math.Ceiling(borderWidth * dpi);
                 rect_divider = new Rectangle(rect_real.X, rect_real.Y, rect_real.Width, rect_real.Height);
 
                 var MoveHeaders = new List<MoveHeader>();
                 var moveheaders_dir = new Dictionary<int, MoveHeader>(moveheaders.Length);
                 foreach (var item in moveheaders) moveheaders_dir.Add(item.i, item);
-                foreach (var row in rowlist)
+
+                if (BorderCellWidth > 0)
                 {
-                    if (row.IsColumn)
+                    List<int[]> _dividerHs = new List<int[]>(firstrow.cells.Length), _dividers = new List<int[]>(_rows.Count);
+                    foreach (var row in rowlist)
                     {
-                        if (EnableHeaderResizing)
+                        if (row.IsColumn)
                         {
-                            int split_move2 = split_move / 2;
-                            for (int i = 0; i < row.cells.Length; i++)
+                            if (EnableHeaderResizing)
                             {
-                                var it = row.cells[i];
-                                MoveHeaders.Add(new MoveHeader(moveheaders_dir, new Rectangle(it.RECT.Right - split_move2, rect.Y, split_move, it.RECT.Height), i, it.RECT.Width, it.MinWidth));
-                            }
-                        }
-                        if (bordered)
-                        {
-                            if (isempty)
-                            {
-                                for (int i = 0; i < row.cells.Length - 1; i++)
+                                int split_move2 = split_move / 2;
+                                for (int i = 0; i < row.cells.Length; i++)
                                 {
                                     var it = row.cells[i];
-                                    _dividerHs.Add(new int[] { it.RECT.Right, rect.Y, it.RECT.Height });
+                                    MoveHeaders.Add(new MoveHeader(moveheaders_dir, new Rectangle(it.RECT.Right - split_move2, rect.Y, split_move, it.RECT.Height), i, it.RECT.Width, it.MinWidth));
+                                }
+                            }
+                            if (bordered)
+                            {
+                                if (isempty)
+                                {
+                                    for (int i = 0; i < row.cells.Length - 1; i++)
+                                    {
+                                        var it = row.cells[i];
+                                        _dividerHs.Add(new int[] { it.RECT.Right, rect.Y, it.RECT.Height });
+                                    }
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < row.cells.Length - 1; i++)
+                                    {
+                                        var it = row.cells[i];
+                                        _dividerHs.Add(new int[] { it.RECT.Right, rect.Y, rect_real.Height });
+                                    }
                                 }
                             }
                             else
@@ -582,29 +583,26 @@ namespace AntdUI
                                 for (int i = 0; i < row.cells.Length - 1; i++)
                                 {
                                     var it = row.cells[i];
-                                    _dividerHs.Add(new int[] { it.RECT.Right, rect.Y, rect_real.Height });
+                                    _dividerHs.Add(new int[] { it.RECT.Right, it.RECT.Y + gap.y, it.RECT.Height - gap.y2 });
                                 }
                             }
                             if (visibleHeader) _dividers.Add(new int[] { row.RECT.Bottom, rect.X, rect_real.Width });
                         }
                         else
                         {
-                            for (int i = 0; i < row.cells.Length - 1; i++)
-                            {
-                                var it = row.cells[i];
-                                _dividerHs.Add(new int[] { it.RECT.Right, it.RECT.Y + gap.y, it.RECT.Height - gap.y2 });
-                            }
+                            if (bordered) _dividers.Add(new int[] { row.RECT.Bottom, rect.X, rect_real.Width });
+                            else _dividers.Add(new int[] { row.RECT.Bottom, row.RECT.X, row.RECT.Width });
                         }
                     }
-                    else
-                    {
-                        if (bordered) _dividers.Add(new int[] { row.RECT.Bottom, rect.X, rect_real.Width });
-                        else _dividers.Add(new int[] { row.RECT.Bottom, row.RECT.X, row.RECT.Width });
-                    }
+                    if (bordered && !isempty) _dividers.RemoveAt(_dividers.Count - 1);
+                    dividerHs = _dividerHs.ToArray();
+                    dividers = _dividers.ToArray();
                 }
-                if (bordered && !isempty) _dividers.RemoveAt(_dividers.Count - 1);
-                dividerHs = _dividerHs.ToArray();
-                dividers = _dividers.ToArray();
+                else
+                {
+                    dividers = new int[0][];
+                    dividerHs = new int[0][];
+                }
                 moveheaders = MoveHeaders.ToArray();
             });
 
@@ -621,10 +619,12 @@ namespace AntdUI
         public virtual void OnShowYChanged(bool value) { }
         public virtual void OnValueXChanged(int value)
         {
+            EditModeClose();
         }
         public virtual void OnValueYChanged(int value)
         {
             if (VirtualMode) LoadLayout();
+            EditModeClose();
         }
 
         #region 通用循环
@@ -814,7 +814,7 @@ namespace AntdUI
         /// <param name="check_size">复选框大小</param>
         /// <param name="sort_size">拖拽大小</param>
         /// <param name="is_exceed">是否超出容器宽度</param>
-        Dictionary<int, int> CalculateWidth(Rectangle rect, ref Rectangle rect_read, Dictionary<int, object> col_width, Dictionary<int, AutoWidth> read_width, int gap2, int check_size, int sort_size, ref bool is_exceed)
+        Dictionary<int, int> CalculateWidth(Rectangle rect, bool change, ref Rectangle rect_read, Dictionary<int, object> col_width, Dictionary<int, AutoWidth> read_width, int gap2, int check_size, int sort_size, ref bool is_exceed)
         {
             int use_width = rect.Width;
             float max_width = 0;
@@ -921,7 +921,7 @@ namespace AntdUI
                         }
                         width_cell = percentage;
                     }
-                    else rect_read.Width = sum_wi;
+                    else if (change) rect_read.Width = sum_wi;
                 }
             }
             return width_cell;
@@ -1061,6 +1061,7 @@ namespace AntdUI
         {
             var row = new RowTemplate(this, cells, row_i, record);
             if (enableDir.Contains(row_i)) row.ENABLE = false;
+            if (row.INDEX_REAL == hovers) row.hover = true;
             foreach (var it in row.cells) it.SetROW(row);
             rows.Add(row);
             return row;
@@ -1079,15 +1080,27 @@ namespace AntdUI
                     if (rows.Count > 0)
                     {
                         int t_count = rows.Count, check_count = 0;
-                        for (int row_i = 0; row_i < rows.Count; row_i++)
+                        if (VirtualMode && dataTmp != null)
                         {
-                            var tmp = rows[row_i];
-                            if (tmp == null) continue;
-                            if (tmp.Type == RowType.Summary) t_count--;
-                            else
+                            t_count = dataTmp.rows.Length;
+                            ForRow(dataTmp, 0, dataTmp.rows.Length, row =>
                             {
-                                var cell = tmp.cells[i];
-                                if (cell is TCellCheck checkCell && checkCell.Checked) check_count++;
+                                if (row == null) return;
+                                if (row[checkColumn.Key] is bool tmp && tmp) check_count++;
+                            });
+                        }
+                        else
+                        {
+                            for (int row_i = 0; row_i < rows.Count; row_i++)
+                            {
+                                var tmp = rows[row_i];
+                                if (tmp == null) continue;
+                                if (tmp.Type == RowType.Summary) t_count--;
+                                else
+                                {
+                                    var cell = tmp.cells[i];
+                                    if (cell is TCellCheck checkCell && checkCell.Checked) check_count++;
+                                }
                             }
                         }
                         if (t_count == check_count) checkColumn.CheckState = System.Windows.Forms.CheckState.Checked;
@@ -1256,8 +1269,12 @@ namespace AntdUI
             }
             else if (cel is TCellCheck check)
             {
-                if (value is bool b) check.Checked = b;
-                row.Select = RowISelect(row);
+                if (value is bool b)
+                {
+                    check.Checked = b;
+                    if (b) selects.Add(row.INDEX_REAL);
+                    else selects.Remove(row.INDEX_REAL);
+                }
                 if (cel.COLUMN is ColumnCheck checkColumn && checkColumn.NoTitle)
                 {
                     int t_count = rows.Length - 1, check_count = 0;
@@ -1279,8 +1296,12 @@ namespace AntdUI
             }
             else if (cel is TCellRadio radio)
             {
-                if (value is bool b) radio.Checked = b;
-                row.Select = RowISelect(row);
+                if (value is bool b)
+                {
+                    radio.Checked = b;
+                    if (b) selects.Add(row.INDEX_REAL);
+                    else selects.Remove(row.INDEX_REAL);
+                }
                 Invalidate();
             }
             else if (cel is TCellSwitch _switch)
@@ -1301,20 +1322,38 @@ namespace AntdUI
             int count = 0, nocount = 0;
             bool old = pauseLayout;
             pauseLayout = true;
-            for (int i_row = 1; i_row < rows.Length; i_row++)
+            if (VirtualMode)
             {
-                var item = rows[i_row].cells[i_cel];
-                if (item.ROW.Type == RowType.Summary) continue;
-                if (item is TCellCheck checkCell)
+                if (dataTmp == null) return;
+                var index = new List<int>(dataTmp.rows.Length);
+                ForRow(dataTmp, 0, dataTmp.rows.Length, row =>
                 {
+                    if (row == null) return;
                     count++;
-                    if (checkCell.Checked != value)
+                    if (row[columnCheck.Key] is bool tmp && tmp == value) nocount++;
+                    else row.SetValue(columnCheck.Key, value);
+                    index.Add(row.i);
+                });
+                selects.Clear();
+                if (value) selects.AddRange(index);
+            }
+            else
+            {
+                for (int i_row = 1; i_row < rows.Length; i_row++)
+                {
+                    var item = rows[i_row].cells[i_cel];
+                    if (item.ROW.Type == RowType.Summary) continue;
+                    if (item is TCellCheck checkCell)
                     {
-                        checkCell.Checked = value;
-                        SetValue(item, checkCell.Checked);
-                        CheckedChanged?.Invoke(this, new TableCheckEventArgs(value, rows[i_row].RECORD, i_row, i_cel, item.COLUMN));
+                        count++;
+                        if (checkCell.Checked == value) nocount++;
+                        else
+                        {
+                            checkCell.Checked = value;
+                            SetValue(item, checkCell.Checked);
+                            CheckedChanged?.Invoke(this, new TableCheckEventArgs(value, rows[i_row].RECORD, i_row, i_cel, item.COLUMN));
+                        }
                     }
-                    else nocount++;
                 }
             }
             pauseLayout = old;
@@ -1336,23 +1375,6 @@ namespace AntdUI
                 }
             }
             else cel.PROPERTY.SetValue(cel.VALUE, value);
-        }
-
-        bool RowISelect(RowTemplate row)
-        {
-            for (int cel_i = 0; cel_i < row.cells.Length; cel_i++)
-            {
-                var cel = row.cells[cel_i];
-                if (cel is TCellCheck check)
-                {
-                    if (check.Checked) return true;
-                }
-                else if (cel is TCellRadio radio)
-                {
-                    if (radio.Checked) return true;
-                }
-            }
-            return false;
         }
 
         #endregion

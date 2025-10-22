@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -174,7 +174,7 @@ namespace AntdUI
             if (icon == null || icon.Width != size)
             {
                 icon?.Dispose();
-                icon = SvgExtend.SvgToBmp(character ?? SvgDb.IcoStar, size, size, Colour.FillSecondary.Get("Rate", ColorScheme));
+                icon = SvgExtend.SvgToBmp(character ?? SvgDb.IcoStar, size, size, Colour.FillSecondary.Get(nameof(Rate), ColorScheme));
 
             }
             if (icon_active == null || icon_active.Width != size)
@@ -199,7 +199,7 @@ namespace AntdUI
                         {
                             using (var g2 = Graphics.FromImage(bmp_diy).HighLay(true))
                             {
-                                using (var brush = new SolidBrush(Colour.FillSecondary.Get("Rate", ColorScheme)))
+                                using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(Rate), ColorScheme)))
                                 {
                                     g2.String(character, font, brush, rect_diy, s_f);
                                 }

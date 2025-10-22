@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -215,7 +215,7 @@ namespace AntdUI
             if (Column != null)
             {
                 input.ReadOnly = Column.ReadOnly;
-                if (input.ReadOnly) input.BackColor = Style.Db.BorderSecondary;
+                if (input.ReadOnly) input.BackColor = Colour.BorderSecondary.Get(nameof(Table));
             }
             Input = input;
         }
@@ -497,7 +497,7 @@ namespace AntdUI
         /// <summary>
         /// 筛选栏字体
         /// </summary>
-        public Font? Font { get; set; } = null;
+        public Font? Font { get; set; }
         /// <summary>
         /// 筛选栏高度
         /// </summary>

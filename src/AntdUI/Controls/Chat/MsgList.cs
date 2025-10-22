@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -134,7 +134,7 @@ namespace AntdUI.Chat
                 foreach (var it in items) PaintItem(g, it, e.Rect, sy, font_text, font_time, radius);
             }
             g.ResetTransform();
-            ScrollBar.Paint(g);
+            ScrollBar.Paint(g, ColorScheme);
             base.OnDraw(e);
         }
 
@@ -162,8 +162,8 @@ namespace AntdUI.Chat
                 }
                 else
                 {
-                    if (it.Hover) g.Fill(BackHover ?? Colour.FillTertiary.Get("MsgList", ColorScheme), it.rect);
-                    using (var brush = new SolidBrush(fore ?? Colour.Text.Get("MsgList", ColorScheme)))
+                    if (it.Hover) g.Fill(BackHover ?? Colour.FillTertiary.Get(nameof(MsgList), ColorScheme), it.rect);
+                    using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(MsgList), ColorScheme)))
                     {
                         try
                         {

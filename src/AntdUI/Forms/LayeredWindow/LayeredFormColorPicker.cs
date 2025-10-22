@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -129,7 +129,7 @@ namespace AntdUI
             bmp_dot_12 = new Bitmap(gap + 12, gap + 12);
             using (var g2 = Graphics.FromImage(bmp_dot_12).High())
             {
-                using (var brush = new SolidBrush(Colour.BgBase.Get("ColorPicker", ColorScheme)))
+                using (var brush = new SolidBrush(Colour.BgBase.Get(nameof(ColorPicker), ColorScheme)))
                 {
                     float yy = (bmp_dot_12.Height - gap) / 2F;
                     var rect = new RectangleF(6, 6, bmp_dot_12.Height - 12, bmp_dot_12.Height - 12);
@@ -573,14 +573,14 @@ namespace AntdUI
         bool hover_btn = false, hover_close = false, hover_reset;
         Rectangle rect_btn, rect_close, rect_reset;
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
             var rect_read = new Rectangle(10, 10, rect.Width - 20, rect.Height - 20);
-            Bitmap original_bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(original_bmp).High())
+            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
+            using (var g = Graphics.FromImage(rbmp).High())
             {
-                using (var brush_bg = new SolidBrush(Colour.BgElevated.Get("ColorPicker", ColorScheme)))
+                using (var brush_bg = new SolidBrush(Colour.BgElevated.Get(nameof(ColorPicker), ColorScheme)))
                 {
                     using (var path = rect_read.RoundPath(Radius))
                     {
@@ -604,7 +604,7 @@ namespace AntdUI
                                 g.DrawLine(pen, new Point(rect_btn.X, rect_btn.Bottom), new Point(rect_btn.Right, rect_btn.Y));
                             }
                             g.ResetClip();
-                            g.Draw(hover_btn ? Colour.BorderColor.Get("ColorPicker", ColorScheme) : Colour.Split.Get("ColorPicker", ColorScheme), Config.Dpi, path);
+                            g.Draw(hover_btn ? Colour.BorderColor.Get(nameof(ColorPicker), ColorScheme) : Colour.Split.Get(nameof(ColorPicker), ColorScheme), Config.Dpi, path);
                         }
                     }
 
@@ -612,9 +612,9 @@ namespace AntdUI
                     {
                         using (var path = rect_close.RoundPath(Radius2))
                         {
-                            g.Draw(hover_close ? Colour.BorderColor.Get("ColorPicker", ColorScheme) : Colour.Split.Get("ColorPicker", ColorScheme), Config.Dpi, path);
+                            g.Draw(hover_close ? Colour.BorderColor.Get(nameof(ColorPicker), ColorScheme) : Colour.Split.Get(nameof(ColorPicker), ColorScheme), Config.Dpi, path);
                         }
-                        g.PaintIconClose(rect_close, Colour.TextTertiary.Get("ColorPicker", ColorScheme), .8F);
+                        g.PaintIconClose(rect_close, Colour.TextTertiary.Get(nameof(ColorPicker), ColorScheme), .8F);
                     }
 
                     if (ShowReset)
@@ -629,9 +629,9 @@ namespace AntdUI
                                 }
                             }
 
-                            g.Draw(hover_close ? Colour.BorderColor.Get("ColorPicker", ColorScheme) : Colour.Split.Get("ColorPicker", ColorScheme), Config.Dpi, path);
+                            g.Draw(hover_close ? Colour.BorderColor.Get(nameof(ColorPicker), ColorScheme) : Colour.Split.Get(nameof(ColorPicker), ColorScheme), Config.Dpi, path);
                         }
-                        g.PaintIconReset(rect_reset, Colour.TextTertiary.Get("ColorPicker", ColorScheme), .8F);
+                        g.PaintIconReset(rect_reset, Colour.TextTertiary.Get(nameof(ColorPicker), ColorScheme), .8F);
                     }
                     #region 调色板
 
@@ -709,7 +709,7 @@ namespace AntdUI
 
                     using (var brush_val = new SolidBrush(Value))
                     using (var brush_hue = new SolidBrush(ValueHue))
-                    using (var pen = new Pen(Colour.BgBase.Get("ColorPicker", ColorScheme), dot_bor_size))
+                    using (var pen = new Pen(Colour.BgBase.Get(nameof(ColorPicker), ColorScheme), dot_bor_size))
                     {
                         #region 调色板
 
@@ -755,7 +755,7 @@ namespace AntdUI
                 }
                 foreach (var input in inputs) input.input.IPaint(g, input.rect, input.rect_read);
             }
-            return original_bmp;
+            return rbmp;
         }
 
         class InputRect
@@ -920,7 +920,7 @@ namespace AntdUI
         {
             if (add)
             {
-                using (var brush = new SolidBrush(Colour.FillSecondary.Get("ColorPicker", ColorScheme)))
+                using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(ColorPicker), ColorScheme)))
                 {
                     int he = rect.Height / 2;
                     int u_x = 0;
@@ -984,6 +984,21 @@ namespace AntdUI
                 }
                 g.Image(shadow_temp.Bitmap, rect, .2F);
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            shadow_temp?.Dispose();
+            shadow_temp = null;
+            bmp_hue?.Dispose();
+            bmp_hue = null;
+            bmp_alpha?.Dispose();
+            bmp_alpha = null;
+            bmp_alpha_read?.Dispose();
+            bmp_alpha_read = null;
+            bmp_dot_12?.Dispose();
+            bmp_dot_12 = null;
+            base.Dispose(disposing);
         }
 
         #endregion

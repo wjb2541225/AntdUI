@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -76,7 +76,7 @@ namespace AntdUI
 
             using (var path = rect_read.RoundPath(rect_read.Height / 2))
             {
-                using (var brush = new SolidBrush(TrackColor ?? Colour.FillQuaternary.Get("Slider", ColorScheme)))
+                using (var brush = new SolidBrush(TrackColor ?? Colour.FillQuaternary.Get(nameof(Slider), ColorScheme)))
                 {
                     g.Fill(brush, path);
                     if (AnimationHover) g.Fill(Helper.ToColorN(AnimationHoverValue, brush.Color), path);
@@ -98,7 +98,7 @@ namespace AntdUI
 
             #endregion
 
-            using (var brush = new SolidBrush(Colour.BgBase.Get("Slider", ColorScheme)))
+            using (var brush = new SolidBrush(Colour.BgBase.Get(nameof(Slider), ColorScheme)))
             {
                 PaintMarksEllipse(g, rect, rect_read, brush, color, LineSize);
                 PaintEllipse(g, rect, rect_read, prog, brush, color_dot, color_hover, color_active, LineSize);

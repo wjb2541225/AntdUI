@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -116,7 +116,7 @@ namespace AntdUI
         {
             if (showicon)
             {
-                using (var bmp = SvgDb.IcoTime.SvgToBmp(rect_r.Width, rect_r.Height, Colour.TextQuaternary.Get("TimePicker", ColorScheme)))
+                using (var bmp = SvgDb.IcoTime.SvgToBmp(rect_r.Width, rect_r.Height, Colour.TextQuaternary.Get(nameof(TimePicker), ColorScheme)))
                 {
                     if (bmp == null) return;
                     g.Image(bmp, rect_r);
@@ -153,13 +153,20 @@ namespace AntdUI
                 {
                     if (subForm == null)
                     {
-                        subForm = new LayeredFormTimePicker(this, _value, date => Value = date);
-                        subForm.Disposed += (a, b) =>
+                        try
+                        {
+                            subForm = new LayeredFormTimePicker(this, _value, date => Value = date);
+                            subForm.Disposed += (a, b) =>
+                            {
+                                subForm = null;
+                                ExpandDrop = false;
+                            };
+                            subForm.Show(this);
+                        }
+                        catch
                         {
                             subForm = null;
-                            ExpandDrop = false;
-                        };
-                        subForm.Show(this);
+                        }
                     }
                 }
                 else subForm?.IClose();

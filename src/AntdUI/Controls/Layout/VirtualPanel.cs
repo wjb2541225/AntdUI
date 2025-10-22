@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -225,6 +225,9 @@ namespace AntdUI
         }
 
         TAlignMini shadowAlign = TAlignMini.None;
+        /// <summary>
+        /// 阴影方向
+        /// </summary>
         [Description("阴影方向"), Category("阴影"), DefaultValue(TAlignMini.None)]
         public TAlignMini ShadowAlign
         {
@@ -945,7 +948,7 @@ namespace AntdUI
             var g = e.Canvas;
             if (items == null || items.Count == 0 || isEmpty)
             {
-                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, Colour.Text.Get("VirtualPanel", ColorScheme), EmptyText, EmptyImage);
+                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, Colour.Text.Get(nameof(VirtualPanel), "emptyFore", ColorScheme), EmptyText, EmptyImage);
             }
             else
             {
@@ -971,7 +974,7 @@ namespace AntdUI
                     else it.SHOW_RECT = false;
                 }
                 g.ResetTransform();
-                ScrollBar.Paint(g);
+                ScrollBar.Paint(g, ColorScheme);
                 if (Config.HasAnimation(nameof(VirtualPanel)) && BlurBar != null) _event.SetWait();
             }
             base.OnDraw(e);
@@ -1086,7 +1089,7 @@ namespace AntdUI
                         int shadow = (int)(Shadow * Config.Dpi);
                         using (var path = new Rectangle(shadow, shadow, it.RECT.Width, it.RECT.Height).RoundPath(radius, shadowAlign, radiusAlign))
                         {
-                            shadow_dir_tmp.Add(id, path.PaintShadowO(it.RECT_S.Width, it.RECT_S.Height, shadowColor ?? Colour.TextBase.Get("VirtualPanel", ColorScheme), shadow));
+                            shadow_dir_tmp.Add(id, path.PaintShadowO(it.RECT_S.Width, it.RECT_S.Height, shadowColor ?? Colour.TextBase.Get(nameof(VirtualPanel), ColorScheme), shadow));
                         }
                     }
                     if (shadow_dir_tmp.TryGetValue(id, out var shadow_temp))

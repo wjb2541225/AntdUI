@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -53,6 +53,23 @@ namespace AntdUI
         public static void WindowTheme(Control control)
         {
             if (Config.IsDark) WindowTheme(control, "DarkMode_Explorer");
+        }
+        public static void WindowTheme(Control control, TAMode mode)
+        {
+            switch (mode)
+            {
+                case TAMode.Light:
+                    WindowTheme(control, "ClearMode_Explorer");
+                    break;
+                case TAMode.Dark:
+                    WindowTheme(control, "DarkMode_Explorer");
+                    break;
+                case TAMode.Auto:
+                default:
+                    var code = Config.IsDark ? "DarkMode_Explorer" : "ClearMode_Explorer";
+                    WindowTheme(control, code);
+                    break;
+            }
         }
         public static void WindowTheme(Control control, bool dark)
         {

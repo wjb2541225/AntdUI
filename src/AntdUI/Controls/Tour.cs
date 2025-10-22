@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -352,7 +352,7 @@ namespace AntdUI
             base.ClosingAnimation();
         }
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             Rectangle rect_read = TargetRectXY, rect = HasBor ? new Rectangle(Bor, 0, rect_read.Width - Bor * 2, rect_read.Height - Bor) : rect_read;
             if (isOK) return PrintBmp(rect_read, rect);
@@ -361,6 +361,7 @@ namespace AntdUI
                 temp?.Dispose();
                 temp = PrintBmp(rect_read, rect);
             }
+            if (temp == null) return null;
             return new Bitmap(temp);
         }
 

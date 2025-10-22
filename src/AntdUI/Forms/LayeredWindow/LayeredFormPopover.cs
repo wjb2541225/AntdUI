@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -34,7 +34,7 @@ namespace AntdUI
         public override bool MessageCloseSub => true;
 
         internal bool topMost = false;
-        Form? form = null;
+        Form? form;
         public LayeredFormPopover(Popover.Config _config)
         {
             config = _config;
@@ -51,8 +51,9 @@ namespace AntdUI
                 if (config.Content is Control control)
                 {
                     control.Parent = this;
-                    control.BackColor = Colour.BgElevated.Get("Popover");
-                    control.ForeColor = Colour.Text.Get("Popover");
+                    control.BackColor = config.Back ?? Colour.BgElevated.Get(nameof(Popover), config.ColorScheme);
+                    control.ForeColor = config.Fore ?? Colour.Text.Get(nameof(Popover), config.ColorScheme);
+                    Win32.WindowTheme(control, config.ColorScheme);
                     Helper.DpiAuto(config.Dpi ?? Config.Dpi, control);
                     int w = control.Width;
                     int h;
@@ -184,10 +185,7 @@ namespace AntdUI
         {
             if (IsHandleCreated)
             {
-                if (config.Content is Control control)
-                {
-                    BeginInvoke(() => LoadContent(control));
-                }
+                if (config.Content is Control control) BeginInvoke(() => LoadContent(control));
                 else base.LoadOK();
             }
             else base.LoadOK();
@@ -202,6 +200,7 @@ namespace AntdUI
         }
 
         Bitmap? tempContent;
+        Form? parent;
         void LoadContent(Control control)
         {
             var flocation = new Point(TargetRect.Location.X + rectContent.X, TargetRect.Location.Y + rectContent.Y);
@@ -218,10 +217,17 @@ namespace AntdUI
             form.Show(this);
             form.Location = flocation;
             PARENT = form;
+            parent = control.FindPARENT();
             config.OnControlLoad?.Invoke();
             control.ControlEvent();
             if (config.Content is ControlEvent controlEvent) controlEvent.LoadCompleted();
             base.LoadOK();
+            if (parent != null) parent.VisibleChanged += Parent_VisibleChanged;
+        }
+        private void Parent_VisibleChanged(object? sender, EventArgs e)
+        {
+            if (form == null) return;
+            form.Visible = parent!.Visible;
         }
 
         private void Control_Disposed(object? sender, EventArgs e) => IClose();
@@ -254,6 +260,7 @@ namespace AntdUI
             shadow_temp = null;
             tempContent?.Dispose();
             tempContent = null;
+            if (parent != null) parent.VisibleChanged -= Parent_VisibleChanged;
             if (config.Content is Control control)
             {
                 control.Disposed -= Control_Disposed;
@@ -274,16 +281,16 @@ namespace AntdUI
         readonly StringFormat stringLeft = Helper.SF_Ellipsis(lr: StringAlignment.Near);
         readonly StringFormat stringCenter = Helper.SF_NoWrap();
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
             var rect_read = new Rectangle(10, 10, rect.Width - 20, rect.Height - 20);
-            Bitmap original_bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(original_bmp).High())
+            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
+            using (var g = Graphics.FromImage(rbmp).High())
             {
                 using (var path = DrawShadow(g, rect, rect_read))
                 {
-                    using (var brush = new SolidBrush(Colour.BgElevated.Get("Popover")))
+                    using (var brush = new SolidBrush(config.Back ?? Colour.BgElevated.Get(nameof(Popover), config.ColorScheme)))
                     {
                         g.Fill(brush, path);
                         if (config.ArrowAlign != TAlign.None) g.FillPolygon(brush, config.ArrowAlign.AlignLines(config.ArrowSize, rect, rect_read));
@@ -293,7 +300,7 @@ namespace AntdUI
 
                 if (config.Title != null || rtext)
                 {
-                    using (var brush = new SolidBrush(Colour.Text.Get("Popover")))
+                    using (var brush = new SolidBrush(config.Fore ?? Colour.Text.Get(nameof(Popover), config.ColorScheme)))
                     {
                         using (var fontTitle = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
                         {
@@ -321,7 +328,7 @@ namespace AntdUI
                     }
                 }
             }
-            return original_bmp;
+            return rbmp;
         }
 
         SafeBitmap? shadow_temp;

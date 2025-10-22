@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -78,6 +78,12 @@ namespace AntdUI
             }
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            IsAddMessage = false;
+            base.Dispose(disposing);
+        }
+
         /// <summary>
         /// 确定窗体是否出现在 Windows 任务栏中
         /// </summary>
@@ -109,11 +115,10 @@ namespace AntdUI
         bool DwmEnabled = true;
         protected override void OnHandleCreated(EventArgs e)
         {
-            base.OnHandleCreated(e);
             if (OS.Version.Major >= 6) DwmEnabled = Win32.IsCompositionEnabled;
             else DwmEnabled = false;
-            SetTheme();
             DisableProcessWindowsGhosting();
+            base.OnHandleCreated(e);
             if (WindowState == FormWindowState.Maximized) rmax = true;
             if (FormBorderStyle != FormBorderStyle.None && !rmax)
             {

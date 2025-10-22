@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -31,26 +31,50 @@ namespace AntdUI
         /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
         public static ILayeredFormOpacity FormMask(this Form owner, Form form, bool MaskClosable = false)
         {
-            bool isclose = false;
             var mask = new LayeredFormMask(owner);
-            if (MaskClosable)
-            {
-                try
-                {
-                    mask.Click += (s1, e1) =>
-                    {
-                        form.Close();
-                    };
-                }
-                catch { }
-            }
+            if (MaskClosable) mask.SetForm(form);
+            form.FormClosed += (s1, e1) => mask.IClose();
             mask.Show(owner);
-            form.FormClosed += (s1, e1) =>
+            return mask;
+        }
+
+        /// <summary>
+        /// 叠加蒙版
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="form">操作对象</param>
+        /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
+        public static ILayeredFormOpacity FormMask(this Control owner, Form form, bool MaskClosable = false)
+        {
+            var tmp = owner.FindPARENT();
+            if (tmp == null) throw new System.Exception("无法找到父窗口");
+            var mask = new LayeredFormMask(tmp, owner);
+            if (MaskClosable) mask.SetForm(form);
+            form.FormClosed += (s1, e1) => mask.IClose();
+            mask.Show(owner);
+            return mask;
+        }
+
+        /// <summary>
+        /// 叠加蒙版
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="form">操作对象</param>
+        /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
+        public static ILayeredFormOpacity FormMask(this Target target, Form form, bool MaskClosable = false)
+        {
+            LayeredFormMask mask;
+            if (target.Value is Form owner) mask = new LayeredFormMask(owner);
+            else if (target.Value is Control control)
             {
-                if (isclose) return;
-                isclose = true;
-                mask.IClose();
-            };
+                var tmp = control.FindPARENT();
+                if (tmp == null) throw new System.Exception("无法找到父窗口");
+                mask = new LayeredFormMask(tmp, control);
+            }
+            else throw new System.Exception("Target只能是Form或Control");
+            if (MaskClosable) mask.SetForm(form);
+            form.FormClosed += (s1, e1) => mask.IClose();
+            target.Show(mask);
             return mask;
         }
 
@@ -62,26 +86,10 @@ namespace AntdUI
         /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
         public static ILayeredFormOpacity FormMask(this Form owner, ILayeredForm form, bool MaskClosable = false)
         {
-            bool isclose = false;
             var mask = new LayeredFormMask(owner);
-            if (MaskClosable)
-            {
-                try
-                {
-                    mask.Click += (s1, e1) =>
-                    {
-                        form.IClose();
-                    };
-                }
-                catch { }
-            }
+            if (MaskClosable) mask.SetForm(form);
             mask.Show(owner);
-            form.Disposed += (s1, e1) =>
-            {
-                if (isclose) return;
-                isclose = true;
-                mask.IClose();
-            };
+            form.FormClosed += (s1, e1) => mask.IClose();
             return mask;
         }
 

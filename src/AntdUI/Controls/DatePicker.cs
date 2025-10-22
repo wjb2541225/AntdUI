@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -173,7 +173,7 @@ namespace AntdUI
         {
             if (showicon)
             {
-                using (var bmp = SvgDb.IcoDate.SvgToBmp(rect_r.Width, rect_r.Height, Colour.TextQuaternary.Get("DatePicker", ColorScheme)))
+                using (var bmp = SvgDb.IcoDate.SvgToBmp(rect_r.Width, rect_r.Height, Colour.TextQuaternary.Get(nameof(DatePicker), ColorScheme)))
                 {
                     if (bmp == null) return;
                     g.Image(bmp, rect_r);
@@ -215,13 +215,20 @@ namespace AntdUI
                 {
                     if (subForm == null)
                     {
-                        subForm = new LayeredFormDatePicker(this, date => Value = date, btn => PresetsClickChanged?.Invoke(this, new ObjectNEventArgs(btn)), BadgeAction);
-                        subForm.Disposed += (a, b) =>
+                        try
+                        {
+                            subForm = new LayeredFormDatePicker(this, date => Value = date, btn => PresetsClickChanged?.Invoke(this, new ObjectNEventArgs(btn)), BadgeAction);
+                            subForm.Disposed += (a, b) =>
+                            {
+                                subForm = null;
+                                ExpandDrop = false;
+                            };
+                            subForm.Show(this);
+                        }
+                        catch
                         {
                             subForm = null;
-                            ExpandDrop = false;
-                        };
-                        subForm.Show(this);
+                        }
                     }
                 }
                 else subForm?.IClose();

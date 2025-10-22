@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -164,8 +164,8 @@ namespace AntdUI
             }
             var g = e.Canvas;
             float _radius = radius * Config.Dpi;
-            using (var brush = new SolidBrush(fore ?? Colour.TextSecondary.Get("Breadcrumb", ColorScheme)))
-            using (var brush_active = new SolidBrush(ForeActive ?? Colour.Text.Get("Breadcrumb", ColorScheme)))
+            using (var brush = new SolidBrush(fore ?? Colour.TextSecondary.Get(nameof(Breadcrumb), ColorScheme)))
+            using (var brush_active = new SolidBrush(ForeActive ?? Colour.Text.Get(nameof(Breadcrumb), ColorScheme)))
             {
                 foreach (var it in hs) g.DrawText("/", Font, brush, it, s_f);
                 for (int i = 0; i < items.Count; i++)
@@ -184,7 +184,7 @@ namespace AntdUI
                         {
                             using (var path = it.Rect.RoundPath(_radius))
                             {
-                                g.Fill(Colour.FillSecondary.Get("Breadcrumb", ColorScheme), path);
+                                g.Fill(Colour.FillSecondary.Get(nameof(Breadcrumb), ColorScheme), path);
                             }
                             PaintImg(g, it, brush_active.Color, it.IconSvg, it.Icon);
                             g.DrawText(it.Text, Font, brush_active, it.RectText, s_f);

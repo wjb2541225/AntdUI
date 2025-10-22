@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -174,23 +174,18 @@ namespace AntdUI
             shadow_temp = null;
         }
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
-            Bitmap original_bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(original_bmp).HighLay())
+            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
+            using (var g = Graphics.FromImage(rbmp).HighLay())
             {
                 if (ShadowEnabled)
                 {
                     var rect_read = new Rectangle(shadow, shadow, rect.Width - shadow2, rect.Height - shadow2);
                     using (var path = rect_read.RoundPath(Radius))
                     {
-                        if (shadow_temp == null)
-                        {
-                            shadow_temp?.Dispose();
-                            shadow_temp = path.PaintShadow(rect.Width, rect.Height, shadow);
-                        }
-
+                        shadow_temp ??= path.PaintShadow(rect.Width, rect.Height, shadow);
                         g.Image(shadow_temp.Bitmap, rect, .2F);
                         PrintBg(g, rect_read, path);
                     }
@@ -208,10 +203,16 @@ namespace AntdUI
                     PrintContent(g, rect, g.Save());
                 }
             }
-            return original_bmp;
+            return rbmp;
         }
 
         SafeBitmap? shadow_temp;
+
+        protected override void Dispose(bool disposing)
+        {
+            ClearShadow();
+            base.Dispose(disposing);
+        }
     }
 
     public abstract class ILayeredShadowFormOpacity : ILayeredFormOpacity
@@ -335,23 +336,18 @@ namespace AntdUI
             shadow_temp = null;
         }
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
-            Bitmap original_bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(original_bmp).HighLay())
+            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
+            using (var g = Graphics.FromImage(rbmp).HighLay())
             {
                 if (ShadowEnabled)
                 {
                     var rect_read = new Rectangle(shadow, shadow, rect.Width - shadow2, rect.Height - shadow2);
                     using (var path = rect_read.RoundPath(Radius))
                     {
-                        if (shadow_temp == null)
-                        {
-                            shadow_temp?.Dispose();
-                            shadow_temp = path.PaintShadow(rect.Width, rect.Height, shadow);
-                        }
-
+                        shadow_temp ??= path.PaintShadow(rect.Width, rect.Height, shadow);
                         g.Image(shadow_temp.Bitmap, rect, .2F);
                         PrintBg(g, rect_read, path);
                     }
@@ -369,9 +365,15 @@ namespace AntdUI
                     PrintContent(g, rect, g.Save());
                 }
             }
-            return original_bmp;
+            return rbmp;
         }
 
         SafeBitmap? shadow_temp;
+
+        protected override void Dispose(bool disposing)
+        {
+            ClearShadow();
+            base.Dispose(disposing);
+        }
     }
 }

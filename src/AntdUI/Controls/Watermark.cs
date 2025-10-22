@@ -327,14 +327,14 @@ namespace AntdUI
 
         #region 渲染
 
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
-            Bitmap original_bmp = new Bitmap(rect.Width, rect.Height);
+            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
             if (config.Enabled)
             {
-                using (var g = Graphics.FromImage(original_bmp).HighLay())
-                using (var brush = new SolidBrush(config.ForeColor ?? Style.Db.FillSecondary))
+                using (var g = Graphics.FromImage(rbmp).HighLay())
+                using (var brush = new SolidBrush(config.ForeColor ?? Colour.FillSecondary.Get(nameof(Watermark))))
                 {
                     // 计算水印间距
                     int gapX = (int)(config.Gap[0] * Config.Dpi), gapY = (int)(config.Gap[1] * Config.Dpi);
@@ -388,7 +388,7 @@ namespace AntdUI
                     }
                 }
             }
-            return original_bmp;
+            return rbmp;
         }
 
         void DrawWatermarkItem(Canvas g, int x, int y, int w, int h, Font font, Brush brush)
@@ -456,7 +456,7 @@ namespace AntdUI
                             var scale = h / totalTextHeight;
                             contentHeight = mainSize.Height * scale;
                             subContentHeight = subSize.Height * scale;
-                            spacing = spacing * scale;
+                            spacing *= scale;
                         }
                         else
                         {
@@ -491,9 +491,9 @@ namespace AntdUI
                 config.Target.VisibleChanged += Target_VisibleChanged;
                 var parent = config.Target.FindPARENT();
                 if (parent == null) return;
+                tmp = parent;
                 parent.LocationChanged += Parent_LSChanged;
                 parent.SizeChanged += Parent_LSChanged;
-
             }
         }
 
@@ -540,6 +540,7 @@ namespace AntdUI
 
         #endregion
 
+        Form? tmp;
         protected override void Dispose(bool disposing)
         {
             // 移除事件监听
@@ -548,14 +549,10 @@ namespace AntdUI
             {
                 config.Target.VisibleChanged -= Target_VisibleChanged;
                 // 移除父容器的事件监听
-                var parent = config.Target.FindPARENT();
-                if (parent != null)
-                {
-                    parent.LocationChanged -= Parent_LSChanged;
-                    parent.SizeChanged -= Parent_LSChanged;
-                }
+                if (tmp == null) return;
+                tmp.LocationChanged -= Parent_LSChanged;
+                tmp.SizeChanged -= Parent_LSChanged;
             }
-
             base.Dispose(disposing);
         }
 

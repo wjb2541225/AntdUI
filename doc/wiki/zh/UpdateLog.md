@@ -1,4 +1,111 @@
-﻿[首页](Home.md)・[更新日志](UpdateLog.md)・[配置](Config.md)・[主题](Theme.md)
+[首页](Home.md)・[更新日志](UpdateLog.md)・[配置](Config.md)・[主题](Theme.md)
+
+### `2.1.12` 2025-10-17
+
+- ✍️ Carousel 内存溢出
+- ✍️ UploadDragger 管理员只有一个能上传
+- ✍️ Table ColumnSelect 为空时无法正常选择数据
+- ✍️ Table 编辑模式 Win7 下焦点
+
+### `2.1.11` 2025-10-15
+
+- ➕ Table 全幅截图 DrawBitmap(bool full)
+- ➕ Pagination SizeChangerTabStop 用于控制切换器是否可以通过Tab获取焦点
+- ✍️ Button 传递 双击到 MouseUp
+- ✍️ Modal 按钮栏颜色异常
+- ✍️ BaseForm 深色主题切换不生效
+- ✍️ Mask 无法随父窗口关闭
+- ✍️ 下拉 无动画重复Hook
+- ✍️ Tree 抑制 并发异常
+- ✍️ Table ColumnSelect 适配最佳宽度
+- ✍️ Popover 父窗口隐藏后依旧存在
+
+### `2.1.10` 2025-10-13
+
+- ➕ Table ScrollBarAvoidHeader 滚动条从表头下方开始绘制
+- ➕ Message/Notification/Modal EnableSound 播放提示音
+- ➕ Spin 错误回调
+- ➕ TooltipComponent 开放 Delay
+- ➕ Modal/Drawer ManualActivateParent
+- ➕ Table.Filter ColumnSelect 的支持
+- ✍️ Table 编辑模式
+- ✍️ Table.Filter 失效问题
+- ✍️ Table.ColumnSelect.CellType = Both 不显示 IconSvg 的问题
+
+### `2.1.9` 2025-10-11
+
+- ➕ SelectMultiple TagBordered 应用 Status 状态色
+- ➕ Button 丰富 ForeHover/ForeActive
+- ➕ Table Cell系列 国际化
+- ➕ Spin Indicator 自定义加载指示符
+- ➕ Alert IconSvg自定义图标 和 CloseChanged事件
+- ➕ Select EnterDropDown 属性 用于部分场景中是否允许回车键触发下拉框
+- ✍️ 滚动条适配 ColorScheme
+- ✍️ Spin 隐藏后依旧显示
+- ✍️ Table 编辑模式回滚失去焦点关闭
+- ✍️ Table 点击空白处退出编辑模式
+- ✍️ Collapse ItemButton.Visible=false 仍然响应 ButtonClick 事件
+- ✍️ Collapse Button 无法隐藏
+- ✍️ 渲染 释放异常
+
+### `2.1.8` 2025-09-28
+
+- ➕ 全局主题配置
+- ➕ PageHeader BackIcon
+- ✍️ 色卡分配符号
+- ✍️ HyperlinkLabel 超链接内容不能正常解析
+- ✍️ DatePicker/Select 下拉并发消息异常
+- ✍️ PageHeader 渐变色 对其
+- ✍️ 丰富 全局主题配置
+- ✍️ 优化 遮罩 稳定性
+- 🧹 Table 编辑模式交互逻辑
+
+### `2.1.7` 2025-09-24
+
+- ➕ HyperlinkLabel 控件
+- ➕ Modal/Message/Notification/FloatButton/ContextMenuStrip Target 支持 更丰富的目标
+- ➕ Popover/Modal/Drawer 色彩模式
+- ➕ Popover Config Back, Fore属性设置
+- ➕ StackPanel RightToLeft 支持
+- ➕ PageHeader UseForeColorDrawIcons 属性
+- ✍️ DatePickerRange 下拉渲染不激活Value
+- ✍️ Collapse 修正FontExpand.Size < Font.Size时不显示的问题
+- ✍️ DatePicker 系下拉徽标
+- ✍️ Table 激活态和总结列
+- ✍️ Binding 移动行不刷新
+- ✍️ Table BorderHigh 精度
+- ✍️ Watermark 内存溢出
+- ✍️ 优化代码逻辑和内存溢出
+- 🧹 FlowLayoutPanel 重构滚动条
+
+### `2.1.6` 2025-09-19
+
+- ➕ Config DpiMode
+- ➕ InputNumber ValueFormatter 事件
+- ✍️ InputNumber 圆角 UI 异常
+- ✍️ Tree 复选框适配禁用项
+- ✍️ Tooltip Hook 关闭敏感
+- ✍️ Table 全选
+- ✍️ Menu 子菜单UI
+- ✍️ 下拉坐标计算
+
+### `2.1.5` 2025-09-17
+
+- ➕ Config UseHook  `用于 Addins 开发`
+- ➕ Transfer 穿梭框
+- ➕ Table BorderHigh
+- ➕ Table 键盘全选交互
+- ➕ PuzzleCaptcha 拼图验证码
+- ➕ Menu 下拉参数
+- ✍️ Table 开放 图标配置
+- ✍️ ChatList 图片重叠
+- ✍️ Popover 适配暗色模式
+- ✍️ VirtualMode Table 全选
+- ✍️ Table 键盘数组越界
+- ✍️ Message/Notification 内存溢出
+- ✍️ PageHeader 最小化后未恢复按钮状态
+- ✍️ Table AutoSizeColumnsMode.Auto 不显示右边
+- ✍️ SelectMultiple 选择搜索项时自动清除搜索内容
 
 ### `2.1.4` 2025-09-09
 

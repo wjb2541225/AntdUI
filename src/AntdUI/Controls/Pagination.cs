@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -233,6 +233,23 @@ namespace AntdUI
             }
         }
 
+        bool sizeChangerTabStop = true;
+        /// <summary>
+        /// 是否允许 PageSize 切换器通过 Tab 键获取焦点
+        /// </summary>
+        [Description("是否允许 PageSize 切换器通过 Tab 键获取焦点"), Category("行为"), DefaultValue(true)]
+        public bool SizeChangerTabStop
+        {
+            get => sizeChangerTabStop;
+            set
+            {
+                if (sizeChangerTabStop == value) return;
+                sizeChangerTabStop = value;
+                if (input_SizeChanger != null) input_SizeChanger.TabStop = value;
+                OnPropertyChanged(nameof(SizeChangerTabStop));
+            }
+        }
+
         int pyr = 0;
         public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, 0, 0, pyr, 0, borderWidth / 2F * Config.Dpi);
 
@@ -337,8 +354,8 @@ namespace AntdUI
             float border = borderWidth * Config.Dpi, _radius = radius * Config.Dpi;
             if (Enabled)
             {
-                Color fore = Colour.Text.Get("Pagination", ColorScheme), color = fill ?? Colour.Primary.Get("Pagination", ColorScheme);
-                using (var brush_hover = new SolidBrush(Colour.FillSecondary.Get("Pagination", ColorScheme)))
+                Color fore = Colour.Text.Get(nameof(Pagination), ColorScheme), color = fill ?? Colour.Primary.Get(nameof(Pagination), ColorScheme);
+                using (var brush_hover = new SolidBrush(Colour.FillSecondary.Get(nameof(Pagination), ColorScheme)))
                 {
                     #region 渲染上下
 
@@ -350,7 +367,7 @@ namespace AntdUI
                             g.Fill(brush_hover, path_previous);
                         }
                     }
-                    using (var pen_arrow = new Pen(btn_previous.enabled ? fore : Colour.TextQuaternary.Get("Pagination", ColorScheme), border))
+                    using (var pen_arrow = new Pen(btn_previous.enabled ? fore : Colour.TextQuaternary.Get(nameof(Pagination), ColorScheme), border))
                     {
                         g.DrawLines(pen_arrow, TAlignMini.Left.TriangleLines(btn_previous.rect));
                     }
@@ -364,7 +381,7 @@ namespace AntdUI
                             g.Fill(brush_hover, path_next);
                         }
                     }
-                    using (var pen_arrow = new Pen(btn_next.enabled ? fore : Colour.TextQuaternary.Get("Pagination", ColorScheme), border))
+                    using (var pen_arrow = new Pen(btn_next.enabled ? fore : Colour.TextQuaternary.Get(nameof(Pagination), ColorScheme), border))
                     {
                         g.DrawLines(pen_arrow, TAlignMini.Right.TriangleLines(btn_next.rect));
                     }
@@ -386,7 +403,7 @@ namespace AntdUI
                             }
                             if (btn.prog > 0)
                             {
-                                using (var brush_prog = new SolidBrush(Colour.TextQuaternary.Get("Pagination", ColorScheme)))
+                                using (var brush_prog = new SolidBrush(Colour.TextQuaternary.Get(nameof(Pagination), ColorScheme)))
                                 {
                                     g.String("•••", Font, brush_prog, btn.rect, s_f);
                                 }
@@ -408,23 +425,25 @@ namespace AntdUI
             }
             else
             {
+                var fore = Colour.TextQuaternary.Get(nameof(Pagination), "foreDisabled", ColorScheme);
+
                 #region 渲染上下
 
                 var btn_previous = buttons[0];
-                using (var pen_arrow = new Pen(Colour.TextQuaternary.Get("Pagination", ColorScheme), border))
+                using (var pen_arrow = new Pen(fore, border))
                 {
                     g.DrawLines(pen_arrow, TAlignMini.Left.TriangleLines(btn_previous.rect));
                 }
 
                 var btn_next = buttons[1];
-                using (var pen_arrow = new Pen(Colour.TextQuaternary.Get("Pagination", ColorScheme), border))
+                using (var pen_arrow = new Pen(fore, border))
                 {
                     g.DrawLines(pen_arrow, TAlignMini.Right.TriangleLines(btn_next.rect));
                 }
 
                 #endregion
 
-                using (var brush = new SolidBrush(Colour.TextQuaternary.Get("Pagination", ColorScheme)))
+                using (var brush = new SolidBrush(fore))
                 {
                     if (showTotal != null) g.String(showTotal, Font, brush, rect_text, s_f);
                     for (int i = 2; i < buttons.Length; i++)
@@ -440,7 +459,7 @@ namespace AntdUI
                             {
                                 using (var path = btn.rect.RoundPath(_radius))
                                 {
-                                    g.Fill(Colour.Fill.Get("Pagination", ColorScheme), path);
+                                    g.Fill(Colour.Fill.Get(nameof(Pagination), "bgDisabled", ColorScheme), path);
                                 }
                             }
                             g.String(btn.key, Font, brush, btn.rect, s_f);
@@ -716,7 +735,8 @@ namespace AntdUI
                         Size = new Size(width, rect.Height),
                         Dock = DockStyle.Right,
                         Font = Font,
-                        BorderColor = fill
+                        BorderColor = fill,
+                        TabStop = sizeChangerTabStop
                     };
                     input_SizeChanger = input;
                 }
@@ -733,7 +753,8 @@ namespace AntdUI
                         Size = new Size(width, rect.Height),
                         Dock = DockStyle.Right,
                         Font = Font,
-                        BorderColor = fill
+                        BorderColor = fill,
+                        TabStop = sizeChangerTabStop
                     };
                     foreach (var it in pageSizeOptions) input.Items.Add(it);
                     input.SelectedValue = pageSize;

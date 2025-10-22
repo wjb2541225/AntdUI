@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -172,6 +172,9 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 左侧文本
+        /// </summary>
         [Description("左侧文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationLabel { get; set; }
 
@@ -181,9 +184,15 @@ namespace AntdUI
         [Description("左侧文本粗体"), Category("外观"), DefaultValue(false)]
         public bool Bold { get; set; }
 
+        /// <summary>
+        /// 阴影偏移X
+        /// </summary>
         [Description("阴影偏移X"), Category("阴影"), DefaultValue(0)]
         public int ShadowOffsetX { get; set; }
 
+        /// <summary>
+        /// 阴影偏移Y
+        /// </summary>
         [Description("阴影偏移Y"), Category("阴影"), DefaultValue(0)]
         public int ShadowOffsetY { get; set; }
 

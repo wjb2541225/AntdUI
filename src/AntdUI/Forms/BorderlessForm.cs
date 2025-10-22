@@ -365,14 +365,19 @@ namespace AntdUI
             }
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            IsAddMessage = false;
+            base.Dispose(disposing);
+        }
+
         #endregion
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            base.OnHandleCreated(e);
             if (UseDwm && OS.Version.Major >= 6) DwmEnabled = Win32.IsCompositionEnabled;
-            SetTheme();
             DisableProcessWindowsGhosting();
+            base.OnHandleCreated(e);
             HandMessage();
             DwmArea();
         }

@@ -82,6 +82,8 @@ namespace AntdUI
                 SortData = null;
                 focusedCell = null;
                 ScrollBar.Clear();
+                selects.Clear();
+                hovers = -1;
                 ExtractHeaderFixed();
                 ExtractData();
                 if (LoadLayout()) Invalidate();
@@ -152,6 +154,7 @@ namespace AntdUI
             {
                 if (fixedHeader == value) return;
                 fixedHeader = value;
+                SetSAH();
                 Invalidate();
                 OnPropertyChanged(nameof(FixedHeader));
             }
@@ -170,6 +173,7 @@ namespace AntdUI
                 if (visibleHeader == value) return;
                 visibleHeader = value;
                 ScrollBar.RB = !value;
+                SetSAH();
                 if (LoadLayout()) Invalidate();
                 OnPropertyChanged(nameof(VisibleHeader));
             }
@@ -236,6 +240,30 @@ namespace AntdUI
                 Invalidate();
                 OnPropertyChanged(nameof(Radius));
             }
+        }
+
+        bool scrollBarAvoidHeader = false;
+        /// <summary>
+        /// 滚动条从表头下方开始绘制（避免遮挡表头）
+        /// </summary>
+        [Description("滚动条从表头下方开始绘制"), Category("外观"), DefaultValue(false)]
+        public bool ScrollBarAvoidHeader
+        {
+            get => scrollBarAvoidHeader;
+            set
+            {
+                if (scrollBarAvoidHeader == value) return;
+                scrollBarAvoidHeader = value;
+                SetSAH();
+                if (LoadLayout()) Invalidate();
+                OnPropertyChanged(nameof(ScrollBarAvoidHeader));
+            }
+        }
+
+        void SetSAH()
+        {
+            if (scrollBarAvoidHeader && visibleHeader && fixedHeader) ScrollBar.RT = false;
+            else ScrollBar.RT = true;
         }
 
         /// <summary>
@@ -621,6 +649,12 @@ namespace AntdUI
         /// </summary>
         [Description("单元格边框宽度"), Category("边框"), DefaultValue(1F)]
         public float BorderCellWidth { get; set; } = 1F;
+
+        /// <summary>
+        /// 高精度边框
+        /// </summary>
+        [Description("高精度边框"), Category("边框"), DefaultValue(false)]
+        public bool BorderHigh { get; set; }
 
         #region 表头
 
@@ -1602,6 +1636,33 @@ namespace AntdUI
             }
             var cell = CellContains(rows, false, x, y, out r_x, out r_y, out offset_x, out offset_xi, out offset_y, out i_row, out i_cel, out _, out mode);
             return cell;
+        }
+
+        public Bitmap? DrawBitmap(bool full)
+        {
+            if (full && (ScrollBar.ShowX || ScrollBar.ShowY))
+            {
+                var rect = new Rectangle(0, 0, rect_read.Width, rect_read.Height);
+                if (ScrollBar.ShowX) rect.Width = ScrollBar.MaxX;
+                if (ScrollBar.ShowY) rect.Height = ScrollBar.MaxY;
+                if (rect.Width == 0 || rect.Height == 0) return null;
+                LoadLayout(rect);
+                var bmp = new Bitmap(rect.Width, rect.Height);
+                using (var g = Graphics.FromImage(bmp).High())
+                {
+                    try
+                    {
+                        var args = new DrawEventArgs(g, rect);
+                        OnDrawBg(args);
+                        OnDraw(args);
+                    }
+                    catch { }
+                    this.PaintBadge(g);
+                }
+                LoadLayout();
+                return bmp;
+            }
+            return DrawBitmap();
         }
 
         #endregion
@@ -2724,6 +2785,7 @@ namespace AntdUI
         /// </summary>
         DESC = 2
     }
+
     /// <summary>
     /// 单元格显示类型
     /// </summary>

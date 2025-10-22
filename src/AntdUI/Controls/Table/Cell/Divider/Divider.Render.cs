@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -27,7 +27,7 @@ namespace AntdUI
 
         public override void Paint(Canvas g, Font font, bool enable, SolidBrush fore)
         {
-            g.Fill(Colour.Split.Get("Divider", PARENT.PARENT.ColorScheme), Rect);
+            g.Fill(Colour.Split.Get(nameof(Divider), PARENT.PARENT.ColorScheme), Rect);
         }
 
         public override Size GetSize(Canvas g, Font font, TableGaps gap)

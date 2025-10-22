@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -35,6 +35,60 @@ namespace AntdUI
         /// 最大显示数量
         /// </summary>
         public static int? MaxCount { get; set; }
+
+        #region 目标
+
+        /// <summary>
+        /// 成功提示
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="font">字体</param>
+        /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
+        public static void success(Target target, string text, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.Success, font, autoClose));
+
+        /// <summary>
+        /// 信息提示
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="font">字体</param>
+        /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
+        public static void info(Target target, string text, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.Info, font, autoClose));
+
+        /// <summary>
+        /// 警告提示
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="font">字体</param>
+        /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
+        public static void warn(Target target, string text, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.Warn, font, autoClose));
+
+        /// <summary>
+        /// 失败提示
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="font">字体</param>
+        /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
+        public static void error(Target target, string text, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.Error, font, autoClose));
+
+        /// <summary>
+        /// 加载提示
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="call">耗时任务</param>
+        /// <param name="font">字体</param>
+        /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
+        public static void loading(Target target, string text, Action<Config> call, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.None, font, autoClose) { Call = call });
+
+        public static void open(Target target, string text, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.None, font, autoClose));
+
+        #endregion
+
+        #region 窗口
 
         /// <summary>
         /// 成功提示
@@ -83,6 +137,8 @@ namespace AntdUI
         public static void loading(Form form, string text, Action<Config> call, Font? font = null, int? autoClose = null) => open(new Config(form, text, TType.None, font, autoClose) { Call = call });
 
         public static void open(Form form, string text, Font? font = null, int? autoClose = null) => open(new Config(form, text, TType.None, font, autoClose));
+
+        #endregion
 
         /// <summary>
         /// Message 全局提示
@@ -145,42 +201,53 @@ namespace AntdUI
         /// </summary>
         public class Config
         {
-            public Config(Form _form)
+            public Config(Target target)
             {
-                Form = _form;
+                Target = target;
             }
-            public Config(Form _form, string _text)
+            public Config(Target target, string text)
             {
-                Form = _form;
-                Text = _text;
+                Target = target;
+                Text = text;
             }
-            public Config(Form _form, string _text, TType _icon)
+            public Config(Target target, string text, TType icon)
             {
-                Form = _form;
-                Text = _text;
-                Icon = _icon;
+                Target = target;
+                Text = text;
+                Icon = icon;
             }
-            public Config(Form _form, string _text, Font? _font)
+            public Config(Target target, string text, Font? font)
             {
-                Form = _form;
-                Font = _font;
-                Text = _text;
+                Target = target;
+                Font = font;
+                Text = text;
             }
-            public Config(Form _form, string _text, TType _icon, Font? _font)
+            public Config(Target target, string text, TType icon, Font? font)
             {
-                Form = _form;
-                Font = _font;
-                Text = _text;
-                Icon = _icon;
+                Target = target;
+                Font = font;
+                Text = text;
+                Icon = icon;
             }
-            public Config(Form _form, string _text, TType _icon, Font? _font, int? autoClose)
+            public Config(Target target, string text, TType icon, Font? font, int? autoClose)
             {
-                Form = _form;
-                Font = _font;
-                Text = _text;
-                Icon = _icon;
+                Target = target;
+                Font = font;
+                Text = text;
+                Icon = icon;
                 if (autoClose.HasValue) AutoClose = autoClose.Value;
             }
+
+            #region 窗口
+
+            public Config(Form form) : this(new Target(form)) { }
+            public Config(Form form, string text) : this(new Target(form), text) { }
+            public Config(Form form, string text, TType icon) : this(new Target(form), text, icon) { }
+            public Config(Form form, string text, Font? font) : this(new Target(form), text, font) { }
+            public Config(Form form, string text, TType icon, Font? font) : this(new Target(form), text, icon, font) { }
+            public Config(Form form, string text, TType icon, Font? font, int? autoClose) : this(new Target(form), text, icon, font, autoClose) { }
+
+            #endregion
 
             /// <summary>
             /// ID
@@ -188,9 +255,15 @@ namespace AntdUI
             public string? ID { get; set; }
 
             /// <summary>
+            /// 所属目标
+            /// </summary>
+            public Target Target { get; set; }
+
+            /// <summary>
             /// 所属窗口
             /// </summary>
-            public Form Form { get; set; }
+            [Obsolete("use Target")]
+            public Control Form => Target.GetForm!;
 
             string? text;
             /// <summary>
@@ -258,6 +331,11 @@ namespace AntdUI
             /// 弹出在窗口
             /// </summary>
             public bool? ShowInWindow { get; set; }
+
+            /// <summary>
+            /// 是否启用声音
+            /// </summary>
+            public bool EnableSound { get; set; }
 
             public void OK(string text)
             {
@@ -392,6 +470,12 @@ namespace AntdUI
                 return this;
             }
 
+            public Config SetEnableSound(bool value = true)
+            {
+                EnableSound = value;
+                return this;
+            }
+
             #endregion
         }
     }
@@ -475,13 +559,11 @@ namespace AntdUI
             config = _config;
             Tag = id;
             if (config.TopMost) Helper.SetTopMost(Handle);
-            else config.Form.SetTopMost(Handle);
+            else config.Target.SetTopMost(Handle);
             shadow_size = (int)(shadow_size * Config.Dpi);
             loading = _config.Call != null;
-            if (config.Font != null) Font = config.Font;
-            else if (Config.Font != null) Font = Config.Font;
-            else Font = config.Form.Font;
-            Icon = config.Form.Icon;
+            config.Target.SetFontConfig(config.Font, this);
+            config.Target.SetIcon(this);
             Helper.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
         }
 
@@ -494,7 +576,7 @@ namespace AntdUI
         ITask? ThreadLoading;
         public bool IInit()
         {
-            if (SetPosition(config.Form, config.ShowInWindow ?? Config.ShowInWindowByMessage)) return true;
+            if (SetPosition(config.Target, config.ShowInWindow ?? Config.ShowInWindowByMessage)) return true;
             if (loading)
             {
                 ThreadLoading = new ITask(this, i =>
@@ -542,6 +624,19 @@ namespace AntdUI
                     CloseMe();
                 }
             });
+            // 播放声音
+            if (config.EnableSound)
+            {
+                MessageType soundType = config.Icon switch
+                {
+                    TType.Success => MessageType.Information,
+                    TType.Info => MessageType.Information,
+                    TType.Warn => MessageType.Warning,
+                    TType.Error => MessageType.Error,
+                    _ => MessageType.Information
+                };
+                SystemSoundHelper.PlaySound(soundType);
+            }
             PlayAnimation();
             return false;
         }
@@ -568,22 +663,22 @@ namespace AntdUI
         #region 渲染
 
         readonly StringFormat s_f_left = Helper.SF_ALL(lr: StringAlignment.Near);
-        public override Bitmap PrintBit()
+        public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
             var rect_read = rect.PaddingRect(Padding, shadow_size);
-            Bitmap original_bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(original_bmp).High())
+            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
+            using (var g = Graphics.FromImage(rbmp).High())
             {
                 using (var path = DrawShadow(g, rect, rect_read))
                 {
-                    g.Fill(Colour.BgElevated.Get("Message"), path);
+                    g.Fill(Colour.BgElevated.Get(nameof(Message)), path);
                 }
                 if (loading)
                 {
                     var bor3 = 3F * Config.Dpi;
-                    g.DrawEllipse(Colour.Fill.Get("Message"), bor3, rect_loading);
-                    using (var pen = new Pen(Colour.Primary.Get("Message"), bor3))
+                    g.DrawEllipse(Colour.Fill.Get(nameof(Message)), bor3, rect_loading);
+                    using (var pen = new Pen(Colour.Primary.Get(nameof(Message)), bor3))
                     {
                         pen.StartCap = pen.EndCap = LineCap.Round;
                         g.DrawArc(pen, rect_loading, AnimationLoadingValue, 100);
@@ -591,12 +686,12 @@ namespace AntdUI
                 }
                 else if (config.IconCustom != null) g.PaintIcons(config.IconCustom, rect_icon);
                 else if (config.Icon != TType.None) g.PaintIcons(config.Icon, rect_icon, "Message", TAMode.Auto);
-                using (var brush = new SolidBrush(Colour.TextBase.Get("Message")))
+                using (var brush = new SolidBrush(Colour.TextBase.Get(nameof(Message))))
                 {
                     g.DrawText(config.Text, Font, brush, rect_txt, s_f_left);
                 }
             }
-            return original_bmp;
+            return rbmp;
         }
 
         SafeBitmap? shadow_temp;
@@ -658,6 +753,9 @@ namespace AntdUI
         protected override void Dispose(bool disposing)
         {
             ThreadLoading?.Dispose();
+            s_f_left.Dispose();
+            shadow_temp?.Dispose();
+            shadow_temp = null;
             base.Dispose(disposing);
         }
     }

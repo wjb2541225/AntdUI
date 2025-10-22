@@ -1,4 +1,111 @@
-﻿[Home](Home.md)・[UpdateLog](UpdateLog.md)・[Config](Config.md)・[Theme](Theme.md)
+[Home](Home.md)・[UpdateLog](UpdateLog.md)・[Config](Config.md)・[Theme](Theme.md)
+
+### `2.1.12` 2025-10-17
+
+- ✍️ Carousel Out of Memory
+- ✍️ UploadDragger Administrator Only One Can Upload
+- ✍️ When the Table ColumnSelect is empty, data cannot be selected properly
+- ✍️ Table Edit Mode Focus in Win7
+
+### `2.1.11` 2025-10-15
+
+- ➕ Table Full-Screen Screenshot DrawBitmap(bool full)
+- ➕ Pagination SizeChangerTabStop is used to control whether the switcher can receive focus via Tab
+- ✍️ Button Passes Double-Click to MouseUp
+- ✍️ Modal Button Bar Color Anomaly
+- ✍️ BaseForm Dark Theme Toggle Not Working
+- ✍️ Mask cannot be closed with the parent window
+- ✍️ Pull down No Animation Repeat Hook
+- ✍️ Tree inhibits concurrency exceptions
+- ✍️ Table ColumnSelect Optimal Width Adaptation
+- ✍️ The Popover remains visible even after the parent window is hidden
+
+### `2.1.10` 2025-10-13
+
+- ➕ Table ScrollBarAvoidHeader scrollbar starts drawing from below the header
+- ➕ Message/Notification/Modern Enable Sound plays prompt sound
+- ➕ Spin error callback
+- ➕ TooltipComponent Open Delay
+- ➕ Modal/Drawer ManualActivateParent
+- ➕ Table. Filter ColumnSelect support
+- ✍️ Table editing mode
+- ✍️ Table. Filter failure issue
+- ✍️ Table. ColumnSelect. CellType=Both does not display IconSvg issue
+
+### `2.1.9` 2025-10-11
+
+- ➕ SelectMultiple TagBordered App Status Status Color
+- ➕ Button Enhances ForeHover/ForeActive
+- ➕ Table Cell Series Internationalization
+- ➕ Spin Indicator Custom Loading Indicator
+- ➕ Alert IconSvg Custom Icon and CloseChanged Event
+- ➕ The Select EnterDropDown property determines whether the Enter key can trigger the dropdown in certain scenarios
+- ✍️ Scrollbar Adapts to ColorScheme
+- ✍️ Spin remains visible after being hidden
+- ✍️ Table editing mode rolls back and loses focus when closed
+- ✍️ Table Click the blank space to exit edit mode
+- ✍️ Collapse ItemButton.Visible=false still responds to ButtonClick events
+- ✍️ Collapse Button cannot be hidden
+- ✍️ Rendering Release Exception
+
+### `2.1.8` 2025-09-28
+
+- ➕ Global Theme Configuration
+- ➕ PageHeader BackIcon
+- ✍️ Colors allocation symbol
+- ✍️ HyperlinkLabel hyperlink content cannot be parsed properly
+- ✍️ DatePicker/Select dropdown concurrent message exception
+- ✍️ PageHeader gradient color for it
+- ✍️ Enrich global theme configuration
+- ✍️ Optimize mask stability
+- 🧹 Table editing mode interaction logic
+
+### `2.1.7` 2025-09-24
+
+- ➕ HyperlinkLabel Control
+- ➕ Modal/Message/Notification/FloatButton/ContextMenuStrip Target supports richer targets
+- ➕ Popover/Modal/Drawer color mode
+- ➕ Popoover Config Back, Fore property settings
+- ➕ StackPanel RightToLeft support
+- ➕ PageHeader UseForeColorDrawIcons property
+- ✍️ DatePickerRange dropdown rendering does not activate Value
+- ✍️ Collapse fixes the issue where FontExpand. Size<Font. Size does not display
+- ✍️ DatePicker series dropdown logo
+- ✍️ Table Activation Status and Summary Column
+- ✍️ Binding moves rows without refreshing
+- ✍️ Table BorderHigh Precision
+- ✍️ Watermark memory overflow
+- ✍️ Optimize code logic and memory overflow
+- 🧹 Refactoring the scrollbar in FlowLayoutPanel
+
+### `2.1.6` 2025-09-19
+
+- ➕ Config DpiMode
+- ➕ InputNumber ValueFormatter Event
+- ✍️ InputNumber Rounded Corner UI Exception
+- ✍️ Tree checkbox adaptation disabled items
+- ✍️ Tooltip Hook to disable sensitivity
+- ✍️ Table Select All
+- ✍️ Menu submenu UI
+- ✍️ Pull down coordinate calculation
+
+### `2.1.5` 2025-09-17
+
+- ➕ Config UseHook `Addins development`
+- ➕ Transfer shuttle box
+- ➕ Table BorderHigh
+- ➕ Table Keyboard Select All Interaction
+- ➕ PuzzleCapcha puzzle verification code
+- ➕ Menu dropdown parameters
+- ✍️ Table Open Icon Configuration
+- ✍️ ChatList image overlap
+- ✍️ Poppover adapts to dark mode
+- ✍️ VirtualMode Table Select All
+- ✍️ Table keyboard array out of bounds
+- ✍️ Message/Notification Memory Overflow
+- ✍️ The button state was not restored after minimizing the PageHeader
+- ✍️ Table AutoSizeColumnsMode. Auto does not display on the right side
+- ✍️ SelectMultiple automatically clears search content when selecting search terms
 
 ### `2.1.4` 2025-09-09
 

@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -31,8 +31,14 @@ namespace AntdUI
         /// 按钮
         /// </summary>
         /// <param name="id">id</param>
+        public CellButton(string id) : base(id) { }
+
+        /// <summary>
+        /// 按钮
+        /// </summary>
+        /// <param name="id">id</param>
         /// <param name="text">文本</param>
-        public CellButton(string id, string? text = null) : base(id, text) { }
+        public CellButton(string id, string? text) : base(id, text) { }
 
         /// <summary>
         /// 按钮
@@ -41,6 +47,13 @@ namespace AntdUI
         /// <param name="text">文本</param>
         /// <param name="_type">类型</param>
         public CellButton(string id, string text, TTypeMini _type) : base(id, text) { type = _type; }
+
+        /// <summary>
+        /// 按钮
+        /// </summary>
+        /// <param name="id">id</param>
+        /// <param name="_type">类型</param>
+        public CellButton(string id, TTypeMini _type) : base(id) { type = _type; }
 
         #region 属性
 

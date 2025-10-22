@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -456,10 +456,8 @@ namespace AntdUI
             if (showok)
             {
                 if (items == null) return;
-                if (items.Count <= _select || _select < 0) return;
-                var it = items[_select];
-                if (IsHandleCreated) BeginInvoke(it.BringToFront);
-                else it.BringToFront();
+                if (items.Count <= index || index < 0) return;
+                for (int i = 0; i < items.Count; i++) items[i].Showed = i == index;
             }
         }
 
@@ -559,8 +557,8 @@ namespace AntdUI
         {
             if (page.Badge != null)
             {
-                var color = page.BadgeBack ?? Colour.Error.Get("Tabs", ColorScheme);
-                using (var brush_fore = new SolidBrush(Colour.ErrorColor.Get("Tabs", ColorScheme)))
+                var color = page.BadgeBack ?? Colour.Error.Get(nameof(Tabs), ColorScheme);
+                using (var brush_fore = new SolidBrush(Colour.ErrorColor.Get(nameof(Tabs), ColorScheme)))
                 {
                     using (var font = new Font(Font.FontFamily, Font.Size * page.BadgeSize))
                     {
@@ -1262,10 +1260,10 @@ namespace AntdUI
                     if (scroll_y > 0 || scroll_max != scroll_y)
                     {
                         int size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get("Tabs", ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get("Tabs", ColorScheme)))
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
                         using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get("Tabs", ColorScheme), 2F * Config.Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
                         {
                             if (scroll_y > 0)
                             {
@@ -1310,10 +1308,10 @@ namespace AntdUI
                     if (scroll_x > 0 || scroll_max != scroll_x)
                     {
                         int size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get("Tabs", ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get("Tabs", ColorScheme)))
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
                         using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get("Tabs", ColorScheme), 2F * Config.Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
                         {
                             if (scroll_x > 0)
                             {
@@ -1365,10 +1363,10 @@ namespace AntdUI
                     if (scroll_y > 0 || scroll_max != scroll_y)
                     {
                         int gap = (int)(_gap * Config.Dpi), gap2 = gap * 2, size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get("Tabs", ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get("Tabs", ColorScheme)))
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
                         using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get("Tabs", ColorScheme), 2F * Config.Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
                         {
                             if (scroll_y > 0)
                             {
@@ -1447,10 +1445,10 @@ namespace AntdUI
                     if (scroll_x > 0 || scroll_max != scroll_x)
                     {
                         int gap = (int)(_gap * Config.Dpi), gap2 = gap * 2, size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get("Tabs", ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get("Tabs", ColorScheme)))
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
                         using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get("Tabs", ColorScheme), 2F * Config.Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
                         {
                             if (scroll_x > 0)
                             {
@@ -1625,13 +1623,13 @@ namespace AntdUI
                     it.Invoke(() =>
                     {
                         it.Controls.Add(item);
-                        if (top) item.BringToFront();
+                        if (top) item.Showed = true;
                     });
                 }
                 else
                 {
                     it.Controls.Add(item);
-                    if (top) item.BringToFront();
+                    if (top) item.Showed = true;
                 }
             };
             action_del = (item, index) =>
@@ -1845,6 +1843,40 @@ namespace AntdUI
         }
 
         #endregion
+
+        #region 隐藏显示
+
+        bool showed = false;
+        [Description("显示的"), Category("外观"), DefaultValue(false)]
+        public bool Showed
+        {
+            get => showed;
+            set
+            {
+                if (showed == value) return;
+                showed = value;
+                ShowedChanged?.Invoke(this, EventArgs.Empty);
+                if (value)
+                {
+                    if (IsHandleCreated) BeginInvoke(BringToFront);
+                    else BringToFront();
+                }
+            }
+        }
+
+        public event EventHandler? ShowedChanged;
+
+        #endregion
+
+#if NET40 || NET46 || NET48
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public IAsyncResult BeginInvoke(Action method) => BeginInvoke(method, null);
+
+        public void Invoke(Action method) => _ = Invoke(method, null);
+        public T Invoke<T>(Func<T> method) => (T)Invoke(method, null);
+
+#endif
 
         public override string ToString() => Text;
     }

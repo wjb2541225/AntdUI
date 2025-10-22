@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -35,6 +35,12 @@ namespace AntdUI
                     var screen = Screen.FromPoint(window.Location).WorkingArea;
                     window.Location = new Point(screen.X + (screen.Width - size.Width) / 2, screen.Y + (screen.Height - size.Height) / 2);
                 }
+                return;
+            }
+            if (Config.DpiMode == DpiMode.Compatible)
+            {
+                control.Scale(new SizeF(dpi, dpi));
+                DpiLS(dpi, control.Controls);
                 return;
             }
             if (control is Form form)
@@ -129,10 +135,24 @@ namespace AntdUI
                     if (splitContainer.Panel2MinSize > 0) splitContainer.Panel2MinSize = (int)(splitContainer.Panel2MinSize * dpi);
                 }
                 else if (control is Panel panel) panel.padding = SetPadding(dpi, panel.padding);
+                else if (control is HyperlinkLabel hyperlink) hyperlink.LinkPadding = SetPadding(dpi, hyperlink.LinkPadding);
                 else if (control is TabHeader tabHeader)
                 {
                     if (tabHeader.RightGap > 0) tabHeader.RightGap = (int)(tabHeader.RightGap * dpi);
                 }
+            }
+        }
+        static void DpiLS(float dpi, Control.ControlCollection controls)
+        {
+            foreach (Control control in controls)
+            {
+                if (control is Panel panel) panel.padding = SetPadding(dpi, panel.padding);
+                else if (control is HyperlinkLabel hyperlink) hyperlink.LinkPadding = SetPadding(dpi, hyperlink.LinkPadding);
+                else if (control is TabHeader tabHeader)
+                {
+                    if (tabHeader.RightGap > 0) tabHeader.RightGap = (int)(tabHeader.RightGap * dpi);
+                }
+                if (controls.Count > 0) DpiLS(dpi, control.Controls);
             }
         }
 

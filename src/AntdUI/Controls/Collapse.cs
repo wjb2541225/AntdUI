@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -502,12 +502,12 @@ namespace AntdUI
             }
             var g = e.Canvas;
             float r = radius * Config.Dpi;
-            using (var forebrush = new SolidBrush(fore ?? Colour.Text.Get("Collapse", ColorScheme)))
-            using (var brush = new SolidBrush(headerBg ?? Colour.FillQuaternary.Get("Collapse", ColorScheme)))
+            using (var forebrush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Collapse), ColorScheme)))
+            using (var brush = new SolidBrush(headerBg ?? Colour.FillQuaternary.Get(nameof(Collapse), ColorScheme)))
             {
                 if (borderWidth > 0)
                 {
-                    using (var pen = new Pen(borderColor ?? Colour.BorderColor.Get("Collapse", ColorScheme), borderWidth * Config.Dpi))
+                    using (var pen = new Pen(borderColor ?? Colour.BorderColor.Get(nameof(Collapse), ColorScheme), borderWidth * Config.Dpi))
                     using (var pen_arr = new Pen(forebrush.Color, 1.2F * Config.Dpi))
                     {
                         pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
@@ -707,7 +707,7 @@ namespace AntdUI
             if (item.Expand && FontExpand != null)
             {
                 fnt = FontExpand;
-                int fs = (int)(fnt.Size - Font.Size);
+                int fs = fnt.Size > Font.Size ? (int)(fnt.Size - Font.Size) : 0;
                 rect.Inflate(fs, fs);
             }
             if (item.Expand && foreActive.HasValue) g.String(item.Text, fnt, foreActive.Value, rect, s_l);
@@ -751,10 +751,10 @@ namespace AntdUI
         void PaintButtons(Canvas g, CollapseItem item, SolidBrush fore)
         {
             if (item.buttons == null) return;
-            using (var fore_active = new SolidBrush(Colour.Primary.Get("Button", ColorScheme)))
-            using (var hover = new SolidBrush(Colour.FillSecondary.Get("Button", ColorScheme)))
-            using (var brush_TextQuaternary = new SolidBrush(Colour.TextQuaternary.Get("Button", ColorScheme)))
-            using (var active = new SolidBrush(Colour.PrimaryBg.Get("Button", ColorScheme)))
+            using (var fore_active = new SolidBrush(Colour.Primary.Get(nameof(Button), ColorScheme)))
+            using (var hover = new SolidBrush(Colour.FillSecondary.Get(nameof(Button), ColorScheme)))
+            using (var brush_TextQuaternary = new SolidBrush(Colour.TextQuaternary.Get(nameof(Button), "foreDisabled", ColorScheme)))
+            using (var active = new SolidBrush(Colour.PrimaryBg.Get(nameof(Button), ColorScheme)))
             {
                 foreach (var btn in item.buttons)
                 {
@@ -802,17 +802,17 @@ namespace AntdUI
                             bool enabled = btn.Enabled;
                             using (var path = rect_read.RoundPath(rect_read.Height))
                             {
-                                Color _color = btn.Back ?? Colour.Primary.Get("Switch", ColorScheme);
+                                Color _color = btn.Back ?? Colour.Primary.Get(nameof(Switch), ColorScheme);
                                 PaintClick(g, path, rect_read, rect_read, _color, btn);
                                 if (enabled && btn.hasFocus && btn.WaveSize > 0)
                                 {
                                     float wave = (btn.WaveSize * Config.Dpi / 2), wave2 = wave * 2;
                                     using (var path_focus = new RectangleF(rect_read.X - wave, rect_read.Y - wave, rect_read.Width + wave2, rect_read.Height + wave2).RoundPath(0, TShape.Round))
                                     {
-                                        g.Draw(Colour.PrimaryBorder.Get("Switch", ColorScheme), wave, path_focus);
+                                        g.Draw(Colour.PrimaryBorder.Get(nameof(Switch), ColorScheme), wave, path_focus);
                                     }
                                 }
-                                using (var brush = new SolidBrush(Colour.TextQuaternary.Get("Switch", ColorScheme)))
+                                using (var brush = new SolidBrush(Colour.TextQuaternary.Get(nameof(Switch), ColorScheme)))
                                 {
                                     g.Fill(brush, path);
                                     if (btn.AnimationHover) g.Fill(Helper.ToColorN(btn.AnimationHoverValue, brush.Color), path);
@@ -824,29 +824,29 @@ namespace AntdUI
                                     var alpha = 255 * btn.AnimationCheckValue;
                                     g.Fill(Helper.ToColor(alpha, _color), path);
                                     var dot_rect = new RectangleF(rect_read.X + gap + (rect_read.Width - rect_read.Height) * btn.AnimationCheckValue, rect_read.Y + gap, rect_read.Height - gap2, rect_read.Height - gap2);
-                                    g.FillEllipse(enabled ? Colour.BgBase.Get("Switch", ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get("Switch", ColorScheme)), dot_rect);
+                                    g.FillEllipse(enabled ? Colour.BgBase.Get(nameof(Switch), ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), ColorScheme)), dot_rect);
 
                                 }
                                 else if (btn.Checked)
                                 {
-                                    var colorhover = Colour.PrimaryHover.Get("Switch", ColorScheme);
+                                    var colorhover = Colour.PrimaryHover.Get(nameof(Switch), ColorScheme);
                                     g.Fill(enabled ? _color : Color.FromArgb(200, _color), path);
                                     if (btn.AnimationHover) g.Fill(Helper.ToColorN(btn.AnimationHoverValue, colorhover), path);
                                     else if (btn.ExtraMouseHover) g.Fill(colorhover, path);
                                     var dot_rect = new RectangleF(rect_read.X + gap + rect_read.Width - rect_read.Height, rect_read.Y + gap, rect_read.Height - gap2, rect_read.Height - gap2);
-                                    g.FillEllipse(enabled ? Colour.BgBase.Get("Switch", ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get("Switch", ColorScheme)), dot_rect);
+                                    g.FillEllipse(enabled ? Colour.BgBase.Get(nameof(Switch), ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), ColorScheme)), dot_rect);
                                 }
                                 else
                                 {
                                     var dot_rect = new RectangleF(rect_read.X + gap, rect_read.Y + gap, rect_read.Height - gap2, rect_read.Height - gap2);
-                                    g.FillEllipse(enabled ? Colour.BgBase.Get("Switch", ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get("Switch", ColorScheme)), dot_rect);
+                                    g.FillEllipse(enabled ? Colour.BgBase.Get(nameof(Switch), ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), ColorScheme)), dot_rect);
                                 }
 
                                 // 绘制文本
                                 string? textToRender = btn.Checked ? btn.CheckedText : btn.UnCheckedText;
                                 if (textToRender != null)
                                 {
-                                    Color _fore = btn.Fore ?? Colour.PrimaryColor.Get("Switch", ColorScheme);
+                                    Color _fore = btn.Fore ?? Colour.PrimaryColor.Get(nameof(Switch), ColorScheme);
                                     using (var brush = new SolidBrush(_fore))
                                     {
                                         var textSize = g.MeasureString(textToRender, Font);
@@ -898,6 +898,7 @@ namespace AntdUI
                 if (item.buttons == null) continue;
                 foreach (var btn in item.buttons)
                 {
+                    if (!btn.Visible || !btn.Enabled) continue;
                     if (btn.Contains(e.X, e.Y))
                     {
                         item.MDown = true;
@@ -923,6 +924,7 @@ namespace AntdUI
                         if (item.buttons == null) continue;
                         foreach (var btn in item.buttons)
                         {
+                            if (!btn.Visible || !btn.Enabled) continue;
                             if (btn.Contains(e.X, e.Y))
                             {
                                 if (btn.SwitchMode)
@@ -969,6 +971,7 @@ namespace AntdUI
                 if (item.buttons == null) continue;
                 foreach (var btn in item.buttons)
                 {
+                    if (!btn.Visible || !btn.Enabled) continue;
                     if (btn.Contains(e.X, e.Y))
                     {
                         btn.hasFocus = btn.AnimationHover = true;
@@ -1006,6 +1009,7 @@ namespace AntdUI
                 if (item.buttons == null || item.buttons.Count == 0) continue;
                 foreach (var btn in item.buttons)
                 {
+                    if (!btn.Visible || !btn.Enabled) continue;
                     if (btn.rect.Contains(x, y))
                     {
                         OpenTip(btn);
@@ -1063,6 +1067,7 @@ namespace AntdUI
             if (item.buttons == null || item.buttons.Count == 0) return;
             foreach (var btn in item.buttons)
             {
+                if (!btn.Visible || !btn.Enabled) continue;
                 btn.Select = false;
             }
         }

@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -28,7 +28,7 @@ namespace AntdUI
 
         public override void Paint(Canvas g, Font font, bool enable, SolidBrush fore)
         {
-            Color _color = Fill ?? Colour.Primary.Get("Progress", PARENT.PARENT.ColorScheme), _back = Back ?? Colour.FillSecondary.Get("Progress", PARENT.PARENT.ColorScheme);
+            Color _color = Fill ?? Colour.Primary.Get(nameof(Progress), PARENT.PARENT.ColorScheme), _back = Back ?? Colour.FillSecondary.Get(nameof(Progress), PARENT.PARENT.ColorScheme);
             if (Shape == TShape.Circle)
             {
                 float w = Radius * Config.Dpi;

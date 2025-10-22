@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -214,6 +214,13 @@ namespace AntdUI
         [Description("Value 属性值更改时发生"), Category("行为")]
         public event DecimalEventHandler? ValueChanged;
 
+        /// <summary>
+        /// 格式化数值以供显示
+        /// Gets or sets a custom function to format the numeric value for display
+        /// </summary>
+        [Description("格式化数值以供显示"), Category("行为")]
+        public event InputNumberRtEventHandler? ValueFormatter;
+
         #endregion
 
         #region 渲染
@@ -260,11 +267,12 @@ namespace AntdUI
                 rect_button_up = new Rectangle(rect_button.X, rect_button.Y, rect_button.Width, rect_button.Height / 2);
                 rect_button_bottom = new Rectangle(rect_button.X, rect_button_up.Bottom, rect_button.Width, rect_button_up.Height);
 
+                var state = g.Save();
                 using (var path = rect_button.RoundPath(radius, false, true, true, false))
                 {
+                    if (round) g.SetClip(path);
                     g.Fill(back, path);
                 }
-
                 if (hover_button.Animation)
                 {
                     using (var pen = new Pen(Helper.ToColor(hover_button.Value, borColor), Config.Dpi))
@@ -337,6 +345,7 @@ namespace AntdUI
                         g.DrawLines(pen, TAlignMini.Bottom.TriangleLines(rect_button_bottom));
                     }
                 }
+                g.Restore(state);
             }
         }
 

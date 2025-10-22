@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -251,14 +251,29 @@ namespace AntdUI
             if (code != null)
             {
                 var arr = BrushEx(code);
-                if (arr.Length > 1)
-                {
-                    if (arr.Length > 2 && float.TryParse(arr[0], out float deg)) return BrushEx(rect, deg, arr, code.Contains("%"), 1);
-                    else if (arr.Length > 2 && arr[0].EndsWith("deg") && float.TryParse(arr[0].Substring(0, arr[0].Length - 3), out float deg2)) return BrushEx(rect, deg2, arr, code.Contains("%"), 1);
-                    else return BrushEx(rect, 0, arr, code.Contains("%"));
-                }
+                if (arr.Length > 1) return BrushEx(code, arr, rect);
             }
             return new SolidBrush(def);
+        }
+
+        /// <summary>
+        /// 画刷（渐变色）
+        /// </summary>
+        public static bool BrushEx(this string? code, Rectangle rect, Canvas g)
+        {
+            if (code != null)
+            {
+                var arr = BrushEx(code);
+                if (arr.Length > 1)
+                {
+                    using (var brush = BrushEx(code, arr, rect))
+                    {
+                        g.Fill(brush, rect);
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         static string[] BrushEx(string code)
@@ -288,20 +303,27 @@ namespace AntdUI
             return new string[0];
         }
 
-        static LinearGradientBrush BrushEx(Rectangle rect, float deg, string[] arr, bool _in, int start = 0)
+        static LinearGradientBrush BrushEx(string code, string[] cs, Rectangle rect)
         {
-            if (arr.Length > (2 + start))
+            if (cs.Length > 2 && float.TryParse(cs[0], out float deg)) return BrushEx(rect, deg, cs, code.Contains("%"), 1);
+            else if (cs.Length > 2 && cs[0].EndsWith("deg") && float.TryParse(cs[0].Substring(0, cs[0].Length - 3), out float deg2)) return BrushEx(rect, deg2, cs, code.Contains("%"), 1);
+            else return BrushEx(rect, 0, cs, code.Contains("%"));
+        }
+
+        static LinearGradientBrush BrushEx(Rectangle rect, float deg, string[] cs, bool _in, int start = 0)
+        {
+            if (cs.Length > (2 + start))
             {
-                int len = arr.Length - start;
+                int len = cs.Length - start;
                 var colors = new List<Color>(len);
                 var positions = new List<float>(len);
-                for (int i = start; i < arr.Length; i++)
+                for (int i = start; i < cs.Length; i++)
                 {
-                    var arr2 = arr[i].Split(' ');
+                    var arr2 = cs[i].Split(' ');
                     colors.Add(arr2[0].ToColor());
                     if (arr2.Length > 1 && float.TryParse(arr2[1].TrimEnd('%'), out var result)) positions.Add(result / 100F);
                     else if (i == start) positions.Add(0F);
-                    else if (i == arr.Length - 1) positions.Add(1F);
+                    else if (i == cs.Length - 1) positions.Add(1F);
                 }
                 if (positions.Count != colors.Count)
                 {
@@ -327,12 +349,12 @@ namespace AntdUI
             }
             else if (_in)
             {
-                int len = arr.Length - start;
+                int len = cs.Length - start;
                 var colors = new List<Color>(len);
                 float position = -1;
-                for (int i = start; i < arr.Length; i++)
+                for (int i = start; i < cs.Length; i++)
                 {
-                    var arr2 = arr[i].Split(' ');
+                    var arr2 = cs[i].Split(' ');
                     colors.Add(arr2[0].ToColor());
                     if (arr2.Length > 1 && float.TryParse(arr2[1].TrimEnd('%'), out var result)) position = result / 100F;
                 }
@@ -350,38 +372,7 @@ namespace AntdUI
                 }
                 return new LinearGradientBrush(rect, colors[0], colors[colors.Count - 1], 270 + deg);
             }
-            else return new LinearGradientBrush(rect, arr[start].Trim().ToColor(), arr[start + 1].Trim().ToColor(), 270 + deg);
-        }
-
-        /// <summary>
-        /// 画刷（渐变色）
-        /// </summary>
-        public static bool BrushEx(this string? code, Rectangle rect, Canvas g)
-        {
-            if (code != null)
-            {
-                var arr = code.Split(',');
-                if (arr.Length > 1)
-                {
-                    if (arr.Length > 2 && float.TryParse(arr[0], out float deg))
-                    {
-                        using (var brush = new LinearGradientBrush(rect, arr[1].Trim().ToColor(), arr[2].Trim().ToColor(), 270 + deg))
-                        {
-                            g.Fill(brush, rect);
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        using (var brush = new LinearGradientBrush(rect, arr[0].Trim().ToColor(), arr[1].Trim().ToColor(), 270F))
-                        {
-                            g.Fill(brush, rect);
-                        }
-                        return true;
-                    }
-                }
-            }
-            return false;
+            else return new LinearGradientBrush(rect, cs[start].Trim().ToColor(), cs[start + 1].Trim().ToColor(), 270 + deg);
         }
 
         public static Canvas High(this Graphics g)
@@ -719,42 +710,86 @@ namespace AntdUI
                     break;
             }
         }
-        internal static void PaintIcons(this Canvas g, TType icon, Rectangle rect, Color back, string keyid, TAMode colorScheme)
+        internal static void PaintIcons(this Canvas g, TType icon, string? svg, Rectangle rect, Colour colour, string keyid, TAMode colorScheme)
         {
-            using (var brush = new SolidBrush(back))
+            if (svg == null)
             {
-                g.FillEllipse(brush, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2));
+                using (var brush = new SolidBrush(Colour.BgBase.Get(keyid, colorScheme)))
+                {
+                    g.FillEllipse(brush, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2));
+                }
+                switch (icon)
+                {
+                    case TType.Success:
+                        using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoSuccess, rect, Colour.Success.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                    case TType.Info:
+                        using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoInfo, rect, Colour.Info.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                    case TType.Warn:
+                        using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoWarn, rect, Colour.Warning.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                    case TType.Error:
+                        using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoError, rect, Colour.Error.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                }
             }
-            switch (icon)
+            else
             {
-                case TType.Success:
-                    using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoSuccess, rect, Colour.Success.Get(keyid, colorScheme)))
-                    {
-                        if (bmp == null) return;
-                        g.Image(bmp, rect);
-                    }
-                    break;
-                case TType.Info:
-                    using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoInfo, rect, Colour.Info.Get(keyid, colorScheme)))
-                    {
-                        if (bmp == null) return;
-                        g.Image(bmp, rect);
-                    }
-                    break;
-                case TType.Warn:
-                    using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoWarn, rect, Colour.Warning.Get(keyid, colorScheme)))
-                    {
-                        if (bmp == null) return;
-                        g.Image(bmp, rect);
-                    }
-                    break;
-                case TType.Error:
-                    using (var bmp = SvgExtend.GetImgExtend(SvgDb.IcoError, rect, Colour.Error.Get(keyid, colorScheme)))
-                    {
-                        if (bmp == null) return;
-                        g.Image(bmp, rect);
-                    }
-                    break;
+                switch (icon)
+                {
+                    case TType.Success:
+                        using (var bmp = SvgExtend.GetImgExtend(svg, rect, Colour.Success.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                    case TType.Info:
+                        using (var bmp = SvgExtend.GetImgExtend(svg, rect, Colour.Info.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                    case TType.Warn:
+                        using (var bmp = SvgExtend.GetImgExtend(svg, rect, Colour.Warning.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                    case TType.Error:
+                        using (var bmp = SvgExtend.GetImgExtend(svg, rect, Colour.Error.Get(keyid, colorScheme)))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                    default:
+                        using (var bmp = SvgExtend.GetImgExtend(svg, rect))
+                        {
+                            if (bmp == null) return;
+                            g.Image(bmp, rect);
+                        }
+                        break;
+                }
             }
         }
         internal static void PaintIconGhosts(this Canvas g, TType icon, Rectangle rect, Color color)
@@ -846,12 +881,12 @@ namespace AntdUI
                 {
                     var size_badge = g.MeasureString(Config.NullText, font).Height;
                     var rect_badge = PaintBadge(Rect, badegConfig.BadgeAlign, hasx, hasy, size_badge, size_badge);
-                    g.GetImgExtend(badegConfig.BadgeSvg, rect_badge, badegConfig.BadgeBack ?? Colour.Error.Get("Badge", colorScheme));
+                    g.GetImgExtend(badegConfig.BadgeSvg, rect_badge, badegConfig.BadgeBack ?? Colour.Error.Get(nameof(Badge), colorScheme));
                 }
             }
             else if (badegConfig.Badge != null)
             {
-                var color = badegConfig.BadgeBack ?? Colour.Error.Get("Badge", colorScheme);
+                var color = badegConfig.BadgeBack ?? Colour.Error.Get(nameof(Badge), colorScheme);
                 var rect = Rect;
                 float borsize = Config.Dpi;
                 using (var font = new Font(Font.FontFamily, Font.Size * badegConfig.BadgeSize))
@@ -866,7 +901,7 @@ namespace AntdUI
                             if (badegConfig.BadgeMode)
                             {
                                 float b2 = borsize * 2, rr = size * 0.2F, rr2 = rr * 2;
-                                g.FillEllipse(Colour.ErrorColor.Get("Badge", colorScheme), new RectangleF(rect_badge.X - borsize, rect_badge.Y - borsize, rect_badge.Width + b2, rect_badge.Height + b2));
+                                g.FillEllipse(Colour.ErrorColor.Get(nameof(Badge), colorScheme), new RectangleF(rect_badge.X - borsize, rect_badge.Y - borsize, rect_badge.Width + b2, rect_badge.Height + b2));
                                 using (var path = rect_badge.RoundPath(1, true))
                                 {
                                     path.AddEllipse(new RectangleF(rect_badge.X + rr, rect_badge.Y + rr, rect_badge.Width - rr2, rect_badge.Height - rr2));
@@ -876,7 +911,7 @@ namespace AntdUI
                             else
                             {
                                 g.FillEllipse(color, rect_badge);
-                                g.DrawEllipse(Colour.ErrorColor.Get("Badge", colorScheme), borsize, rect_badge);
+                                g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), colorScheme), borsize, rect_badge);
                             }
                         }
                     }
@@ -890,8 +925,8 @@ namespace AntdUI
                             {
                                 var rect_badge = PaintBadge(rect, badegConfig.BadgeAlign, hasx, hasy, size_badge, size_badge);
                                 g.FillEllipse(color, rect_badge);
-                                g.DrawEllipse(Colour.ErrorColor.Get("Badge", colorScheme), borsize, rect_badge);
-                                g.String(badegConfig.Badge, font, Colour.ErrorColor.Get("Badge", colorScheme), rect_badge, s_f);
+                                g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), colorScheme), borsize, rect_badge);
+                                g.String(badegConfig.Badge, font, Colour.ErrorColor.Get(nameof(Badge), colorScheme), rect_badge, s_f);
                             }
                             else
                             {
@@ -900,9 +935,9 @@ namespace AntdUI
                                 using (var path = rect_badge.RoundPath(rect_badge.Height))
                                 {
                                     g.Fill(color, path);
-                                    g.Draw(Colour.ErrorColor.Get("Badge", colorScheme), borsize, path);
+                                    g.Draw(Colour.ErrorColor.Get(nameof(Badge), colorScheme), borsize, path);
                                 }
-                                g.String(badegConfig.Badge, font, Colour.ErrorColor.Get("Badge", colorScheme), rect_badge, s_f);
+                                g.String(badegConfig.Badge, font, Colour.ErrorColor.Get(nameof(Badge), colorScheme), rect_badge, s_f);
                             }
                         }
                     }
@@ -912,7 +947,7 @@ namespace AntdUI
 
         public static void PaintBadge(this IControl control, DateBadge badge, Rectangle rect, Canvas g)
         {
-            var color = badge.Fill ?? control.BadgeBack ?? Colour.Error.Get("Badge", control.ColorScheme);
+            var color = badge.Fill ?? control.BadgeBack ?? Colour.Error.Get(nameof(Badge), control.ColorScheme);
             float borsize = Config.Dpi;
             using (var font = new Font(control.Font.FontFamily, control.Font.Size * badge.Size))
             {
@@ -922,7 +957,7 @@ namespace AntdUI
                     var size_badge = g.MeasureString(Config.NullText, font).Height / 2;
                     var rect_badge = PaintBadge(rect, badge.Align, hasx, hasy, size_badge, size_badge);
                     g.FillEllipse(color, rect_badge);
-                    g.DrawEllipse(Colour.ErrorColor.Get("Badge", control.ColorScheme), borsize, rect_badge);
+                    g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), borsize, rect_badge);
                 }
                 else
                 {
@@ -934,8 +969,8 @@ namespace AntdUI
                         {
                             var rect_badge = PaintBadge(rect, badge.Align, hasx, hasy, size_badge, size_badge);
                             g.FillEllipse(color, rect_badge);
-                            g.DrawEllipse(Colour.ErrorColor.Get("Badge", control.ColorScheme), borsize, rect_badge);
-                            g.String(badge.Content, font, Colour.ErrorColor.Get("Badge", control.ColorScheme), rect_badge, s_f);
+                            g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), borsize, rect_badge);
+                            g.String(badge.Content, font, Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), rect_badge, s_f);
                         }
                         else
                         {
@@ -944,9 +979,9 @@ namespace AntdUI
                             using (var path = rect_badge.RoundPath(rect_badge.Height))
                             {
                                 g.Fill(color, path);
-                                g.Draw(Colour.ErrorColor.Get("Badge", control.ColorScheme), borsize, path);
+                                g.Draw(Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), borsize, path);
                             }
-                            g.String(badge.Content, font, Colour.ErrorColor.Get("Badge", control.ColorScheme), rect_badge, s_f);
+                            g.String(badge.Content, font, Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), rect_badge, s_f);
                         }
                     }
                 }

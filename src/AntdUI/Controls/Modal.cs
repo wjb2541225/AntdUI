@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -29,6 +29,72 @@ namespace AntdUI
     /// <remarks>模态对话框。</remarks>
     public static class Modal
     {
+        #region 目标
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="title">标题</param>
+        /// <param name="content">内容</param>
+        public static DialogResult open(Target target, string title, string content) => open(new Config(target, title, content));
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="title">标题</param>
+        /// <param name="content">内容</param>
+        public static DialogResult open(Target target, string title, object content) => open(new Config(target, title, content));
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="content">内容</param>
+        public static DialogResult open(Target target, Control content) => open(new Config(target, content));
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="title">标题</param>
+        /// <param name="content">内容</param>
+        /// <param name="icon">图标</param>
+        public static DialogResult open(Target target, string title, string content, TType icon) => open(new Config(target, title, content, icon));
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="title">标题</param>
+        /// <param name="content">内容</param>
+        public static DialogResult open(string title, string content) => open(new Config(title, content));
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="title">标题</param>
+        /// <param name="content">内容</param>
+        public static DialogResult open(string title, object content) => open(new Config(title, content));
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="content">内容</param>
+        public static DialogResult open(Control content) => open(new Config(Target.Null, content));
+
+        /// <summary>
+        /// Model 对话框
+        /// </summary>
+        /// <param name="title">标题</param>
+        /// <param name="content">内容</param>
+        /// <param name="icon">图标</param>
+        public static DialogResult open(string title, string content, TType icon) => open(new Config(title, content, icon));
+
+        #endregion
+
+        #region 窗口
+
         /// <summary>
         /// Model 对话框
         /// </summary>
@@ -61,30 +127,72 @@ namespace AntdUI
         /// <param name="icon">图标</param>
         public static DialogResult open(Form form, string title, string content, TType icon) => open(new Config(form, title, content, icon));
 
+        #endregion
+
         /// <summary>
         /// Model 对话框
         /// </summary>
         /// <param name="config">配置</param>
         public static DialogResult open(this Config config)
         {
-            if (config.Form == null || config.Form.WindowState == FormWindowState.Minimized || !config.Form.Visible)
+            try
             {
-                config.Mask = config.MaskClosable = false;
-                var dialogResultN = DialogResult.None;
-                ModalCount++;
-                dialogResultN = new LayeredFormModal(config).ShowDialog();
-                ModalCount--;
-                return dialogResultN;
+                if (config.Target.Value is Form form)
+                {
+                    if (form.WindowState == FormWindowState.Minimized || !form.Visible)
+                    {
+                        config.Mask = config.MaskClosable = false;
+                        var dialogResultN = DialogResult.None;
+                        ModalCount++;
+                        dialogResultN = new LayeredFormModal(config).ShowDialog();
+                        ModalCount--;
+                        return dialogResultN;
+                    }
+                    if (!form.IsHandleCreated) config.Mask = config.MaskClosable = false;
+                    if (form.InvokeRequired) return ITask.Invoke(form, new Func<DialogResult>(() => open(config)));
+                    var frm = new LayeredFormModal(config);
+                    ModalCount++;
+                    DialogResult dialogResult;
+                    if (config.Mask) dialogResult = frm.ShowDialog(form.FormMask(frm));
+                    else dialogResult = frm.ShowDialog();
+                    ModalCount--;
+                    return dialogResult;
+                }
+                else if (config.Target.Value is Control control)
+                {
+                    if (!control.Visible)
+                    {
+                        config.Mask = config.MaskClosable = false;
+                        var dialogResultN = DialogResult.None;
+                        ModalCount++;
+                        dialogResultN = new LayeredFormModal(config).ShowDialog();
+                        ModalCount--;
+                        return dialogResultN;
+                    }
+                    if (!control.IsHandleCreated) config.Mask = config.MaskClosable = false;
+                    if (control.InvokeRequired) return ITask.Invoke(control, new Func<DialogResult>(() => open(config)));
+                    var frm = new LayeredFormModal(config);
+                    ModalCount++;
+                    DialogResult dialogResult;
+                    if (config.Mask) dialogResult = frm.ShowDialog(control.FormMask(frm));
+                    else dialogResult = frm.ShowDialog();
+                    ModalCount--;
+                    return dialogResult;
+                }
+                else
+                {
+                    config.Mask = config.MaskClosable = false;
+                    var dialogResultN = DialogResult.None;
+                    ModalCount++;
+                    dialogResultN = new LayeredFormModal(config).ShowDialog();
+                    ModalCount--;
+                    return dialogResultN;
+                }
             }
-            if (!config.Form.IsHandleCreated) config.Mask = config.MaskClosable = false;
-            if (config.Form.InvokeRequired) return ITask.Invoke(config.Form, new Func<DialogResult>(() => open(config)));
-            var frm = new LayeredFormModal(config);
-            ModalCount++;
-            DialogResult dialogResult;
-            if (config.Mask) dialogResult = frm.ShowDialog(config.Form.FormMask(frm));
-            else dialogResult = frm.ShowDialog();
-            ModalCount--;
-            return dialogResult;
+            catch
+            {
+                return DialogResult.None;
+            }
         }
 
         public static int ModalCount { get; private set; }
@@ -165,12 +273,12 @@ namespace AntdUI
             /// <summary>
             /// Model 配置
             /// </summary>
-            /// <param name="form">所属窗口</param>
+            /// <param name="target">目标</param>
             /// <param name="title">标题</param>
             /// <param name="content">内容</param>
-            public Config(Form form, string title, string content)
+            public Config(Target target, string title, string content)
             {
-                Form = form;
+                Target = target;
                 Title = title;
                 Content = content;
             }
@@ -178,14 +286,102 @@ namespace AntdUI
             /// <summary>
             /// Model 配置
             /// </summary>
-            /// <param name="form">所属窗口</param>
+            /// <param name="target">目标</param>
             /// <param name="content">内容</param>
-            public Config(Form form, Control content)
+            public Config(Target target, Control content)
             {
-                Form = form;
+                Target = target;
                 Content = content;
                 Padding = new Size(0, 0);
             }
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="target">目标</param>
+            /// <param name="title">标题</param>
+            /// <param name="content">控件/内容</param>
+            public Config(Target target, string title, object content)
+            {
+                Target = target;
+                Title = title;
+                Content = content;
+            }
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="target">目标</param>
+            /// <param name="title">标题</param>
+            /// <param name="content">内容</param>
+            /// <param name="icon">图标</param>
+            public Config(Target target, string title, string content, TType icon)
+            {
+                Target = target;
+                Title = title;
+                Content = content;
+                Icon = icon;
+            }
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="target">目标</param>
+            /// <param name="title">标题</param>
+            /// <param name="content">控件/内容</param>
+            /// <param name="icon">图标</param>
+            public Config(Target target, string title, object content, TType icon)
+            {
+                Target = target;
+                Title = title;
+                Content = content;
+                Icon = icon;
+            }
+
+            #region 窗口
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="form">所属窗口</param>
+            /// <param name="title">标题</param>
+            /// <param name="content">内容</param>
+            public Config(Form form, string title, string content) : this(new Target(form), title, content) { }
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="form">所属窗口</param>
+            /// <param name="content">内容</param>
+            public Config(Form form, Control content) : this(new Target(form), content) { }
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="form">所属窗口</param>
+            /// <param name="title">标题</param>
+            /// <param name="content">控件/内容</param>
+            public Config(Form form, string title, object content) : this(new Target(form), title, content) { }
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="form">所属窗口</param>
+            /// <param name="title">标题</param>
+            /// <param name="content">内容</param>
+            /// <param name="icon">图标</param>
+            public Config(Form form, string title, string content, TType icon) : this(new Target(form), title, content, icon) { }
+
+            /// <summary>
+            /// Model 配置
+            /// </summary>
+            /// <param name="form">所属窗口</param>
+            /// <param name="title">标题</param>
+            /// <param name="content">控件/内容</param>
+            /// <param name="icon">图标</param>
+            public Config(Form form, string title, object content, TType icon) : this(new Target(form), title, content, icon) { }
+
+            #endregion
 
             /// <summary>
             /// Model 配置
@@ -194,20 +390,8 @@ namespace AntdUI
             /// <param name="content">内容</param>
             public Config(string title, string content)
             {
+                Target = Target.Null;
                 Mask = MaskClosable = false;
-                Title = title;
-                Content = content;
-            }
-
-            /// <summary>
-            /// Model 配置
-            /// </summary>
-            /// <param name="form">所属窗口</param>
-            /// <param name="title">标题</param>
-            /// <param name="content">控件/内容</param>
-            public Config(Form form, string title, object content)
-            {
-                Form = form;
                 Title = title;
                 Content = content;
             }
@@ -219,24 +403,10 @@ namespace AntdUI
             /// <param name="content">控件/内容</param>
             public Config(string title, object content)
             {
+                Target = Target.Null;
                 Mask = MaskClosable = false;
                 Title = title;
                 Content = content;
-            }
-
-            /// <summary>
-            /// Model 配置
-            /// </summary>
-            /// <param name="form">所属窗口</param>
-            /// <param name="title">标题</param>
-            /// <param name="content">内容</param>
-            /// <param name="icon">图标</param>
-            public Config(Form form, string title, string content, TType icon)
-            {
-                Form = form;
-                Title = title;
-                Content = content;
-                Icon = icon;
             }
 
             /// <summary>
@@ -247,22 +417,8 @@ namespace AntdUI
             /// <param name="icon">图标</param>
             public Config(string title, string content, TType icon)
             {
+                Target = Target.Null;
                 Mask = MaskClosable = false;
-                Title = title;
-                Content = content;
-                Icon = icon;
-            }
-
-            /// <summary>
-            /// Model 配置
-            /// </summary>
-            /// <param name="form">所属窗口</param>
-            /// <param name="title">标题</param>
-            /// <param name="content">控件/内容</param>
-            /// <param name="icon">图标</param>
-            public Config(Form form, string title, object content, TType icon)
-            {
-                Form = form;
                 Title = title;
                 Content = content;
                 Icon = icon;
@@ -276,6 +432,7 @@ namespace AntdUI
             /// <param name="icon">图标</param>
             public Config(string title, object content, TType icon)
             {
+                Target = Target.Null;
                 Mask = MaskClosable = false;
                 Title = title;
                 Content = content;
@@ -283,9 +440,15 @@ namespace AntdUI
             }
 
             /// <summary>
+            /// 所属目标
+            /// </summary>
+            public Target Target { get; set; }
+
+            /// <summary>
             /// 所属窗口
             /// </summary>
-            public Form? Form { get; set; }
+            [Obsolete("use Target")]
+            public Form? Form => Target.GetForm;
 
             /// <summary>
             /// 标题
@@ -318,6 +481,11 @@ namespace AntdUI
             public Font? Font { get; set; }
 
             /// <summary>
+            /// 色彩模式
+            /// </summary>
+            public TAMode ColorScheme { get; set; } = TAMode.Auto;
+
+            /// <summary>
             /// 是否支持键盘 esc 关闭
             /// </summary>
             public bool Keyboard { get; set; } = true;
@@ -331,6 +499,11 @@ namespace AntdUI
             /// 点击蒙层是否允许关闭
             /// </summary>
             public bool MaskClosable { get; set; } = true;
+
+            /// <summary>
+            /// 关闭后手动激活父窗口
+            /// </summary>
+            public bool ManualActivateParent { get; set; }
 
             /// <summary>
             /// 是否显示关闭图标
@@ -426,6 +599,11 @@ namespace AntdUI
             /// </summary>
             public bool Draggable { get; set; } = true;
 
+            /// <summary>
+            /// 启用声音
+            /// </summary>
+            public bool EnableSound { get; set; }
+
             #region 自定义按钮
 
             /// <summary>
@@ -502,6 +680,11 @@ namespace AntdUI
             public Config SetMaskClosable(bool value = false)
             {
                 MaskClosable = value;
+                return this;
+            }
+            public Config SetManualActivateParent(bool value = true)
+            {
+                ManualActivateParent = value;
                 return this;
             }
             public Config SetCloseIcon(bool value = true)
@@ -616,6 +799,16 @@ namespace AntdUI
             public Config SetDraggable(bool value = false)
             {
                 Draggable = value;
+                return this;
+            }
+            public Config SetColorScheme(TAMode value)
+            {
+                ColorScheme = value;
+                return this;
+            }
+            public Config SetEnableSound(bool value = true)
+            {
+                EnableSound = value;
                 return this;
             }
 

@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -31,7 +31,9 @@ namespace AntdUI
         TAMode ColorScheme;
         bool isdark = false;
         List<OMenuItem> Items;
+        Size DPadding;
         Color? backColor, BackHover, BackActive, foreColor, ForeActive;
+        float IconRatio = 0.7F, IconGap = 0.25F;
 
         ScrollBar ScrollBar;
         public LayeredFormMenuDown(Menu control, int radius, Rectangle rect, IList<MenuItem> items)
@@ -48,6 +50,9 @@ namespace AntdUI
             ForeActive = control.ForeActive;
             BackHover = control.BackHover;
             BackActive = control.BackActive;
+            DPadding = control.DropDownPadding;
+            IconRatio = control.DropIconRatio;
+            IconGap = control.DropIconGap;
             Radius = (int)(radius * Config.Dpi);
             ScrollBar = new ScrollBar(this, ColorScheme);
             var point = control.PointToScreen(Point.Empty);
@@ -80,6 +85,9 @@ namespace AntdUI
             ForeActive = parent.ForeActive;
             BackHover = parent.BackHover;
             BackActive = parent.BackActive;
+            DPadding = parent.DPadding;
+            IconRatio = parent.IconRatio;
+            IconGap = parent.IconGap;
             Radius = radius;
             parent.Disposed += (a, b) => Dispose();
             ScrollBar = new ScrollBar(this, ColorScheme);
@@ -188,13 +196,13 @@ namespace AntdUI
             }
             else
             {
-                using (var brush = new SolidBrush(Colour.Text.Get("Menu", ColorScheme)))
+                using (var brush = new SolidBrush(Colour.Text.Get(nameof(Menu), ColorScheme)))
                 {
                     foreach (var it in Items) DrawItem(g, brush, it);
                 }
             }
             g.Restore(state);
-            ScrollBar.Paint(g);
+            ScrollBar.Paint(g, ColorScheme);
         }
 
         void DrawItem(Canvas g, SolidBrush brush, OMenuItem it)
@@ -207,9 +215,9 @@ namespace AntdUI
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.Primary.Get("Menu", ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.Primary.Get(nameof(Menu), ColorScheme), path);
                         }
-                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get("Menu", ColorScheme)))
+                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get(nameof(Menu), ColorScheme)))
                         {
                             g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush_select, it.RectText, sf);
                         }
@@ -221,7 +229,7 @@ namespace AntdUI
                         {
                             using (var path = it.Rect.RoundPath(Radius))
                             {
-                                g.Fill(BackHover ?? Colour.FillTertiary.Get("Menu", ColorScheme), path);
+                                g.Fill(BackHover ?? Colour.FillTertiary.Get(nameof(Menu), ColorScheme), path);
                             }
                         }
                         g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush, it.RectText, sf);
@@ -234,9 +242,9 @@ namespace AntdUI
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.PrimaryBg.Get("Menu", ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.PrimaryBg.Get(nameof(Menu), ColorScheme), path);
                         }
-                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get("Menu", ColorScheme)))
+                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get(nameof(Menu), ColorScheme)))
                         {
                             g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush_select, it.RectText, sf);
                         }
@@ -247,7 +255,7 @@ namespace AntdUI
                         {
                             using (var path = it.Rect.RoundPath(Radius))
                             {
-                                g.Fill(BackHover ?? Colour.FillTertiary.Get("Menu", ColorScheme), path);
+                                g.Fill(BackHover ?? Colour.FillTertiary.Get(nameof(Menu), ColorScheme), path);
                             }
                         }
                         g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush, it.RectText, sf);
@@ -263,18 +271,18 @@ namespace AntdUI
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.Primary.Get("Menu", ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.Primary.Get(nameof(Menu), ColorScheme), path);
                         }
                     }
                     else
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.PrimaryBg.Get("Menu", ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.PrimaryBg.Get(nameof(Menu), ColorScheme), path);
                         }
                     }
                 }
-                using (var fore = new SolidBrush(Colour.TextQuaternary.Get("Menu", ColorScheme)))
+                using (var fore = new SolidBrush(Colour.TextQuaternary.Get(nameof(Menu), ColorScheme)))
                 {
                     g.DrawText(it.Val.Text, it.Val.Font ?? Font, fore, it.RectText, sf);
                 }
@@ -311,8 +319,8 @@ namespace AntdUI
         {
             var text_height = g.MeasureString(Config.NullText, Font).Height;
 
-            int sp = (int)Config.Dpi, padd = (int)(text_height * .18F), padd2 = padd * 2, gap_x = (int)(12 * Config.Dpi), gap_y = (int)(5 * Config.Dpi),
-            icon_size = (int)(text_height * .7F), icon_gap = (int)(text_height * .25F), item_height = text_height + gap_y * 2, icon_xy = (item_height - icon_size) / 2,
+            int sp = (int)Config.Dpi, padd = (int)(text_height * .18F), padd2 = padd * 2, gap_x = (int)(DPadding.Width * Config.Dpi), gap_y = (int)(DPadding.Height * Config.Dpi),
+            icon_size = (int)(text_height * IconRatio), icon_gap = (int)(text_height * IconGap), item_height = text_height + gap_y * 2, icon_xy = (item_height - icon_size) / 2,
             gap_x2 = gap_x * 2, gap_y2 = gap_y * 2;
 
             tmp_padd = padd;

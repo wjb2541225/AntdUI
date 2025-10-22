@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -46,20 +46,12 @@ namespace AntdUI
         public static bool IsLight
         {
             get => mode == TMode.Light;
-            set
-            {
-                Mode = value ? TMode.Light : TMode.Dark;
-                EventHub.Dispatch(EventType.THEME, mode);
-            }
+            set => Mode = value ? TMode.Light : TMode.Dark;
         }
         public static bool IsDark
         {
             get => mode == TMode.Dark;
-            set
-            {
-                Mode = value ? TMode.Dark : TMode.Light;
-                EventHub.Dispatch(EventType.THEME, mode);
-            }
+            set => Mode = value ? TMode.Dark : TMode.Light;
         }
 
         #endregion
@@ -118,6 +110,19 @@ namespace AntdUI
             }
             return false;
         }
+
+        #endregion
+
+        #region 主题配置
+
+        /// <summary>
+        /// 全局主题配置
+        /// </summary>
+        public static IThemeConfig? ThemeConfig { get; set; }
+
+        public static IThemeConfig Theme() => ThemeConfig ??= new IThemeConfig();
+
+        public static void ThemeClear() => ThemeConfig = null;
 
         #endregion
 
@@ -184,6 +189,16 @@ namespace AntdUI
         /// 文本高质量呈现
         /// </summary>
         public static bool TextRenderingHighQuality { get; set; }
+
+        /// <summary>
+        /// 是否使用钩子
+        /// </summary>
+        public static bool UseHook { get; set; }
+
+        /// <summary>
+        /// DPI模式
+        /// </summary>
+        public static DpiMode DpiMode { get; set; } = DpiMode.Default;
 
         /// <summary>
         /// 默认字体

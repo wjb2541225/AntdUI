@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -99,6 +99,12 @@ namespace AntdUI
         /// </summary>
         [Description("下拉文本方向"), Category("外观"), DefaultValue(TAlign.Left)]
         public TAlign DropDownTextAlign { get; set; } = TAlign.Left;
+
+        /// <summary>
+        /// 是否允许回车键触发下拉框
+        /// </summary>
+        [Description("是否允许回车键触发下拉框"), Category("行为"), DefaultValue(true)]
+        public bool EnterDropDown { get; set; } = true;
 
         /// <summary>
         /// 下拉为空关闭
@@ -416,7 +422,7 @@ namespace AntdUI
         {
             if (showicon)
             {
-                using (var pen = new Pen(Colour.TextQuaternary.Get("Select", ColorScheme), 2F))
+                using (var pen = new Pen(Colour.TextQuaternary.Get(nameof(Select), ColorScheme), 2F))
                 {
                     pen.StartCap = pen.EndCap = LineCap.Round;
                     g.DrawLines(pen, rect_r.TriangleLines(ArrowProg));
@@ -510,6 +516,7 @@ namespace AntdUI
                         else
                         {
                             subForm?.IClose();
+                            subForm = null;
                             expandDrop = false;
                         }
                     }
@@ -526,6 +533,7 @@ namespace AntdUI
                 else
                 {
                     subForm?.IClose();
+                    subForm = null;
                     filtertext = "";
                 }
             }
@@ -533,21 +541,28 @@ namespace AntdUI
 
         void ShowLayeredForm(IList<object> list)
         {
-            if (InvokeRequired)
+            try
             {
-                BeginInvoke(() => ShowLayeredForm(list));
-                return;
+                if (InvokeRequired)
+                {
+                    BeginInvoke(() => ShowLayeredForm(list));
+                    return;
+                }
+                Expand = true;
+                subForm = new LayeredFormSelectDown(this, list, filtertext);
+                subForm.Show(this);
+                subForm.Disposed += (a, b) =>
+                {
+                    select_x = 0;
+                    subForm = null;
+                    Expand = false;
+                    ExpandDrop = false;
+                };
             }
-            Expand = true;
-            subForm = new LayeredFormSelectDown(this, list, filtertext);
-            subForm.Disposed += (a, b) =>
+            catch
             {
-                select_x = 0;
                 subForm = null;
-                Expand = false;
-                ExpandDrop = false;
-            };
-            subForm.Show(this);
+            }
         }
 
         protected override bool ProcessCmdKey(ref System.Windows.Forms.Message msg, Keys keyData)
@@ -559,7 +574,7 @@ namespace AntdUI
                     ExpandDrop = true;
                     return true;
                 case Keys.Enter:
-                    ExpandDrop = true;
+                    if (EnterDropDown) ExpandDrop = true;
                     break;
             }
             return r;
@@ -690,6 +705,11 @@ namespace AntdUI
         public Image? Icon { get; set; }
 
         public string? IconSvg { get; set; }
+
+        /// <summary>
+        /// 图标比例
+        /// </summary>
+        public float? IconRatio { get; set; }
 
         string _text;
         /// <summary>
@@ -834,6 +854,12 @@ namespace AntdUI
         public SelectItem SetIcon(string? svg)
         {
             IconSvg = svg;
+            return this;
+        }
+
+        public SelectItem SetIconRatio(float? value)
+        {
+            IconRatio = value;
             return this;
         }
 

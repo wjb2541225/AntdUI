@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -34,16 +34,16 @@ namespace AntdUI
                 switch (State)
                 {
                     case TState.Success:
-                        color = Colour.Success.Get("Badge", PARENT.PARENT.ColorScheme); break;
+                        color = Colour.Success.Get(nameof(Badge), PARENT.PARENT.ColorScheme); break;
                     case TState.Error:
-                        color = Colour.Error.Get("Badge", PARENT.PARENT.ColorScheme); break;
+                        color = Colour.Error.Get(nameof(Badge), PARENT.PARENT.ColorScheme); break;
                     case TState.Primary:
                     case TState.Processing:
-                        color = Colour.Primary.Get("Badge", PARENT.PARENT.ColorScheme); break;
+                        color = Colour.Primary.Get(nameof(Badge), PARENT.PARENT.ColorScheme); break;
                     case TState.Warn:
-                        color = Colour.Warning.Get("Badge", PARENT.PARENT.ColorScheme); break;
+                        color = Colour.Warning.Get(nameof(Badge), PARENT.PARENT.ColorScheme); break;
                     default:
-                        color = Colour.TextQuaternary.Get("Badge", PARENT.PARENT.ColorScheme); break;
+                        color = Colour.TextQuaternary.Get(nameof(Badge), PARENT.PARENT.ColorScheme); break;
                 }
             }
             using (var brush = new SolidBrush(color))

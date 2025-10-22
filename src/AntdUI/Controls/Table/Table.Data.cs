@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -29,6 +29,8 @@ namespace AntdUI
     {
         internal TempTable? dataTmp = null;
         bool dataOne = true;
+        List<int> selects = new List<int>();
+        int hovers = -1;
         void ExtractData()
         {
             dataOne = true;
@@ -282,7 +284,7 @@ namespace AntdUI
                         BindingItemDeleted(sender, e.NewIndex);
                         break;
                     case ListChangedType.ItemChanged:
-                        BindingItemChanged(sender, e.NewIndex);
+                        BindingItemChanged(sender, e.NewIndex, e.NewIndex == e.OldIndex);
                         break;
                     case ListChangedType.Reset:
                         if (dataTmp == null) return;
@@ -319,15 +321,18 @@ namespace AntdUI
                 if (LoadLayout()) Invalidate();
             }
         }
-        void BindingItemChanged(object? sender, int i)
+        void BindingItemChanged(object? sender, int i, bool eq)
         {
             if (dataTmp == null) return;
             if (sender is IList list)
             {
                 var row = list[i];
                 if (row == null) return;
-                var tmp = RealRowIndex(row, dataTmp.rows);
-                if (tmp.HasValue) i = tmp.Value;
+                if (eq)
+                {
+                    var tmp = RealRowIndex(row, dataTmp.rows);
+                    if (tmp.HasValue) i = tmp.Value;
+                }
                 var cells = GetRow(row, dataTmp.columns.Length);
                 if (cells.Count == 0) return;
                 int len = dataTmp.rows.Length;
@@ -632,6 +637,7 @@ namespace AntdUI
             public void SetValue(int index, object? value)
             {
                 if (cells == null) return;
+
                 int i = 0;
                 foreach (var item in cells)
                 {
@@ -641,6 +647,16 @@ namespace AntdUI
                         return;
                     }
                     i++;
+                }
+            }
+            public void SetValue(string key, object? value)
+            {
+                if (cells == null) return;
+                if (cells.TryGetValue(key, out var tmp))
+                {
+                    if (tmp is PropertyDescriptor prop) prop.SetValue(record, value);
+                    else if (tmp is AntItem it) it.value = value;
+                    else cells[key] = value;
                 }
             }
         }

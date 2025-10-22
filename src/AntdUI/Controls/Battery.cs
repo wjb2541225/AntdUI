@@ -1,4 +1,4 @@
-﻿// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
+// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
 // THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
 // LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
 // YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
@@ -212,11 +212,11 @@ namespace AntdUI
                             }
                         }
                     }
-                    if (ShowText) g.String("100%", Font, fore ?? Colour.Text.Get("Battery", ColorScheme), rect, c);
+                    if (ShowText) g.String("100%", Font, fore ?? Colour.Text.Get(nameof(Battery), ColorScheme), rect, c);
                 }
                 else
                 {
-                    using (var brush = new SolidBrush(back ?? Colour.FillSecondary.Get("Battery", ColorScheme)))
+                    using (var brush = new SolidBrush(back ?? Colour.FillSecondary.Get(nameof(Battery), ColorScheme)))
                     {
                         g.Fill(brush, path_pain);
                         if (dotsize > 0)
@@ -246,7 +246,7 @@ namespace AntdUI
                             g.Image(bmp, e.Rect);
                         }
                     }
-                    if (ShowText) g.String(_value + "%", Font, fore ?? Colour.Text.Get("Battery", ColorScheme), rect, c);
+                    if (ShowText) g.String(_value + "%", Font, fore ?? Colour.Text.Get(nameof(Battery), ColorScheme), rect, c);
                 }
             }
             base.OnDraw(e);
