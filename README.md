@@ -19,6 +19,14 @@
 
 Ant Design for WinForms, reimagines desktop app aesthetics with modern frontend design elements. Using pure GDI graphics, no image resources required, fully supports AOT.
 
+### 🗳️ Gitee 2025 Open Source Project
+
+[🍀 Come and vote for me quickly！](https://gitee.com/activity/2025opensource?ident=IQOXCY)
+
+[![2025opensource](doc/pre/2025opensource.png)](https://gitee.com/activity/2025opensource?ident=IQOXCY)
+
+> The voting process will end on January 9, 2026. Everyone has only one vote for each project.
+
 ### ✨ Features
 
 - 🌈 High quality anti aliasing text rendering
@@ -34,8 +42,8 @@ Ant Design for WinForms, reimagines desktop app aesthetics with modern frontend 
 
 ### 🖥 Requirements
 
-- .NET 9.0
-- .NET 6.0
+- .NET 10.0
+- .NET 8.0
 - .NET Framework4.8
 - .NET Framework4.0 and above
 

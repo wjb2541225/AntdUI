@@ -30,16 +30,28 @@ namespace AntdUI
 
         Size MeasureString(string? text, Font font);
         Size MeasureString(string? text, Font font, int width);
-        Size MeasureString(string? text, Font font, int width, StringFormat? format);
+        [Obsolete("use FormatFlags")]
+        Size MeasureString(string? text, Font font, int width, StringFormat format);
+        Size MeasureString(string? text, Font font, int width, FormatFlags format = FormatFlags.Center);
 
         #endregion
 
         #region String
 
-        void String(string? text, Font font, Color color, Rectangle rect, StringFormat? format = null);
-        void String(string? text, Font font, Brush brush, Rectangle rect, StringFormat? format = null);
-        void String(string? text, Font font, Color color, RectangleF rect, StringFormat? format = null);
-        void String(string? text, Font font, Brush brush, RectangleF rect, StringFormat? format = null);
+        [Obsolete("use FormatFlags")]
+        void String(string? text, Font font, Color color, Rectangle rect, StringFormat format);
+        [Obsolete("use FormatFlags")]
+        void String(string? text, Font font, Brush brush, Rectangle rect, StringFormat format);
+        [Obsolete("use FormatFlags")]
+        void String(string? text, Font font, Color color, RectangleF rect, StringFormat format);
+        [Obsolete("use FormatFlags")]
+        void String(string? text, Font font, Brush brush, RectangleF rect, StringFormat format);
+
+        void String(string? text, Font font, Color color, Rectangle rect, FormatFlags format = FormatFlags.Center);
+        void String(string? text, Font font, Brush brush, Rectangle rect, FormatFlags format = FormatFlags.Center);
+        void String(string? text, Font font, Color color, RectangleF rect, FormatFlags format = FormatFlags.Center);
+        void String(string? text, Font font, Brush brush, RectangleF rect, FormatFlags format = FormatFlags.Center);
+
         void String(string? text, Font font, Color color, int x, int y);
         void String(string? text, Font font, Brush brush, int x, int y);
         void String(string? text, Font font, Color color, float x, float y);
@@ -55,14 +67,23 @@ namespace AntdUI
 
         Size MeasureText(string? text, Font font);
         Size MeasureText(string? text, Font font, int width);
-        Size MeasureText(string? text, Font font, int width, StringFormat? format);
+        [Obsolete("use FormatFlags")]
+        Size MeasureText(string? text, Font font, int width, StringFormat format);
+        Size MeasureText(string? text, Font font, int width, FormatFlags format = FormatFlags.Center);
+        Region[] MeasureCharacterRanges(string? text, Font font, Rectangle rect, FormatFlags format = FormatFlags.Center);
+        Region[] MeasureCharacterRanges(string? text, Font font, Rectangle rect, StringFormat format);
 
         #endregion
 
         #region DrawText
 
-        void DrawText(string? text, Font font, Color color, Rectangle rect, StringFormat? format = null);
-        void DrawText(string? text, Font font, Brush brush, Rectangle rect, StringFormat? format = null);
+        [Obsolete("use FormatFlags")]
+        void DrawText(string? text, Font font, Color color, Rectangle rect, StringFormat format);
+        [Obsolete("use FormatFlags")]
+        void DrawText(string? text, Font font, Brush brush, Rectangle rect, StringFormat format);
+
+        void DrawText(string? text, Font font, Color color, Rectangle rect, FormatFlags format = FormatFlags.Center);
+        void DrawText(string? text, Font font, Brush brush, Rectangle rect, FormatFlags format = FormatFlags.Center);
 
         #endregion
 
@@ -87,6 +108,8 @@ namespace AntdUI
         bool Image(Image bmp, Rectangle rect, float opacity);
         bool Image(Image bmp, Rectangle destRect, Rectangle srcRect, float opacity);
         bool Image(Image bmp, Rectangle destRect, Rectangle srcRect, float opacity, GraphicsUnit srcUnit);
+        bool Image(Image bmp, RectangleF destRect, RectangleF srcRect, float opacity);
+        bool Image(Image bmp, RectangleF destRect, RectangleF srcRect, float opacity, GraphicsUnit srcUnit);
 
         #endregion
 
@@ -199,14 +222,22 @@ namespace AntdUI
         void SetClip(Rectangle rect, CombineMode combineMode);
         void SetClip(RectangleF rect, CombineMode combineMode);
         void SetClip(GraphicsPath path, CombineMode combineMode);
+        void SetClip(Region region, CombineMode combineMode);
         void ResetClip();
         void ResetTransform();
         void TranslateTransform(float dx, float dy);
+        void TranslateTransform(float dx, float dy, MatrixOrder order);
         void RotateTransform(float angle);
+        void RotateTransform(float angle, MatrixOrder order);
+        void ScaleTransform(float sx, float sy);
+        void ScaleTransform(float sx, float sy, MatrixOrder order);
         float DpiX { get; }
         float DpiY { get; }
         Matrix Transform { get; set; }
+        Region Clip { get; set; }
+        RectangleF RegionBounds(Region region);
         CompositingMode CompositingMode { get; set; }
+        SmoothingMode SmoothingMode { get; set; }
 
         #endregion
     }

@@ -345,6 +345,23 @@ namespace AntdUI
         [Description("鼠标右键控制"), Category("交互"), DefaultValue(true)]
         public bool MouseRightCtrl { get; set; } = true;
 
+        bool scrollBarBlock = false;
+        /// <summary>
+        /// 滚动条遮挡
+        /// </summary>
+        [Description("滚动条遮挡"), Category("外观"), DefaultValue(false)]
+        public bool ScrollBarBlock
+        {
+            get => scrollBarBlock;
+            set
+            {
+                if (scrollBarBlock == value) return;
+                scrollBarBlock = value;
+                ChangeList(true);
+                OnPropertyChanged(nameof(ScrollBarBlock));
+            }
+        }
+
         #region 下拉
 
         /// <summary>
@@ -390,7 +407,8 @@ namespace AntdUI
             IUSelect(items);
             if (items.ListExceed(i1))
             {
-                Invalidate(); return;
+                Invalidate();
+                return;
             }
             var it1 = items[i1];
             it1.Select = true;
@@ -406,12 +424,14 @@ namespace AntdUI
             IUSelect(items);
             if (items.ListExceed(i1))
             {
-                Invalidate(); return;
+                Invalidate();
+                return;
             }
             var it1 = items[i1];
             if (it1.items.ListExceed(i2))
             {
-                Invalidate(); return;
+                Invalidate();
+                return;
             }
             var it2 = it1.Sub[i2];
             it1.Select = it2.Select = true;
@@ -592,11 +612,11 @@ namespace AntdUI
                 {
                     var size = g.MeasureString(Config.NullText, Font);
                     int icon_size = (int)(size.Height * iconratio);
-                    int gap = (_gap.HasValue ? (int)(_gap.Value * Config.Dpi) : (int)(size.Height * .8F)), gap2 = gap * 2, sp = (_itemMargin.HasValue ? (int)(_itemMargin.Value * Config.Dpi) : (int)(size.Height * .2F)), sp2 = sp * 2, height = size.Height + gap2;
+                    int gap = (_gap.HasValue ? (int)(_gap.Value * Config.Dpi) : (int)(size.Height * .8F)), gap2 = gap * 2, divider = (int)Config.Dpi, sp = (_itemMargin.HasValue ? (int)(_itemMargin.Value * Config.Dpi) : (int)(size.Height * .2F)), sp2 = sp * 2, height = size.Height + gap2;
                     int inlineIndent = (_inlineIndent.HasValue ? (int)(_inlineIndent.Value * Config.Dpi) : (int)(size.Height * 1.2F)), iconsp = (icongap.HasValue ? (int)(icongap.Value * Config.Dpi) : size.Height / 2);
                     if (mode == TMenuMode.Horizontal)
                     {
-                        ChangeListHorizontal(rect, g, items!, ref x, icon_size, gap, gap2, sp, sp2, iconsp);
+                        ChangeListHorizontal(rect, g, items!, ref x, icon_size, gap, gap2, divider, sp, sp2, iconsp);
                         scroll_show = x > rect.Width;
                         if (scroll_show)
                         {
@@ -612,14 +632,24 @@ namespace AntdUI
                         if (mode == TMenuMode.InlineNoText)
                         {
                             int arrow_size = arrowRatio.HasValue ? (int)(size.Height * arrowRatio.Value) : (int)(icon_size * 0.85F);
-                            collapsedWidth = ChangeListInlineNoText(rect, g, null, items!, ref y, height, icon_size, arrow_size, gap, gap2, sp, sp2, iconsp) + Padding.Horizontal;
+                            collapsedWidth = ChangeListInlineNoText(rect, g, null, items!, ref y, height, icon_size, arrow_size, gap, gap2, divider, sp, sp2, iconsp) + Padding.Horizontal;
                         }
                         else
                         {
-                            int arrow_size = arrowRatio.HasValue ? (int)(size.Height * arrowRatio.Value) : icon_size;
-                            int yr = ChangeListY(rect, items!, ref icon_count, height, sp) + Padding.Vertical;
-                            int scx = yr > _rect.Height ? ScrollBar.SIZE : 0;
-                            collapsedWidth = ChangeList(rect, g, null, items!, ref y, height, icon_size, arrow_size, gap, gap2, sp, sp2, inlineIndent, iconsp, scx, 0) + Padding.Horizontal;
+                            scrollBarBlock = true;
+                            int arrow_size = arrowRatio.HasValue ? (int)(size.Height * arrowRatio.Value) : icon_size, scx;
+                            if (ScrollBar.Show && scrollBarBlock)
+                            {
+                                rect.Width -= ScrollBar.SIZE;
+                                int yr = ChangeListY(rect, items!, ref icon_count, height, sp) + Padding.Vertical;
+                                scx = 0;
+                            }
+                            else
+                            {
+                                int yr = ChangeListY(rect, items!, ref icon_count, height, sp) + Padding.Vertical;
+                                scx = yr > _rect.Height ? ScrollBar.SIZE : 0;
+                            }
+                            collapsedWidth = ChangeList(rect, g, null, items!, ref y, height, icon_size, arrow_size, gap, gap2, divider, sp, sp2, inlineIndent, iconsp, scx, 0) + Padding.Horizontal;
                         }
                         if (AutoCollapse)
                         {
@@ -640,6 +670,7 @@ namespace AntdUI
             int y = 0;
             foreach (var it in items)
             {
+                if (it is MenuDividerItem) continue;
                 if (it.HasIcon) icon_count++;
                 if (it.Visible)
                 {
@@ -650,7 +681,7 @@ namespace AntdUI
             return y;
         }
 
-        int ChangeList(Rectangle rect, Canvas g, MenuItem? Parent, MenuItemCollection items, ref int y, int height, int icon_size, int arrow_size, int gap, int gap2, int sp, int sp2, int inlineIndent, int iconsp, int scx, int depth)
+        int ChangeList(Rectangle rect, Canvas g, MenuItem? Parent, MenuItemCollection items, ref int y, int height, int icon_size, int arrow_size, int gap, int gap2, int divider, int sp, int sp2, int inlineIndent, int iconsp, int scx, int depth)
         {
             int collapsedWidth = 0, i = 0;
             foreach (var it in items)
@@ -658,44 +689,52 @@ namespace AntdUI
                 it.Index = i;
                 i++;
                 it.PARENT = this;
-                it.PARENTITEM = Parent;
-                int uw = it.SetRect(this, depth, Indent, new Rectangle(rect.X, rect.Y + y, rect.Width, height), icon_size, arrow_size, gap, gap2, sp, sp2, inlineIndent, iconsp, scx, out int exr);
-                if (it.Visible)
+                it.PARENTITEM = it.ParentItem = Parent;
+                if (it is MenuDividerItem)
                 {
-                    int size = g.MeasureText(it.Text, it.Font ?? Font).Width + uw + gap2 + scx + exr;
-                    if (size > collapsedWidth) collapsedWidth = size;
-                    y += height + sp;
-                    if (mode == TMenuMode.Inline && it.CanExpand)
+                    it.SetRectDivider(new Rectangle(rect.X, rect.Y + y, rect.Width, divider));
+                    y += divider + sp;
+                }
+                else
+                {
+                    int uw = it.SetRect(this, depth, Indent, new Rectangle(rect.X, rect.Y + y, rect.Width, height), icon_size, arrow_size, gap, gap2, sp, sp2, inlineIndent, iconsp, scx, out int exr);
+                    if (it.Visible)
                     {
-                        if (collapsed)
+                        int size = g.MeasureText(it.Text, it.Font ?? Font).Width + uw + gap2 + scx + exr;
+                        if (size > collapsedWidth) collapsedWidth = size;
+                        y += height + sp;
+                        if (mode == TMenuMode.Inline && it.CanExpand)
                         {
-                            int oldy = y;
-                            int size2 = ChangeList(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, sp, sp2, inlineIndent, iconsp, scx, depth + 1);
-                            if (size2 > collapsedWidth) collapsedWidth = size2;
-                            y = oldy;
-                        }
-                        else
-                        {
-                            int y_item = y;
-                            int size2 = ChangeList(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, sp, sp2, inlineIndent, iconsp, scx, depth + 1);
-                            if (size2 > collapsedWidth) collapsedWidth = size2;
-
-                            it.SubY = rect.Y + y_item - sp / 2;
-                            it.SubHeight = y - y_item;
-
-                            if ((it.Expand || it.ExpandThread) && it.ExpandProg > 0)
+                            if (collapsed)
                             {
-                                it.ExpandHeight = y - y_item;
-                                y = y_item + (int)Math.Ceiling(it.ExpandHeight * it.ExpandProg);
+                                int oldy = y;
+                                int size2 = ChangeList(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, divider, sp, sp2, inlineIndent, iconsp, scx, depth + 1);
+                                if (size2 > collapsedWidth) collapsedWidth = size2;
+                                y = oldy;
                             }
-                            else if (!it.Expand) y = y_item;
+                            else
+                            {
+                                int y_item = y;
+                                int size2 = ChangeList(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, divider, sp, sp2, inlineIndent, iconsp, scx, depth + 1);
+                                if (size2 > collapsedWidth) collapsedWidth = size2;
+
+                                it.SubY = rect.Y + y_item - sp / 2;
+                                it.SubHeight = y - y_item;
+
+                                if ((it.Expand || it.ExpandThread) && it.ExpandProg > 0)
+                                {
+                                    it.ExpandHeight = y - y_item;
+                                    y = y_item + (int)Math.Ceiling(it.ExpandHeight * it.ExpandProg);
+                                }
+                                else if (!it.Expand) y = y_item;
+                            }
                         }
                     }
                 }
             }
             return collapsedWidth;
         }
-        int ChangeListInlineNoText(Rectangle rect, Canvas g, MenuItem? Parent, MenuItemCollection items, ref int y, int height, int icon_size, int arrow_size, int gap, int gap2, int sp, int sp2, int iconsp)
+        int ChangeListInlineNoText(Rectangle rect, Canvas g, MenuItem? Parent, MenuItemCollection items, ref int y, int height, int icon_size, int arrow_size, int gap, int gap2, int divider, int sp, int sp2, int iconsp)
         {
             int collapsedWidth = 0, i = 0;
             foreach (var it in items)
@@ -703,45 +742,53 @@ namespace AntdUI
                 it.Index = i;
                 i++;
                 it.PARENT = this;
-                it.PARENTITEM = Parent;
-                int uw = it.SetRectInlineNoText(new Rectangle(rect.X, rect.Y + y, rect.Width, height), icon_size, arrow_size, gap, gap2, sp, sp2, iconsp);
-                if (it.Visible)
+                it.PARENTITEM = it.ParentItem = Parent;
+                if (it is MenuDividerItem)
                 {
-                    int size = g.MeasureText(it.Text, it.Font ?? Font).Width + uw + gap2;
-                    if (size > collapsedWidth) collapsedWidth = size;
-                    y += height + sp;
-                    if (it.CanExpand)
+                    it.SetRectDivider(new Rectangle(rect.X, rect.Y + y, rect.Width, divider));
+                    y += divider + sp;
+                }
+                else
+                {
+                    int uw = it.SetRectInlineNoText(new Rectangle(rect.X, rect.Y + y, rect.Width, height), icon_size, arrow_size, gap, gap2, sp, sp2, iconsp);
+                    if (it.Visible)
                     {
-                        if (collapsed)
+                        int size = g.MeasureText(it.Text, it.Font ?? Font).Width + uw + gap2;
+                        if (size > collapsedWidth) collapsedWidth = size;
+                        y += height + sp;
+                        if (it.CanExpand)
                         {
-                            int oldy = y;
-                            int size2 = ChangeListInlineNoText(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, sp, sp2, iconsp);
-                            if (size2 > collapsedWidth) collapsedWidth = size2;
-                            y = oldy;
-                        }
-                        else
-                        {
-                            int y_item = y;
-
-                            int size2 = ChangeListInlineNoText(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, sp, sp2, iconsp);
-                            if (size2 > collapsedWidth) collapsedWidth = size2;
-
-                            it.SubY = rect.Y + y_item - sp / 2;
-                            it.SubHeight = y - y_item;
-
-                            if ((it.Expand || it.ExpandThread) && it.ExpandProg > 0)
+                            if (collapsed)
                             {
-                                it.ExpandHeight = y - y_item;
-                                y = y_item + (int)Math.Ceiling(it.ExpandHeight * it.ExpandProg);
+                                int oldy = y;
+                                int size2 = ChangeListInlineNoText(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, divider, sp, sp2, iconsp);
+                                if (size2 > collapsedWidth) collapsedWidth = size2;
+                                y = oldy;
                             }
-                            else if (!it.Expand) y = y_item;
+                            else
+                            {
+                                int y_item = y;
+
+                                int size2 = ChangeListInlineNoText(rect, g, it, it.Sub, ref y, height, icon_size, arrow_size, gap, gap2, divider, sp, sp2, iconsp);
+                                if (size2 > collapsedWidth) collapsedWidth = size2;
+
+                                it.SubY = rect.Y + y_item - sp / 2;
+                                it.SubHeight = y - y_item;
+
+                                if ((it.Expand || it.ExpandThread) && it.ExpandProg > 0)
+                                {
+                                    it.ExpandHeight = y - y_item;
+                                    y = y_item + (int)Math.Ceiling(it.ExpandHeight * it.ExpandProg);
+                                }
+                                else if (!it.Expand) y = y_item;
+                            }
                         }
                     }
                 }
             }
             return collapsedWidth;
         }
-        void ChangeListHorizontal(Rectangle rect, Canvas g, MenuItemCollection items, ref int x, int icon_size, int gap, int gap2, int sp, int sp2, int iconsp)
+        void ChangeListHorizontal(Rectangle rect, Canvas g, MenuItemCollection items, ref int x, int icon_size, int gap, int gap2, int divider, int sp, int sp2, int iconsp)
         {
             int i = 0;
             foreach (var it in items)
@@ -749,23 +796,31 @@ namespace AntdUI
                 it.Index = i;
                 i++;
                 it.PARENT = this;
-                int width = g.MeasureText(it.Text, it.Font ?? Font).Width;
-                if (it.HasIcon)
+                if (it is MenuDividerItem)
                 {
-                    int tmp = icon_size + iconsp;
-                    int usew = gap2 + tmp, y = (rect.Height - icon_size) / 2;
-                    int size = width + gap2 + tmp;
-                    var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
-                    it.ico_rect = new Rectangle(_rect.X + gap, _rect.Y + y, icon_size, icon_size);
-                    it.SetRectNoArr(_rect, new Rectangle(_rect.X + gap + tmp, _rect.Y, _rect.Width - usew, _rect.Height));
-                    if (it.Visible) x += size + sp;
+                    it.SetRectDivider(new Rectangle(rect.X + x, rect.Y, divider, rect.Height));
+                    x += divider + sp;
                 }
                 else
                 {
-                    int size = width + gap2;
-                    var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
-                    it.SetRectNoArr(_rect, new Rectangle(_rect.X + gap, _rect.Y, _rect.Width - gap2, _rect.Height));
-                    if (it.Visible) x += size + sp;
+                    int width = g.MeasureText(it.Text, it.Font ?? Font).Width;
+                    if (it.HasIcon)
+                    {
+                        int tmp = icon_size + iconsp;
+                        int usew = gap2 + tmp, y = (rect.Height - icon_size) / 2;
+                        int size = width + gap2 + tmp;
+                        var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
+                        it.ico_rect = new Rectangle(_rect.X + gap, _rect.Y + y, icon_size, icon_size);
+                        it.SetRectNoArr(_rect, new Rectangle(_rect.X + gap + tmp, _rect.Y, _rect.Width - usew, _rect.Height));
+                        if (it.Visible) x += size + sp;
+                    }
+                    else
+                    {
+                        int size = width + gap2;
+                        var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
+                        it.SetRectNoArr(_rect, new Rectangle(_rect.X + gap, _rect.Y, _rect.Width - gap2, _rect.Height));
+                        if (it.Visible) x += size + sp;
+                    }
                 }
             }
         }
@@ -774,6 +829,7 @@ namespace AntdUI
         {
             foreach (var it in items)
             {
+                if (it is MenuDividerItem) continue;
                 it.ico_rect = new Rectangle(it.rect.X + (it.rect.Width - it.ico_rect.Width) / 2, it.ico_rect.Y, it.ico_rect.Width, it.ico_rect.Height);
                 if (it.Visible && it.CanExpand) ChangeUTitle(it.Sub);
             }
@@ -811,8 +867,9 @@ namespace AntdUI
             }
             float _radius = radius * Config.Dpi;
             using (var sub_bg = new SolidBrush(Colour.FillQuaternary.Get(nameof(Menu), ColorScheme)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(Menu), ColorScheme)))
             {
-                PaintItems(g, e.Rect, sy, items, color_fore, color_fore_active, fore_enabled, back_hover, back_active, _radius, sub_bg);
+                PaintItems(g, e.Rect, sy, items, color_fore, color_fore_active, fore_enabled, back_hover, back_active, _radius, sub_bg, brush_split);
             }
             g.ResetTransform();
             if (scroll_show)
@@ -831,41 +888,49 @@ namespace AntdUI
             base.OnDraw(e);
         }
 
-        void PaintItems(Canvas g, Rectangle rect, int sy, MenuItemCollection items, Color fore, Color fore_active, Color fore_enabled, Color back_hover, Color back_active, float radius, SolidBrush sub_bg)
+        void PaintItems(Canvas g, Rectangle rect, int sy, MenuItemCollection items, Color fore, Color fore_active, Color fore_enabled, Color back_hover, Color back_active, float radius, SolidBrush sub_bg, SolidBrush brush_split)
         {
             foreach (var it in items)
             {
                 it.show = it.Show && it.Visible && it.rect.Y > sy - rect.Height - (it.Expand ? it.SubHeight : 0) && it.rect.Bottom < sy + rect.Height + it.rect.Height;
                 if (it.show)
                 {
-                    PaintIt(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
-                    if (!collapsed && (it.Expand || it.ExpandThread) && it.items != null && it.items.Count > 0)
+                    if (it.Depth == -1) g.Fill(brush_split, it.Rect);
+                    else
                     {
-                        if (ShowSubBack) g.Fill(sub_bg, new RectangleF(rect.X, it.SubY, rect.Width, it.SubHeight));
-                        var state = g.Save();
-                        if (it.ExpandThread) g.SetClip(new RectangleF(rect.X, it.rect.Bottom, rect.Width, it.ExpandHeight * it.ExpandProg));
-                        PaintItemExpand(g, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius);
-                        g.Restore(state);
+                        PaintIt(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
+                        if (!collapsed && (it.Expand || it.ExpandThread) && it.items != null && it.items.Count > 0)
+                        {
+                            if (ShowSubBack) g.Fill(sub_bg, new RectangleF(rect.X, it.SubY, rect.Width, it.SubHeight));
+                            var state = g.Save();
+                            if (it.ExpandThread) g.SetClip(new RectangleF(rect.X, it.rect.Bottom, rect.Width, it.ExpandHeight * it.ExpandProg));
+                            PaintItemExpand(g, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius, brush_split);
+                            g.Restore(state);
+                        }
                     }
                 }
             }
         }
-        void PaintItemExpand(Canvas g, Rectangle rect, float sy, MenuItemCollection items, Color fore, Color fore_active, Color fore_enabled, Color back_hover, Color back_active, float radius)
+        void PaintItemExpand(Canvas g, Rectangle rect, float sy, MenuItemCollection items, Color fore, Color fore_active, Color fore_enabled, Color back_hover, Color back_active, float radius, SolidBrush brush_split)
         {
             foreach (var it in items)
             {
                 it.show = it.Show && it.Visible && it.rect.Y > sy - rect.Height - (it.Expand ? it.SubHeight : 0) && it.rect.Bottom < sy + rect.Height + it.rect.Height;
                 if (it.show)
                 {
-                    PaintIt(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
-                    if (it.Expand && it.items != null && it.items.Count > 0)
+                    if (it.Depth == -1) g.Fill(brush_split, it.Rect);
+                    else
                     {
-                        PaintItemExpand(g, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius);
-                        if (it.ExpandThread)
+                        PaintIt(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
+                        if (it.Expand && it.items != null && it.items.Count > 0)
                         {
-                            using (var brush = new SolidBrush(BackColor))
+                            PaintItemExpand(g, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius, brush_split);
+                            if (it.ExpandThread)
                             {
-                                g.Fill(brush, new RectangleF(rect.X, it.rect.Bottom + it.ExpandHeight * it.ExpandProg, rect.Width, it.ExpandHeight));
+                                using (var brush = new SolidBrush(BackColor))
+                                {
+                                    g.Fill(brush, new RectangleF(rect.X, it.rect.Bottom + it.ExpandHeight * it.ExpandProg, rect.Width, it.ExpandHeight));
+                                }
                             }
                         }
                     }
@@ -989,7 +1054,7 @@ namespace AntdUI
                         using (var pen = new Pen(fore_active, Config.Dpi * 2))
                         {
                             pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                            g.DrawLines(pen, it.arr_rect.TriangleLines(it.ArrowProg, .4F));
+                            g.DrawLines(pen, it.arr_rect.TriangleLines(it.GetArrowProg(), .4F));
                         }
                     }
                     else PaintBack(g, back_active, it.rect, radius);
@@ -999,14 +1064,14 @@ namespace AntdUI
                     using (var pen = new Pen(fore_enabled, Config.Dpi * 2))
                     {
                         pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        g.DrawLines(pen, it.arr_rect.TriangleLines(it.ArrowProg, .4F));
+                        g.DrawLines(pen, it.arr_rect.TriangleLines(it.GetArrowProg(), .4F));
                     }
                 }
                 PaintTextIcon(g, it, fore_enabled, radius);
             }
         }
 
-        readonly StringFormat SL = Helper.SF_ALL(lr: StringAlignment.Near);
+        readonly FormatFlags SL = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
         void PaintTextIcon(Canvas g, MenuItem it, Color fore, float radius)
         {
             using (var brush = new SolidBrush(fore))
@@ -1043,7 +1108,7 @@ namespace AntdUI
                     using (var pen = new Pen(fore, Config.Dpi * 2))
                     {
                         pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        g.DrawLines(pen, it.arr_rect.TriangleLines(it.ArrowProg, .4F));
+                        g.DrawLines(pen, it.arr_rect.TriangleLines(it.GetArrowProg(), .4F));
                     }
                 }
                 else if (mode == TMenuMode.Vertical)
@@ -1162,6 +1227,7 @@ namespace AntdUI
         {
             if (item.Visible)
             {
+                if (item is MenuDividerItem) return false;
                 bool can = item.CanExpand;
                 if (item.Enabled && item.Contains(x, y, 0, ScrollBar.Value, out _))
                 {
@@ -1219,6 +1285,7 @@ namespace AntdUI
                     }
                     return true;
                 }
+                if (item is MenuDividerItem) return false;
                 if (can && item.Expand && !collapsed)
                 {
                     foreach (var sub in item.Sub)
@@ -1448,6 +1515,7 @@ namespace AntdUI
         {
             if (items == null || items.Count == 0) return;
             IUSelect(items);
+            Invalidate();
         }
 
         void IUSelect(MenuItemCollection items)
@@ -1544,7 +1612,7 @@ namespace AntdUI
 
         bool FindUp(MenuItem item)
         {
-            var p1 = item.PARENTITEM;
+            var p1 = item.ParentItem;
             if (p1 == null)
             {
                 int index = items!.IndexOf(item) - 1;
@@ -1575,7 +1643,7 @@ namespace AntdUI
                 SetFocusItem(item.items![0]);
                 return true;
             }
-            var p1 = item.PARENTITEM;
+            var p1 = item.ParentItem;
             if (p1 == null)
             {
                 int index = items!.IndexOf(item) + 1;
@@ -1595,7 +1663,7 @@ namespace AntdUI
                 }
                 else
                 {
-                    if (p1.PARENTITEM == null)
+                    if (p1.ParentItem == null)
                     {
                         var sub = items!;
                         int index2 = sub.Count + 1;
@@ -1612,7 +1680,7 @@ namespace AntdUI
                     }
                     else
                     {
-                        var sub = p1.PARENTITEM.items!;
+                        var sub = p1.ParentItem.items!;
                         int index2 = sub.Count + 1;
                         if (index2 < sub.Count)
                         {
@@ -1690,7 +1758,7 @@ namespace AntdUI
                     tmpAM = true;
                     ItemClick?.Invoke(this, new MenuItemEventArgs(it, new MouseEventArgs(MouseButtons.None, 0, 0, 0, 0)));
                     SelectItem = it;
-                    if (SelectEx(it.PARENTITEM) > 0) ChangeList(true);
+                    if (SelectEx(it.ParentItem) > 0) ChangeList(true);
                     tmpAM = false;
                     Invalidate();
                     if (focus) Focus(it);
@@ -1720,7 +1788,7 @@ namespace AntdUI
                 count++;
                 it.Expand = it.Select = true;
             }
-            count += SelectEx(it.PARENTITEM);
+            count += SelectEx(it.ParentItem);
             return count;
         }
 
@@ -2067,7 +2135,7 @@ namespace AntdUI
 
         #region 展开
 
-        ITask? ThreadExpand;
+        AnimationTask? ThreadExpand;
         bool expand = true;
         /// <summary>
         /// 展开
@@ -2085,7 +2153,7 @@ namespace AntdUI
                     if (PARENT == null) return;
                     if (value && PARENT.Unique)
                     {
-                        if (PARENTITEM == null)
+                        if (ParentItem == null)
                         {
                             foreach (var it in PARENT.Items)
                             {
@@ -2094,7 +2162,7 @@ namespace AntdUI
                         }
                         else
                         {
-                            foreach (var it in PARENTITEM.Sub)
+                            foreach (var it in ParentItem.Sub)
                             {
                                 if (it != this) it.Expand = false;
                             }
@@ -2112,40 +2180,27 @@ namespace AntdUI
                         float oldval = -1;
                         if (ThreadExpand?.Tag is float oldv) oldval = oldv;
                         ExpandThread = true;
+                        int t;
                         if (value)
                         {
                             int time = ExpandCount(this) * 10;
                             if (time > 1000) time = 1000;
-                            int t = Animation.TotalFrames(10, time);
-                            ThreadExpand = new ITask(false, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                            {
-                                ExpandProg = val;
-                                ArrowProg = Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F;
-                                Invalidates();
-                            }, () =>
-                            {
-                                ArrowProg = 1;
-                                ExpandProg = 1F;
-                                ExpandThread = false;
-                                Invalidates();
-                            });
+                            t = Animation.TotalFrames(10, time);
                         }
-                        else
+                        else t = Animation.TotalFrames(10, 200);
+
+                        ThreadExpand = new AnimationTask(new AnimationFixed2Config((i, val, arrow) =>
                         {
-                            var t = Animation.TotalFrames(10, 200);
-                            ThreadExpand = new ITask(true, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                            {
-                                ExpandProg = val;
-                                ArrowProg = -(Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F);
-                                Invalidates();
-                            }, () =>
-                            {
-                                ExpandProg = 1F;
-                                ExpandThread = false;
-                                ArrowProg = -1;
-                                Invalidates();
-                            });
-                        }
+                            ExpandProg = val;
+                            ArrowProg = arrow;
+                            Invalidates();
+                        }, 10, t, oldval, value).SetEnd(() =>
+                        {
+                            ExpandProg = 1F;
+                            ArrowProg = value ? 1F : -1F;
+                            ExpandThread = false;
+                            Invalidates();
+                        }));
                     }
                     else
                     {
@@ -2300,8 +2355,8 @@ namespace AntdUI
 
         public void Remove()
         {
-            if (PARENTITEM == null) PARENT?.Items.Remove(this);
-            else PARENTITEM.items?.Remove(this);
+            if (ParentItem == null) PARENT?.Items.Remove(this);
+            else ParentItem.items?.Remove(this);
         }
 
         public void UpdateText(string newText)
@@ -2329,35 +2384,11 @@ namespace AntdUI
                 {
                     ThreadHover?.Dispose();
                     AnimationHover = true;
-                    var t = Animation.TotalFrames(20, 200);
-                    if (value)
+                    ThreadHover = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 1;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 0;
-                            Invalidate();
-                        });
-                    }
+                        AnimationHoverValue = i;
+                        Invalidate();
+                    }, 20, Animation.TotalFrames(20, 200), value, AnimationType.Ball).SetEnd(() => AnimationHover = false));
                 }
             }
         }
@@ -2382,12 +2413,22 @@ namespace AntdUI
 
         #endregion
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Obsolete("use ParentItem")]
         public MenuItem? PARENTITEM { get; set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public MenuItem? ParentItem { get; internal set; }
 
         #region 内部
         internal int Depth { get; set; }
-        internal float ArrowProg { get; set; } = 1F;
+        internal float? ArrowProg { get; set; }
+
+        public float GetArrowProg()
+        {
+            if (ArrowProg.HasValue) return ArrowProg.Value;
+            else return expand ? 1F : -1F;
+        }
+
         internal Menu? PARENT { get; set; }
 
         #region 布局
@@ -2481,6 +2522,14 @@ namespace AntdUI
             txt_rect = rect_text;
             Show = true;
         }
+
+        internal void SetRectDivider(Rectangle _rect)
+        {
+            Depth = -1;
+            rect = _rect;
+            Show = true;
+        }
+
         internal Rectangle rect { get; set; }
         internal Rectangle arr_rect { get; set; }
 
@@ -2546,7 +2595,7 @@ namespace AntdUI
 
         internal float AnimationHoverValue = 0;
         internal bool AnimationHover = false;
-        ITask? ThreadHover;
+        AnimationTask? ThreadHover;
 
         internal Rectangle txt_rect { get; set; }
         internal Rectangle ico_rect { get; set; }
@@ -2952,35 +3001,11 @@ namespace AntdUI
                 {
                     ThreadHover?.Dispose();
                     AnimationHover = true;
-                    var t = Animation.TotalFrames(20, 200);
-                    if (value)
+                    ThreadHover = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 1;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 0;
-                            Invalidate();
-                        });
-                    }
+                        AnimationHoverValue = i;
+                        Invalidate();
+                    }, 20, Animation.TotalFrames(20, 200), value, AnimationType.Ball).SetEnd(() => AnimationHover = false));
                 }
             }
         }
@@ -3040,7 +3065,7 @@ namespace AntdUI
 
         internal float AnimationHoverValue = 0;
         internal bool AnimationHover = false;
-        ITask? ThreadHover;
+        AnimationTask? ThreadHover;
 
         #endregion
 
@@ -3145,5 +3170,10 @@ namespace AntdUI
         }
 
         #endregion
+    }
+
+    public class MenuDividerItem : MenuItem
+    {
+        private new string? Text => null;
     }
 }

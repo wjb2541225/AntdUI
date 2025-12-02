@@ -200,34 +200,11 @@ namespace AntdUI
                     ThreadHoverY?.Dispose();
                     AnimationHoverY = true;
                     var t = Animation.TotalFrames(10, 100);
-                    if (value)
+                    ThreadHoverY = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadHoverY = new ITask((i) =>
-                        {
-                            AnimationHoverYValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate(RectY);
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            AnimationHoverYValue = 1F;
-                            AnimationHoverY = false;
-                            Invalidate(RectY);
-                        });
-                    }
-                    else
-                    {
-                        ThreadHoverY = new ITask((i) =>
-                        {
-                            AnimationHoverYValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate(RectY);
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            AnimationHoverYValue = 0F;
-                            AnimationHoverY = false;
-                            Invalidate(RectY);
-                        });
-                    }
+                        AnimationHoverYValue = i;
+                        Invalidate(RectY);
+                    }, 10, Animation.TotalFrames(10, 100), value, AnimationType.Ball).SetEnd(() => AnimationHoverY = false));
                 }
                 else Invalidate(RectY);
             }
@@ -317,35 +294,11 @@ namespace AntdUI
                 {
                     ThreadHoverX?.Dispose();
                     AnimationHoverX = true;
-                    var t = Animation.TotalFrames(10, 100);
-                    if (value)
+                    ThreadHoverX = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadHoverX = new ITask((i) =>
-                        {
-                            AnimationHoverXValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate(RectX);
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            AnimationHoverXValue = 1F;
-                            AnimationHoverX = false;
-                            Invalidate(RectX);
-                        });
-                    }
-                    else
-                    {
-                        ThreadHoverX = new ITask((i) =>
-                        {
-                            AnimationHoverXValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate(RectX);
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            AnimationHoverXValue = 0F;
-                            AnimationHoverX = false;
-                            Invalidate(RectX);
-                        });
-                    }
+                        AnimationHoverXValue = i;
+                        Invalidate(RectX);
+                    }, 10, Animation.TotalFrames(10, 100), value, AnimationType.Ball).SetEnd(() => AnimationHoverX = false));
                 }
                 else Invalidate(RectX);
             }
@@ -833,12 +786,11 @@ namespace AntdUI
             if (result && e is HandledMouseEventArgs handled) handled.Handled = true;
             return result;
         }
-        public bool MouseWheelX(int Delta)
+        public bool MouseWheelX(int delta)
         {
-            if (Delta == 0) return false;
+            if (delta == 0) return false;
             if (EnabledX && ShowX)
             {
-                int delta = Delta / SystemInformation.MouseWheelScrollDelta * (int)(Config.ScrollStep * Config.Dpi);
                 int value = ValueX - delta;
                 ValueX = value;
                 if (ValueX != value) return false;
@@ -853,12 +805,11 @@ namespace AntdUI
             if (result && e is HandledMouseEventArgs handled) handled.Handled = true;
             return result;
         }
-        public bool MouseWheelY(int Delta)
+        public bool MouseWheelY(int delta)
         {
-            if (Delta == 0) return false;
+            if (delta == 0) return false;
             if (EnabledY && ShowY)
             {
-                int delta = Delta / SystemInformation.MouseWheelScrollDelta * (int)(Config.ScrollStep * Config.Dpi);
                 int value = ValueY - delta;
                 ValueY = value;
                 if (ValueY != value) return false;
@@ -873,10 +824,9 @@ namespace AntdUI
             if (result && e is HandledMouseEventArgs handled) handled.Handled = true;
             return result;
         }
-        public bool MouseWheel(int Delta)
+        public bool MouseWheel(int delta)
         {
-            if (Delta == 0) return false;
-            int delta = Delta / SystemInformation.MouseWheelScrollDelta * (int)(Config.ScrollStep * Config.Dpi);
+            if (delta == 0) return false;
             if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift && EnabledX && ShowX)
             {
                 ValueX -= delta;
@@ -1014,11 +964,11 @@ namespace AntdUI
 
         #region 动画
 
-        ITask? ThreadHoverY;
+        AnimationTask? ThreadHoverY;
         float AnimationHoverYValue = 0F;
         bool AnimationHoverY = false;
 
-        ITask? ThreadHoverX;
+        AnimationTask? ThreadHoverX;
         float AnimationHoverXValue = 0F;
         bool AnimationHoverX = false;
 

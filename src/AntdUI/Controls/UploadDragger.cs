@@ -67,7 +67,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -350,7 +352,7 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat s_f = Helper.SF_Ellipsis();
+        readonly FormatFlags s_f = FormatFlags.Center | FormatFlags.EllipsisCharacter;
 
         protected override void OnDraw(DrawEventArgs e)
         {
@@ -495,34 +497,12 @@ namespace AntdUI
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
-                        if (value)
+                        ThreadHover = new AnimationTask(new AnimationLinearConfig(this, i =>
                         {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue += 20;
-                                if (AnimationHoverValue > 255) { AnimationHoverValue = 255; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue -= 20;
-                                if (AnimationHoverValue < 1) { AnimationHoverValue = 0; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
+                            AnimationHoverValue = i;
+                            Invalidate();
+                            return true;
+                        }, 10).SetValueColor(AnimationHoverValue, value, 20).SetEnd(() => AnimationHover = false));
                     }
                     else AnimationHoverValue = 255;
                     Invalidate();
@@ -579,7 +559,7 @@ namespace AntdUI
             ThreadHover?.Dispose();
             base.Dispose(disposing);
         }
-        ITask? ThreadHover;
+        AnimationTask? ThreadHover;
     }
 
     public sealed class FileDropHandler : IMessageFilter, IDisposable
@@ -594,7 +574,7 @@ namespace AntdUI
         private static extern void DragAcceptFiles(IntPtr hWnd, bool fAccept);
 
         [DllImport("shell32.dll", SetLastError = false, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Winapi)]
-        private static extern uint DragQueryFile(IntPtr hWnd, uint iFile, StringBuilder lpszFile, int cch);
+        private static extern uint DragQueryFile(IntPtr hWnd, uint iFile, StringBuilder? lpszFile, int cch);
 
         [DllImport("shell32.dll", SetLastError = false, CallingConvention = CallingConvention.Winapi)]
         private static extern void DragFinish(IntPtr hDrop);

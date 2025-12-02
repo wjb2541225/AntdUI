@@ -495,7 +495,7 @@ namespace AntdUI
             {
                 if (focusedCell == value) return;
                 focusedCell = value;
-                if (value != null) CellFocused?.Invoke(this, new TableClickEventArgs(value.ROW.RECORD, value.ROW.INDEX, value.INDEX, value.COLUMN, value.RECT, new MouseEventArgs(MouseButtons.Left, 1, value.RECT.X, value.RECT.Y, 1)));
+                if (value != null) OnCellFocused(value.ROW.RECORD, value.ROW.INDEX, value.INDEX, value.COLUMN, value.RECT, new MouseEventArgs(MouseButtons.Left, 1, value.RECT.X, value.RECT.Y, 1));
                 Invalidate();
             }
         }
@@ -650,11 +650,26 @@ namespace AntdUI
         [Description("单元格边框宽度"), Category("边框"), DefaultValue(1F)]
         public float BorderCellWidth { get; set; } = 1F;
 
+        bool? borderHigh;
         /// <summary>
         /// 高精度边框
         /// </summary>
-        [Description("高精度边框"), Category("边框"), DefaultValue(false)]
-        public bool BorderHigh { get; set; }
+        [Obsolete("use BorderRenderMode")]
+        [Description("高精度边框"), Category("边框"), DefaultValue(null)]
+        public bool? BorderHigh
+        {
+            get => borderHigh;
+            set
+            {
+                if (borderHigh == value) return;
+                borderHigh = value;
+                if (borderHigh.HasValue) BorderRenderMode = borderHigh.Value ? TableBorderMode.High : TableBorderMode.Pen;
+                else BorderRenderMode = TableBorderMode.None;
+            }
+        }
+
+        [Description("边框渲染模式"), Category("边框"), DefaultValue(TableBorderMode.None)]
+        public TableBorderMode BorderRenderMode { get; set; } = TableBorderMode.None;
 
         #region 表头
 
@@ -735,7 +750,7 @@ namespace AntdUI
                 {
                     Invalidate();
                     OnPropertyChanged(nameof(SelectedIndex));
-                    SelectIndexChanged?.Invoke(this, EventArgs.Empty);
+                    OnSelectIndexChanged();
                 }
             }
         }
@@ -755,7 +770,7 @@ namespace AntdUI
                 selectedIndex = value;
                 Invalidate();
                 OnPropertyChanged(nameof(SelectedIndexs));
-                SelectIndexChanged?.Invoke(this, EventArgs.Empty);
+                OnSelectIndexChanged();
             }
         }
 
@@ -890,8 +905,8 @@ namespace AntdUI
         /// <summary>
         /// 编辑模式下的默认文本选择动作
         /// </summary>
-        [Description("编辑模式下的默认文本选择动作"), Category("行为"), DefaultValue(TEditSelection.Last)]
-        public TEditSelection EditSelection { get; set; } = TEditSelection.Last;
+        [Description("编辑模式下的默认文本选择动作"), Category("行为"), DefaultValue(TEditSelection.None)]
+        public TEditSelection EditSelection { get; set; } = TEditSelection.None;
 
         /// <summary>
         /// 编辑模式输入框样式
@@ -1437,8 +1452,9 @@ namespace AntdUI
                 {
                     var _row = rows[row];
                     var cel = _row.cells[column];
-                    CellContains(rows, false, 0, 0, out int r_x, out int r_y, out int offset_x, out int offset_xi, out int offset_y, out int i_row, out int i_cel, out _, out _);
-                    return RealRect(cel.RECT, offset_xi, offset_y);
+                    var db = CellContains(rows, false, 0, 0);
+                    if (db == null) return RealRect(cel.RECT, 0, 0);
+                    else return RealRect(cel.RECT, db.offset_xi, db.offset_y);
                 }
                 catch { }
             }
@@ -1600,8 +1616,7 @@ namespace AntdUI
         public CELL? HitTest(int x, int y)
         {
             if (rows == null) return null;
-            var cell = CellContains(rows, false, x, y, out _, out _, out _, out _, out _, out _, out _, out _, out _);
-            return cell;
+            return CellContains(rows, false, x, y)?.cell;
         }
 
         public CELL? HitTest(int x, int y, out int i_row, out int i_cel)
@@ -1611,8 +1626,18 @@ namespace AntdUI
                 i_row = i_cel = 0;
                 return null;
             }
-            var cell = CellContains(rows, false, x, y, out _, out _, out _, out _, out _, out i_row, out i_cel, out var _, out _);
-            return cell;
+            var db = CellContains(rows, false, x, y);
+            if (db == null)
+            {
+                i_row = i_cel = 0;
+                return null;
+            }
+            else
+            {
+                i_row = db.i_row;
+                i_cel = db.i_cel;
+                return db.cell;
+            }
         }
 
         public CELL? HitTest(int x, int y, out int r_x, out int r_y, out int offset_x, out int offset_xi, out int offset_y, out int i_row, out int i_cel)
@@ -1622,8 +1647,23 @@ namespace AntdUI
                 r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
                 return null;
             }
-            var cell = CellContains(rows, false, x, y, out r_x, out r_y, out offset_x, out offset_xi, out offset_y, out i_row, out i_cel, out _, out _);
-            return cell;
+            var db = CellContains(rows, false, x, y);
+            if (db == null)
+            {
+                r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
+                return null;
+            }
+            else
+            {
+                r_x = db.x;
+                r_y = db.y;
+                offset_x = db.offset_x;
+                offset_xi = db.offset_xi;
+                offset_y = db.offset_y;
+                i_row = db.i_row;
+                i_cel = db.i_cel;
+                return db.cell;
+            }
         }
 
         public CELL? HitTest(int x, int y, out int r_x, out int r_y, out int offset_x, out int offset_xi, out int offset_y, out int i_row, out int i_cel, out int mode)
@@ -1634,8 +1674,24 @@ namespace AntdUI
                 r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
                 return null;
             }
-            var cell = CellContains(rows, false, x, y, out r_x, out r_y, out offset_x, out offset_xi, out offset_y, out i_row, out i_cel, out _, out mode);
-            return cell;
+            var db = CellContains(rows, false, x, y);
+            if (db == null)
+            {
+                mode = r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
+                return null;
+            }
+            else
+            {
+                mode = db.mode;
+                r_x = db.x;
+                r_y = db.y;
+                offset_x = db.offset_x;
+                offset_xi = db.offset_xi;
+                offset_y = db.offset_y;
+                i_row = db.i_row;
+                i_cel = db.i_cel;
+                return db.cell;
+            }
         }
 
         public Bitmap? DrawBitmap(bool full)
@@ -1815,7 +1871,7 @@ namespace AntdUI
             {
                 if (checkState == value) return;
                 checkState = value;
-                PARENT?.OnCheckedOverallChanged(this, value);
+                PARENT?.OnICheckedOverallChanged(this, value);
                 bool __checked = value == CheckState.Checked;
                 if (_checked != __checked)
                 {
@@ -1848,21 +1904,7 @@ namespace AntdUI
                 if (Config.HasAnimation(nameof(Table)))
                 {
                     AnimationCheck = true;
-                    if (_checked)
-                    {
-                        ThreadCheck = new ITask(PARENT, () =>
-                        {
-                            AnimationCheckValue = AnimationCheckValue.Calculate(0.2F);
-                            if (AnimationCheckValue > 1) { AnimationCheckValue = 1F; return false; }
-                            PARENT.Invalidate();
-                            return true;
-                        }, 20, () =>
-                        {
-                            AnimationCheck = false;
-                            PARENT.Invalidate();
-                        });
-                    }
-                    else if (checkStateOld == CheckState.Checked && CheckState == CheckState.Indeterminate)
+                    if (!_checked && checkStateOld == CheckState.Checked && CheckState == CheckState.Indeterminate)
                     {
                         AnimationCheck = false;
                         AnimationCheckValue = 1F;
@@ -1870,17 +1912,12 @@ namespace AntdUI
                     }
                     else
                     {
-                        ThreadCheck = new ITask(PARENT, () =>
+                        ThreadCheck = new AnimationTask(new AnimationLinearFConfig(PARENT, i =>
                         {
-                            AnimationCheckValue = AnimationCheckValue.Calculate(-0.2F);
-                            if (AnimationCheckValue <= 0) { AnimationCheckValue = 0F; return false; }
+                            AnimationCheckValue = i;
                             PARENT.Invalidate();
                             return true;
-                        }, 20, () =>
-                        {
-                            AnimationCheck = false;
-                            PARENT.Invalidate();
-                        });
+                        }, 20).SetValue(AnimationCheckValue, _checked, 0.2F).SetEnd(() => AnimationCheck = false));
                     }
                 }
                 else
@@ -1894,7 +1931,7 @@ namespace AntdUI
         internal bool AnimationCheck = false;
         internal float AnimationCheckValue = 0;
 
-        ITask? ThreadCheck;
+        AnimationTask? ThreadCheck;
 
         internal CheckState checkStateOld = CheckState.Unchecked;
 

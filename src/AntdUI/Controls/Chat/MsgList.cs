@@ -138,9 +138,8 @@ namespace AntdUI.Chat
             base.OnDraw(e);
         }
 
-        StringFormat SFBage = Helper.SF();
-        StringFormat SFL = Helper.SF_ALL(lr: StringAlignment.Near);
-        StringFormat SFR = Helper.SF_ALL(lr: StringAlignment.Far);
+        readonly FormatFlags SFL = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis,
+             SFR = FormatFlags.Right | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
         void PaintItem(Canvas g, MsgItem it, Rectangle rect, float sy, Font font_text, Font font_time, int radius)
         {
             it.show = it.Show && it.Visible && it.rect.Y > sy - rect.Height && it.rect.Bottom < ScrollBar.Value + ScrollBar.ReadSize + it.rect.Height;
@@ -205,7 +204,7 @@ namespace AntdUI.Chat
                                 rect_badge = new Rectangle(it.rect_icon.Right - badge_size + xy, it.rect_icon.Y - xy, badge_size, badge_size);
                                 g.FillEllipse(it.BadgeBack ?? Color.Red, rect_badge);
                             }
-                            g.String(it.Badge, font_time, it.BadgeFore ?? Color.White, rect_badge, SFBage);
+                            g.String(it.Badge, font_time, it.BadgeFore ?? Color.White, rect_badge);
                         }
                     }
                 }
@@ -339,11 +338,11 @@ namespace AntdUI.Chat
         [Description("项目双击事件"), Category("行为")]
         public event ItemClickEventHandler? ItemDoubleClick;
 
-        protected virtual void OnItemSelected(MsgItem selectedItem) => ItemSelected?.Invoke(this, new MsgItemEventArgs(selectedItem));
+        protected virtual void OnItemSelected(MsgItem item) => ItemSelected?.Invoke(this, new MsgItemEventArgs(item));
 
-        protected virtual void OnItemClick(MsgItem selectedItem, MouseEventArgs e) => ItemClick?.Invoke(this, new MsgItemClickEventArgs(selectedItem, e));
+        protected virtual void OnItemClick(MsgItem item, MouseEventArgs e) => ItemClick?.Invoke(this, new MsgItemClickEventArgs(item, e));
 
-        protected virtual void OnItemDoubleClick(MsgItem selectedItem, MouseEventArgs e) => ItemDoubleClick?.Invoke(this, new MsgItemClickEventArgs(selectedItem, e));
+        protected virtual void OnItemDoubleClick(MsgItem item, MouseEventArgs e) => ItemDoubleClick?.Invoke(this, new MsgItemClickEventArgs(item, e));
 
         #endregion
 
@@ -484,12 +483,12 @@ namespace AntdUI.Chat
             }
         }
 
-        StringFormat? _textFormat;
+        FormatFlags? _textFormat;
         /// <summary>
         /// 文本对齐方式
         /// </summary>
         [Description("文本对齐方式"), Category("外观"), DefaultValue(null)]
-        public StringFormat? TextFormat
+        public FormatFlags? TextFormat
         {
             get => _textFormat;
             set

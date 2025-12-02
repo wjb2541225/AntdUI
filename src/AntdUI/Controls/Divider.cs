@@ -47,8 +47,8 @@ namespace AntdUI
             {
                 if (vertical == value) return;
                 vertical = value;
-                if (vertical) s_f.FormatFlags |= StringFormatFlags.DirectionVertical;
-                else s_f.FormatFlags ^= StringFormatFlags.DirectionVertical;
+                if (value) s_f |= FormatFlags.DirectionVertical;
+                else s_f &= ~FormatFlags.DirectionVertical;
                 Invalidate();
             }
         }
@@ -143,7 +143,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -159,7 +161,7 @@ namespace AntdUI
 
         #endregion
 
-        readonly StringFormat s_f = Helper.SF_ALL();
+        FormatFlags s_f = FormatFlags.Center | FormatFlags.NoWrapEllipsis;
         protected override void OnDraw(DrawEventArgs e)
         {
             var rect = e.Rect.PaddingRect(Margin);

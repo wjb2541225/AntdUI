@@ -116,6 +116,8 @@ namespace AntdUI
         [Description("点击项时发生"), Category("行为")]
         public event BreadcrumbItemEventHandler? ItemClick;
 
+        protected virtual void OnItemClick(BreadcrumbItem item, MouseEventArgs e) => ItemClick?.Invoke(this, new BreadcrumbItemEventArgs(item, e));
+
         #region Change
 
         protected override void OnSizeChanged(EventArgs e)
@@ -154,7 +156,7 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat s_f = Helper.SF_ALL();
+        readonly FormatFlags s_f = FormatFlags.Center | FormatFlags.NoWrapEllipsis;
         protected override void OnDraw(DrawEventArgs e)
         {
             if (items == null || items.Count == 0)
@@ -356,7 +358,7 @@ namespace AntdUI
                 var it = items[i];
                 if (it != null && it.Rect.Contains(e.X, e.Y))
                 {
-                    ItemClick?.Invoke(this, new BreadcrumbItemEventArgs(it, e));
+                    OnItemClick(it, e);
                     return;
                 }
             }

@@ -124,11 +124,12 @@ namespace AntdUI
                     {
                         if (ThreadState == null)
                         {
-                            ThreadState = new ITask(this, i =>
+                            ThreadState = new AnimationTask(new AnimationLinearConfig(this, i =>
                             {
-                                AnimationStateValue = i;
+                                AnimationStateValue = i / 100F;
                                 Invalidate();
-                            }, 50, 1F, .05F);
+                                return true;
+                            }, 50, 100, 5));
                         }
                     }
                     else
@@ -942,7 +943,7 @@ namespace AntdUI
 
         #region 动画
 
-        ITask? ThreadState;
+        AnimationTask? ThreadState;
         internal float AnimationStateValue = 0;
 
         #endregion
@@ -999,24 +1000,39 @@ namespace AntdUI
             {
                 //复选框
                 has_check = true;
-                bool value_check = false;
+                bool value_check = false, val_int = false;
                 if (value is bool check) value_check = check;
-                return new TCellCheck(this, columnCheck, prop, ov, value_check);
+                else if (value is int check_int)
+                {
+                    value_check = check_int > 0;
+                    val_int = true;
+                }
+                return new TCellCheck(this, columnCheck, prop, ov, value_check, val_int);
             }
             else if (column is ColumnRadio columnRadio)
             {
                 //单选框
                 has_check = true;
-                bool value_check = false;
+                bool value_check = false, val_int = false;
                 if (value is bool check) value_check = check;
-                return new TCellRadio(this, columnRadio, prop, ov, value_check);
+                else if (value is int check_int)
+                {
+                    value_check = check_int > 0;
+                    val_int = true;
+                }
+                return new TCellRadio(this, columnRadio, prop, ov, value_check, val_int);
             }
             else if (column is ColumnSwitch columnSwitch)
             {
                 //开关
-                bool value_check = false;
+                bool value_check = false, val_int = false;
                 if (value is bool check) value_check = check;
-                return new TCellSwitch(this, columnSwitch, prop, ov, value_check);
+                else if (value is int check_int)
+                {
+                    value_check = check_int > 0;
+                    val_int = true;
+                }
+                return new TCellSwitch(this, columnSwitch, prop, ov, value_check, val_int);
             }
             else if (column is ColumnSelect columnSelect)
             {
@@ -1086,7 +1102,14 @@ namespace AntdUI
                             ForRow(dataTmp, 0, dataTmp.rows.Length, row =>
                             {
                                 if (row == null) return;
-                                if (row[checkColumn.Key] is bool tmp && tmp) check_count++;
+                                if (row[checkColumn.Key] is bool tmp)
+                                {
+                                    if (tmp) check_count++;
+                                }
+                                else if (row[checkColumn.Key] is int tmp_int)
+                                {
+                                    if (tmp_int == 1) check_count++;
+                                }
                             });
                         }
                         else
@@ -1275,22 +1298,16 @@ namespace AntdUI
                     if (b) selects.Add(row.INDEX_REAL);
                     else selects.Remove(row.INDEX_REAL);
                 }
+                else if (value is int b_int)
+                {
+                    check.Checked = b_int == 1;
+                    if (check.Checked) selects.Add(row.INDEX_REAL);
+                    else selects.Remove(row.INDEX_REAL);
+                }
                 if (cel.COLUMN is ColumnCheck checkColumn && checkColumn.NoTitle)
                 {
-                    int t_count = rows.Length - 1, check_count = 0;
-                    for (int row_i = 1; row_i < rows.Length; row_i++)
-                    {
-                        var it = rows[row_i];
-                        if (it.Type == RowType.Summary) t_count--;
-                        else
-                        {
-                            var cell = it.cells[cel_i];
-                            if (cell is TCellCheck checkCell && checkCell.Checked) check_count++;
-                        }
-                    }
-                    if (t_count == check_count) checkColumn.CheckState = System.Windows.Forms.CheckState.Checked;
-                    else if (check_count > 0) checkColumn.CheckState = System.Windows.Forms.CheckState.Indeterminate;
-                    else checkColumn.CheckState = System.Windows.Forms.CheckState.Unchecked;
+                    if (pauseLayout) return;
+                    IsCheckAll(cel_i, checkColumn);
                 }
                 Invalidate();
             }
@@ -1319,19 +1336,37 @@ namespace AntdUI
         internal void CheckAll(int i_cel, ColumnCheck columnCheck, bool value)
         {
             if (rows == null) return;
-            int count = 0, nocount = 0;
+            int t_count = 0;
             bool old = pauseLayout;
             pauseLayout = true;
             if (VirtualMode)
             {
                 if (dataTmp == null) return;
                 var index = new List<int>(dataTmp.rows.Length);
+                int value_int = value ? 1 : 0;
                 ForRow(dataTmp, 0, dataTmp.rows.Length, row =>
                 {
                     if (row == null) return;
-                    count++;
-                    if (row[columnCheck.Key] is bool tmp && tmp == value) nocount++;
-                    else row.SetValue(columnCheck.Key, value);
+                    t_count++;
+                    var obj = row[columnCheck.Key];
+                    if (obj is bool tmp)
+                    {
+                        if (tmp == value)
+                        {
+                            index.Add(row.i);
+                            return;
+                        }
+                        row.SetValue(columnCheck.Key, value);
+                    }
+                    else if (obj is int tmp_int)
+                    {
+                        if (tmp_int == value_int)
+                        {
+                            index.Add(row.i);
+                            return;
+                        }
+                        row.SetValue(columnCheck.Key, value_int);
+                    }
                     index.Add(row.i);
                 });
                 selects.Clear();
@@ -1345,21 +1380,76 @@ namespace AntdUI
                     if (item.ROW.Type == RowType.Summary) continue;
                     if (item is TCellCheck checkCell)
                     {
-                        count++;
-                        if (checkCell.Checked == value) nocount++;
+                        t_count++;
+                        if (checkCell.Checked == value) continue;
+                        checkCell.Checked = value;
+                        if (checkCell.ValInt)
+                        {
+                            SetValue(item, checkCell.Checked ? 1 : 0);
+                            OnCheckedChanged(value, rows[i_row].RECORD, i_row, i_cel, item.COLUMN);
+                        }
                         else
                         {
-                            checkCell.Checked = value;
                             SetValue(item, checkCell.Checked);
-                            CheckedChanged?.Invoke(this, new TableCheckEventArgs(value, rows[i_row].RECORD, i_row, i_cel, item.COLUMN));
+                            OnCheckedChanged(value, rows[i_row].RECORD, i_row, i_cel, item.COLUMN);
                         }
                     }
                 }
             }
             pauseLayout = old;
-            if (count > 0 && nocount == count) columnCheck.Checked = value;
+            if (t_count > 0)
+            {
+                if (value) columnCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+                else columnCheck.CheckState = System.Windows.Forms.CheckState.Unchecked;
+            }
+        }
+        internal void IsCheckAll(int cel, ColumnCheck column)
+        {
+            int t_count = 0, check_count = 0;
+            if (VirtualMode)
+            {
+                if (dataTmp == null) return;
+                ForRow(dataTmp, 0, dataTmp.rows.Length, row =>
+                {
+                    if (row == null) return;
+                    t_count++;
+                    if (row[column.Key] is bool tmp)
+                    {
+                        if (tmp) check_count++;
+                    }
+                    else if (row[column.Key] is int tmp_int)
+                    {
+                        if (tmp_int == 1) check_count++;
+                    }
+                });
+            }
+            else
+            {
+                if (rows == null) return;
+                t_count = rows.Length - 1;
+                for (int row_i = 1; row_i < rows.Length; row_i++)
+                {
+                    var it = rows[row_i];
+                    if (it.Type == RowType.Summary) t_count--;
+                    else
+                    {
+                        var cell = it.cells[cel];
+                        if (cell is TCellCheck checkCell && checkCell.Checked) check_count++;
+                    }
+                }
+            }
+            if (t_count == check_count) column.CheckState = System.Windows.Forms.CheckState.Checked;
+            else if (check_count > 0) column.CheckState = System.Windows.Forms.CheckState.Indeterminate;
+            else column.CheckState = System.Windows.Forms.CheckState.Unchecked;
         }
 
+        void SetValueCheck(CELL_CHECK cel) => SetValueCheck(cel, !cel.Checked);
+        void SetValueCheck(CELL_CHECK cel, bool value)
+        {
+            cel.Checked = value;
+            if (cel.ValInt) SetValue(cel, value ? 1 : 0);
+            else SetValue(cel, value);
+        }
         void SetValue(CELL cel, object? value)
         {
             if (cel.PROPERTY == null)

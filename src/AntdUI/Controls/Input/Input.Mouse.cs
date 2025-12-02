@@ -193,12 +193,11 @@ namespace AntdUI
             if (MouseWheelCore(e.Delta) && e is HandledMouseEventArgs handled) handled.Handled = true;
             base.OnMouseWheel(e);
         }
-        bool MouseWheelCore(int Delta)
+        bool MouseWheelCore(int delta)
         {
             if (ScrollYShow && autoscroll)
             {
-                if (Delta == 0) return false;
-                int delta = Delta / SystemInformation.MouseWheelScrollDelta * (int)(Config.ScrollStep * Config.Dpi);
+                if (delta == 0) return false;
                 var old = scrolly;
                 ScrollY -= delta;
                 if (old == scrolly) return false;
@@ -219,7 +218,7 @@ namespace AntdUI
                 if (rect_r.Contains(e.X, e.Y))
                 {
                     OnClearValue();
-                    ClearClick?.Invoke(this, e);
+                    OnClearClick(e);
                 }
                 is_clear_down = false;
                 return;
@@ -347,34 +346,15 @@ namespace AntdUI
                 {
                     ThreadFocus?.Dispose();
                     AnimationFocus = true;
-                    if (value)
+                    var config = new AnimationLinearConfig(this, i =>
                     {
-                        ThreadFocus = new ITask(this, () =>
-                        {
-                            AnimationFocusValue += 4;
-                            if (AnimationFocusValue > 30) return false;
-                            Invalidate();
-                            return true;
-                        }, 20, () =>
-                        {
-                            AnimationFocus = false;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadFocus = new ITask(this, () =>
-                        {
-                            AnimationFocusValue -= 4;
-                            if (AnimationFocusValue < 1) return false;
-                            Invalidate();
-                            return true;
-                        }, 20, () =>
-                        {
-                            AnimationFocus = false;
-                            Invalidate();
-                        });
-                    }
+                        AnimationFocusValue = i;
+                        Invalidate();
+                        return true;
+                    }, 20).SetValue(AnimationFocusValue);
+                    if (value) config.SetAdd(4).SetMax(30);
+                    else config.SetAdd(-4).SetMax(0);
+                    ThreadFocus = new AnimationTask(config.SetEnd(() => AnimationFocus = false));
                 }
                 else Invalidate();
             }
@@ -412,34 +392,12 @@ namespace AntdUI
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
-                        if (value)
+                        ThreadHover = new AnimationTask(new AnimationLinearConfig(this, i =>
                         {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue += 20;
-                                if (AnimationHoverValue > 255) { AnimationHoverValue = 255; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue -= 20;
-                                if (AnimationHoverValue < 1) { AnimationHoverValue = 0; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
+                            AnimationHoverValue = i;
+                            Invalidate();
+                            return true;
+                        }, 10).SetValueColor(AnimationHoverValue, value, 20).SetEnd(() => AnimationHover = false));
                     }
                     else AnimationHoverValue = 255;
                     Invalidate();
@@ -465,6 +423,8 @@ namespace AntdUI
 
         [Description("验证键盘时发生"), Category("行为")]
         public event InputVerifyKeyboardEventHandler? VerifyKeyboard;
+
+        protected virtual void OnClearClick(MouseEventArgs e) => ClearClick?.Invoke(this, e);
 
         #endregion
     }

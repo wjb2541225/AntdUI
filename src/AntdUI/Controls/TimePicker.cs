@@ -56,7 +56,7 @@ namespace AntdUI
             {
                 _value = value;
                 Text = new DateTime(1997, 1, 1, value.Hours, value.Minutes, value.Seconds).ToString(Format);
-                ValueChanged?.Invoke(this, new TimeSpanNEventArgs(value));
+                OnValueChanged(value);
                 OnPropertyChanged(nameof(Value));
             }
         }
@@ -132,6 +132,16 @@ namespace AntdUI
 
         public event TimeSpanNEventHandler? ValueChanged;
 
+        protected virtual void OnValueChanged(TimeSpan e) => ValueChanged?.Invoke(this, new TimeSpanNEventArgs(e));
+
+        /// <summary>
+        /// 下拉展开 属性值更改时发生
+        /// </summary>
+        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        public event BoolEventHandler? ExpandDropChanged;
+
+        protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
+
         #endregion
 
         #region 焦点
@@ -170,6 +180,7 @@ namespace AntdUI
                     }
                 }
                 else subForm?.IClose();
+                OnExpandDropChanged(value);
             }
         }
 

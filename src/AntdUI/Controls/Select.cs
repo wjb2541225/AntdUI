@@ -222,8 +222,8 @@ namespace AntdUI
             selectedItem = null;
             selectedValue = null;
             selectedIndex = -1;
-            SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(selectedValue));
-            SelectedIndexChanged?.Invoke(this, new IntEventArgs(selectedIndex));
+            OnSelectedValueChanged(selectedValue);
+            OnSelectedIndexChanged(selectedIndex);
         }
 
         void ChangeValue(int value, object? obj)
@@ -243,8 +243,8 @@ namespace AntdUI
                 if (obj == null) Text = "";
                 else Text = obj.ToString() ?? "";
             }
-            SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(selectedValue));
-            SelectedIndexChanged?.Invoke(this, new IntEventArgs(selectedIndex));
+            OnSelectedValueChanged(selectedValue);
+            OnSelectedIndexChanged(selectedIndex);
         }
         void SetChangeValue(BaseCollection items, object val)
         {
@@ -305,8 +305,8 @@ namespace AntdUI
             selectedValue = value;
             Text = text;
             if (AutoPrefixSvg && item != null) PrefixSvg = item.IconSvg;
-            SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(selectedValue));
-            SelectedIndexChanged?.Invoke(this, new IntEventArgs(selectedIndex));
+            OnSelectedValueChanged(selectedValue);
+            OnSelectedIndexChanged(selectedIndex);
             SelectedIndexsChanged?.Invoke(this, new IntXYEventArgs(selectedIndexX, selectedIndex));
             OnPropertyChanged(nameof(SelectedIndex));
             OnPropertyChanged(nameof(SelectedValue));
@@ -330,6 +330,8 @@ namespace AntdUI
         [Description("SelectedIndex 属性值更改时发生"), Category("行为")]
         public event IntEventHandler? SelectedIndexChanged;
 
+        protected virtual void OnSelectedIndexChanged(int e) => SelectedIndexChanged?.Invoke(this, new IntEventArgs(e));
+
         /// <summary>
         /// 多层树结构更改时发生
         /// </summary>
@@ -341,6 +343,16 @@ namespace AntdUI
         /// </summary>
         [Description("SelectedValue 属性值更改时发生"), Category("行为")]
         public event ObjectNEventHandler? SelectedValueChanged;
+
+        protected virtual void OnSelectedValueChanged(object? e) => SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(e));
+
+        /// <summary>
+        /// 下拉展开 属性值更改时发生
+        /// </summary>
+        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        public event BoolEventHandler? ExpandDropChanged;
+
+        protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
 
         /// <summary>
         /// 关闭某项 时发生
@@ -439,7 +451,7 @@ namespace AntdUI
         LayeredFormSelectDown? subForm;
         public ILayeredForm? SubForm() => subForm;
 
-        ITask? ThreadExpand;
+        AnimationTask? ThreadExpand;
         float ArrowProg = -1F;
         bool expand = false;
         /// <summary>
@@ -457,33 +469,11 @@ namespace AntdUI
                 if (Config.HasAnimation(nameof(AntdUI.Select)))
                 {
                     ThreadExpand?.Dispose();
-                    var t = Animation.TotalFrames(10, 100);
-                    if (value)
+                    ThreadExpand = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadExpand = new ITask((i) =>
-                        {
-                            ArrowProg = Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F;
-                            Invalidate();
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            ArrowProg = 1;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadExpand = new ITask((i) =>
-                        {
-                            ArrowProg = -(Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F);
-                            Invalidate();
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            ArrowProg = -1;
-                            Invalidate();
-                        });
-                    }
+                        ArrowProg = i;
+                        Invalidate();
+                    }, 10, Animation.TotalFrames(10, 100), value, AnimationType.Ball).SetArrow());
                 }
                 else ArrowProg = value ? 1F : -1F;
             }
@@ -536,6 +526,7 @@ namespace AntdUI
                     subForm = null;
                     filtertext = "";
                 }
+                OnExpandDropChanged(value);
             }
         }
 
@@ -617,11 +608,41 @@ namespace AntdUI
         {
             base.OnMouseWheel(e);
             if (ReadOnly || !WheelModifyEnabled || items == null || items.Count == 0) return;
-            int newIndex;
-            if (e.Delta > 0) newIndex = SelectedIndex <= 0 ? items.Count - 1 : SelectedIndex - 1;
-            else newIndex = SelectedIndex >= items.Count - 1 ? 0 : SelectedIndex + 1;
-            SelectedIndex = newIndex;
+            SelectedIndex = IMouseWheel(items, e.Delta);
             if (e is HandledMouseEventArgs handled) handled.Handled = true;
+        }
+
+        int IMouseWheel(BaseCollection items, int delta)
+        {
+            int count = items.Count, errcount = 0, newIndex;
+            if (delta > 0)
+            {
+                newIndex = SelectedIndex <= 0 ? items.Count - 1 : SelectedIndex - 1;
+                while (WheelItem(items[newIndex]))
+                {
+                    errcount++;
+                    if (errcount > count) return -1;
+                    newIndex--;
+                    if (newIndex < 0) newIndex = count - 1;
+                }
+            }
+            else
+            {
+                newIndex = SelectedIndex >= items.Count - 1 ? 0 : SelectedIndex + 1;
+                while (WheelItem(items[newIndex]))
+                {
+                    errcount++;
+                    if (errcount > count) return -1;
+                    newIndex++;
+                    if (newIndex > count - 1) newIndex = 0;
+                }
+            }
+            return newIndex;
+        }
+        bool WheelItem(object? it)
+        {
+            if (it is DividerSelectItem) return true;
+            return false;
         }
 
         #endregion

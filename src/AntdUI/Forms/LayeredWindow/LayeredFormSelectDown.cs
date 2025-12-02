@@ -54,8 +54,7 @@ namespace AntdUI
             DPadding = control.DropDownPadding;
             AutoWidth = control.ListAutoWidth;
             ItemOS = new ItemIndex(items);
-            sf = Helper.SF(control.DropDownTextAlign);
-            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf = Helper.SF(control.DropDownTextAlign) | FormatFlags.NoWrap;
 
             float dpi = Config.Dpi;
             if (dpi == 1F) Radius = control.DropDownRadius ?? control.radius;
@@ -65,9 +64,7 @@ namespace AntdUI
                 Radius = (int)(control.DropDownRadius ?? control.radius * dpi);
             }
             Items = LoadLayout(AutoWidth, control.ReadRectangle.Width, ItemOS.List, filtertext, true);
-
-            var tmpAlign = CLocation(control, control.Placement, control.DropDownArrow, ArrowSize);
-            if (control.DropDownArrow) ArrowAlign = tmpAlign;
+            CLocation(control, control.Placement, control.DropDownArrow, ArrowSize);
             Init();
         }
         public LayeredFormSelectDown(Dropdown control, IList<object> items)
@@ -84,8 +81,7 @@ namespace AntdUI
             DPadding = control.DropDownPadding;
             AutoWidth = control.ListAutoWidth;
             ItemOS = new ItemIndex(items);
-            sf = Helper.SF(control.DropDownTextAlign);
-            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf = Helper.SF(control.DropDownTextAlign) | FormatFlags.NoWrap;
 
             float dpi = Config.Dpi;
             if (dpi == 1F) Radius = control.DropDownRadius ?? control.Radius;
@@ -96,8 +92,7 @@ namespace AntdUI
             }
             Items = LoadLayout(AutoWidth, control.ReadRectangle.Width, ItemOS.List, null, true);
 
-            var tmpAlign = CLocation(control, control.Placement, control.DropDownArrow, ArrowSize);
-            if (control.DropDownArrow) ArrowAlign = tmpAlign;
+            CLocation(control, control.Placement, control.DropDownArrow, ArrowSize);
             Init();
         }
         public LayeredFormSelectDown(Tabs control, IList<object> items, int radius, object? sValue, Rectangle rect)
@@ -113,8 +108,7 @@ namespace AntdUI
             DPadding = new Size(12, 5);
             selectedValue = sValue;
             ItemOS = new ItemIndex(items);
-            sf = Helper.SF(TAlign.Left);
-            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf = Helper.SF(TAlign.Left) | FormatFlags.NoWrap;
 
             float dpi = Config.Dpi;
             if (dpi == 1F) Radius = radius;
@@ -158,8 +152,7 @@ namespace AntdUI
             MaxCount = cell.DropDownMaxCount;
             DPadding = cell.DropDownPadding;
             ItemOS = new ItemIndex(items);
-            sf = Helper.SF(cell.DropDownTextAlign);
-            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf = Helper.SF(cell.DropDownTextAlign) | FormatFlags.NoWrap;
 
             float dpi = Config.Dpi;
             if (dpi == 1F) Radius = cell.DropDownRadius ?? control.Radius;
@@ -170,8 +163,7 @@ namespace AntdUI
             }
             Items = LoadLayout(AutoWidth, 0, ItemOS.List, null, true);
 
-            var tmpAlign = CLocation(control, cell.DropDownPlacement, rect, cell.DropDownArrow, ArrowSize, true);
-            if (cell.DropDownArrow) ArrowAlign = tmpAlign;
+            CLocation(control, cell.DropDownPlacement, rect, cell.DropDownArrow, ArrowSize, true);
             Init();
         }
 
@@ -196,8 +188,7 @@ namespace AntdUI
             DPadding = parent.DPadding;
             MaxCount = maxcount;
             ItemOS = new ItemIndex(items);
-            sf = Helper.SF(control.DropDownTextAlign);
-            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf = Helper.SF(control.DropDownTextAlign) | FormatFlags.NoWrap;
 
             Radius = radius;
             ArrowSize = arrowSize;
@@ -206,8 +197,7 @@ namespace AntdUI
 
             Items = LoadLayout(AutoWidth, 0, ItemOS.List, null, true);
             tmpItemHeight = itemHeight;
-            var tmpAlign = CLocation(parent, rect, control.DropDownArrow, ArrowSize);
-            if (control.DropDownArrow) ArrowAlign = tmpAlign;
+            CLocation(parent, rect, control.DropDownArrow, ArrowSize);
             Init();
         }
         public LayeredFormSelectDown(Dropdown control, int sx, LayeredFormSelectDown parent, int radius, int arrowSize, int maxcount, float itemHeight, Rectangle rect, IList<object> items, int sel = -1)
@@ -225,8 +215,7 @@ namespace AntdUI
             DPadding = parent.DPadding;
             MaxCount = maxcount;
             ItemOS = new ItemIndex(items);
-            sf = Helper.SF(control.DropDownTextAlign);
-            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf = Helper.SF(control.DropDownTextAlign) | FormatFlags.NoWrap;
 
             Radius = radius;
             ArrowSize = arrowSize;
@@ -235,8 +224,7 @@ namespace AntdUI
 
             Items = LoadLayout(AutoWidth, 0, ItemOS.List, null, true);
             tmpItemHeight = itemHeight;
-            var tmpAlign = CLocation(parent, rect, control.DropDownArrow, ArrowSize);
-            if (control.DropDownArrow) ArrowAlign = tmpAlign;
+            CLocation(parent, rect, control.DropDownArrow, ArrowSize);
             Init();
         }
         public LayeredFormSelectDown(Table control, ICell cell, int sx, LayeredFormSelectDown parent, int radius, int arrowSize, int maxcount, float itemHeight, Rectangle rect, IList<object> items, int sel = -1)
@@ -255,8 +243,7 @@ namespace AntdUI
             DPadding = parent.DPadding;
             MaxCount = maxcount;
             ItemOS = new ItemIndex(items);
-            sf = Helper.SF(cell.DropDownTextAlign);
-            sf.FormatFlags = StringFormatFlags.NoWrap;
+            sf = Helper.SF(cell.DropDownTextAlign) | FormatFlags.NoWrap;
 
             Radius = radius;
             ArrowSize = arrowSize;
@@ -265,8 +252,7 @@ namespace AntdUI
 
             Items = LoadLayout(AutoWidth, 0, ItemOS.List, null, true);
             tmpItemHeight = itemHeight;
-            var tmpAlign = CLocation(parent, rect, cell.DropDownArrow, ArrowSize);
-            if (cell.DropDownArrow) ArrowAlign = tmpAlign;
+            CLocation(parent, rect, cell.DropDownArrow, ArrowSize);
             Init();
         }
 
@@ -298,30 +284,18 @@ namespace AntdUI
                     }
                     else if (keys == Keys.Up)
                     {
-                        hoveindex--;
-                        if (hoveindex < 0) hoveindex = Items.Count - 1;
-                        while (!Items[hoveindex].SID)
-                        {
-                            hoveindex--;
-                            if (hoveindex < 0) hoveindex = Items.Count - 1;
-                        }
+                        int tmp = IMouseWheel(1);
+                        if (tmp == hoveindex) return true;
+                        hoveindex = tmp;
                         foreach (var it in Items) it.Hover = false;
                         FocusItem(Items[hoveindex]);
                         return true;
                     }
                     else if (keys == Keys.Down)
                     {
-                        if (hoveindex == -1) hoveindex = 0;
-                        else
-                        {
-                            hoveindex++;
-                            if (hoveindex > Items.Count - 1) hoveindex = 0;
-                        }
-                        while (!Items[hoveindex].SID)
-                        {
-                            hoveindex++;
-                            if (hoveindex > Items.Count - 1) hoveindex = 0;
-                        }
+                        int tmp = IMouseWheel(-1);
+                        if (tmp == hoveindex) return true;
+                        hoveindex = tmp;
                         foreach (var it in Items) it.Hover = false;
                         FocusItem(Items[hoveindex]);
                         return true;
@@ -357,13 +331,40 @@ namespace AntdUI
             };
         }
 
+        int IMouseWheel(int delta)
+        {
+            int count = Items.Count, errcount = 0, newIndex;
+            if (delta > 0)
+            {
+                newIndex = hoveindex <= 0 ? Items.Count - 1 : hoveindex - 1;
+                while (!Items[newIndex].SID)
+                {
+                    errcount++;
+                    if (errcount > count) return -1;
+                    newIndex--;
+                    if (newIndex < 0) newIndex = count - 1;
+                }
+            }
+            else
+            {
+                newIndex = hoveindex >= Items.Count - 1 ? 0 : hoveindex + 1;
+                while (!Items[newIndex].SID)
+                {
+                    errcount++;
+                    if (errcount > count) return -1;
+                    newIndex++;
+                    if (newIndex > count - 1) newIndex = 0;
+                }
+            }
+            return newIndex;
+        }
+
         #endregion
 
         #region 参数
 
         public override string name => keyid;
 
-        TAlign ArrowAlign = TAlign.None;
         int ArrowSize = 8;
         ScrollBar ScrollBar;
         bool nodata = false;
@@ -375,13 +376,14 @@ namespace AntdUI
 
         #region 渲染
 
-        StringFormat sf;
+        FormatFlags sf;
         public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
         {
             using (var brush = new SolidBrush(Colour.BgElevated.Get(name, ColorScheme)))
             {
                 g.Fill(brush, path);
-                if (ArrowAlign != TAlign.None) g.FillPolygon(brush, ArrowAlign.AlignLines(ArrowSize, rect, tmpItemHeight));
+                if (tmpItemHeight > 0) g.FillPolygon(brush, TAlign.LT.AlignLines(ArrowSize, rect, tmpItemHeight));
+                else if (ArrowLine != null) g.FillPolygon(brush, ArrowLine);
             }
         }
         public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
@@ -573,7 +575,7 @@ namespace AntdUI
                 {
                     maxwr = width - padd2;
                     maxw = maxwr - gap_x2;
-                    sf.Trimming = StringTrimming.EllipsisCharacter;
+                    sf |= FormatFlags.EllipsisCharacter;
                 }
 
                 int item_count = 0, divider_count = 0, y = 0, sy = 0;
@@ -609,7 +611,22 @@ namespace AntdUI
                     ScrollBar.SetVrSize(0, maxh);
                     if (sy > 0) ScrollBar.ValueY = sy;
                 }
-                else ScrollBar.SetVrSize(0, 0);
+                else
+                {
+                    if (PARENT is Control control)
+                    {
+                        var screen = Screen.FromPoint(control.PointToScreen(Point.Empty)).WorkingArea;
+                        if (h > screen.Height - shadow2)
+                        {
+                            h = screen.Height - shadow2;
+                            ScrollBar.SizeChange(new Rectangle(0, 0, w, h));
+                            ScrollBar.SetVrSize(0, maxh);
+                            if (sy > 0) ScrollBar.ValueY = sy;
+                        }
+                        else ScrollBar.SetVrSize(0, 0);
+                    }
+                    else ScrollBar.SetVrSize(0, 0);
+                }
                 if (init) tmpW = w;
                 else if (animateConfig.Inverted)
                 {

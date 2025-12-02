@@ -32,7 +32,7 @@ namespace AntdUI
     /// <remarks>旋转木马，一组轮播的区域。</remarks>
     [Description("Carousel 走马灯")]
     [ToolboxItem(true)]
-    [DefaultProperty("Image")]
+    [DefaultProperty("SelectIndex")]
     [DefaultEvent("SelectIndexChanged")]
     [Designer(typeof(IControlDesigner))]
     public class Carousel : IControl
@@ -199,6 +199,8 @@ namespace AntdUI
         [Description("SelectIndex 属性值更改时发生"), Category("行为")]
         public event IntEventHandler? SelectIndexChanged;
 
+        protected virtual void OnSelectIndexChanged(int e) => SelectIndexChanged?.Invoke(this, new IntEventArgs(e));
+
         #region SetSelectIndex
 
         void SetSelectIndex(int value, bool auto = false)
@@ -221,23 +223,13 @@ namespace AntdUI
                 AnimationChange = true;
                 var old = selectIndex;
                 selectIndex = value;
-                if (old != value) SelectIndexChanged?.Invoke(this, new IntEventArgs(value));
+                if (old != value) OnSelectIndexChanged(value);
                 var speed = Math.Abs(end - AnimationChangeValue) / 50F;
                 if (speed < 8) speed = 8F;
                 if (left)
                 {
                     float modera = end - height * 0.05F;
-                    ThreadChange = new ITask(this, () =>
-                    {
-                        AnimationChangeValue = AnimationChangeValue.Calculate(Speed(speed, modera));
-                        if (AnimationChangeValue > end)
-                        {
-                            AnimationChangeValue = end;
-                            return false;
-                        }
-                        Invalidate();
-                        return true;
-                    }, 10, () =>
+                    RunAnimation(speed, modera, end, () =>
                     {
                         AnimationChange = false;
                         Invalidate();
@@ -250,17 +242,7 @@ namespace AntdUI
                         AnimationChangeAuto = true;
                         end = len * height;
                         float modera = end - height * 0.05F;
-                        ThreadChange = new ITask(this, () =>
-                        {
-                            AnimationChangeValue = AnimationChangeValue.Calculate(Speed(speed, modera));
-                            if (AnimationChangeValue > end)
-                            {
-                                AnimationChangeValue = end;
-                                return false;
-                            }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
+                        RunAnimation(speed, modera, end, () =>
                         {
                             AnimationChange = false;
                             AnimationChangeValue = 0;
@@ -270,17 +252,7 @@ namespace AntdUI
                     else
                     {
                         float modera = end + height * 0.05F;
-                        ThreadChange = new ITask(this, () =>
-                        {
-                            AnimationChangeValue -= Speed2(speed, modera);
-                            if (AnimationChangeValue <= end)
-                            {
-                                AnimationChangeValue = end;
-                                return false;
-                            }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
+                        RunAnimation2(speed, modera, end, () =>
                         {
                             AnimationChange = false;
                             Invalidate();
@@ -310,23 +282,13 @@ namespace AntdUI
                 AnimationChange = true;
                 var old = selectIndex;
                 selectIndex = value;
-                SelectIndexChanged?.Invoke(this, new IntEventArgs(value));
+                OnSelectIndexChanged(value);
                 var speed = Math.Abs(end - AnimationChangeValue) / 50F;
                 if (speed < 8) speed = 8F;
                 if (left)
                 {
                     float modera = end - width * 0.05F;
-                    ThreadChange = new ITask(this, () =>
-                    {
-                        AnimationChangeValue = AnimationChangeValue.Calculate(Speed(speed, modera));
-                        if (AnimationChangeValue > end)
-                        {
-                            AnimationChangeValue = end;
-                            return false;
-                        }
-                        Invalidate();
-                        return true;
-                    }, 10, () =>
+                    RunAnimation(speed, modera, end, () =>
                     {
                         AnimationChange = false;
                         Invalidate();
@@ -339,17 +301,7 @@ namespace AntdUI
                         AnimationChangeAuto = true;
                         end = len * width;
                         float modera = end - width * 0.05F;
-                        ThreadChange = new ITask(this, () =>
-                        {
-                            AnimationChangeValue = AnimationChangeValue.Calculate(Speed(speed, modera));
-                            if (AnimationChangeValue > end)
-                            {
-                                AnimationChangeValue = end;
-                                return false;
-                            }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
+                        RunAnimation(speed, modera, end, () =>
                         {
                             AnimationChange = false;
                             AnimationChangeValue = 0;
@@ -359,17 +311,7 @@ namespace AntdUI
                     else
                     {
                         float modera = end + width * 0.05F;
-                        ThreadChange = new ITask(this, () =>
-                        {
-                            AnimationChangeValue -= Speed2(speed, modera);
-                            if (AnimationChangeValue <= end)
-                            {
-                                AnimationChangeValue = end;
-                                return false;
-                            }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
+                        RunAnimation2(speed, modera, end, () =>
                         {
                             AnimationChange = false;
                             Invalidate();
@@ -383,6 +325,36 @@ namespace AntdUI
                 AnimationChangeValue = value * width;
                 Invalidate();
             }
+        }
+
+        void RunAnimation(float speed, float modera, float end, Action endcall)
+        {
+            ThreadChange = new AnimationTask(new AnimationLoopConfig(this, () =>
+            {
+                AnimationChangeValue += Speed(speed, modera);
+                if (AnimationChangeValue > end)
+                {
+                    AnimationChangeValue = end;
+                    return false;
+                }
+                Invalidate();
+                return true;
+            }, 10).SetEnd(endcall));
+        }
+
+        void RunAnimation2(float speed, float modera, float end, Action endcall)
+        {
+            ThreadChange = new AnimationTask(new AnimationLoopConfig(this, () =>
+            {
+                AnimationChangeValue -= Speed2(speed, modera);
+                if (AnimationChangeValue <= end)
+                {
+                    AnimationChangeValue = end;
+                    return false;
+                }
+                Invalidate();
+                return true;
+            }, 10).SetEnd(endcall));
         }
 
         #endregion
@@ -421,7 +393,7 @@ namespace AntdUI
         int AnimationChangeMaxWH = 0;
         float AnimationChangeValue = 0F;
         bool AnimationChange = false;
-        ITask? ThreadChange;
+        AnimationTask? ThreadChange;
 
         void LongTime()
         {
@@ -649,10 +621,7 @@ namespace AntdUI
 
         CarouselRectPanel SelectRangeVertical(int len, Rectangle rect)
         {
-            var r = new CarouselRectPanel
-            {
-                list = new List<CarouselRect>(len)
-            };
+            var list = new List<CarouselRect>(len);
             var indes = new List<int>(len);
             int temp = 0;
             for (int i = 0; i < len; i++)
@@ -661,7 +630,7 @@ namespace AntdUI
                 if (rect_cur.Contains(0, (int)AnimationChangeValue))
                 {
                     indes.Add(i);
-                    r.list.Add(new CarouselRect
+                    list.Add(new CarouselRect
                     {
                         i = i,
                         rect = rect_cur,
@@ -673,7 +642,7 @@ namespace AntdUI
                     if (rect2.Contains(0, (int)(AnimationChangeValue + rect.Height)))
                     {
                         indes.Add(i + 1);
-                        r.list.Add(new CarouselRect
+                        list.Add(new CarouselRect
                         {
                             i = i + 1,
                             rect = rect2,
@@ -683,24 +652,20 @@ namespace AntdUI
                 temp += rect.Height;
                 if (temp > AnimationChangeValue + rect.Height) break;
             }
-            if (r.list.Count == 0 && AnimationChangeValue < 0)
+            if (list.Count == 0 && AnimationChangeValue < 0)
             {
                 indes.Add(0);
-                r.list.Add(new CarouselRect
+                list.Add(new CarouselRect
                 {
                     i = 0,
                     rect = new Rectangle(0, 0, rect.Width, rect.Height),
                 });
             }
-            r.i = string.Join("", indes);
-            return r;
+            return new CarouselRectPanel(indes, list);
         }
         CarouselRectPanel SelectRangeHorizontal(int len, Rectangle rect)
         {
-            var r = new CarouselRectPanel
-            {
-                list = new List<CarouselRect>(len)
-            };
+            var list = new List<CarouselRect>(len);
             var indes = new List<int>(len);
             int temp = 0;
             for (int i = 0; i < len; i++)
@@ -709,7 +674,7 @@ namespace AntdUI
                 if (rect_cur.Contains((int)AnimationChangeValue, 0))
                 {
                     indes.Add(i);
-                    r.list.Add(new CarouselRect
+                    list.Add(new CarouselRect
                     {
                         i = i,
                         rect = rect_cur,
@@ -721,7 +686,7 @@ namespace AntdUI
                     if (rect2.Contains((int)(AnimationChangeValue + rect.Width), 0))
                     {
                         indes.Add(i + 1);
-                        r.list.Add(new CarouselRect
+                        list.Add(new CarouselRect
                         {
                             i = i + 1,
                             rect = rect2,
@@ -731,17 +696,16 @@ namespace AntdUI
                 temp += rect.Width;
                 if (temp > AnimationChangeValue + rect.Width) break;
             }
-            if (r.list.Count == 0 && AnimationChangeValue < 0)
+            if (list.Count == 0 && AnimationChangeValue < 0)
             {
                 indes.Add(0);
-                r.list.Add(new CarouselRect
+                list.Add(new CarouselRect
                 {
                     i = 0,
                     rect = new Rectangle(0, 0, rect.Width, rect.Height),
                 });
             }
-            r.i = string.Join("", indes);
-            return r;
+            return new CarouselRectPanel(indes, list);
         }
 
         #endregion
@@ -1019,8 +983,13 @@ namespace AntdUI
 
     internal class CarouselRectPanel
     {
+        public CarouselRectPanel(List<int> indes, List<CarouselRect> l)
+        {
+            i = string.Join("", indes);
+            list = l.ToArray();
+        }
         public string i { get; set; }
-        public List<CarouselRect> list { get; set; }
+        public CarouselRect[] list { get; set; }
     }
     internal class CarouselRect
     {

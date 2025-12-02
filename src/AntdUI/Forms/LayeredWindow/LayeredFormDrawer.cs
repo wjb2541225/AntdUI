@@ -321,7 +321,7 @@ namespace AntdUI
 
         int start_X = 0, end_X = 0, start_Y = 0, end_Y = 0;
         int start_W = 0, end_W = 0, start_H = 0, end_H = 0;
-        ITask? task_start;
+        AnimationTask? task_start;
         bool run_end = false, ok_end = false;
         protected override void OnLoad(EventArgs e)
         {
@@ -330,7 +330,7 @@ namespace AntdUI
             {
                 var t = Animation.TotalFrames(10, 100);
                 int sleep = config.Mask ? 200 : 0;
-                task_start = new ITask(vertical ? i =>
+                task_start = new AnimationTask(vertical ? i =>
                 {
                     var val = Animation.Animate(i, t, 1F, AnimationType.Ball);
                     SetAnimateValueY(start_Y + (int)((end_Y - start_Y) * val), (int)(end_H * val), (byte)(255 * val));
@@ -567,7 +567,7 @@ namespace AntdUI
             formMask?.IClose();
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             task_start?.Dispose();
             if (!ok_end)
@@ -585,7 +585,7 @@ namespace AntdUI
                     {
                         run_end = true;
                         var t = Animation.TotalFrames(10, 100);
-                        new ITask(vertical ? (i) =>
+                        new AnimationTask(vertical ? (i) =>
                         {
                             var val = Animation.Animate(i, t, 1F, AnimationType.Ball);
                             SetAnimateValueY(end_Y - (int)((end_Y - start_Y) * val), (int)(end_H * (1F - val)), (byte)(255 * (1F - val)));
@@ -609,7 +609,7 @@ namespace AntdUI
                     IClose(true);
                 }
             }
-            base.OnClosing(e);
+            base.OnFormClosing(e);
         }
 
         protected override void Dispose(bool disposing)

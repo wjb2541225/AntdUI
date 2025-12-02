@@ -228,7 +228,7 @@ namespace AntdUI.Chat
             base.OnDraw(e);
         }
 
-        StringFormat SFL = Helper.SF(tb: StringAlignment.Near);
+        readonly FormatFlags SFL = FormatFlags.Top | FormatFlags.HorizontalCenter;
 
         void PaintItem(Canvas g, IChatItem it, Rectangle rect, float sy, float radius, SolidBrush selection, SolidBrush selectionme, SolidBrush forebubble, SolidBrush bgbubble, SolidBrush bgActiveBubble, SolidBrush forebubbleme, SolidBrush bgbubbleme, SolidBrush bgActiveBubbleme)
         {
@@ -399,7 +399,7 @@ namespace AntdUI.Chat
                                 mouseDown = text;
                             }
                         }
-                        ItemClick?.Invoke(this, new ChatItemEventArgs(it, e));
+                        OnItemClick(it, e);
                     }
                     else if (it is TextChatItem text) text.SelectionLength = 0;
                 }
@@ -516,6 +516,8 @@ namespace AntdUI.Chat
         /// </summary>
         [Description("单击时发生"), Category("行为")]
         public event ClickEventHandler? ItemClick;
+
+        protected virtual void OnItemClick(IChatItem item, MouseEventArgs e) => ItemClick?.Invoke(this, new ChatItemEventArgs(item, e));
 
         #endregion
 
@@ -786,7 +788,7 @@ namespace AntdUI.Chat
                         }
                         break;
                     default:
-                        if (nType == 18)
+                        if (nType == 18 || (nType == 4 && SvgDb.Emoji.ContainsKey(it)))
                         {
                             item.HasEmoji = true;
                             font_widths.Add(new CacheFont(it, true, 0, type));
@@ -813,17 +815,10 @@ namespace AntdUI.Chat
 
             if (item.HasEmoji)
             {
-                using (var font = new Font(EmojiFont, Font.Size))
+                if (font_height == 0) font_height = FixFontWidth(g).Height;
+                foreach (var it in font_widths)
                 {
-                    foreach (var it in font_widths)
-                    {
-                        if (it.emoji)
-                        {
-                            var sizefont = g.MeasureString(it.text, font);
-                            if (font_height < sizefont.Height) font_height = sizefont.Height;
-                            it.width = sizefont.Width;
-                        }
-                    }
+                    if (it.emoji) it.width = font_height;
                 }
             }
 
@@ -995,7 +990,7 @@ namespace AntdUI.Chat
             }
         }
 
-        ITask? task;
+        AnimationTask? task;
         internal bool showlinedot = false;
         bool loading;
         public bool Loading
@@ -1010,12 +1005,12 @@ namespace AntdUI.Chat
                 showlinedot = false;
                 if (value && PARENT != null)
                 {
-                    task = new ITask(PARENT, () =>
+                    task = new AnimationTask(new AnimationLoopConfig(PARENT, () =>
                     {
                         showlinedot = !showlinedot;
                         Invalidate();
                         return loading;
-                    }, 200);
+                    }, 200).SetPriority());
                 }
                 else Invalidate();
             }

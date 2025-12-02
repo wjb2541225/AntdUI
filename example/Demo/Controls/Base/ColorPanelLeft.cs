@@ -19,7 +19,6 @@
 
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace AntdUI
 {
@@ -66,7 +65,7 @@ namespace AntdUI
 
         #endregion
 
-        readonly static StringFormat stringFormatCenter = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near, Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap };
+        readonly static FormatFlags s_f = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
 
         protected override void OnDraw(DrawEventArgs e)
         {
@@ -75,7 +74,7 @@ namespace AntdUI
             var rect = ClientRectangle.PaddingRect(Padding);
             using (var brush = new SolidBrush(ForeColor))
             {
-                if (desc == null) g.String(text, Font, brush, rect, stringFormatCenter);
+                if (desc == null) g.String(text, Font, brush, rect, s_f);
                 else
                 {
                     var size = g.MeasureString(text, Font);
@@ -83,10 +82,10 @@ namespace AntdUI
                     {
                         var sizedesc = g.MeasureString(desc, font);
                         int y = (rect.Height - (size.Height + sizedesc.Height)) / 2;
-                        g.String(text, Font, brush, new Rectangle(rect.X, rect.Y + y, rect.Width, size.Height), stringFormatCenter);
+                        g.String(text, Font, brush, new Rectangle(rect.X, rect.Y + y, rect.Width, size.Height), s_f);
                         using (var brush_desc = new SolidBrush(Color.FromArgb(200, ForeColor)))
                         {
-                            g.String(desc, font, brush_desc, new Rectangle(rect.X, rect.Y + y + (int)(size.Height * 1.2F), rect.Width, sizedesc.Height), stringFormatCenter);
+                            g.String(desc, font, brush_desc, new Rectangle(rect.X, rect.Y + y + (int)(size.Height * 1.2F), rect.Width, sizedesc.Height), s_f);
                         }
                     }
                 }

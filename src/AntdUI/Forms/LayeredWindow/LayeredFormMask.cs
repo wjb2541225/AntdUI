@@ -73,6 +73,7 @@ namespace AntdUI
         public override string name => "Mask";
         Func<GraphicsPath>? RenderRegion;
 
+        Control[]? list;
         protected override void OnLoad(EventArgs e)
         {
             if (control == null)
@@ -91,6 +92,7 @@ namespace AntdUI
                     Size = owner.Size;
                     Location = owner.Location;
                 }
+                owner.VisibleChanged += Parent_VisibleChanged;
             }
             else
             {
@@ -99,12 +101,24 @@ namespace AntdUI
                 SetSize(control.Size);
                 Size = control.Size;
                 Location = point;
+                var tmps = control.FindPARENTs();
+                list = tmps.ToArray();
+                foreach (var control in list)
+                {
+                    if (control is TabPage page) page.ShowedChanged += Parent_VisibleChanged;
+                    control.VisibleChanged += Parent_VisibleChanged;
+                    control.Disposed += Parent_Disposed;
+                }
             }
             owner.LocationChanged += Parent_LocationChanged;
             owner.SizeChanged += Parent_SizeChanged;
+            LoadVisible();
             base.OnLoad(e);
         }
 
+
+        private void Parent_Disposed(object? sender, EventArgs e) => IClose();
+        private void Parent_VisibleChanged(object? sender, EventArgs e) => LoadVisible();
         private void Parent_LocationChanged(object? sender, EventArgs e)
         {
             if (control == null)
@@ -160,8 +174,45 @@ namespace AntdUI
             Print();
         }
 
+        bool visible = false;
+        void LoadVisible()
+        {
+            var tmp = GetVisible();
+            if (visible == tmp) return;
+            visible = tmp;
+            temp?.Dispose();
+            temp = null;
+            Print();
+        }
+        bool GetVisible()
+        {
+            if (list == null) return owner.Visible;
+            else
+            {
+                foreach (var control in list)
+                {
+                    if (control is TabPage page)
+                    {
+                        if (!page.Showed) return false;
+                    }
+                    else if (!control.Visible) return false;
+                }
+                return true;
+            }
+        }
+
         protected override void Dispose(bool disposing)
         {
+            if (list == null) owner.VisibleChanged -= Parent_VisibleChanged;
+            else
+            {
+                foreach (var control in list)
+                {
+                    control.Disposed -= Parent_Disposed;
+                    control.VisibleChanged -= Parent_VisibleChanged;
+                    if (control is TabPage page) page.ShowedChanged -= Parent_VisibleChanged;
+                }
+            }
             owner.LocationChanged -= Parent_LocationChanged;
             owner.SizeChanged -= Parent_SizeChanged;
             temp?.Dispose();
@@ -177,26 +228,29 @@ namespace AntdUI
             {
                 temp?.Dispose();
                 temp = new Bitmap(rect_read.Width, rect_read.Height);
-                using (var g = Graphics.FromImage(temp).High())
+                if (visible)
                 {
-                    using (var brush = new SolidBrush(Color.FromArgb(115, 0, 0, 0)))
+                    using (var g = Graphics.FromImage(temp).High())
                     {
-                        if (RenderRegion == null)
+                        using (var brush = new SolidBrush(Color.FromArgb(115, 0, 0, 0)))
                         {
-                            if (Radius > 0)
+                            if (RenderRegion == null)
                             {
-                                using (var path = rect.RoundPath(Radius))
+                                if (Radius > 0)
+                                {
+                                    using (var path = rect.RoundPath(Radius))
+                                    {
+                                        g.Fill(brush, path);
+                                    }
+                                }
+                                else g.Fill(brush, rect);
+                            }
+                            else
+                            {
+                                using (var path = RenderRegion())
                                 {
                                     g.Fill(brush, path);
                                 }
-                            }
-                            else g.Fill(brush, rect);
-                        }
-                        else
-                        {
-                            using (var path = RenderRegion())
-                            {
-                                g.Fill(brush, path);
                             }
                         }
                     }

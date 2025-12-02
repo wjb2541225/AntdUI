@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading;
@@ -27,7 +26,7 @@ using System.Windows.Forms;
 
 namespace AntdUI
 {
-    internal class LayeredFormPopover : ILayeredFormOpacity
+    internal class LayeredFormPopover : ILayeredShadowFormOpacity
     {
         Popover.Config config;
         public override bool MessageEnable => true;
@@ -35,6 +34,8 @@ namespace AntdUI
 
         internal bool topMost = false;
         Form? form;
+
+        int ArrowSize = 8;
         public LayeredFormPopover(Popover.Config _config)
         {
             config = _config;
@@ -44,6 +45,9 @@ namespace AntdUI
             Helper.GDI(g =>
             {
                 var dpi = Config.Dpi;
+
+                Radius = (int)(config.Radius * dpi);
+                ArrowSize = (int)(config.ArrowSize * dpi);
 
                 int sp = (int)Math.Round(config.Gap * dpi), paddingx = 10 + (int)(config.Padding.Width * dpi),
                 paddingy = 10 + (int)(config.Padding.Height * dpi), paddingx2 = paddingx * 2, paddingy2 = paddingy * 2;
@@ -72,6 +76,7 @@ namespace AntdUI
                             rectContent = new Rectangle(rectTitle.X, rectTitle.Bottom, w, h - sizeTitle.Height - sp);
                         }
                     }
+                    rectContent.Offset(shadow, shadow);
                     tempContent = new Bitmap(control.Width, control.Height);
                     control.Size = new Size(tempContent.Width, tempContent.Height);
                     control.DrawToBitmap(tempContent, new Rectangle(0, 0, tempContent.Width, tempContent.Height));
@@ -167,15 +172,13 @@ namespace AntdUI
             });
             if (config.CustomPoint.HasValue)
             {
-                var point = config.CustomPoint.Value.Location;
-                SetLocation(config.ArrowAlign.AlignPoint(config.CustomPoint.Value.Location, config.CustomPoint.Value.Size, TargetRect.Width, TargetRect.Height));
+                new CalculateCoordinate(config.CustomPoint.Value, TargetRect, Radius, ArrowSize, shadow, shadow2, config.Offset).Auto(config.ArrowAlign, true, out int x, out int y, out ArrowLine);
+                SetLocation(x, y);
             }
             else
             {
-                var point = config.Control.PointToScreen(Point.Empty);
-                if (config.Offset is RectangleF rectf) SetLocation(config.ArrowAlign.AlignPoint(new Rectangle(point.X + (int)rectf.X, point.Y + (int)rectf.Y, (int)rectf.Width, (int)rectf.Height), TargetRect.Width, TargetRect.Height));
-                else if (config.Offset is Rectangle rect) SetLocation(config.ArrowAlign.AlignPoint(new Rectangle(point.X + rect.X, point.Y + rect.Y, rect.Width, rect.Height), TargetRect.Width, TargetRect.Height));
-                else SetLocation(config.ArrowAlign.AlignPoint(point, config.Control.Size, TargetRect.Width, TargetRect.Height));
+                new CalculateCoordinate(config.Control, TargetRect, Radius, ArrowSize, shadow, shadow2, config.Offset).Auto(config.ArrowAlign, true, out int x, out int y, out ArrowLine);
+                SetLocation(x, y);
             }
         }
 
@@ -232,7 +235,7 @@ namespace AntdUI
 
         private void Control_Disposed(object? sender, EventArgs e) => IClose();
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (config.Content is Control control)
             {
@@ -244,20 +247,18 @@ namespace AntdUI
                 if (control.IsDisposed)
                 {
                     form?.Dispose();
-                    base.OnClosing(e);
+                    base.OnFormClosing(e);
                     return;
                 }
                 tempContent = new Bitmap(control.Width, control.Height);
                 control.DrawToBitmap(tempContent, new Rectangle(0, 0, tempContent.Width, tempContent.Height));
                 if (form != null) form.Location = Helper.OffScreenArea(form.Width * 2, form.Height * 2);
             }
-            base.OnClosing(e);
+            base.OnFormClosing(e);
         }
 
         protected override void Dispose(bool disposing)
         {
-            shadow_temp?.Dispose();
-            shadow_temp = null;
             tempContent?.Dispose();
             tempContent = null;
             if (parent != null) parent.VisibleChanged -= Parent_VisibleChanged;
@@ -266,7 +267,9 @@ namespace AntdUI
                 control.Disposed -= Control_Disposed;
                 control.Dispose();
             }
+#pragma warning disable CS8625
             config.Content = null;
+#pragma warning restore CS8625
             form?.Dispose();
             base.Dispose(disposing);
         }
@@ -278,79 +281,50 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat stringLeft = Helper.SF_Ellipsis(lr: StringAlignment.Near);
-        readonly StringFormat stringCenter = Helper.SF_NoWrap();
+        readonly FormatFlags stringLeft = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.EllipsisCharacter,
+            stringCenter = FormatFlags.Center | FormatFlags.NoWrap;
 
-        public override Bitmap? PrintBit()
+        public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
         {
-            var rect = TargetRectXY;
-            var rect_read = new Rectangle(10, 10, rect.Width - 20, rect.Height - 20);
-            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(rbmp).High())
+            if (config.Title != null || rtext)
             {
-                using (var path = DrawShadow(g, rect, rect_read))
+                using (var brush = new SolidBrush(config.Fore ?? Colour.Text.Get(nameof(Popover), config.ColorScheme)))
                 {
-                    using (var brush = new SolidBrush(config.Back ?? Colour.BgElevated.Get(nameof(Popover), config.ColorScheme)))
+                    using (var fontTitle = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
                     {
-                        g.Fill(brush, path);
-                        if (config.ArrowAlign != TAlign.None) g.FillPolygon(brush, config.ArrowAlign.AlignLines(config.ArrowSize, rect, rect_read));
+                        g.String(config.Title, fontTitle, brush, rectTitle, stringLeft);
                     }
-                    if (tempContent != null) g.Image(tempContent, rectContent);
-                }
-
-                if (config.Title != null || rtext)
-                {
-                    using (var brush = new SolidBrush(config.Fore ?? Colour.Text.Get(nameof(Popover), config.ColorScheme)))
+                    if (rtext)
                     {
-                        using (var fontTitle = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
+                        if (config.Content is IList<Popover.TextRow> list && rectsContent != null)
                         {
-                            g.String(config.Title, fontTitle, brush, rectTitle, stringLeft);
-                        }
-                        if (rtext)
-                        {
-                            if (config.Content is IList<Popover.TextRow> list && rectsContent != null)
+                            for (int i = 0; i < list.Count; i++)
                             {
-                                for (int i = 0; i < list.Count; i++)
+                                var txt = list[i];
+                                if (txt.Fore.HasValue)
                                 {
-                                    var txt = list[i];
-                                    if (txt.Fore.HasValue)
+                                    using (var fore = new SolidBrush(txt.Fore.Value))
                                     {
-                                        using (var fore = new SolidBrush(txt.Fore.Value))
-                                        {
-                                            g.String(txt.Text, txt.Font ?? Font, fore, rectsContent[i].Rect, stringCenter);
-                                        }
+                                        g.String(txt.Text, txt.Font ?? Font, fore, rectsContent[i].Rect, stringCenter);
                                     }
-                                    else g.String(txt.Text, txt.Font ?? Font, brush, rectsContent[i].Rect, stringCenter);
                                 }
+                                else g.String(txt.Text, txt.Font ?? Font, brush, rectsContent[i].Rect, stringCenter);
                             }
-                            else g.String(config.Content.ToString(), Font, brush, rectContent, stringLeft);
                         }
+                        else g.String(config.Content.ToString(), Font, brush, rectContent, stringLeft);
                     }
                 }
             }
-            return rbmp;
         }
 
-        SafeBitmap? shadow_temp;
-        /// <summary>
-        /// 绘制阴影
-        /// </summary>
-        /// <param name="g">GDI</param>
-        /// <param name="rect_client">客户区域</param>
-        /// <param name="rect_read">真实区域</param>
-        GraphicsPath DrawShadow(Canvas g, Rectangle rect_client, Rectangle rect_read)
+        public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
         {
-            var path = rect_read.RoundPath((int)(config.Radius * Config.Dpi));
-            if (Config.ShadowEnabled)
+            using (var brush = new SolidBrush(config.Back ?? Colour.BgElevated.Get(nameof(Popover), config.ColorScheme)))
             {
-                if (shadow_temp == null || (shadow_temp.Width != rect_client.Width || shadow_temp.Height != rect_client.Height))
-                {
-                    shadow_temp?.Dispose();
-                    shadow_temp = path.PaintShadow(rect_client.Width, rect_client.Height);
-                }
-                g.Image(shadow_temp.Bitmap, rect_client, .2F);
+                g.Fill(brush, path);
+                if (ArrowLine != null) g.FillPolygon(brush, ArrowLine);
             }
-            return path;
+            if (tempContent != null) g.Image(tempContent, rectContent);
         }
 
         #endregion

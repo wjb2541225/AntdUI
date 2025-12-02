@@ -78,7 +78,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -519,7 +521,7 @@ namespace AntdUI
 
         #region 渲染帮助
 
-        readonly StringFormat stringCenter = Helper.SF_ALL();
+        readonly FormatFlags stringCenter = FormatFlags.Center | FormatFlags.NoWrapEllipsis;
 
         bool PaintImage(Canvas g, Rectangle rect, float _radius)
         {

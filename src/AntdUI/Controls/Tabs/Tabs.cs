@@ -168,6 +168,12 @@ namespace AntdUI
         [Description("切换使能"), Category("行为"), DefaultValue(true)]
         public bool EnableSwitch { get; set; } = true;
 
+        /// <summary>
+        /// 鼠标滚轮切换焦点页使能
+        /// </summary>
+        [Description("鼠标滚轮切换焦点页使能"), Category("行为"), DefaultValue(true)]
+        public bool EnablePageScrolling { get; set; } = true;
+
         Color? scrollback;
         /// <summary>
         /// 滚动条颜色
@@ -444,7 +450,7 @@ namespace AntdUI
                 int old = _select;
                 _select = value;
                 style.SelectedIndexChanged(value, old);
-                SelectedIndexChanged?.Invoke(this, new IntEventArgs(value));
+                OnSelectedIndexChanged(value);
                 Invalidate();
                 ShowPage(_select);
                 OnPropertyChanged(nameof(SelectedIndex));
@@ -544,7 +550,7 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat s_c = Helper.SF_ALL(), s_f = Helper.SF_NoWrap();
+        readonly FormatFlags s_c = FormatFlags.Center | FormatFlags.NoWrapEllipsis, s_f = FormatFlags.Center | FormatFlags.NoWrap;
         protected override void OnDraw(DrawEventArgs e)
         {
             if (items == null || items.Count == 0 || !_tabMenuVisible) return;
@@ -758,7 +764,6 @@ namespace AntdUI
             }
         }
 
-
         TabPage FindNearestPage(Rectangle currentRect, TabCollection items, TabPage page)
         {
             double minDistance = int.MaxValue;
@@ -816,14 +821,26 @@ namespace AntdUI
 
         void MouseWheelCore(MouseEventArgs e)
         {
+            if (!scroll_show && EnablePageScrolling)
+            {
+                if (ContainsTabPage(e.X, e.Y) != null)
+                {
+                    int index = SelectedIndex + (e.Delta > 0 ? -1 : 1);
+                    if (index > -1 && index < Pages.Count)
+                    {
+                        SelectedIndex = index;
+                        return;
+                    }
+                }
+            }
+
             if (MouseWheelCore(e.Delta) && e is HandledMouseEventArgs handled) handled.Handled = true;
         }
-        bool MouseWheelCore(int Delta)
+        bool MouseWheelCore(int delta)
         {
             if (scroll_show)
             {
-                if (Delta == 0) return false;
-                int delta = Delta / SystemInformation.MouseWheelScrollDelta * (int)(Config.ScrollStep * Config.Dpi);
+                if (delta == 0) return false;
                 switch (alignment)
                 {
                     case TabAlignment.Left:
@@ -1561,6 +1578,8 @@ namespace AntdUI
         [Description("SelectedIndex 属性值更改时发生"), Category("行为")]
         public event IntEventHandler? SelectedIndexChanged;
 
+        protected virtual void OnSelectedIndexChanged(int e) => SelectedIndexChanged?.Invoke(this, new IntEventArgs(e));
+
         internal void MouseChangeIndex(TabPage page)
         {
             if (items == null) return;
@@ -1616,21 +1635,9 @@ namespace AntdUI
             action_add = item =>
             {
                 item.PARENT = it;
-                bool top = it.Controls.Count == 0;
                 item.Dock = DockStyle.Fill;
-                if (it.InvokeRequired)
-                {
-                    it.Invoke(() =>
-                    {
-                        it.Controls.Add(item);
-                        if (top) item.Showed = true;
-                    });
-                }
-                else
-                {
-                    it.Controls.Add(item);
-                    if (top) item.Showed = true;
-                }
+                if (it.InvokeRequired) it.Invoke(() => it.Controls.Add(item));
+                else it.Controls.Add(item);
             };
             action_del = (item, index) =>
             {
@@ -1795,7 +1802,9 @@ namespace AntdUI
         public override string Text
         {
             get => this.GetLangIN(LocalizationText, text);
+#pragma warning disable CS8765
             set
+#pragma warning restore CS8765
             {
                 if (text == value) return;
                 base.Text = text = value;
@@ -1847,11 +1856,13 @@ namespace AntdUI
         #region 隐藏显示
 
         bool showed = false;
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Description("显示的"), Category("外观"), DefaultValue(false)]
         public bool Showed
         {
             get => showed;
-            set
+            internal set
             {
                 if (showed == value) return;
                 showed = value;

@@ -21,6 +21,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AntdUI
@@ -82,7 +83,17 @@ namespace AntdUI
         /// <param name="call">耗时任务</param>
         /// <param name="font">字体</param>
         /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
-        public static void loading(Target target, string text, Action<Config> call, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.None, font, autoClose) { Call = call });
+        public static void loading(Target target, string text, Action<Config> call, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.None, font, autoClose).SetCall(call));
+
+        /// <summary>
+        /// 加载提示
+        /// </summary>
+        /// <param name="target">目标</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="call">耗时任务</param>
+        /// <param name="font">字体</param>
+        /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
+        public static void loading(Target target, string text, Func<Config, Task> call, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.None, font, autoClose).SetCall(call));
 
         public static void open(Target target, string text, Font? font = null, int? autoClose = null) => open(new Config(target, text, TType.None, font, autoClose));
 
@@ -134,7 +145,17 @@ namespace AntdUI
         /// <param name="call">耗时任务</param>
         /// <param name="font">字体</param>
         /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
-        public static void loading(Form form, string text, Action<Config> call, Font? font = null, int? autoClose = null) => open(new Config(form, text, TType.None, font, autoClose) { Call = call });
+        public static void loading(Form form, string text, Action<Config> call, Font? font = null, int? autoClose = null) => open(new Config(form, text, TType.None, font, autoClose).SetCall(call));
+
+        /// <summary>
+        /// 加载提示
+        /// </summary>
+        /// <param name="form">窗口</param>
+        /// <param name="text">提示内容</param>
+        /// <param name="call">耗时任务</param>
+        /// <param name="font">字体</param>
+        /// <param name="autoClose">自动关闭时间（秒）0等于不关闭</param>
+        public static void loading(Form form, string text, Func<Config, Task> call, Font? font = null, int? autoClose = null) => open(new Config(form, text, TType.None, font, autoClose).SetCall(call));
 
         public static void open(Form form, string text, Font? font = null, int? autoClose = null) => open(new Config(form, text, TType.None, font, autoClose));
 
@@ -290,7 +311,7 @@ namespace AntdUI
             /// <summary>
             /// 加载回调
             /// </summary>
-            public Action<Config>? Call { get; set; }
+            public object? Call { get; set; }
 
             /// <summary>
             /// 字体
@@ -404,7 +425,17 @@ namespace AntdUI
 
             #endregion
 
+            public Config SetCall(Action? value)
+            {
+                Call = value;
+                return this;
+            }
             public Config SetCall(Action<Config>? value)
+            {
+                Call = value;
+                return this;
+            }
+            public Config SetCall(Func<Config, Task>? value)
             {
                 Call = value;
                 return this;
@@ -572,20 +603,11 @@ namespace AntdUI
         internal override bool ActiveAnimation => false;
 
         bool loading = false, loadingend = true;
-        int AnimationLoadingValue = 0;
-        ITask? ThreadLoading;
+        int AnimationLoadingValue = -1;
+        AnimationTask? ThreadLoading;
         public bool IInit()
         {
             if (SetPosition(config.Target, config.ShowInWindow ?? Config.ShowInWindowByMessage)) return true;
-            if (loading)
-            {
-                ThreadLoading = new ITask(this, i =>
-                {
-                    AnimationLoadingValue = i;
-                    Print();
-                    return loading;
-                }, 20, 360, 10);
-            }
             loadingend = false;
             ITask.Run(() =>
             {
@@ -602,7 +624,9 @@ namespace AntdUI
                     var tmp = DateTime.Now;
                     try
                     {
-                        config.Call(config);
+                        if (config.Call is Func<Message.Config, Task> func) func(config).Wait();
+                        else if (config.Call is Action<Message.Config> action_config) action_config(config);
+                        else if (config.Call is Action action) action();
                     }
                     catch { }
                     var time = DateTime.Now - tmp;
@@ -641,6 +665,25 @@ namespace AntdUI
             return false;
         }
 
+        public override void RunLoading()
+        {
+            if (loading)
+            {
+                if (loadingend) return;
+                AnimationLoadingValue = 0;
+                ThreadLoading = new AnimationTask(new AnimationLinearConfig(this, i =>
+                {
+                    if (loading)
+                    {
+                        AnimationLoadingValue = i;
+                        Print();
+                        return true;
+                    }
+                    return false;
+                }, 20, 360, 10));
+            }
+        }
+
         bool IRefresh()
         {
             var oldw = TargetRect.Width;
@@ -662,7 +705,7 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat s_f_left = Helper.SF_ALL(lr: StringAlignment.Near);
+        readonly FormatFlags s_f_left = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
         public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
@@ -678,10 +721,13 @@ namespace AntdUI
                 {
                     var bor3 = 3F * Config.Dpi;
                     g.DrawEllipse(Colour.Fill.Get(nameof(Message)), bor3, rect_loading);
-                    using (var pen = new Pen(Colour.Primary.Get(nameof(Message)), bor3))
+                    if (AnimationLoadingValue > -1)
                     {
-                        pen.StartCap = pen.EndCap = LineCap.Round;
-                        g.DrawArc(pen, rect_loading, AnimationLoadingValue, 100);
+                        using (var pen = new Pen(Colour.Primary.Get(nameof(Message)), bor3))
+                        {
+                            pen.StartCap = pen.EndCap = LineCap.Round;
+                            g.DrawArc(pen, rect_loading, AnimationLoadingValue, 100);
+                        }
                     }
                 }
                 else if (config.IconCustom != null) g.PaintIcons(config.IconCustom, rect_icon);
@@ -725,7 +771,7 @@ namespace AntdUI
             int paddingx = (int)(config.Padding.Width * dpi), paddingy = (int)(config.Padding.Height * dpi), sp = (int)(8 * dpi), height = size.Height + paddingy * 2;
             if (loading)
             {
-                int icon_size = (int)(size.Height * .86F);
+                int icon_size = (int)(g.MeasureText(Config.NullText, Font).Height * .86F);
                 rect_icon = new Rectangle(shadow + paddingx, shadow + (height - icon_size) / 2, icon_size, icon_size);
                 rect_txt = new Rectangle(rect_icon.Right + sp, shadow, size.Width, height);
 
@@ -741,7 +787,7 @@ namespace AntdUI
             }
             else
             {
-                int icon_size = (int)(size.Height * .86F);
+                int icon_size = (int)(g.MeasureText(Config.NullText, Font).Height * .86F);
                 rect_icon = new Rectangle(shadow + paddingx, shadow + (height - icon_size) / 2, icon_size, icon_size);
                 rect_txt = new Rectangle(rect_icon.Right + sp, shadow, size.Width, height);
                 return new Size(size.Width + icon_size + sp + paddingx * 2 + shadow2, height + shadow2);
@@ -753,7 +799,6 @@ namespace AntdUI
         protected override void Dispose(bool disposing)
         {
             ThreadLoading?.Dispose();
-            s_f_left.Dispose();
             shadow_temp?.Dispose();
             shadow_temp = null;
             base.Dispose(disposing);

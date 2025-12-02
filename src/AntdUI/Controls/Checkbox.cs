@@ -82,7 +82,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -96,7 +98,7 @@ namespace AntdUI
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
-        StringFormat stringFormat = Helper.SF_ALL(lr: StringAlignment.Near);
+        FormatFlags s_f = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
         ContentAlignment textAlign = ContentAlignment.MiddleLeft;
         /// <summary>
         /// 文本位置
@@ -109,7 +111,7 @@ namespace AntdUI
             {
                 if (textAlign == value) return;
                 textAlign = value;
-                textAlign.SetAlignment(ref stringFormat);
+                s_f = textAlign.SetAlignment(s_f);
                 Invalidate();
                 OnPropertyChanged(nameof(TextAlign));
             }
@@ -133,38 +135,16 @@ namespace AntdUI
                 if (IsHandleCreated && Config.HasAnimation(nameof(Checkbox)))
                 {
                     AnimationCheck = true;
-                    if (value)
+                    ThreadCheck = new AnimationTask(new AnimationLinearFConfig(this, i =>
                     {
-                        ThreadCheck = new ITask(this, () =>
-                        {
-                            AnimationCheckValue = AnimationCheckValue.Calculate(0.2F);
-                            if (AnimationCheckValue > 1) { AnimationCheckValue = 1F; return false; }
-                            Invalidate();
-                            return true;
-                        }, 20, () =>
-                        {
-                            AnimationCheck = false;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadCheck = new ITask(this, () =>
-                        {
-                            AnimationCheckValue = AnimationCheckValue.Calculate(-0.2F);
-                            if (AnimationCheckValue <= 0) { AnimationCheckValue = 0F; return false; }
-                            Invalidate();
-                            return true;
-                        }, 20, () =>
-                        {
-                            AnimationCheck = false;
-                            Invalidate();
-                        });
-                    }
+                        AnimationCheckValue = i;
+                        Invalidate();
+                        return true;
+                    }, 20).SetValue(AnimationCheckValue, value, 0.2F).SetEnd(() => AnimationCheck = false));
                 }
                 else AnimationCheckValue = value ? 1F : 0F;
                 Invalidate();
-                CheckedChanged?.Invoke(this, new BoolEventArgs(value));
+                OnCheckedChanged(value);
                 OnPropertyChanged(nameof(Checked));
             }
         }
@@ -184,7 +164,16 @@ namespace AntdUI
             {
                 if (rightToLeft == value) return;
                 rightToLeft = value;
-                stringFormat.Alignment = RightToLeft == RightToLeft.Yes ? StringAlignment.Far : StringAlignment.Near;
+                if (rightToLeft == RightToLeft.Yes)
+                {
+                    s_f &= ~FormatFlags.Left;
+                    s_f |= FormatFlags.Right;
+                }
+                else
+                {
+                    s_f &= ~FormatFlags.Right;
+                    s_f |= FormatFlags.Left;
+                }
                 Invalidate();
                 OnPropertyChanged(nameof(RightToLeft));
             }
@@ -199,6 +188,8 @@ namespace AntdUI
         /// </summary>
         [Description("Checked 属性值更改时发生"), Category("行为")]
         public event BoolEventHandler? CheckedChanged;
+
+        protected virtual void OnCheckedChanged(bool e) => CheckedChanged?.Invoke(this, new BoolEventArgs(e));
 
         #endregion
 
@@ -226,7 +217,7 @@ namespace AntdUI
                 if (right) text_rect.X = rect.Width - text_rect.X - text_rect.Width;
                 using (var brush = fore.Brush(Colour.Text.Get(nameof(Checkbox), ColorScheme), Colour.TextQuaternary.Get(nameof(Checkbox), "foreDisabled", ColorScheme), enabled))
                 {
-                    g.DrawText(Text, Font, brush, text_rect, stringFormat);
+                    g.DrawText(Text, Font, brush, text_rect, s_f);
                 }
             }
             base.OnDraw(e);
@@ -244,7 +235,7 @@ namespace AntdUI
                 var bor2 = 2F * Config.Dpi;
                 if (enabled)
                 {
-                    if (hasFocus && (rect.Height - icon_rect.Height) > bor2)
+                    if ((hasFocus && Config.FocusBorderEnabled) && (rect.Height - icon_rect.Height) > bor2)
                     {
                         float wave = bor2, wave2 = wave * 2;
                         using (var path_focus = new RectangleF(icon_rect.X - wave, icon_rect.Y - wave, icon_rect.Width + wave2, icon_rect.Height + wave2).RoundPath(radius + wave))
@@ -339,34 +330,12 @@ namespace AntdUI
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
-                        if (value)
+                        ThreadHover = new AnimationTask(new AnimationLinearConfig(this, i =>
                         {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue += 20;
-                                if (AnimationHoverValue > 255) { AnimationHoverValue = 255; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue -= 20;
-                                if (AnimationHoverValue < 1) { AnimationHoverValue = 0; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
+                            AnimationHoverValue = i;
+                            Invalidate();
+                            return true;
+                        }, 10).SetValueColor(AnimationHoverValue, value, 20).SetEnd(() => AnimationHover = false));
                     }
                     else AnimationHoverValue = 255;
                     Invalidate();
@@ -382,8 +351,8 @@ namespace AntdUI
             ThreadHover?.Dispose();
             base.Dispose(disposing);
         }
-        ITask? ThreadHover;
-        ITask? ThreadCheck;
+        AnimationTask? ThreadHover;
+        AnimationTask? ThreadCheck;
 
         #endregion
 

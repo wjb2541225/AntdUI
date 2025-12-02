@@ -193,7 +193,7 @@ namespace AntdUI
                 if (DisabledAlpha && value.A != 255) value = Color.FromArgb(255, value);
                 _value = value;
                 if (BeforeAutoSize()) Invalidate();
-                ValueChanged?.Invoke(this, new ColorEventArgs(value));
+                OnValueChanged(value);
                 OnPropertyChanged(nameof(Value));
             }
         }
@@ -238,7 +238,9 @@ namespace AntdUI
         public override string Text
         {
             get => base.Text;
+#pragma warning disable CS8765
             set
+#pragma warning restore CS8765
             {
                 if (base.Text == value) return;
 
@@ -322,7 +324,7 @@ namespace AntdUI
                     hasvalue = false;
                     _value = def;
                     Invalidate();
-                    ValueChanged?.Invoke(this, new ColorEventArgs(_value));
+                    OnValueChanged(_value);
                 }
                 else _value = def;
             }
@@ -427,6 +429,8 @@ namespace AntdUI
         [Description("Value 属性值更改时发生"), Category("行为")]
         public event ColorEventHandler? ValueChanged;
 
+        protected virtual void OnValueChanged(Color e) => ValueChanged?.Invoke(this, new ColorEventArgs(e));
+
         /// <summary>
         /// Value格式化时发生
         /// </summary>
@@ -438,7 +442,6 @@ namespace AntdUI
         #region 渲染
 
         bool init = false;
-        internal StringFormat stringLeft = Helper.SF_NoWrap(lr: StringAlignment.Near);
         protected override void OnDraw(DrawEventArgs e)
         {
             init = true;
@@ -456,7 +459,7 @@ namespace AntdUI
                 int size_color = (int)(rect_read.Height * .75F);
                 if (Enabled)
                 {
-                    if (hasFocus && WaveSize > 0)
+                    if ((hasFocus && Config.FocusBorderEnabled) && WaveSize > 0)
                     {
                         float wave = (WaveSize * Config.Dpi / 2), wave2 = wave * 2;
                         using (var path_focus = new RectangleF(rect_read.X - wave, rect_read.Y - wave, rect_read.Width + wave2, rect_read.Height + wave2).RoundPath(_radius + wave))
@@ -488,6 +491,7 @@ namespace AntdUI
                     PaintValue(g, r, rect_color);
                     using (var brush = new SolidBrush(_fore))
                     {
+                        var s_f = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrap;
                         var wi = gap * 2 + size_color;
                         if (ValueFormatChanged == null)
                         {
@@ -496,17 +500,17 @@ namespace AntdUI
                                 switch (mode)
                                 {
                                     case TColorMode.Hex:
-                                        g.String("#" + _value.ToHex(), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), stringLeft);
+                                        g.String("#" + _value.ToHex(), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), s_f);
                                         break;
                                     case TColorMode.Rgb:
-                                        if (_value.A == 255) g.String(string.Format("rgb({0},{1},{2})", _value.R, _value.G, _value.B), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), stringLeft);
-                                        else g.String(string.Format("rgba({0},{1},{2},{3})", _value.R, _value.G, _value.B, Math.Round(_value.A / 255D, 2)), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), stringLeft);
+                                        if (_value.A == 255) g.String(string.Format("rgb({0},{1},{2})", _value.R, _value.G, _value.B), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), s_f);
+                                        else g.String(string.Format("rgba({0},{1},{2},{3})", _value.R, _value.G, _value.B, Math.Round(_value.A / 255D, 2)), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), s_f);
                                         break;
                                 }
                             }
-                            else g.String("Transparent", Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), stringLeft);
+                            else g.String("Transparent", Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), s_f);
                         }
-                        else g.String(ValueFormatChanged(this, new ColorEventArgs(_value)), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), stringLeft);
+                        else g.String(ValueFormatChanged(this, new ColorEventArgs(_value)), Font, brush, new Rectangle(rect_read.X + wi, rect_read.Y, rect_read.Width - wi, rect_read.Height), s_f);
                     }
                 }
                 else
@@ -518,15 +522,11 @@ namespace AntdUI
                 if (showSymbol)
                 {
                     //允许显示自定义符号，如0~9, A~Z,?...
-                    StringFormat stringFormat = new StringFormat();
-                    stringFormat.Alignment = StringAlignment.Center;
-                    stringFormat.LineAlignment = StringAlignment.Center;
                     var rect_color = new RectangleF(rect_read.X + (rect_read.Width - size_color) / 2F, rect_read.Y + (rect_read.Height - size_color) / 2F, size_color, size_color);
                     using (var brush = new SolidBrush(_fore))
                     {
-                        g.String(Text, Font, brush, rect_color, stringFormat);
+                        g.String(Text, Font, brush, rect_color);
                     }
-                    stringFormat.Dispose();
 
                 }
             }
@@ -721,34 +721,15 @@ namespace AntdUI
                 {
                     ThreadFocus?.Dispose();
                     AnimationFocus = true;
-                    if (value)
+                    var config = new AnimationLinearConfig(this, i =>
                     {
-                        ThreadFocus = new ITask(this, () =>
-                        {
-                            AnimationFocusValue += 4;
-                            if (AnimationFocusValue > 30) return false;
-                            Invalidate();
-                            return true;
-                        }, 20, () =>
-                        {
-                            AnimationFocus = false;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadFocus = new ITask(this, () =>
-                        {
-                            AnimationFocusValue -= 4;
-                            if (AnimationFocusValue < 1) return false;
-                            Invalidate();
-                            return true;
-                        }, 20, () =>
-                        {
-                            AnimationFocus = false;
-                            Invalidate();
-                        });
-                    }
+                        AnimationFocusValue = i;
+                        Invalidate();
+                        return true;
+                    }, 20).SetValue(AnimationFocusValue);
+                    if (value) config.SetAdd(4).SetMax(30);
+                    else config.SetAdd(-4).SetMax(0);
+                    ThreadFocus = new AnimationTask(config.SetEnd(() => AnimationFocus = false));
                 }
                 else Invalidate();
             }
@@ -772,34 +753,12 @@ namespace AntdUI
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
-                        if (value)
+                        ThreadHover = new AnimationTask(new AnimationLinearConfig(this, i =>
                         {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue += 20;
-                                if (AnimationHoverValue > 255) { AnimationHoverValue = 255; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadHover = new ITask(this, () =>
-                            {
-                                AnimationHoverValue -= 20;
-                                if (AnimationHoverValue < 1) { AnimationHoverValue = 0; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
+                            AnimationHoverValue = i;
+                            Invalidate();
+                            return true;
+                        }, 10).SetValueColor(AnimationHoverValue, value, 20).SetEnd(() => AnimationHover = false));
                     }
                     else AnimationHoverValue = 255;
                     Invalidate();
@@ -859,10 +818,7 @@ namespace AntdUI
             ExtraMouseDown = true;
             if (subForm == null)
             {
-                subForm = new LayeredFormColorPicker(this, ReadRectangle, Value, color =>
-                {
-                    Value = color;
-                });
+                subForm = new LayeredFormColorPicker(this, ReadRectangle, color => Value = color);
                 subForm.Disposed += (a, b) =>
                 {
                     ExtraMouseDown = false;
@@ -884,8 +840,8 @@ namespace AntdUI
             bmp_alpha = null;
             base.Dispose(disposing);
         }
-        ITask? ThreadHover;
-        ITask? ThreadFocus;
+        AnimationTask? ThreadHover;
+        AnimationTask? ThreadFocus;
 
         #endregion
 

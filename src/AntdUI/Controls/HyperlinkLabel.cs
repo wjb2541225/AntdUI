@@ -68,7 +68,9 @@ namespace AntdUI
         [Description("文本"), Category("Appearance"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -272,7 +274,6 @@ namespace AntdUI
             var rect = ReadRectangle;
 
             Color _fore = fore ?? Style.Get(Colour.Text, nameof(HyperlinkLabel));
-            PaintText(g, Text, _fore, rect);
             if (shadow > 0)
             {
                 using (var bmp = new Bitmap(Width, Height))
@@ -285,6 +286,7 @@ namespace AntdUI
                     g.Image(bmp, new Rectangle(shadowOffsetX, shadowOffsetY, bmp.Width, bmp.Height), shadowOpacity);
                 }
             }
+            PaintText(g, Text, _fore, rect);
         }
 
         void PaintText(Canvas g, string? text, Color color, Rectangle rect)
@@ -626,7 +628,7 @@ namespace AntdUI
             {
                 if (part.Href != null && part.Bounds.Contains(e.Location))
                 {
-                    OnLinkClicked(new LinkClickedEventArgs(part.Href, part.Text));
+                    OnLinkClicked(part.Href, part.Text);
                     return;
                 }
             }
@@ -648,22 +650,22 @@ namespace AntdUI
             if (count > 0) Invalidate();
         }
 
-        protected virtual void OnLinkClicked(LinkClickedEventArgs e)
+        protected virtual void OnLinkClicked(string href, string text)
         {
-            if (LinkAutoNavigation && Uri.TryCreate(e.Href, UriKind.Absolute, out _))
+            if (LinkAutoNavigation && Uri.TryCreate(href, UriKind.Absolute, out _))
             {
                 try
                 {
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        FileName = e.Href,
+                        FileName = href,
                         UseShellExecute = true
                     });
                     return;
                 }
                 catch { }
             }
-            LinkClicked?.Invoke(this, e);
+            LinkClicked?.Invoke(this, new LinkClickedEventArgs(href, text));
         }
 
         #endregion

@@ -319,6 +319,18 @@ namespace AntdUI
         public event TreeSelectEventHandler? NodeMouseClick;
 
         /// <summary>
+        /// 鼠标按下事件
+        /// </summary>
+        [Description("鼠标按下事件"), Category("行为")]
+        public event TreeSelectEventHandler? NodeMouseDown;
+
+        /// <summary>
+        /// 鼠标松开事件
+        /// </summary>
+        [Description("鼠标松开事件"), Category("行为")]
+        public event TreeSelectEventHandler? NodeMouseUp;
+
+        /// <summary>
         /// 双击项事件
         /// </summary>
         [Description("双击项事件"), Category("行为")]
@@ -329,34 +341,28 @@ namespace AntdUI
         /// </summary>
         [Description("移动项事件"), Category("行为")]
         public event TreeHoverEventHandler? NodeMouseMove;
-        internal void OnNodeMouseMove(TreeItem item, bool hover)
-        {
-            if (NodeMouseMove == null) return;
-            int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
-            NodeMouseMove(this, new TreeHoverEventArgs(item, item.Rect("Text", sx, sy), hover));
-        }
 
-        internal void OnSelectChanged(TreeItem item, TreeCType type, MouseEventArgs args)
-        {
-            if (SelectChanged == null) return;
-            int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
-            SelectChanged(this, new TreeSelectEventArgs(item, item.Rect("Text", sx, sy), type, args));
-        }
-        internal void OnNodeMouseClick(TreeItem item, TreeCType type, MouseEventArgs args)
-        {
-            if (NodeMouseClick == null) return;
-            int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
-            NodeMouseClick(this, new TreeSelectEventArgs(item, item.Rect("Text", sx, sy), type, args));
-        }
-        internal void OnNodeMouseDoubleClick(TreeItem item, TreeCType type, MouseEventArgs args)
-        {
-            if (NodeMouseDoubleClick == null) return;
-            int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
-            NodeMouseDoubleClick(this, new TreeSelectEventArgs(item, item.Rect("Text", sx, sy), type, args));
-        }
-        internal void OnCheckedChanged(TreeItem item, bool value) => CheckedChanged?.Invoke(this, new TreeCheckedEventArgs(item, value));
+        #region 重写
 
-        internal void OnAfterExpand(TreeItem item, bool value) => AfterExpand?.Invoke(this, new TreeCheckedEventArgs(item, value));
+        internal void OnSelectChanged(TreeItem item, TreeCType type, MouseEventArgs args) => OnSelectChanged(item, item.Rect("Text", ScrollBar.ValueX, ScrollBar.ValueY), type, args);
+        internal void OnNodeMouseClick(TreeItem item, TreeCType type, MouseEventArgs args) => OnNodeMouseClick(item, item.Rect("Text", ScrollBar.ValueX, ScrollBar.ValueY), type, args);
+        internal void OnNodeMouseDown(TreeItem item, TreeCType type, MouseEventArgs args) => OnNodeMouseDown(item, item.Rect("Text", ScrollBar.ValueX, ScrollBar.ValueY), type, args);
+        internal void OnNodeMouseUp(TreeItem item, TreeCType type, MouseEventArgs args) => OnNodeMouseUp(item, item.Rect("Text", ScrollBar.ValueX, ScrollBar.ValueY), type, args);
+        internal void OnNodeMouseDoubleClick(TreeItem item, TreeCType type, MouseEventArgs args) => OnNodeMouseDoubleClick(item, item.Rect("Text", ScrollBar.ValueX, ScrollBar.ValueY), type, args);
+        internal void OnNodeMouseMove(TreeItem item, bool hover) => OnNodeMouseMove(item, item.Rect("Text", ScrollBar.ValueX, ScrollBar.ValueY), hover);
+
+        protected virtual void OnSelectChanged(TreeItem item, Rectangle rect, TreeCType type, MouseEventArgs args) => SelectChanged?.Invoke(this, new TreeSelectEventArgs(item, rect, type, args));
+        protected virtual void OnNodeMouseClick(TreeItem item, Rectangle rect, TreeCType type, MouseEventArgs args) => NodeMouseClick?.Invoke(this, new TreeSelectEventArgs(item, rect, type, args));
+        protected virtual void OnNodeMouseDown(TreeItem item, Rectangle rect, TreeCType type, MouseEventArgs args) => NodeMouseDown?.Invoke(this, new TreeSelectEventArgs(item, rect, type, args));
+        protected virtual void OnNodeMouseUp(TreeItem item, Rectangle rect, TreeCType type, MouseEventArgs args) => NodeMouseUp?.Invoke(this, new TreeSelectEventArgs(item, rect, type, args));
+        protected virtual void OnNodeMouseDoubleClick(TreeItem item, Rectangle rect, TreeCType type, MouseEventArgs args) => NodeMouseDoubleClick?.Invoke(this, new TreeSelectEventArgs(item, rect, type, args));
+        protected virtual void OnNodeMouseMove(TreeItem item, Rectangle rect, bool hover) => NodeMouseMove?.Invoke(this, new TreeHoverEventArgs(item, rect, hover));
+        protected virtual void OnCheckedChanged(TreeItem item, bool value) => CheckedChanged?.Invoke(this, new TreeCheckedEventArgs(item, value));
+        protected virtual void OnAfterExpand(TreeItem item, bool value) => AfterExpand?.Invoke(this, new TreeCheckedEventArgs(item, value));
+        internal void OnICheckedChanged(TreeItem item, bool value) => OnCheckedChanged(item, value);
+        internal void OnIAfterExpand(TreeItem item, bool value) => OnAfterExpand(item, value);
+
+        #endregion
 
         #endregion
 
@@ -396,7 +402,7 @@ namespace AntdUI
                     var size = g.MeasureString(Config.NullText, Font);
                     int icon_size = (int)(size.Height * iconratio), depth_gap = GapIndent.HasValue ? (int)(GapIndent.Value * Config.Dpi) : icon_size, gap = (int)(_gap * Config.Dpi), gapI = gap / 2, height = icon_size + gap * 2;
                     check_radius = icon_size * .2F;
-                    if (CheckStrictly && has && items![0].PARENT == null && items[0].PARENTITEM == null)
+                    if (CheckStrictly && has && items![0].PARENT == null && items[0].ParentItem == null)
                     {
                         //新数据
                         var dir = new List<TreeItem>();
@@ -464,7 +470,7 @@ namespace AntdUI
                 it.Index = i;
                 i++;
                 it.PARENT = this;
-                it.PARENTITEM = Parent;
+                it.PARENTITEM = it.ParentItem = Parent;
                 if (it.Visible)
                 {
                     it.SetRect(g, Font, depth, checkable, blockNode, has_sub, new Rectangle(0, y, rect.Width, height), depth_gap, icon_size, gap);
@@ -565,7 +571,7 @@ namespace AntdUI
             }
         }
 
-        readonly StringFormat s_c = Helper.SF_Ellipsis(), s_l = Helper.SF_ALL(lr: StringAlignment.Near);
+        readonly FormatFlags s_c = FormatFlags.Center | FormatFlags.EllipsisCharacter, s_l = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
         void PaintItem(Canvas g, TreeItem item, SolidBrush fore, SolidBrush fore_active, SolidBrush hover, SolidBrush active, SolidBrush brushTextTertiary, float radius, int sx, int sy)
         {
             if (item.Select)
@@ -811,6 +817,7 @@ namespace AntdUI
                 if (down > 0)
                 {
                     MDown = item;
+                    OnNodeMouseDown(item, down, e);
                     return true;
                 }
                 if (item.ICanExpand && item.Expand)
@@ -845,7 +852,7 @@ namespace AntdUI
                                 {
                                     bool targetChecked = ShouldCheckTarget(item);
                                     item.CheckState = SetCheck(item, targetChecked);
-                                    SetCheckStrictly(item.PARENTITEM);
+                                    SetCheckStrictly(item.ParentItem);
                                 }
                                 else item.Checked = !item.Checked;
                             }
@@ -908,6 +915,7 @@ namespace AntdUI
                                 }
                             }
                         }
+                        OnNodeMouseUp(item, down, e);
                         if (doubleClick) OnNodeMouseDoubleClick(item, down, e);
                         else OnNodeMouseClick(item, down, e);
                     }
@@ -1067,7 +1075,7 @@ namespace AntdUI
             }
             if (check_all_count > 0) item.CheckState = check_count == item.Sub.Count ? CheckState.Checked : CheckState.Indeterminate;
             else item.CheckState = CheckState.Unchecked;
-            SetCheckStrictly(item.PARENTITEM);
+            SetCheckStrictly(item.ParentItem);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -1095,7 +1103,14 @@ namespace AntdUI
             if (item.show)
             {
                 if (item.Contains(x, y, ScrollBar.ValueX, ScrollBar.ValueY, checkable, blockNode) > 0) hand++;
-                if (item.items != null) foreach (var sub in item.items) IMouseMove(sub, x, y, ref hand);
+                try
+                {
+                    if (item.items != null)
+                    {
+                        foreach (var sub in item.items.Safe) IMouseMove(sub, x, y, ref hand);
+                    }
+                }
+                catch { }
             }
         }
 
@@ -1200,7 +1215,7 @@ namespace AntdUI
 
         bool FindUp(TreeItem item)
         {
-            var p1 = item.PARENTITEM;
+            var p1 = item.ParentItem;
             if (p1 == null)
             {
                 int index = items!.IndexOf(item) - 1;
@@ -1231,7 +1246,7 @@ namespace AntdUI
                 Select(item.items![0]);
                 return true;
             }
-            var p1 = item.PARENTITEM;
+            var p1 = item.ParentItem;
             if (p1 == null)
             {
                 int index = items!.IndexOf(item) + 1;
@@ -1251,7 +1266,7 @@ namespace AntdUI
                 }
                 else
                 {
-                    if (p1.PARENTITEM == null)
+                    if (p1.ParentItem == null)
                     {
                         var sub = items!;
                         int index2 = sub.Count + 1;
@@ -1268,7 +1283,7 @@ namespace AntdUI
                     }
                     else
                     {
-                        var sub = p1.PARENTITEM.items!;
+                        var sub = p1.ParentItem.items!;
                         int index2 = sub.Count + 1;
                         if (index2 < sub.Count)
                         {
@@ -1705,7 +1720,7 @@ namespace AntdUI
 
         #region 加载动画
 
-        internal ITask? ThreadLoading;
+        internal AnimationTask? ThreadLoading;
         bool loading = false;
         public float AnimationLoadingValue = 0;
         float AnimationLoadingWaveValue = 0;
@@ -1729,14 +1744,14 @@ namespace AntdUI
 
         internal void StartLoading(Tree tree)
         {
-            ThreadLoading = new ITask(tree, i =>
+            ThreadLoading = new AnimationTask(new AnimationLinearConfig(tree, i =>
             {
                 AnimationLoadingWaveValue += 1;
                 if (AnimationLoadingWaveValue > 100) AnimationLoadingWaveValue = 0;
                 AnimationLoadingValue = i;
                 Invalidate();
                 return loading;
-            }, 10, 360, 10, () => Invalidate());
+            }, 10, 360, 10).SetEnd(Invalidate));
         }
 
         #endregion
@@ -1785,7 +1800,7 @@ namespace AntdUI
 
         #region 展开
 
-        ITask? ThreadExpand;
+        AnimationTask? ThreadExpand;
         bool expand = false;
         /// <summary>
         /// 展开
@@ -1798,7 +1813,7 @@ namespace AntdUI
             {
                 if (expand == value) return;
                 expand = value;
-                PARENT?.OnAfterExpand(this, value);
+                PARENT?.OnIAfterExpand(this, value);
                 if (items != null && items.Count > 0)
                 {
                     if (PARENT != null && PARENT.IsHandleCreated && Config.HasAnimation(nameof(Tree)))
@@ -1807,37 +1822,25 @@ namespace AntdUI
                         float oldval = -1;
                         if (ThreadExpand?.Tag is float oldv) oldval = oldv;
                         ExpandThread = true;
+                        int t;
                         if (value)
                         {
                             int time = ExpandCount(this) * 10;
                             if (time < 100) time = 100;
                             else if (time > 1000) time = 1000;
-                            int t = Animation.TotalFrames(10, time);
-                            ThreadExpand = new ITask(false, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                            {
-                                ExpandProg = val;
-                                Invalidates();
-                            }, () =>
-                            {
-                                ExpandProg = 1F;
-                                ExpandThread = false;
-                                Invalidates();
-                            });
+                            t = Animation.TotalFrames(10, time);
                         }
-                        else
+                        else t = Animation.TotalFrames(10, 200);
+                        ThreadExpand = new AnimationTask(new AnimationFixed2Config((i, val) =>
                         {
-                            var t = Animation.TotalFrames(10, 200);
-                            ThreadExpand = new ITask(true, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                            {
-                                ExpandProg = val;
-                                Invalidates();
-                            }, () =>
-                            {
-                                ExpandProg = 1F;
-                                ExpandThread = false;
-                                Invalidates();
-                            });
-                        }
+                            ExpandProg = val;
+                            Invalidates();
+                        }, 10, t, oldval, value).SetEnd(() =>
+                        {
+                            ExpandProg = 1F;
+                            ExpandThread = false;
+                            Invalidates();
+                        }));
                     }
                     else
                     {
@@ -1879,7 +1882,7 @@ namespace AntdUI
         internal bool AnimationCheck = false;
         internal float AnimationCheckValue = 0;
 
-        ITask? ThreadCheck;
+        AnimationTask? ThreadCheck;
 
         bool _checked = false;
         [Description("选中状态"), Category("行为"), DefaultValue(false)]
@@ -1890,7 +1893,7 @@ namespace AntdUI
             {
                 if (_checked == value) return;
                 _checked = value;
-                PARENT?.OnCheckedChanged(this, value);
+                PARENT?.OnICheckedChanged(this, value);
                 OnCheck();
                 CheckState = value ? CheckState.Checked : CheckState.Unchecked;
             }
@@ -1910,7 +1913,7 @@ namespace AntdUI
                 if (_checked != __checked)
                 {
                     _checked = __checked;
-                    PARENT?.OnCheckedChanged(this, __checked);
+                    PARENT?.OnICheckedChanged(this, __checked);
                     OnCheck();
                 }
                 if (value != CheckState.Unchecked) checkStateOld = value;
@@ -1921,24 +1924,10 @@ namespace AntdUI
         {
             ThreadCheck?.Dispose();
             ThreadCheck = null;
-            if (PARENT != null && PARENT.IsHandleCreated && (PARENTITEM == null || PARENTITEM.expand) && show && Config.HasAnimation(nameof(Tree)))
+            if (PARENT != null && PARENT.IsHandleCreated && (ParentItem == null || ParentItem.expand) && show && Config.HasAnimation(nameof(Tree)))
             {
                 AnimationCheck = true;
-                if (_checked)
-                {
-                    ThreadCheck = new ITask(PARENT, () =>
-                    {
-                        AnimationCheckValue = AnimationCheckValue.Calculate(0.2F);
-                        if (AnimationCheckValue > 1) { AnimationCheckValue = 1F; return false; }
-                        Invalidate();
-                        return true;
-                    }, 20, () =>
-                    {
-                        AnimationCheck = false;
-                        Invalidate();
-                    });
-                }
-                else if (checkStateOld == CheckState.Checked && CheckState == CheckState.Indeterminate)
+                if (!_checked && checkStateOld == CheckState.Checked && CheckState == CheckState.Indeterminate)
                 {
                     AnimationCheck = false;
                     AnimationCheckValue = 1F;
@@ -1946,17 +1935,12 @@ namespace AntdUI
                 }
                 else
                 {
-                    ThreadCheck = new ITask(PARENT, () =>
+                    ThreadCheck = new AnimationTask(new AnimationLinearFConfig(PARENT, i =>
                     {
-                        AnimationCheckValue = AnimationCheckValue.Calculate(-0.2F);
-                        if (AnimationCheckValue <= 0) { AnimationCheckValue = 0F; return false; }
-                        Invalidate();
+                        AnimationCheckValue = i;
+                        PARENT.Invalidate();
                         return true;
-                    }, 20, () =>
-                    {
-                        AnimationCheck = false;
-                        Invalidate();
-                    });
+                    }, 20).SetValue(AnimationCheckValue, _checked, 0.2F).SetEnd(() => AnimationCheck = false));
                 }
             }
             else
@@ -1971,7 +1955,7 @@ namespace AntdUI
             if (PARENT == null) return;
             Checked = value;
             if (handsub) PARENT.SetCheck(this, value);
-            PARENT.SetCheckStrictly(PARENTITEM);
+            PARENT.SetCheckStrictly(ParentItem);
         }
 
         #endregion
@@ -2016,8 +2000,8 @@ namespace AntdUI
 
         public void Remove()
         {
-            if (PARENTITEM == null) PARENT?.Items.Remove(this);
-            else PARENTITEM.items?.Remove(this);
+            if (ParentItem == null) PARENT?.Items.Remove(this);
+            else ParentItem.items?.Remove(this);
         }
 
         #endregion
@@ -2040,35 +2024,11 @@ namespace AntdUI
                 {
                     ThreadHover?.Dispose();
                     AnimationHover = true;
-                    var t = Animation.TotalFrames(20, 200);
-                    if (value)
+                    ThreadHover = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 1;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 0;
-                            Invalidate();
-                        });
-                    }
+                        AnimationHoverValue = i;
+                        Invalidate();
+                    }, 20, Animation.TotalFrames(20, 200), value, AnimationType.Ball).SetEnd(() => AnimationHover = false));
                 }
                 else Invalidate();
             }
@@ -2107,8 +2067,11 @@ namespace AntdUI
 
         public int Depth { get; private set; }
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Obsolete("use ParentItem")]
         public TreeItem? PARENTITEM { get; set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public TreeItem? ParentItem { get; internal set; }
 
         #region 内部
 
@@ -2210,7 +2173,7 @@ namespace AntdUI
 
         internal float AnimationHoverValue = 0;
         internal bool AnimationHover = false;
-        ITask? ThreadHover;
+        AnimationTask? ThreadHover;
 
         internal Rectangle check_rect { get; set; }
         internal Rectangle txt_rect { get; set; }
@@ -2400,11 +2363,11 @@ namespace AntdUI
         public string FullPath(string PathSeparator = "/")
         {
             var list = new List<string?>(Depth + 1) { Text };
-            var parent = PARENTITEM;
+            var parent = ParentItem;
             while (parent != null)
             {
                 list.Insert(0, parent.Text);
-                parent = parent.PARENTITEM;
+                parent = parent.ParentItem;
             }
             return string.Join(PathSeparator, list);
         }
@@ -2412,11 +2375,11 @@ namespace AntdUI
         public string FullID(string PathSeparator = "/")
         {
             var list = new List<string?>(Depth + 1) { ID };
-            var parent = PARENTITEM;
+            var parent = ParentItem;
             while (parent != null)
             {
                 list.Insert(0, parent.ID);
-                parent = parent.PARENTITEM;
+                parent = parent.ParentItem;
             }
             return string.Join(PathSeparator, list);
         }
@@ -2424,11 +2387,11 @@ namespace AntdUI
         public string FullName(string PathSeparator = "/")
         {
             var list = new List<string?>(Depth + 1) { Name };
-            var parent = PARENTITEM;
+            var parent = ParentItem;
             while (parent != null)
             {
                 list.Insert(0, parent.Name);
-                parent = parent.PARENTITEM;
+                parent = parent.ParentItem;
             }
             return string.Join(PathSeparator, list);
         }

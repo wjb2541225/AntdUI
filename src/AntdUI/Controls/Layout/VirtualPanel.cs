@@ -1118,6 +1118,8 @@ namespace AntdUI
         [Description("点击项时发生"), Category("行为")]
         public event VirtualItemEventHandler? ItemClick;
 
+        protected virtual void OnItemClick(VirtualItem item, MouseEventArgs e) => ItemClick?.Invoke(this, new VirtualItemEventArgs(item, e));
+
         VirtualItem? MDown;
         int isdouclick = 0;
         protected override void OnMouseDown(MouseEventArgs e)
@@ -1187,31 +1189,29 @@ namespace AntdUI
                     float addvalue = shadowOpacityHover / 12F;
                     if (value)
                     {
-                        virtualShadow.ThreadHover = new ITask(this, () =>
+                        virtualShadow.ThreadHover = new AnimationTask(new AnimationLinearFConfig(this, i =>
                         {
-                            virtualShadow.AnimationHoverValue = virtualShadow.AnimationHoverValue.Calculate(addvalue);
-                            if (virtualShadow.AnimationHoverValue >= shadowOpacityHover) { virtualShadow.AnimationHoverValue = shadowOpacityHover; return false; }
+                            virtualShadow.AnimationHoverValue = i;
                             Invalidate();
                             return true;
-                        }, 20, () =>
+                        }, 20).SetAdd(addvalue).SetMax(shadowOpacityHover).SetValue(virtualShadow.AnimationHoverValue).SetEnd(() =>
                         {
                             virtualShadow.AnimationHover = false;
                             Invalidate();
-                        });
+                        }));
                     }
                     else
                     {
-                        virtualShadow.ThreadHover = new ITask(this, () =>
+                        virtualShadow.ThreadHover = new AnimationTask(new AnimationLinearFConfig(this, i =>
                         {
-                            virtualShadow.AnimationHoverValue = virtualShadow.AnimationHoverValue.Calculate(-addvalue);
-                            if (virtualShadow.AnimationHoverValue <= shadowOpacity) { virtualShadow.AnimationHoverValue = shadowOpacity; return false; }
+                            virtualShadow.AnimationHoverValue = i;
                             Invalidate();
                             return true;
-                        }, 20, () =>
+                        }, 20).SetAdd(-addvalue).SetMax(shadowOpacity).SetValue(virtualShadow.AnimationHoverValue).SetEnd(() =>
                         {
                             virtualShadow.AnimationHover = false;
                             Invalidate();
-                        });
+                        }));
                     }
                 }
                 else Invalidate();
@@ -1227,7 +1227,7 @@ namespace AntdUI
                     int x = e.X, y = e.Y + ScrollBar.Value;
                     if (MDown.RECT.Contains(x, y))
                     {
-                        ItemClick?.Invoke(this, new VirtualItemEventArgs(MDown, e));
+                        OnItemClick(MDown, e);
                         MDown.MouseClick(this, new VirtualPanelMouseArgs(MDown, MDown.RECT, x, y, e, isdouclick));
                     }
                 }
@@ -1297,7 +1297,7 @@ namespace AntdUI
     public abstract class VirtualShadowItem : VirtualItem
     {
         internal Rectangle RECT_S;
-        internal ITask? ThreadHover;
+        internal AnimationTask? ThreadHover;
         internal float AnimationHoverValue = 0.1F;
         internal bool AnimationHover = false;
 

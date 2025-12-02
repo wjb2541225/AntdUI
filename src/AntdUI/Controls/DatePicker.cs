@@ -70,7 +70,7 @@ namespace AntdUI
             {
                 if (_value == value) return;
                 _value = value;
-                ValueChanged?.Invoke(this, new DateTimeNEventArgs(value));
+                OnValueChanged(value);
                 SetText(value);
                 OnPropertyChanged(nameof(Value));
             }
@@ -188,11 +188,22 @@ namespace AntdUI
         #region 事件
 
         public event DateTimeNEventHandler? ValueChanged;
+
+        protected virtual void OnValueChanged(DateTime? e) => ValueChanged?.Invoke(this, new DateTimeNEventArgs(e));
+
         /// <summary>
         /// 预置点击时发生
         /// </summary>
         [Description("预置点击时发生"), Category("行为")]
         public event ObjectNEventHandler? PresetsClickChanged;
+
+        /// <summary>
+        /// 下拉展开 属性值更改时发生
+        /// </summary>
+        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        public event BoolEventHandler? ExpandDropChanged;
+
+        protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
 
         #endregion
 
@@ -232,6 +243,7 @@ namespace AntdUI
                     }
                 }
                 else subForm?.IClose();
+                OnExpandDropChanged(value);
             }
         }
 

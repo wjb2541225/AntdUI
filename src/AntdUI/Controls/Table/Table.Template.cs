@@ -103,35 +103,11 @@ namespace AntdUI
                         {
                             ThreadHover?.Dispose();
                             AnimationHover = true;
-                            var t = Animation.TotalFrames(20, PARENT.AnimationTime);
-                            if (value)
+                            ThreadHover = new AnimationTask(new AnimationFixedConfig(i =>
                             {
-                                ThreadHover = new ITask((i) =>
-                                {
-                                    AnimationHoverValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                    PARENT.Invalidate();
-                                    return true;
-                                }, 20, t, () =>
-                                {
-                                    AnimationHover = false;
-                                    AnimationHoverValue = 1;
-                                    PARENT.Invalidate();
-                                });
-                            }
-                            else
-                            {
-                                ThreadHover = new ITask((i) =>
-                                {
-                                    AnimationHoverValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                    PARENT.Invalidate();
-                                    return true;
-                                }, 20, t, () =>
-                                {
-                                    AnimationHover = false;
-                                    AnimationHoverValue = 0;
-                                    PARENT.Invalidate();
-                                });
-                            }
+                                AnimationHoverValue = i;
+                                PARENT.Invalidate();
+                            }, 20, Animation.TotalFrames(20, PARENT.AnimationTime), value, AnimationType.Ball).SetEnd(() => AnimationHover = false));
                         }
                         else PARENT.Invalidate();
                     }
@@ -163,7 +139,7 @@ namespace AntdUI
 
             internal float AnimationHoverValue = 0;
             internal bool AnimationHover = false;
-            internal ITask? ThreadHover;
+            internal AnimationTask? ThreadHover;
 
             #endregion
 
@@ -239,7 +215,7 @@ namespace AntdUI
         /// <summary>
         /// 复选框
         /// </summary>
-        class TCellCheck : CELL
+        class TCellCheck : CELL_CHECK
         {
             /// <summary>
             /// 复选框
@@ -249,7 +225,7 @@ namespace AntdUI
             /// <param name="prop">反射</param>
             /// <param name="ov">行数据</param>
             /// <param name="value">值</param>
-            public TCellCheck(Table table, ColumnCheck column, PropertyDescriptor? prop, object? ov, bool value) : base(table, column, prop, ov)
+            public TCellCheck(Table table, ColumnCheck column, PropertyDescriptor? prop, object? ov, bool value, bool valint) : base(table, column, prop, ov, valint)
             {
                 _checked = value;
                 AnimationCheckValue = _checked ? 1F : 0F;
@@ -264,11 +240,11 @@ namespace AntdUI
             public bool AnimationCheck = false;
             public float AnimationCheckValue = 0;
 
-            ITask? ThreadCheck;
+            AnimationTask? ThreadCheck;
 
             bool _checked = false;
             [Description("选中状态"), Category("行为"), DefaultValue(false)]
-            public bool Checked
+            public override bool Checked
             {
                 get => _checked;
                 set
@@ -287,34 +263,12 @@ namespace AntdUI
                     if (Config.HasAnimation(nameof(Table)))
                     {
                         AnimationCheck = true;
-                        if (_checked)
+                        ThreadCheck = new AnimationTask(new AnimationLinearFConfig(PARENT, i =>
                         {
-                            ThreadCheck = new ITask(PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(0.2F);
-                                if (AnimationCheckValue > 1) { AnimationCheckValue = 1F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 20, () =>
-                            {
-                                AnimationCheck = false;
-                                PARENT.Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadCheck = new ITask(PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(-0.2F);
-                                if (AnimationCheckValue <= 0) { AnimationCheckValue = 0F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 20, () =>
-                            {
-                                AnimationCheck = false;
-                                PARENT.Invalidate();
-                            });
-                        }
+                            AnimationCheckValue = i;
+                            PARENT.Invalidate();
+                            return true;
+                        }, 20).SetValue(AnimationCheckValue, _checked, 0.2F).SetEnd(() => AnimationCheck = false));
                     }
                     else
                     {
@@ -327,7 +281,6 @@ namespace AntdUI
             #endregion
 
             public bool NoTitle { get; set; }
-            public bool AutoCheck { get; set; }
 
             #endregion
 
@@ -411,7 +364,7 @@ namespace AntdUI
         /// <summary>
         /// 单选框
         /// </summary>
-        class TCellRadio : CELL
+        class TCellRadio : CELL_CHECK
         {
             /// <summary>
             /// 单选框
@@ -421,7 +374,7 @@ namespace AntdUI
             /// <param name="prop">反射</param>
             /// <param name="ov">行数据</param>
             /// <param name="value">值</param>
-            public TCellRadio(Table table, ColumnRadio column, PropertyDescriptor? prop, object? ov, bool value) : base(table, column, prop, ov)
+            public TCellRadio(Table table, ColumnRadio column, PropertyDescriptor? prop, object? ov, bool value, bool valint) : base(table, column, prop, ov, valint)
             {
                 _checked = value;
                 AnimationCheckValue = _checked ? 1F : 0F;
@@ -435,11 +388,11 @@ namespace AntdUI
             public bool AnimationCheck = false;
             public float AnimationCheckValue = 0;
 
-            ITask? ThreadCheck;
+            AnimationTask? ThreadCheck;
 
             bool _checked = false;
             [Description("选中状态"), Category("行为"), DefaultValue(false)]
-            public bool Checked
+            public override bool Checked
             {
                 get => _checked;
                 set
@@ -458,34 +411,12 @@ namespace AntdUI
                     if (Config.HasAnimation(nameof(Table)))
                     {
                         AnimationCheck = true;
-                        if (_checked)
+                        ThreadCheck = new AnimationTask(new AnimationLinearFConfig(PARENT, i =>
                         {
-                            ThreadCheck = new ITask(PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(0.2F);
-                                if (AnimationCheckValue > 1) { AnimationCheckValue = 1F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 20, () =>
-                            {
-                                AnimationCheck = false;
-                                PARENT.Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadCheck = new ITask(PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(-0.2F);
-                                if (AnimationCheckValue <= 0) { AnimationCheckValue = 0F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 20, () =>
-                            {
-                                AnimationCheck = false;
-                                PARENT.Invalidate();
-                            });
-                        }
+                            AnimationCheckValue = i;
+                            PARENT.Invalidate();
+                            return true;
+                        }, 20).SetValue(AnimationCheckValue, _checked, 0.2F).SetEnd(() => AnimationCheck = false));
                     }
                     else
                     {
@@ -496,8 +427,6 @@ namespace AntdUI
             }
 
             #endregion
-
-            public bool AutoCheck { get; set; }
 
             #endregion
 
@@ -573,7 +502,7 @@ namespace AntdUI
         /// <summary>
         /// 开关
         /// </summary>
-        class TCellSwitch : CELL
+        class TCellSwitch : CELL_CHECK
         {
             /// <summary>
             /// 开关
@@ -583,7 +512,7 @@ namespace AntdUI
             /// <param name="prop">反射</param>
             /// <param name="ov">行数据</param>
             /// <param name="value">值</param>
-            public TCellSwitch(Table table, ColumnSwitch column, PropertyDescriptor? prop, object? ov, bool value) : base(table, column, prop, ov)
+            public TCellSwitch(Table table, ColumnSwitch column, PropertyDescriptor? prop, object? ov, bool value, bool valint) : base(table, column, prop, ov, valint)
             {
                 _checked = value;
                 AnimationCheckValue = _checked ? 1F : 0F;
@@ -597,11 +526,11 @@ namespace AntdUI
             internal bool AnimationCheck = false;
             internal float AnimationCheckValue = 0;
 
-            ITask? ThreadCheck;
+            AnimationTask? ThreadCheck;
 
             bool _checked = false;
             [Description("选中状态"), Category("行为"), DefaultValue(false)]
-            public bool Checked
+            public override bool Checked
             {
                 get => _checked;
                 set
@@ -620,34 +549,12 @@ namespace AntdUI
                     if (Config.HasAnimation(nameof(Table)))
                     {
                         AnimationCheck = true;
-                        if (_checked)
+                        ThreadCheck = new AnimationTask(new AnimationLinearFConfig(PARENT, i =>
                         {
-                            ThreadCheck = new ITask(PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(0.1F);
-                                if (AnimationCheckValue > 1) { AnimationCheckValue = 1F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationCheck = false;
-                                PARENT.Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadCheck = new ITask(PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(-0.1F);
-                                if (AnimationCheckValue <= 0) { AnimationCheckValue = 0F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationCheck = false;
-                                PARENT.Invalidate();
-                            });
-                        }
+                            AnimationCheckValue = i;
+                            PARENT.Invalidate();
+                            return true;
+                        }, 10).SetValue(AnimationCheckValue, _checked, 0.1F).SetEnd(() => AnimationCheck = false));
                     }
                     else
                     {
@@ -661,7 +568,7 @@ namespace AntdUI
 
             #region 悬浮
 
-            ITask? ThreadHover;
+            AnimationTask? ThreadHover;
             internal float AnimationHoverValue = 0;
             internal bool AnimationHover = false;
             internal bool _mouseHover = false;
@@ -676,34 +583,16 @@ namespace AntdUI
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
-                        if (value)
+                        ThreadHover = new AnimationTask(new AnimationLinearFConfig(PARENT, i =>
                         {
-                            ThreadHover = new ITask(PARENT, () =>
-                            {
-                                AnimationHoverValue = AnimationHoverValue.Calculate(0.1F);
-                                if (AnimationHoverValue > 1) { AnimationHoverValue = 1F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                PARENT.Invalidate();
-                            });
-                        }
-                        else
+                            AnimationHoverValue = i;
+                            PARENT.Invalidate();
+                            return true;
+                        }, 10).SetValue(AnimationHoverValue, _checked, 0.1F).SetEnd(() =>
                         {
-                            ThreadHover = new ITask(PARENT, () =>
-                            {
-                                AnimationHoverValue = AnimationHoverValue.Calculate(-0.1F);
-                                if (AnimationHoverValue <= 0) { AnimationHoverValue = 0F; return false; }
-                                PARENT.Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                PARENT.Invalidate();
-                            });
-                        }
+                            AnimationHover = false;
+                            PARENT.Invalidate();
+                        }));
                     }
                     else AnimationHoverValue = 255;
                     PARENT.Invalidate();
@@ -727,7 +616,7 @@ namespace AntdUI
                         if (loading)
                         {
                             bool ProgState = false;
-                            ThreadLoading = new ITask(PARENT, () =>
+                            ThreadLoading = new AnimationTask(new AnimationLoopConfig(PARENT, () =>
                             {
                                 if (ProgState)
                                 {
@@ -744,7 +633,7 @@ namespace AntdUI
                                 if (LineAngle >= 360) LineAngle = 0;
                                 PARENT.Invalidate();
                                 return true;
-                            }, 10);
+                            }, 10).SetPriority());
                         }
                         else ThreadLoading?.Dispose();
                     }
@@ -752,12 +641,10 @@ namespace AntdUI
                 }
             }
 
-            ITask? ThreadLoading;
+            AnimationTask? ThreadLoading;
             internal float LineWidth = 6, LineAngle = 0;
 
             #endregion
-
-            public bool AutoCheck { get; set; }
 
             #endregion
 
@@ -845,6 +732,18 @@ namespace AntdUI
             public override string ToString() => Checked.ToString();
         }
 
+        abstract class CELL_CHECK : CELL
+        {
+            public CELL_CHECK(Table table, Column column, PropertyDescriptor? prop, object? ov, bool val_int) : base(table, column, prop, ov)
+            {
+                ValInt = val_int;
+            }
+
+            public abstract bool Checked { get; set; }
+            public bool AutoCheck { get; set; }
+            public bool ValInt { get; set; }
+        }
+
         /// <summary>
         /// 拖拽手柄
         /// </summary>
@@ -876,35 +775,11 @@ namespace AntdUI
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
-                        var t = Animation.TotalFrames(20, PARENT.AnimationTime);
-                        if (value)
+                        ThreadHover = new AnimationTask(new AnimationFixedConfig(i =>
                         {
-                            ThreadHover = new ITask((i) =>
-                            {
-                                AnimationHoverValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                PARENT.Invalidate();
-                                return true;
-                            }, 20, t, () =>
-                            {
-                                AnimationHover = false;
-                                AnimationHoverValue = 1;
-                                PARENT.Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadHover = new ITask((i) =>
-                            {
-                                AnimationHoverValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                PARENT.Invalidate();
-                                return true;
-                            }, 20, t, () =>
-                            {
-                                AnimationHover = false;
-                                AnimationHoverValue = 0;
-                                PARENT.Invalidate();
-                            });
-                        }
+                            AnimationHoverValue = i;
+                            PARENT.Invalidate();
+                        }, 20, Animation.TotalFrames(20, PARENT.AnimationTime), value, AnimationType.Ball).SetEnd(() => AnimationHover = false));
                     }
                     else PARENT.Invalidate();
                 }
@@ -926,7 +801,7 @@ namespace AntdUI
 
             float AnimationHoverValue = 0;
             bool AnimationHover = false;
-            ITask? ThreadHover;
+            AnimationTask? ThreadHover;
 
             #endregion
 

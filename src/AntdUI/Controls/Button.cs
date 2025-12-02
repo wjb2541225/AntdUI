@@ -374,6 +374,37 @@ namespace AntdUI
         [Browsable(false), Description("箭头角度"), Category("外观"), DefaultValue(-1F)]
         public float ArrowProg { get; set; } = -1F;
 
+        #region 快捷键
+
+        bool useMnemonic = true;
+        /// <summary>
+        /// 如助记键
+        /// </summary>
+        [Description("如果为 true，则前面有(&)号 的第一个字符将用作按钮的助记键"), Category("行为"), DefaultValue(true)]
+        public bool UseMnemonic
+        {
+            get => useMnemonic;
+            set
+            {
+                if (useMnemonic == value) return;
+                useMnemonic = value;
+                if (value) sf |= FormatFlags.HotkeyPrefixShow;
+                else sf &= ~FormatFlags.HotkeyPrefixShow;
+            }
+        }
+
+        protected override bool ProcessMnemonic(char charCode)
+        {
+            if (UseMnemonic && Enabled && Visible && IsMnemonic(charCode, Text))
+            {
+                PerformClick();
+                return true;
+            }
+            return base.ProcessMnemonic(charCode);
+        }
+
+        #endregion
+
         #region 文本
 
         string? text;
@@ -384,7 +415,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (string.IsNullOrEmpty(value)) value = null;
@@ -399,7 +432,7 @@ namespace AntdUI
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
-        StringFormat stringFormat = Helper.SF_NoWrap();
+        FormatFlags sf = FormatFlags.Center | FormatFlags.NoWrap | FormatFlags.HotkeyPrefixShow;
         ContentAlignment textAlign = ContentAlignment.MiddleCenter;
         /// <summary>
         /// 文本位置
@@ -412,7 +445,7 @@ namespace AntdUI
             {
                 if (textAlign == value) return;
                 textAlign = value;
-                textAlign.SetAlignment(ref stringFormat);
+                sf = textAlign.SetAlignment(sf);
                 Invalidate();
                 OnPropertyChanged(nameof(TextAlign));
             }
@@ -460,7 +493,8 @@ namespace AntdUI
             {
                 if (autoEllipsis == value) return;
                 autoEllipsis = value;
-                stringFormat.Trimming = value ? StringTrimming.EllipsisCharacter : StringTrimming.None;
+                if (value) sf |= FormatFlags.EllipsisCharacter;
+                else sf &= ~FormatFlags.EllipsisCharacter;
                 OnPropertyChanged(nameof(AutoEllipsis));
             }
         }
@@ -477,7 +511,8 @@ namespace AntdUI
             {
                 if (textMultiLine == value) return;
                 textMultiLine = value;
-                stringFormat.FormatFlags = value ? 0 : StringFormatFlags.NoWrap;
+                if (value) sf &= ~FormatFlags.NoWrap;
+                else sf |= FormatFlags.NoWrap;
                 Invalidate();
                 OnPropertyChanged(nameof(TextMultiLine));
             }
@@ -627,6 +662,12 @@ namespace AntdUI
 
         #endregion
 
+        /// <summary>
+        /// 点击时自动改变选中状态
+        /// </summary>
+        [Description("点击时自动改变选中状态"), Category("行为"), DefaultValue(false)]
+        public bool AutoToggle { get; set; }
+
         bool toggle = false;
         /// <summary>
         /// 选中状态
@@ -649,39 +690,16 @@ namespace AntdUI
 
                         ThreadIconToggle?.Dispose();
                         AnimationIconToggle = true;
-                        var t = Animation.TotalFrames(10, IconToggleAnimation);
-                        if (value)
+                        ThreadIconToggle = new AnimationTask(new AnimationFixedConfig(i =>
                         {
-                            ThreadIconToggle = new ITask((i) =>
-                            {
-                                AnimationIconToggleValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                Invalidate();
-                                return true;
-                            }, 10, t, () =>
-                            {
-                                AnimationIconToggleValue = 1F;
-                                AnimationIconToggle = false;
-                                Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadIconToggle = new ITask((i) =>
-                            {
-                                AnimationIconToggleValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                Invalidate();
-                                return true;
-                            }, 10, t, () =>
-                            {
-                                AnimationIconToggleValue = 0F;
-                                AnimationIconToggle = false;
-                                Invalidate();
-                            });
-                        }
+                            AnimationIconToggleValue = i;
+                            Invalidate();
+                        }, 10, Animation.TotalFrames(10, IconToggleAnimation), value, AnimationType.Ball).SetEnd(() => AnimationIconToggle = false));
                     }
                     else Invalidate();
                 }
                 else Invalidate();
+                OnToggleChanged(value);
                 OnPropertyChanged(nameof(Toggle));
             }
         }
@@ -869,17 +887,14 @@ namespace AntdUI
                 if (loading)
                 {
                     AnimationClickValue = 0;
-                    ThreadLoading = new ITask(this, i =>
+                    ThreadLoading = new AnimationTask(new AnimationLinearConfig(this, i =>
                     {
                         AnimationLoadingWaveValue += 1;
                         if (AnimationLoadingWaveValue > 100) AnimationLoadingWaveValue = 0;
                         AnimationLoadingValue = i;
                         Invalidate();
                         return loading;
-                    }, 10, 360, 6, () =>
-                    {
-                        Invalidate();
-                    });
+                    }, 10, 360, 6).SetEnd(Invalidate));
                 }
                 else Invalidate();
                 OnPropertyChanged(nameof(Loading));
@@ -990,11 +1005,11 @@ namespace AntdUI
 
         #endregion
 
-        ITask? ThreadHover;
-        ITask? ThreadIconHover;
-        ITask? ThreadIconToggle;
-        ITask? ThreadClick;
-        ITask? ThreadLoading;
+        AnimationTask? ThreadHover;
+        AnimationTask? ThreadIconHover;
+        AnimationTask? ThreadIconToggle;
+        AnimationTask? ThreadClick;
+        AnimationTask? ThreadLoading;
 
         #region 点击动画
 
@@ -1008,18 +1023,18 @@ namespace AntdUI
                 ThreadClick?.Dispose();
                 AnimationClickValue = 0;
                 AnimationClick = true;
-                ThreadClick = new ITask(this, () =>
+                ThreadClick = new AnimationTask(new AnimationLoopConfig(this, () =>
                 {
                     if (AnimationClickValue > 0.6) AnimationClickValue = AnimationClickValue.Calculate(0.04F);
                     else AnimationClickValue += AnimationClickValue = AnimationClickValue.Calculate(0.1F);
                     if (AnimationClickValue > 1) { AnimationClickValue = 0F; return false; }
                     Invalidate();
                     return true;
-                }, 50, () =>
+                }, 50).SetEnd(() =>
                 {
                     AnimationClick = false;
                     Invalidate();
-                });
+                }));
             }
         }
 
@@ -1065,70 +1080,23 @@ namespace AntdUI
                         {
                             ThreadIconHover?.Dispose();
                             AnimationIconHover = true;
-                            var t = Animation.TotalFrames(10, IconHoverAnimation);
-                            if (value)
+                            ThreadIconHover = new AnimationTask(new AnimationFixedConfig(i =>
                             {
-                                ThreadIconHover = new ITask((i) =>
-                                {
-                                    AnimationIconHoverValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                    Invalidate();
-                                    return true;
-                                }, 10, t, () =>
-                                {
-                                    AnimationIconHoverValue = 1F;
-                                    AnimationIconHover = false;
-                                    Invalidate();
-                                });
-                            }
-                            else
-                            {
-                                ThreadIconHover = new ITask((i) =>
-                                {
-                                    AnimationIconHoverValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                                    Invalidate();
-                                    return true;
-                                }, 10, t, () =>
-                                {
-                                    AnimationIconHoverValue = 0F;
-                                    AnimationIconHover = false;
-                                    Invalidate();
-                                });
-                            }
+                                AnimationIconHoverValue = i;
+                                Invalidate();
+                            }, 10, Animation.TotalFrames(10, IconHoverAnimation), value, AnimationType.Ball).SetEnd(() => AnimationIconHover = false));
                         }
                         if (alpha > 0)
                         {
                             int addvalue = alpha / 12;
                             ThreadHover?.Dispose();
                             AnimationHover = true;
-                            if (value)
+                            ThreadHover = new AnimationTask(new AnimationLinearConfig(this, i =>
                             {
-                                ThreadHover = new ITask(this, () =>
-                                {
-                                    AnimationHoverValue += addvalue;
-                                    if (AnimationHoverValue > alpha) { AnimationHoverValue = alpha; return false; }
-                                    Invalidate();
-                                    return true;
-                                }, 10, () =>
-                                {
-                                    AnimationHover = false;
-                                    Invalidate();
-                                });
-                            }
-                            else
-                            {
-                                ThreadHover = new ITask(this, () =>
-                                {
-                                    if (AnimationHoverValue > alpha) AnimationHoverValue = alpha;
-                                    else AnimationHoverValue -= addvalue;
-                                    if (AnimationHoverValue < 1) { AnimationHoverValue = 0; return false; }
-                                    Invalidate();
-                                    return true;
-                                }, 10, () =>
-                                {
-                                    AnimationHover = false;
-                                    Invalidate();
-                                });
-                            }
+                                AnimationHoverValue = i;
+                                Invalidate();
+                                return true;
+                            }, 10).SetValueColor(AnimationHoverValue, value, addvalue, alpha).SetEnd(() => AnimationHover = false));
                         }
                         else
                         {
@@ -1147,7 +1115,7 @@ namespace AntdUI
         #region 闪烁动画
 
         Color? colorBlink;
-        ITask? ThreadAnimateBlink;
+        AnimationTask? ThreadAnimateBlink;
         /// <summary>
         /// 闪烁动画状态
         /// </summary>
@@ -1165,7 +1133,7 @@ namespace AntdUI
             {
                 AnimationBlinkState = true;
                 int index = 0, len = colors.Length;
-                ThreadAnimateBlink = new ITask(this, () =>
+                ThreadAnimateBlink = new AnimationTask(this, () =>
                 {
                     colorBlink = colors[index];
                     index++;
@@ -1201,13 +1169,13 @@ namespace AntdUI
                 index++;
                 if (index > len - 1) index = 0;
                 var t = Animation.TotalFrames(transition_interval, interval);
-                ThreadAnimateBlink = new ITask(this, () =>
+                ThreadAnimateBlink = new AnimationTask(this, () =>
                 {
                     Color start = tmp, end = colors[index];
                     index++;
                     if (index > len - 1) index = 0;
                     tmp = end;
-                    new ITask(i =>
+                    new AnimationTask(i =>
                     {
                         var prog = Animation.Animate(i, t, 1F, animationType);
                         colorBlink = start.BlendColors(Helper.ToColorN(prog, end));
@@ -1600,7 +1568,7 @@ namespace AntdUI
         }
         void PaintTextLoading(Canvas g, string? text, Color color, Rectangle rect_read, bool enabled, float radius)
         {
-            if (enabled && hasFocus && WaveSize > 0)
+            if (enabled && (hasFocus && Config.FocusBorderEnabled) && WaveSize > 0)
             {
                 float wave = (WaveSize * Config.Dpi / 2), wave2 = wave * 2, r = radius + wave;
                 var rect_focus = new RectangleF(rect_read.X - wave, rect_read.Y - wave, rect_read.Width + wave2, rect_read.Height + wave2);
@@ -1708,7 +1676,7 @@ namespace AntdUI
                         PaintTextAlign(rect_read, ref rect_text);
                     }
                 }
-                g.DrawText(text, Font, color, rect_text, stringFormat);
+                g.DrawText(text, Font, color, rect_text, sf);
             }
         }
 
@@ -2252,6 +2220,15 @@ namespace AntdUI
 
         #endregion
 
+        #region 事件
+
+        [Description("Toggle 改变时发生"), Category("行为")]
+        public event BoolEventHandler? ToggleChanged;
+
+        protected virtual void OnToggleChanged(bool e) => ToggleChanged?.Invoke(this, new BoolEventArgs(e));
+
+        #endregion
+
         #region 自动大小
 
         /// <summary>
@@ -2510,7 +2487,8 @@ namespace AntdUI
 
         protected override void OnClick(EventArgs e)
         {
-            Form? form = FindForm();
+            if (AutoToggle) Toggle = !toggle;
+            var form = FindForm();
             if (form != null) form.DialogResult = DialogResult;
             base.OnClick(e);
         }

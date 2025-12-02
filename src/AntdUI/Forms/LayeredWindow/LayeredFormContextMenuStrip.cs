@@ -162,8 +162,13 @@ namespace AntdUI
             else _config.Target.SetTopMost(Handle);
             rectsContent = LoadLayout(subs);
             ScrollBar = new ScrollBar(this, TAMode.Auto);
+            ParentRect = parent.TargetRect;
+            IsLeftAligned = parent.IsLeftAligned;
             Init(point);
         }
+
+        bool IsLeftAligned = false;
+        Rectangle? ParentRect;
 
         public override string name => nameof(AntdUI.ContextMenuStrip);
 
@@ -173,8 +178,23 @@ namespace AntdUI
         void Init(Point point)
         {
             var screen = Screen.FromPoint(point).WorkingArea;
-            if (point.X < screen.X) point.X = screen.X;
-            else if (point.X > (screen.X + screen.Width) - TargetRect.Width + shadow) point.X = screen.X + screen.Width - TargetRect.Width + shadow;
+            if (ParentRect.HasValue)
+            {
+                if (IsLeftAligned) point.X = ParentRect.Value.X - TargetRect.Width + (3 * shadow);
+                else
+                {
+                    if (point.X > (screen.X + screen.Width) - TargetRect.Width + shadow)
+                    {
+                        point.X = ParentRect.Value.X - TargetRect.Width + (3 * shadow);
+                        IsLeftAligned = true;
+                    }
+                }
+            }
+            else
+            {
+                if (point.X < screen.X) point.X = screen.X;
+                else if (point.X > (screen.X + screen.Width) - TargetRect.Width + shadow) point.X = screen.X + screen.Width - TargetRect.Width + shadow;
+            }
 
             if (TargetRect.Height > screen.Height)
             {
@@ -303,8 +323,6 @@ namespace AntdUI
             FontSub?.Dispose();
             subForm?.IClose();
             subForm = null;
-            resetEvent?.WaitDispose();
-            resetEvent = null;
             base.Dispose(disposing);
         }
 
@@ -312,7 +330,7 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat sfl = Helper.SF_Ellipsis(lr: StringAlignment.Near), sfr = Helper.SF_Ellipsis(lr: StringAlignment.Far);
+        readonly FormatFlags sfl = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.EllipsisCharacter, sfr = FormatFlags.Right | FormatFlags.VerticalCenter | FormatFlags.EllipsisCharacter;
         public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
         {
             using (var brush = new SolidBrush(Colour.BgElevated.Get(nameof(AntdUI.ContextMenuStrip), config.ColorScheme)))
@@ -473,10 +491,8 @@ namespace AntdUI
                     {
                         IClose();
                         CloseSub();
-                        resetEvent = new ManualResetEvent(false);
                         ITask.Run(() =>
                         {
-                            if (resetEvent.Wait(false)) return;
                             if (config.CallSleep > 0) Thread.Sleep(config.CallSleep);
                             config.Target.BeginInvoke(new Action(() => config.Call(item)));
                         });
@@ -591,6 +607,7 @@ namespace AntdUI
         }
         void OpenDown(ContextMenuStripItem item, Rectangle rect, IContextMenuStripItem[] sub)
         {
+            foreach (var it in sub) it.ParentItem = item;
             var trect = TargetRect;
             subForm = new LayeredFormContextMenuStrip(config, this, new Point(trect.X + trect.Width - rect.X - shadow2, trect.Y + rect.Y + shadow / 2 - ScrollBar.Value), sub);
             subForm.Show(this);
@@ -598,8 +615,6 @@ namespace AntdUI
 
         protected override void OnMouseWheel(MouseButtons button, int clicks, int x, int y, int delta) => ScrollBar.MouseWheel(delta);
         protected override bool OnTouchScrollY(int value) => ScrollBar.MouseWheelYCore(value);
-
-        ManualResetEvent? resetEvent;
 
         LayeredFormContextMenuStrip? subForm;
         ILayeredForm? SubLayeredForm.SubForm() => subForm;

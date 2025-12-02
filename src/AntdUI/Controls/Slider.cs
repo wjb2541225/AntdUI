@@ -134,7 +134,7 @@ namespace AntdUI
                 else if (value > _maxValue) value = _maxValue;
                 if (_value == value) return;
                 _value = value;
-                ValueChanged?.Invoke(this, new IntEventArgs(_value));
+                OnValueChanged(_value);
                 Invalidate();
                 OnPropertyChanged(nameof(Value));
             }
@@ -194,6 +194,8 @@ namespace AntdUI
         /// </summary>
         [Description("Value 属性值更改时发生"), Category("行为")]
         public event IntEventHandler? ValueChanged;
+
+        protected virtual void OnValueChanged(int e) => ValueChanged?.Invoke(this, new IntEventArgs(e));
 
         /// <summary>
         /// 是否显示数值
@@ -354,7 +356,6 @@ namespace AntdUI
             }
         }
 
-        readonly StringFormat s_f = Helper.SF_NoWrap();
         internal RectangleF rectEllipse;
         internal void PaintEllipse(Canvas g, Rectangle rect, RectangleF rect_read, float prog, SolidBrush brush, Color color, Color color_hover, Color color_active, int LineSize)
         {
@@ -424,6 +425,7 @@ namespace AntdUI
                         float uks = ProgValue(it.Value);
                         if (!string.IsNullOrWhiteSpace(it.Text))
                         {
+                            var s_f = FormatFlags.Center | FormatFlags.NoWrap;
                             if (it.Fore.HasValue)
                             {
                                 using (var fore2 = new SolidBrush(it.Fore.Value))
@@ -651,34 +653,12 @@ namespace AntdUI
                 {
                     ThreadHover?.Dispose();
                     AnimationHover = true;
-                    if (value)
+                    ThreadHover = new AnimationTask(new AnimationLinearFConfig(this, i =>
                     {
-                        ThreadHover = new ITask(this, () =>
-                        {
-                            AnimationHoverValue = AnimationHoverValue.Calculate(0.1F);
-                            if (AnimationHoverValue > 1) { AnimationHoverValue = 1; return false; }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
-                        {
-                            AnimationHover = false;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadHover = new ITask(this, () =>
-                        {
-                            AnimationHoverValue = AnimationHoverValue.Calculate(-0.1F);
-                            if (AnimationHoverValue <= 0) { AnimationHoverValue = 0F; return false; }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
-                        {
-                            AnimationHover = false;
-                            Invalidate();
-                        });
-                    }
+                        AnimationHoverValue = i;
+                        Invalidate();
+                        return true;
+                    }, 10).SetValue(AnimationHoverValue, value, 0.1F).SetEnd(() => AnimationHover = false));
                 }
                 Invalidate();
             }
@@ -703,34 +683,12 @@ namespace AntdUI
                     ThreadHover = null;
                     ThreadDotHover?.Dispose();
                     AnimationDotHover = true;
-                    if (value)
+                    ThreadDotHover = new AnimationTask(new AnimationLinearFConfig(this, i =>
                     {
-                        ThreadDotHover = new ITask(this, () =>
-                        {
-                            AnimationDotHoverValue = AnimationDotHoverValue.Calculate(0.1F);
-                            if (AnimationDotHoverValue > 1) { AnimationDotHoverValue = 1; return false; }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
-                        {
-                            AnimationDotHover = false;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadDotHover = new ITask(this, () =>
-                        {
-                            AnimationDotHoverValue = AnimationDotHoverValue.Calculate(-0.1F);
-                            if (AnimationDotHoverValue <= 0) { AnimationDotHoverValue = 0F; return false; }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
-                        {
-                            AnimationDotHover = false;
-                            Invalidate();
-                        });
-                    }
+                        AnimationDotHoverValue = i;
+                        Invalidate();
+                        return true;
+                    }, 10).SetValue(AnimationDotHoverValue, value, 0.1F).SetEnd(() => AnimationDotHover = false));
                 }
                 else Invalidate();
             }
@@ -744,8 +702,8 @@ namespace AntdUI
             ThreadDotHover?.Dispose();
             base.Dispose(disposing);
         }
-        internal ITask? ThreadHover;
-        ITask? ThreadDotHover;
+        internal AnimationTask? ThreadHover;
+        AnimationTask? ThreadDotHover;
 
         #endregion
 

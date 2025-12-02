@@ -84,7 +84,7 @@ namespace AntdUI
                 FridayButton = "Fri";
                 SaturdayButton = "Sat";
                 SundayButton = "Sun";
-                s_f_L = Helper.SF(lr: StringAlignment.Near); s_f_R = Helper.SF(lr: StringAlignment.Far);
+                s_f_L = FormatFlags.Left | FormatFlags.VerticalCenter; s_f_R = FormatFlags.Right | FormatFlags.VerticalCenter;
             }
             else
             {
@@ -97,7 +97,7 @@ namespace AntdUI
                 FridayButton = "五";
                 SaturdayButton = "六";
                 SundayButton = "日";
-                s_f_L = Helper.SF(lr: StringAlignment.Far); s_f_R = Helper.SF(lr: StringAlignment.Near);
+                s_f_L = FormatFlags.Right | FormatFlags.VerticalCenter; s_f_R = FormatFlags.Left | FormatFlags.VerticalCenter;
             }
 
             #endregion
@@ -114,12 +114,10 @@ namespace AntdUI
 
             LoadLayout();
 
-            var tmpAlign = CLocation(_control, _control.Placement, _control.DropDownArrow, ArrowSize, true);
-            if (_control.DropDownArrow) ArrowAlign = tmpAlign;
+            CLocation(_control, _control.Placement, _control.DropDownArrow, ArrowSize);
             if (OS.Win7OrLower) Select();
         }
 
-        TAlign ArrowAlign = TAlign.None;
         int ArrowSize = 8;
 
         DateTime DateNow = DateTime.Now;
@@ -212,12 +210,12 @@ namespace AntdUI
             using (var brush = new SolidBrush(Colour.BgElevated.Get(name, ColorScheme)))
             {
                 g.Fill(brush, path);
-                if (ArrowAlign != TAlign.None) g.FillPolygon(brush, ArrowAlign.AlignLines(ArrowSize, rect));
+                if (ArrowLine != null) g.FillPolygon(brush, ArrowLine);
             }
         }
 
-        StringFormat s_f = Helper.SF(), s_f_LE = Helper.SF_Ellipsis(lr: StringAlignment.Near);
-        StringFormat s_f_L, s_f_R;
+        readonly FormatFlags s_f = FormatFlags.Center, s_f_LE = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.EllipsisCharacter;
+        FormatFlags s_f_L, s_f_R;
         public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
         {
             using (var pen_arrow = new Pen(Colour.TextTertiary.Get(nameof(DatePicker), ColorScheme), 1.6F * Config.Dpi))
@@ -1133,16 +1131,6 @@ namespace AntdUI
         }
 
         #endregion
-
-        protected override void Dispose(bool disposing)
-        {
-            s_f.Dispose();
-            s_f_LE.Dispose();
-            s_f_L.Dispose();
-            s_f_R.Dispose();
-
-            base.Dispose(disposing);
-        }
     }
 
     internal class CalendarHelper

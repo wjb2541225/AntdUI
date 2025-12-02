@@ -200,10 +200,10 @@ namespace AntdUI
             }
         }
 
+        internal Color? borderColor;
         /// <summary>
         /// 边框颜色
         /// </summary>
-        internal Color? borderColor;
         [Description("边框颜色"), Category("边框"), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BorderColor
@@ -608,7 +608,9 @@ namespace AntdUI
         public override string Text
         {
             get => this.GetLangIN(LocalizationText, _text);
+#pragma warning disable CS8765
             set => SetText(value);
+#pragma warning restore CS8765
         }
 
         /// <summary>
@@ -764,13 +766,13 @@ namespace AntdUI
                 multiline = value;
                 if (multiline)
                 {
-                    sf_placeholder.FormatFlags &= ~StringFormatFlags.NoWrap;
-                    sf_placeholder.LineAlignment = StringAlignment.Near;
+                    sf_placeholder &= ~FormatFlags.VerticalCenter & ~FormatFlags.NoWrap;
+                    sf_placeholder |= FormatFlags.Top;
                 }
                 else
                 {
-                    sf_placeholder.FormatFlags |= StringFormatFlags.NoWrap;
-                    sf_placeholder.LineAlignment = StringAlignment.Center;
+                    sf_placeholder &= ~FormatFlags.Top;
+                    sf_placeholder |= FormatFlags.VerticalCenter | FormatFlags.NoWrap;
                 }
                 CalculateRect();
                 Invalidate();
@@ -805,7 +807,7 @@ namespace AntdUI
             {
                 if (textalign == value) return;
                 textalign = value;
-                textalign.SetAlignment(ref sf_placeholder);
+                sf_placeholder = textalign.SetAlignment(sf_placeholder);
                 CalculateRect();
                 Invalidate();
                 OnPropertyChanged(nameof(TextAlign));
@@ -882,7 +884,7 @@ namespace AntdUI
         /// 形态
         /// </summary>
         [Description("形态"), Category("外观"), DefaultValue(TVariant.Outlined)]
-        public TVariant Variant { get; set; }
+        public TVariant Variant { get; set; } = TVariant.Outlined;
 
         #region 密码框
 
@@ -1173,16 +1175,25 @@ namespace AntdUI
         }
 
         /// <summary>
+        /// 选择最后文本
+        /// </summary>
+        public void SelectLast()
+        {
+            if (cache_font == null) return;
+            SelectionStart = cache_font.Length;
+            SelectionLength = 0;
+            SetCaretPostion(cache_font.Length + 1);
+        }
+
+        /// <summary>
         /// 选择所有文本
         /// </summary>
         public void SelectAll()
         {
-            if (cache_font != null)
-            {
-                SelectionStart = 0;
-                SelectionLength = cache_font.Length;
-                SetCaretPostion(cache_font.Length + 1);
-            }
+            if (cache_font == null) return;
+            SelectionStart = 0;
+            SelectionLength = cache_font.Length;
+            SetCaretPostion(cache_font.Length + 1);
         }
 
         /// <summary>
@@ -1662,7 +1673,7 @@ namespace AntdUI
             Input control;
             public ICaret(Input input) { control = input; }
 
-            public Rectangle Rect = new Rectangle(-1, -1000, (int)Config.Dpi, 0);
+            public Rectangle Rect = new Rectangle(-1, -1000, Config.Dpi < 1 ? 1 : (int)Config.Dpi, 0);
 
             public Rectangle SetXY(CacheCaret[] cache_font, int i)
             {
@@ -1719,7 +1730,7 @@ namespace AntdUI
                                 show = false;
                                 return;
                             }
-                            CaretPrint = new ITask(control, () =>
+                            CaretPrint = new AnimationTask(control, () =>
                             {
                                 Flag = !flag;
                                 return show;
@@ -1744,7 +1755,7 @@ namespace AntdUI
                 }
             }
 
-            ITask? CaretPrint;
+            AnimationTask? CaretPrint;
 
             public void Dispose() => CaretPrint?.Dispose();
         }
@@ -1754,7 +1765,7 @@ namespace AntdUI
         #region 闪烁动画
 
         Color? colorBlink;
-        ITask? ThreadAnimateBlink;
+        AnimationTask? ThreadAnimateBlink;
         /// <summary>
         /// 闪烁动画状态
         /// </summary>
@@ -1772,7 +1783,7 @@ namespace AntdUI
             {
                 AnimationBlinkState = true;
                 int index = 0, len = colors.Length;
-                ThreadAnimateBlink = new ITask(this, () =>
+                ThreadAnimateBlink = new AnimationTask(this, () =>
                 {
                     colorBlink = colors[index];
                     index++;
@@ -1808,13 +1819,13 @@ namespace AntdUI
                 index++;
                 if (index > len - 1) index = 0;
                 var t = Animation.TotalFrames(transition_interval, interval);
-                ThreadAnimateBlink = new ITask(this, () =>
+                ThreadAnimateBlink = new AnimationTask(this, () =>
                 {
                     Color start = tmp, end = colors[index];
                     index++;
                     if (index > len - 1) index = 0;
                     tmp = end;
-                    new ITask(i =>
+                    new AnimationTask(i =>
                     {
                         var prog = Animation.Animate(i, t, 1F, animationType);
                         colorBlink = start.BlendColors(Helper.ToColorN(prog, end));
@@ -1846,7 +1857,7 @@ namespace AntdUI
             ThreadAnimateBlink?.Dispose();
             base.Dispose(disposing);
         }
-        ITask? ThreadHover;
-        ITask? ThreadFocus;
+        AnimationTask? ThreadHover;
+        AnimationTask? ThreadFocus;
     }
 }

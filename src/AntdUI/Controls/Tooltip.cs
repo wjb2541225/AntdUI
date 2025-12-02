@@ -45,7 +45,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -107,7 +109,7 @@ namespace AntdUI
         #region 渲染
 
         int arrowSize = 0;
-        readonly StringFormat s_c = Helper.SF_NoWrap(), s_l = Helper.SF(lr: StringAlignment.Near);
+        readonly FormatFlags s_c = FormatFlags.Center | FormatFlags.NoWrap, s_l = FormatFlags.Left | FormatFlags.VerticalCenter;
         protected override void OnDraw(DrawEventArgs e)
         {
             var g = e.Canvas;
@@ -219,6 +221,51 @@ namespace AntdUI
             /// 前景色
             /// </summary>
             public Color? Fore { get; set; }
+
+            #region 设置
+
+            public Config SetOffset(Rectangle? value)
+            {
+                Offset = value;
+                return this;
+            }
+            public Config SetFont(Font? value)
+            {
+                Font = value;
+                return this;
+            }
+            public Config SetRadius(int value = 0)
+            {
+                Radius = value;
+                return this;
+            }
+            public Config SetArrow(int? value)
+            {
+                ArrowSize = value;
+                return this;
+            }
+            public Config SetArrow(TAlign value)
+            {
+                ArrowAlign = value;
+                return this;
+            }
+            public Config SetCustomWidth(int? value)
+            {
+                CustomWidth = value;
+                return this;
+            }
+            public Config SetBack(Color? value)
+            {
+                Back = value;
+                return this;
+            }
+            public Config SetFore(Color? value)
+            {
+                Fore = value;
+                return this;
+            }
+
+            #endregion
         }
 
         #endregion
@@ -251,14 +298,14 @@ namespace AntdUI
             if (component is Tooltip.Config config && config.Offset.HasValue)
             {
                 var align = ArrowAlign;
-                new CalculateCoordinate(control, TargetRect, arrowSize, gap, gap * 2, config.Offset.Value).SetScreen(screen).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
+                new CalculateCoordinate(control, TargetRect, Radius, arrowSize, gap, gap * 2, config.Offset.Value).SetScreen(screen).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
                 ArrowAlign = align;
                 SetLocation(x, y);
             }
             else
             {
                 var align = ArrowAlign;
-                new CalculateCoordinate(control, TargetRect, arrowSize, gap, gap * 2).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
+                new CalculateCoordinate(control, TargetRect, Radius, arrowSize, gap, gap * 2).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
                 ArrowAlign = align;
                 SetLocation(x, y);
             }
@@ -282,7 +329,7 @@ namespace AntdUI
             int gap = 0;
             Helper.GDI(g => SetSize(this.RenderMeasure(g, maxWidth, out multiline, out gap, out arrowSize)));
             var align = ArrowAlign;
-            new CalculateCoordinate(control, TargetRect, arrowSize, gap, gap * 2, rect).SetScreen(screen).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
+            new CalculateCoordinate(control, TargetRect, Radius, arrowSize, gap, gap * 2, rect).SetScreen(screen).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
             ArrowAlign = align;
             SetLocation(x, y);
         }
@@ -301,7 +348,7 @@ namespace AntdUI
             int gap = 0;
             Helper.GDI(g => SetSize(this.RenderMeasure(g, maxWidth, out multiline, out gap, out arrowSize)));
             var align = ArrowAlign;
-            new CalculateCoordinate(ocontrol, TargetRect, arrowSize, gap, gap * 2, rect).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
+            new CalculateCoordinate(ocontrol, TargetRect, Radius, arrowSize, gap, gap * 2, rect).Auto(ref align, gap + (int)(Radius * Config.Dpi), out int x, out int y, out arrowX);
             ArrowAlign = align;
             SetLocation(x, y);
             if (Print() == RenderResult.OK) return false;
@@ -350,7 +397,7 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat s_c = Helper.SF_NoWrap(), s_l = Helper.SF(lr: StringAlignment.Near);
+        readonly FormatFlags s_c = FormatFlags.Center | FormatFlags.NoWrap, s_l = FormatFlags.Left | FormatFlags.VerticalCenter;
         public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
@@ -530,7 +577,7 @@ namespace AntdUI
             }
         }
 
-        public static void Render(this ITooltip core, Canvas g, Rectangle rect, bool multiline, int arrowSize, int arrowX, StringFormat s_c, StringFormat s_l)
+        public static void Render(this ITooltip core, Canvas g, Rectangle rect, bool multiline, int arrowSize, int arrowX, FormatFlags s_c, FormatFlags s_l)
         {
             int gap = (int)(3 * Config.Dpi), paddingy = (int)(6 * Config.Dpi), paddingx = (int)(8 * Config.Dpi), gap2 = gap * 2, paddingy2 = paddingy * 2, paddingx2 = paddingx * 2;
             int radius = (int)(core.Radius * Config.Dpi);

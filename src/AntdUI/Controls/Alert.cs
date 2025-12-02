@@ -83,7 +83,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -115,8 +117,8 @@ namespace AntdUI
             {
                 if (textAlign == value) return;
                 textAlign = value;
-                textAlign.SetAlignment(ref sf);
-                sc.LineAlignment = sf.LineAlignment;
+                sf = textAlign.SetAlignment(sf);
+                sc = Helper.SetVerticalAlignment(sf, sc);
                 Invalidate();
                 OnPropertyChanged(nameof(TextAlign));
             }
@@ -315,11 +317,11 @@ namespace AntdUI
 
         #region 动画
 
-        ITask? task;
+        AnimationTask? task;
         void StartTask()
         {
             task?.Dispose();
-            if (loop) task = new ITask(this, TextAnimation, LoopSpeed, EndTask);
+            if (loop) task = new AnimationTask(new AnimationLoopConfig(this, TextAnimation, LoopSpeed).SetEnd(EndTask));
             else Invalidate();
         }
 
@@ -380,6 +382,8 @@ namespace AntdUI
         [Description("Close时发生"), Category("行为")]
         public event RBoolEventHandler? CloseChanged;
 
+        protected virtual bool OnCloseChanged() => CloseChanged == null || CloseChanged(this, EventArgs.Empty);
+
         #endregion
 
         #region 鼠标
@@ -390,9 +394,7 @@ namespace AntdUI
         {
             if (e.Button == MouseButtons.Left && closeIcon && rect_close.Contains(e.X, e.Y))
             {
-                bool isclose = false;
-                if (CloseChanged == null || CloseChanged(this, EventArgs.Empty)) isclose = true;
-                if (isclose) Dispose();
+                if (OnCloseChanged()) Dispose();
                 return;
             }
             base.OnMouseClick(e);
@@ -552,8 +554,8 @@ namespace AntdUI
 
         #region 渲染帮助
 
-        readonly StringFormat sEllipsis = Helper.SF_Ellipsis(tb: StringAlignment.Near, lr: StringAlignment.Near);
-        StringFormat sc = Helper.SF_NoWrap(), sf = Helper.SF_ALL(lr: StringAlignment.Near);
+        readonly FormatFlags sEllipsis = FormatFlags.Left | FormatFlags.Top | FormatFlags.EllipsisCharacter;
+        FormatFlags sc = FormatFlags.Center | FormatFlags.NoWrap, sf = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
 
         /// <summary>
         /// 渲染文字

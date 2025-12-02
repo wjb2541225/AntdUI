@@ -201,13 +201,13 @@ namespace AntdUI
                 if (value.Length == 0 || items == null || items.Count == 0)
                 {
                     ClearSelect();
-                    SelectedValueChanged?.Invoke(this, new ObjectsEventArgs(selectedValue));
+                    OnSelectedValueChanged(selectedValue);
                     return;
                 }
                 CalculateRect();
                 Invalidate();
                 Text = "";
-                SelectedValueChanged?.Invoke(this, new ObjectsEventArgs(selectedValue));
+                OnSelectedValueChanged(selectedValue);
             }
         }
 
@@ -231,7 +231,7 @@ namespace AntdUI
             CalculateRect();
             SetCaretPostion();
             subForm?.SetValues(selecteds);
-            SelectedValueChanged?.Invoke(this, new ObjectsEventArgs(selectedValue));
+            OnSelectedValueChanged(selectedValue);
         }
 
         /// <summary>
@@ -239,6 +239,8 @@ namespace AntdUI
         /// </summary>
         [Description("SelectedValue 属性值更改时发生"), Category("行为")]
         public event ObjectsEventHandler? SelectedValueChanged;
+
+        protected virtual void OnSelectedValueChanged(object[] e) => SelectedValueChanged?.Invoke(this, new ObjectsEventArgs(e));
 
         string? filtertext;
         protected override void OnTextChanged(EventArgs e)
@@ -617,7 +619,7 @@ namespace AntdUI
         ISelectMultiple? subForm;
         public ILayeredForm? SubForm() => subForm;
 
-        ITask? ThreadExpand;
+        AnimationTask? ThreadExpand;
         float ArrowProg = -1F;
         bool expand = false;
         /// <summary>
@@ -636,38 +638,29 @@ namespace AntdUI
                 {
                     ThreadExpand?.Dispose();
                     var t = Animation.TotalFrames(10, 100);
-                    if (value)
+                    ThreadExpand = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadExpand = new ITask((i) =>
-                        {
-                            ArrowProg = Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F;
-                            Invalidate();
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            ArrowProg = 1;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadExpand = new ITask((i) =>
-                        {
-                            ArrowProg = -(Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F);
-                            Invalidate();
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            ArrowProg = -1;
-                            Invalidate();
-                        });
-                    }
+                        ArrowProg = i;
+                        Invalidate();
+                    }, 10, Animation.TotalFrames(10, 100), value, AnimationType.Ball).SetArrow());
                 }
                 else ArrowProg = value ? 1F : -1F;
             }
         }
 
         internal int select_x = 0;
+
+        #endregion
+
+        #region 事件
+
+        /// <summary>
+        /// 下拉展开 属性值更改时发生
+        /// </summary>
+        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        public event BoolEventHandler? ExpandDropChanged;
+
+        protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
 
         #endregion
 
@@ -712,6 +705,7 @@ namespace AntdUI
                     subForm?.IClose();
                     filtertext = "";
                 }
+                OnExpandDropChanged(value);
             }
         }
 

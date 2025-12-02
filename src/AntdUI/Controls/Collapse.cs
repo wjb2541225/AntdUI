@@ -407,7 +407,7 @@ namespace AntdUI
                 foreach (var btn in it.buttons)
                 {
                     btn.PARENT = this;
-                    btn.PARENTITEM = it;
+                    btn.PARENTITEM = btn.ParentItem = it;
                     int height = rectButtons.Height - (btn.SwitchMode ? 12 : gapW);
                     int space = (rectButtons.Height - height) / 2;
                     bx -= space;
@@ -453,7 +453,7 @@ namespace AntdUI
             return Rect.Height + gap;
         }
 
-        readonly StringFormat s_c = Helper.SF(tb: StringAlignment.Near, lr: StringAlignment.Center);
+        readonly FormatFlags s_c = FormatFlags.Top | FormatFlags.HorizontalCenter;
 
         #endregion
 
@@ -484,15 +484,18 @@ namespace AntdUI
         [Description("CollapseItem上的按件单击时发生"), Category("行为")]
         public event CollapseButtonClickEventHandler? ButtonClick;
 
-        internal void OnExpandChanged(CollapseItem value, bool expand) => ExpandChanged?.Invoke(this, new CollapseExpandEventArgs(value, expand, value.RectTitle, value.RectControl));
-        internal void OnExpandingChanged(CollapseItem value, bool expand, Point location) => ExpandingChanged?.Invoke(this, new CollapseExpandingEventArgs(value, expand, value.RectTitle, value.RectControl, location));
-        internal void OnButtonClickChanged(CollapseItem value, CollapseGroupButton button) => (ButtonClick ?? ButtonClickChanged)?.Invoke(this, new CollapseButtonClickEventArgs(button, value));
+        internal void OnExpandChanged2(CollapseItem value, bool expand) => OnExpandChanged(value, expand);
+        protected virtual void OnExpandChanged(CollapseItem value, bool expand) => ExpandChanged?.Invoke(this, new CollapseExpandEventArgs(value, expand, value.RectTitle, value.RectControl));
+
+        protected virtual void OnExpandingChanged(CollapseItem value, bool expand, Point location) => ExpandingChanged?.Invoke(this, new CollapseExpandingEventArgs(value, expand, value.RectTitle, value.RectControl, location));
+
+        protected virtual void OnButtonClick(CollapseItem value, CollapseGroupButton button) => (ButtonClick ?? ButtonClickChanged)?.Invoke(this, new CollapseButtonClickEventArgs(button, value));
 
         #endregion
 
         #region 渲染
 
-        StringFormat s_l = Helper.SF_ALL(lr: StringAlignment.Near);
+        FormatFlags s_l = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
         protected override void OnDraw(DrawEventArgs e)
         {
             if (items == null || items.Count == 0)
@@ -804,7 +807,7 @@ namespace AntdUI
                             {
                                 Color _color = btn.Back ?? Colour.Primary.Get(nameof(Switch), ColorScheme);
                                 PaintClick(g, path, rect_read, rect_read, _color, btn);
-                                if (enabled && btn.hasFocus && btn.WaveSize > 0)
+                                if (enabled && (btn.hasFocus && Config.FocusBorderEnabled) && btn.WaveSize > 0)
                                 {
                                     float wave = (btn.WaveSize * Config.Dpi / 2), wave2 = wave * 2;
                                     using (var path_focus = new RectangleF(rect_read.X - wave, rect_read.Y - wave, rect_read.Width + wave2, rect_read.Height + wave2).RoundPath(0, TShape.Round))
@@ -930,7 +933,7 @@ namespace AntdUI
                                 if (btn.SwitchMode)
                                 {
                                     btn.Checked = !btn.Checked;
-                                    OnButtonClickChanged(item, btn);
+                                    OnButtonClick(item, btn);
                                     Invalidate(btn.rect);
                                     item.MDown = false;
                                     return;
@@ -938,7 +941,7 @@ namespace AntdUI
                                 btn.AnimationClick = false;
                                 if (btn.EditType != EButtonEditTypes.Button) btn.Select = true;
 
-                                OnButtonClickChanged(item, btn);
+                                OnButtonClick(item, btn);
 
                                 item.MDown = false;
                                 return;
@@ -1144,7 +1147,7 @@ namespace AntdUI
 
         #region 展开
 
-        ITask? ThreadExpand;
+        AnimationTask? ThreadExpand;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Category("外观"), Description("展开进度"), DefaultValue(0F)]
@@ -1166,7 +1169,7 @@ namespace AntdUI
             {
                 if (expand == value) return;
                 expand = value;
-                PARENT?.OnExpandChanged(this, expand);
+                PARENT?.OnExpandChanged2(this, expand);
                 if (value) PARENT?.UniqueOne(this);
                 if (PARENT != null && PARENT.IsHandleCreated && Config.HasAnimation(nameof(Collapse)))
                 {
@@ -1177,34 +1180,17 @@ namespace AntdUI
                     if (ThreadExpand?.Tag is float oldv) oldval = oldv;
                     ExpandThread = true;
                     var t = Animation.TotalFrames(10, PARENT.AnimationSpeed < 10 ? 10 : PARENT.AnimationSpeed);
-                    if (value)
+                    ThreadExpand = new AnimationTask(new AnimationFixed2Config((i, val) =>
                     {
-                        ThreadExpand = new ITask(false, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                        {
-                            ExpandProg = val;
-                            PARENT.LoadLayout();
-                        }, () =>
-                        {
-                            if (PARENT.AutoSize) PARENT.canset = true;
-                            ExpandProg = 1F;
-                            ExpandThread = false;
-                            PARENT.LoadLayout();
-                        });
-                    }
-                    else
+                        ExpandProg = val;
+                        PARENT.LoadLayout();
+                    }, 10, t, oldval, value).SetEnd(() =>
                     {
-                        ThreadExpand = new ITask(true, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                        {
-                            ExpandProg = val;
-                            PARENT.LoadLayout();
-                        }, () =>
-                        {
-                            if (PARENT.AutoSize) PARENT.canset = true;
-                            ExpandProg = 1F;
-                            ExpandThread = false;
-                            PARENT.LoadLayout();
-                        });
-                    }
+                        if (PARENT.AutoSize) PARENT.canset = true;
+                        ExpandProg = 1F;
+                        ExpandThread = false;
+                        PARENT.LoadLayout();
+                    }));
                 }
                 else
                 {
@@ -1262,7 +1248,9 @@ namespace AntdUI
         public override string Text
         {
             get => this.GetLangIN(LocalizationText, text);
+#pragma warning disable CS8765, CS8767
             set
+#pragma warning restore CS8765, CS8767
             {
                 if (text == value) return;
                 base.Text = text = value;

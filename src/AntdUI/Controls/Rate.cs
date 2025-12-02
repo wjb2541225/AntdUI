@@ -104,7 +104,7 @@ namespace AntdUI
                     }
                 }
                 Invalidate();
-                ValueChanged?.Invoke(this, new FloatEventArgs(_value));
+                OnValueChanged(_value);
                 OnPropertyChanged(nameof(Value));
             }
         }
@@ -114,6 +114,8 @@ namespace AntdUI
         /// </summary>
         [Description("Value 属性值更改时发生"), Category("行为")]
         public event FloatEventHandler? ValueChanged;
+
+        protected virtual void OnValueChanged(float e) => ValueChanged?.Invoke(this, new FloatEventArgs(e));
 
         /// <summary>
         /// 自定义每项的提示信息
@@ -195,21 +197,18 @@ namespace AntdUI
                     using (var bmp_diy_active = new Bitmap(bmp_size, bmp_size))
                     {
                         Rectangle rect_diy = new Rectangle(0, 0, bmp_size, bmp_size), rect_icon = new Rectangle(0, 0, size, size);
-                        using (var s_f = Helper.SF())
+                        using (var g2 = Graphics.FromImage(bmp_diy).HighLay(true))
                         {
-                            using (var g2 = Graphics.FromImage(bmp_diy).HighLay(true))
+                            using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(Rate), ColorScheme)))
                             {
-                                using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(Rate), ColorScheme)))
-                                {
-                                    g2.String(character, font, brush, rect_diy, s_f);
-                                }
+                                g2.String(character, font, brush, rect_diy);
                             }
-                            using (var g2 = Graphics.FromImage(bmp_diy_active).HighLay(true))
+                        }
+                        using (var g2 = Graphics.FromImage(bmp_diy_active).HighLay(true))
+                        {
+                            using (var brush = new SolidBrush(fill))
                             {
-                                using (var brush = new SolidBrush(fill))
-                                {
-                                    g2.String(character, font, brush, rect_diy, s_f);
-                                }
+                                g2.String(character, font, brush, rect_diy);
                             }
                         }
                         using (var g2 = Graphics.FromImage(icon).High())
@@ -330,7 +329,7 @@ namespace AntdUI
             internal float AnimationActiveValueO = 0;
             internal float AnimationActiveValueS = 0;
             internal bool AnimationActive = false;
-            ITask? ThreadActive;
+            AnimationTask? ThreadActive;
             internal bool Animatio(bool _active, bool _hover, bool _half)
             {
                 if (active == _active && hover == _hover)
@@ -351,7 +350,7 @@ namespace AntdUI
                     {
                         if (active && hover)
                         {
-                            ThreadActive = new ITask((i) =>
+                            ThreadActive = new AnimationTask((i) =>
                             {
                                 AnimationActiveValueS = AnimationActiveValueO = Animation.Animate(i, t, 1F, AnimationType.Ball);
                                 rate.Invalidate();
@@ -368,7 +367,7 @@ namespace AntdUI
                             if (active_old && hover_old)
                             {
                                 //仅缩小
-                                ThreadActive = new ITask((i) =>
+                                ThreadActive = new AnimationTask((i) =>
                                 {
                                     AnimationActiveValueS = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
                                     rate.Invalidate();
@@ -383,7 +382,7 @@ namespace AntdUI
                             }
                             else
                             {
-                                ThreadActive = new ITask((i) =>
+                                ThreadActive = new AnimationTask((i) =>
                                 {
                                     AnimationActiveValueO = Animation.Animate(i, t, 1F, AnimationType.Ball);
                                     rate.Invalidate();
@@ -403,7 +402,7 @@ namespace AntdUI
                         if (active_old && !hover_old)
                         {
                             //仅不透明
-                            ThreadActive = new ITask((i) =>
+                            ThreadActive = new AnimationTask((i) =>
                             {
                                 AnimationActiveValueO = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
                                 rate.Invalidate();
@@ -417,7 +416,7 @@ namespace AntdUI
                         }
                         else
                         {
-                            ThreadActive = new ITask((i) =>
+                            ThreadActive = new AnimationTask((i) =>
                             {
                                 AnimationActiveValueS = AnimationActiveValueO = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
                                 rate.Invalidate();

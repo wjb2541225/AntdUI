@@ -30,44 +30,93 @@ namespace AntdUI
     {
         #region 文本布局
 
-        public static readonly StringFormat m_sf = SF_MEASURE_FONT();
+        #region FormatFlags
+
+        static Dictionary<string, StringFormat> ffs = new Dictionary<string, StringFormat>();
+        /// <summary>
+        /// 文本布局
+        /// </summary>
+        /// <param name="measure">是否测量</param>
+        public static StringFormat TF(FormatFlags flags, bool measure = false)
+        {
+            var key = (int)flags + "_" + measure;
+            if (ffs.TryGetValue(key, out var r)) return r;
+            StringFormat sf = new StringFormat(StringFormat.GenericTypographic);
+            // 处理垂直对齐（LineAlignment）
+            if (flags.HasFlag(FormatFlags.VerticalCenter)) sf.LineAlignment = StringAlignment.Center;
+            else if (flags.HasFlag(FormatFlags.Top)) sf.LineAlignment = StringAlignment.Near;
+            else if (flags.HasFlag(FormatFlags.Bottom)) sf.LineAlignment = StringAlignment.Far;
+
+            // 处理水平对齐（Alignment）
+            if (flags.HasFlag(FormatFlags.HorizontalCenter)) sf.Alignment = StringAlignment.Center;
+            else if (flags.HasFlag(FormatFlags.Left)) sf.Alignment = StringAlignment.Near;
+            else if (flags.HasFlag(FormatFlags.Right)) sf.Alignment = StringAlignment.Far;
+
+            // 处理文本截断方式
+            if (flags.HasFlag(FormatFlags.EllipsisCharacter)) sf.Trimming = StringTrimming.EllipsisCharacter;
+
+            // 处理换行设置
+            if (flags.HasFlag(FormatFlags.NoWrap)) sf.FormatFlags |= StringFormatFlags.NoWrap;
+
+            if (flags.HasFlag(FormatFlags.HotkeyPrefixShow)) sf.HotkeyPrefix |= System.Drawing.Text.HotkeyPrefix.Show;
+
+            if (flags.HasFlag(FormatFlags.DirectionVertical)) sf.FormatFlags |= StringFormatFlags.DirectionVertical;
+
+            if (measure) sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
+            else sf.FormatFlags &= ~StringFormatFlags.MeasureTrailingSpaces;
+
+#if NET40 || NET46 || NET48
+            ffs.Add(key, sf);
+#else
+            ffs.TryAdd(key, sf);
+#endif
+            return sf;
+        }
 
         /// <summary>
         /// 文本布局
         /// </summary>
-        public static StringFormat SF(TAlign align)
+        public static FormatFlags SF(TAlign align)
         {
             switch (align)
             {
                 case TAlign.Left:
-                    return SF(tb: StringAlignment.Center, lr: StringAlignment.Near);
+                    return FormatFlags.Left | FormatFlags.VerticalCenter;
                 case TAlign.TL:
                 case TAlign.LT:
-                    return SF(tb: StringAlignment.Near, lr: StringAlignment.Near);
+                    return FormatFlags.Left | FormatFlags.Top;
                 case TAlign.Top:
-                    return SF(tb: StringAlignment.Near, lr: StringAlignment.Center);
+                    return FormatFlags.HorizontalCenter | FormatFlags.Top;
                 case TAlign.TR:
                 case TAlign.RT:
-                    return SF(tb: StringAlignment.Near, lr: StringAlignment.Far);
+                    return FormatFlags.Right | FormatFlags.Top;
                 case TAlign.Right:
-                    return SF(tb: StringAlignment.Center, lr: StringAlignment.Far);
+                    return FormatFlags.Right | FormatFlags.VerticalCenter;
                 case TAlign.BR:
                 case TAlign.RB:
-                    return SF(tb: StringAlignment.Far, lr: StringAlignment.Far);
+                    return FormatFlags.Right | FormatFlags.Bottom;
                 case TAlign.Bottom:
-                    return SF(tb: StringAlignment.Far, lr: StringAlignment.Center);
+                    return FormatFlags.HorizontalCenter | FormatFlags.Bottom;
                 case TAlign.BL:
                 case TAlign.LB:
-                    return SF(tb: StringAlignment.Far, lr: StringAlignment.Near);
-                default: return SF();
+                    return FormatFlags.Left | FormatFlags.Bottom;
+                default: return FormatFlags.Center;
             }
         }
+
+        #endregion
+
+        #region StringFormat Obsolete
+
+        [Obsolete("use FormatFlags enum")]
+        public static readonly StringFormat m_sf = SF_MEASURE_FONT();
 
         /// <summary>
         /// 文本布局
         /// </summary>
         /// <param name="tb">垂直（上下）</param>
         /// <param name="lr">水平（前后）</param>
+        [Obsolete("use FormatFlags enum")]
         public static StringFormat SF(StringAlignment tb = StringAlignment.Center, StringAlignment lr = StringAlignment.Center)
         {
             var sf = new StringFormat(StringFormat.GenericTypographic) { LineAlignment = tb, Alignment = lr };
@@ -80,6 +129,7 @@ namespace AntdUI
         /// </summary>
         /// <param name="tb">垂直（上下）</param>
         /// <param name="lr">水平（前后）</param>
+        [Obsolete("use FormatFlags enum")]
         public static StringFormat SF_NoWrap(StringAlignment tb = StringAlignment.Center, StringAlignment lr = StringAlignment.Center)
         {
             var sf = new StringFormat(StringFormat.GenericTypographic) { LineAlignment = tb, Alignment = lr };
@@ -92,6 +142,7 @@ namespace AntdUI
         /// </summary>
         /// <param name="tb">垂直（上下）</param>
         /// <param name="lr">水平（前后）</param>
+        [Obsolete("use FormatFlags enum")]
         public static StringFormat SF_Ellipsis(StringAlignment tb = StringAlignment.Center, StringAlignment lr = StringAlignment.Center)
         {
             var sf = new StringFormat(StringFormat.GenericTypographic) { LineAlignment = tb, Alignment = lr, Trimming = StringTrimming.EllipsisCharacter };
@@ -104,6 +155,7 @@ namespace AntdUI
         /// </summary>
         /// <param name="tb">垂直（上下）</param>
         /// <param name="lr">水平（前后）</param>
+        [Obsolete("use FormatFlags enum")]
         public static StringFormat SF_ALL(StringAlignment tb = StringAlignment.Center, StringAlignment lr = StringAlignment.Center)
         {
             var sf = new StringFormat(StringFormat.GenericTypographic) { LineAlignment = tb, Alignment = lr, Trimming = StringTrimming.EllipsisCharacter };
@@ -111,12 +163,17 @@ namespace AntdUI
             return sf;
         }
 
+        [Obsolete("use FormatFlags enum")]
         public static StringFormat SF_MEASURE_FONT()
         {
             var sf = new StringFormat(StringFormat.GenericTypographic) { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             sf.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
             return sf;
         }
+
+        #endregion
+
+        #region TextFormatFlags
 
         /// <summary>
         /// 文本布局
@@ -237,6 +294,8 @@ namespace AntdUI
             else if ((alignment & AnyCenter) != 0) flags |= TextFormatFlags.HorizontalCenter;
             return flags;
         }
+
+        #endregion
 
         #endregion
 
@@ -918,27 +977,24 @@ namespace AntdUI
                     else
                     {
                         var size = g.MeasureString(badegConfig.Badge, font).Size(4, 2);
-                        using (var s_f = SF_NoWrap())
+                        int size_badge = (int)(size.Height * 1.2F);
+                        if (size.Height > size.Width)
                         {
-                            int size_badge = (int)(size.Height * 1.2F);
-                            if (size.Height > size.Width)
+                            var rect_badge = PaintBadge(rect, badegConfig.BadgeAlign, hasx, hasy, size_badge, size_badge);
+                            g.FillEllipse(color, rect_badge);
+                            g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), colorScheme), borsize, rect_badge);
+                            g.String(badegConfig.Badge, font, Colour.ErrorColor.Get(nameof(Badge), colorScheme), rect_badge, FormatFlags.Center | FormatFlags.NoWrap);
+                        }
+                        else
+                        {
+                            int w_badge = size.Width + (size_badge - size.Height);
+                            var rect_badge = PaintBadge(rect, badegConfig.BadgeAlign, hasx, hasy, w_badge, size_badge);
+                            using (var path = rect_badge.RoundPath(rect_badge.Height))
                             {
-                                var rect_badge = PaintBadge(rect, badegConfig.BadgeAlign, hasx, hasy, size_badge, size_badge);
-                                g.FillEllipse(color, rect_badge);
-                                g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), colorScheme), borsize, rect_badge);
-                                g.String(badegConfig.Badge, font, Colour.ErrorColor.Get(nameof(Badge), colorScheme), rect_badge, s_f);
+                                g.Fill(color, path);
+                                g.Draw(Colour.ErrorColor.Get(nameof(Badge), colorScheme), borsize, path);
                             }
-                            else
-                            {
-                                int w_badge = size.Width + (size_badge - size.Height);
-                                var rect_badge = PaintBadge(rect, badegConfig.BadgeAlign, hasx, hasy, w_badge, size_badge);
-                                using (var path = rect_badge.RoundPath(rect_badge.Height))
-                                {
-                                    g.Fill(color, path);
-                                    g.Draw(Colour.ErrorColor.Get(nameof(Badge), colorScheme), borsize, path);
-                                }
-                                g.String(badegConfig.Badge, font, Colour.ErrorColor.Get(nameof(Badge), colorScheme), rect_badge, s_f);
-                            }
+                            g.String(badegConfig.Badge, font, Colour.ErrorColor.Get(nameof(Badge), colorScheme), rect_badge, FormatFlags.Center | FormatFlags.NoWrap);
                         }
                     }
                 }
@@ -962,27 +1018,24 @@ namespace AntdUI
                 else
                 {
                     var size = g.MeasureString(badge.Content, font).Size(4, 2);
-                    using (var s_f = SF_NoWrap())
+                    int size_badge = (int)(size.Height * 1.2F);
+                    if (size.Height > size.Width)
                     {
-                        int size_badge = (int)(size.Height * 1.2F);
-                        if (size.Height > size.Width)
+                        var rect_badge = PaintBadge(rect, badge.Align, hasx, hasy, size_badge, size_badge);
+                        g.FillEllipse(color, rect_badge);
+                        g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), borsize, rect_badge);
+                        g.String(badge.Content, font, Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), rect_badge, FormatFlags.Center | FormatFlags.NoWrap);
+                    }
+                    else
+                    {
+                        int w_badge = size.Width + (size_badge - size.Height);
+                        var rect_badge = PaintBadge(rect, badge.Align, hasx, hasy, w_badge, size_badge);
+                        using (var path = rect_badge.RoundPath(rect_badge.Height))
                         {
-                            var rect_badge = PaintBadge(rect, badge.Align, hasx, hasy, size_badge, size_badge);
-                            g.FillEllipse(color, rect_badge);
-                            g.DrawEllipse(Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), borsize, rect_badge);
-                            g.String(badge.Content, font, Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), rect_badge, s_f);
+                            g.Fill(color, path);
+                            g.Draw(Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), borsize, path);
                         }
-                        else
-                        {
-                            int w_badge = size.Width + (size_badge - size.Height);
-                            var rect_badge = PaintBadge(rect, badge.Align, hasx, hasy, w_badge, size_badge);
-                            using (var path = rect_badge.RoundPath(rect_badge.Height))
-                            {
-                                g.Fill(color, path);
-                                g.Draw(Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), borsize, path);
-                            }
-                            g.String(badge.Content, font, Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), rect_badge, s_f);
-                        }
+                        g.String(badge.Content, font, Colour.ErrorColor.Get(nameof(Badge), control.ColorScheme), rect_badge, FormatFlags.Center | FormatFlags.NoWrap);
                     }
                 }
             }
@@ -1043,12 +1096,10 @@ namespace AntdUI
 
         public static void PaintEmpty(this Canvas g, Rectangle rect, Font font, Color fore, string? text = null, Image? image = null, int offset = 0)
         {
-            using (var sc = SF_NoWrap())
-            {
-                PaintEmpty(g, rect, font, fore, text, image, offset, sc);
-            }
+            PaintEmpty(g, rect, font, fore, text, image, offset, FormatFlags.Center | FormatFlags.NoWrap);
         }
 
+        [Obsolete("use FormatFlags")]
         public static void PaintEmpty(this Canvas g, Rectangle rect, Font font, Color fore, string? text, Image? image, int offset, StringFormat sf)
         {
             using (var brush = new SolidBrush(fore))
@@ -1088,6 +1139,47 @@ namespace AntdUI
                     g.String(emptytext, font, brush, rect_font, sf);
                 }
                 else g.String(emptytext, font, brush, rect, sf);
+            }
+        }
+        public static void PaintEmpty(this Canvas g, Rectangle rect, Font font, Color fore, string? text, Image? image, int offset, FormatFlags format)
+        {
+            using (var brush = new SolidBrush(fore))
+            {
+                if (offset > 0)
+                {
+                    rect.Offset(0, offset);
+                    rect.Height -= offset;
+                }
+                string emptytext = text ?? Localization.Get("NoData", "暂无数据");
+                var bmp = image ?? Config.EmptyImage;
+                if (bmp != null)
+                {
+                    int gap = (int)(8 * Config.Dpi);
+                    var size = g.MeasureString(emptytext, font);
+                    Rectangle rect_img = new Rectangle(rect.X + (rect.Width - bmp.Width) / 2, rect.Y + (rect.Height - bmp.Height) / 2 - size.Height, bmp.Width, bmp.Height), rect_font = new Rectangle(rect.X, rect_img.Bottom + gap, rect.Width, size.Height);
+                    g.Image(bmp, rect_img);
+                    g.String(emptytext, font, brush, rect_font, format);
+                }
+                else if (Config.EmptyImageSvg != null)
+                {
+                    var size = g.MeasureString(emptytext, font);
+                    int gap = (int)(8 * Config.Dpi), icon_size = (int)(size.Height * Config.EmptyImageRatio);
+
+                    Rectangle rect_img = new Rectangle(rect.X + (rect.Width - icon_size) / 2, rect.Y + (rect.Height - icon_size) / 2 - size.Height, icon_size, icon_size),
+                        rect_font = new Rectangle(rect.X, rect_img.Bottom + gap, rect.Width, size.Height);
+
+                    using (var _bmp = SvgExtend.GetImgExtend(Config.IsDark ? Config.EmptyImageSvg[1] : Config.EmptyImageSvg[0], rect_img, fore))
+                    {
+                        if (_bmp == null)
+                        {
+                            g.String(emptytext, font, brush, rect, format);
+                            return;
+                        }
+                        else g.Image(_bmp, rect_img);
+                    }
+                    g.String(emptytext, font, brush, rect_font, format);
+                }
+                else g.String(emptytext, font, brush, rect, format);
             }
         }
 

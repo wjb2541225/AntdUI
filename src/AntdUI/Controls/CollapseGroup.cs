@@ -213,7 +213,7 @@ namespace AntdUI
             foreach (var it in items)
             {
                 it.PARENT = this;
-                it.PARENTITEM = Parent;
+                it.PARENTITEM = it.ParentItem = Parent;
                 var size = g.MeasureString(it.Text, Font, csize, s_c);
                 int xc = size.Height - font_height;
                 if (xc > 0 && tmp < xc) tmp = xc;
@@ -336,7 +336,7 @@ namespace AntdUI
             else g.Fill(brush, sub.rect);
         }
 
-        readonly StringFormat s_c = Helper.SF(tb: StringAlignment.Near), s_l = Helper.SF_ALL(lr: StringAlignment.Near);
+        readonly FormatFlags s_c = FormatFlags.HorizontalCenter | FormatFlags.Top, s_l = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
 
         internal PointF[] PaintArrow(RectangleF rect)
         {
@@ -457,7 +457,7 @@ namespace AntdUI
                                 if (sub.rect.Contains(e.X, e.Y + y))
                                 {
                                     sub.Select = true;
-                                    ItemClick?.Invoke(this, new ItemClickEventArgs(sub, new Rectangle(sub.rect.X, sub.rect.Y - y, sub.rect.Width, sub.rect.Height), e));
+                                    OnItemClick(sub, new Rectangle(sub.rect.X, sub.rect.Y - y, sub.rect.Width, sub.rect.Height), e);
                                 }
                                 MDown = null;
                                 return;
@@ -512,6 +512,8 @@ namespace AntdUI
         /// </summary>
         [Description("点击项事件"), Category("行为")]
         public event ItemClickEventHandler? ItemClick;
+
+        protected virtual void OnItemClick(CollapseGroupSub item, Rectangle rect, MouseEventArgs e) => ItemClick?.Invoke(this, new ItemClickEventArgs(item, rect, e));
 
         #endregion
 
@@ -575,7 +577,7 @@ namespace AntdUI
 
     public interface ICollapseItem
     {
-        string Text { get; set; }
+        string? Text { get; set; }
     }
 
     public class CollapseGroupItem : ICollapseItem
@@ -626,7 +628,7 @@ namespace AntdUI
 
         #region 展开
 
-        ITask? ThreadExpand;
+        AnimationTask? ThreadExpand;
         bool expand = false;
         /// <summary>
         /// 展开
@@ -647,34 +649,16 @@ namespace AntdUI
                         float oldval = -1;
                         if (ThreadExpand?.Tag is float oldv) oldval = oldv;
                         ExpandThread = true;
-                        if (value)
+                        ThreadExpand = new AnimationTask(new AnimationFixed2Config((i, val) =>
                         {
-                            int t = Animation.TotalFrames(10, 200);
-                            ThreadExpand = new ITask(false, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                            {
-                                ExpandProg = val;
-                                Invalidates();
-                            }, () =>
-                            {
-                                ExpandProg = 1F;
-                                ExpandThread = false;
-                                Invalidates();
-                            });
-                        }
-                        else
+                            ExpandProg = val;
+                            Invalidates();
+                        }, 10, Animation.TotalFrames(10, 200), oldval, value).SetEnd(() =>
                         {
-                            var t = Animation.TotalFrames(10, 200);
-                            ThreadExpand = new ITask(true, 10, t, oldval, AnimationType.Ball, (i, val) =>
-                            {
-                                ExpandProg = val;
-                                Invalidates();
-                            }, () =>
-                            {
-                                ExpandProg = 1F;
-                                ExpandThread = false;
-                                Invalidates();
-                            });
-                        }
+                            ExpandProg = 1F;
+                            ExpandThread = false;
+                            Invalidates();
+                        }));
                     }
                     else
                     {
@@ -807,7 +791,7 @@ namespace AntdUI
             base.Add(item);
 
             item.PARENT = PARENT;
-            item.PARENTITEM = PARENTITEM;
+            item.PARENTITEM = item.ParentItem = PARENTITEM;
         }
     }
     /// <summary>
@@ -853,7 +837,7 @@ namespace AntdUI
         public CollapseGroupButton() : base() { }
         public CollapseGroupButton(string text) : base(text) { }
 
-        internal ITask? ThreadHover, ThreadCheck, ThreadClick;
+        internal AnimationTask? ThreadHover, ThreadCheck;
         public CollapseGroupButton(string text, Image? icon) : base(text, icon) { }
         internal bool AnimationClick = false;
         internal float AnimationClickValue = 0;
@@ -866,7 +850,7 @@ namespace AntdUI
             set
             {
                 if (select == value) return;
-                if (value && PARENT is Collapse collapse && PARENTITEM is CollapseItem collapseItem) collapse.IUSelect(collapseItem);
+                if (value && PARENT is Collapse collapse && ParentItem is CollapseItem collapseItem) collapse.IUSelect(collapseItem);
                 select = value;
                 Invalidate();
             }
@@ -989,47 +973,25 @@ namespace AntdUI
             {
                 if (_checked == value) return;
                 _checked = value;
-                if (PARENT == null || PARENTITEM == null) return;
+                if (PARENT == null || ParentItem == null) return;
                 try
                 {
                     ThreadCheck?.Dispose();
                     if (PARENT.IsHandleCreated && Config.HasAnimation(nameof(Switch)))
                     {
                         AnimationCheck = true;
-                        if (value)
+                        ThreadCheck = new AnimationTask(new AnimationLinearFConfig((Collapse)PARENT, i =>
                         {
-                            ThreadCheck = new ITask((Collapse)PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(0.1F);
-                                if (AnimationCheckValue > 1) { AnimationCheckValue = 1F; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationCheck = false;
-                                Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadCheck = new ITask((Collapse)PARENT, () =>
-                            {
-                                AnimationCheckValue = AnimationCheckValue.Calculate(-0.1F);
-                                if (AnimationCheckValue <= 0) { AnimationCheckValue = 0F; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationCheck = false;
-                                Invalidate();
-                            });
-                        }
+                            AnimationCheckValue = i;
+                            Invalidate();
+                            return true;
+                        }, 10).SetValue(AnimationCheckValue, value, 0.1F).SetEnd(() => AnimationCheck = false));
                     }
                     else AnimationCheckValue = value ? 1F : 0F;
                 }
                 finally
                 {
-                    if (PARENTITEM is CollapseItem collapse) CheckedChanged?.Invoke(this, new CollapseSwitchCheckedChangedEventArgs(this, collapse, value));
+                    if (ParentItem is CollapseItem collapse) CheckedChanged?.Invoke(this, new CollapseSwitchCheckedChangedEventArgs(this, collapse, value));
                 }
             }
         }
@@ -1051,34 +1013,12 @@ namespace AntdUI
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
-                        if (value)
+                        ThreadHover = new AnimationTask(new AnimationLinearFConfig((Collapse)PARENT, i =>
                         {
-                            ThreadHover = new ITask((Collapse)PARENT, () =>
-                            {
-                                AnimationHoverValue = AnimationHoverValue.Calculate(0.1F);
-                                if (AnimationHoverValue > 1) { AnimationHoverValue = 1F; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
-                        else
-                        {
-                            ThreadHover = new ITask((Collapse)PARENT, () =>
-                            {
-                                AnimationHoverValue = AnimationHoverValue.Calculate(-0.1F);
-                                if (AnimationHoverValue <= 0) { AnimationHoverValue = 0F; return false; }
-                                Invalidate();
-                                return true;
-                            }, 10, () =>
-                            {
-                                AnimationHover = false;
-                                Invalidate();
-                            });
-                        }
+                            AnimationHoverValue = i;
+                            Invalidate();
+                            return true;
+                        }, 10).SetValue(AnimationHoverValue, value, 0.1F).SetEnd(() => AnimationHover = false));
                     }
                     else AnimationHoverValue = 255;
                     Invalidate();
@@ -1168,7 +1108,7 @@ namespace AntdUI
                         {
                             CollapseCustomInputEditEventArgs args = new CollapseCustomInputEditEventArgs();
                             CustomInputEdit(this, args);
-                            if (args.Edit != null && args.Edit is IControl)
+                            if (args.Edit != null)
                             {
                                 args.Edit.Location = rect.Location;
                                 args.Edit.Size = new Size(Width ?? args.Edit.Width, rect.Size.Height);
@@ -1193,7 +1133,7 @@ namespace AntdUI
         private void edit_TextChanged(object? sender, EventArgs e)
         {
             if (TextChanged == null) return;
-            if (PARENT is Collapse parent && PARENTITEM is CollapseItem item)
+            if (PARENT is Collapse parent && ParentItem is CollapseItem item)
             {
                 if (sender is Input input) TextChanged(this, new CollapseEditChangedEventArgs(parent, item, input.Text));
                 else if (sender is IControl control) TextChanged(this, new CollapseEditChangedEventArgs(parent, item, control.Text));
@@ -1357,35 +1297,11 @@ namespace AntdUI
                 {
                     ThreadHover?.Dispose();
                     AnimationHover = true;
-                    var t = Animation.TotalFrames(20, 200);
-                    if (value)
+                    ThreadHover = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 1;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadHover = new ITask((i) =>
-                        {
-                            AnimationHoverValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate();
-                            return true;
-                        }, 20, t, () =>
-                        {
-                            AnimationHover = false;
-                            AnimationHoverValue = 0;
-                            Invalidate();
-                        });
-                    }
+                        AnimationHoverValue = i;
+                        Invalidate();
+                    }, 20, Animation.TotalFrames(20, 200), value, AnimationType.Ball).SetEnd(() => AnimationHover = false));
                 }
                 else Invalidate();
             }
@@ -1411,8 +1327,11 @@ namespace AntdUI
 
         internal ICollapse? PARENT { get; set; }
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Obsolete("use ParentItem")]
         public ICollapseItem? PARENTITEM { get; set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public ICollapseItem? ParentItem { get; internal set; }
 
         internal virtual void SetRect(Canvas g, Rectangle rect_read, int font_height, int xc, int icon_size)
         {
@@ -1444,7 +1363,7 @@ namespace AntdUI
         internal float AnimationHoverValue = 0;
         internal bool AnimationHover = false;
 
-        ITask? ThreadHover;
+        AnimationTask? ThreadHover;
 
         internal Rectangle txt_rect { get; set; }
         internal Rectangle ico_rect { get; set; }

@@ -130,21 +130,24 @@ namespace AntdUI
         [Description("SelectedValue 属性值更改时发生"), Category("行为")]
         public event ObjectNEventHandler? SelectedValueChanged;
 
+        protected virtual void OnSelectedValueChanged(object? e) => SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(e));
+
         /// <summary>
         /// 点击项时发生
         /// </summary>
         [Description("点击项时发生"), Category("行为")]
         public event ObjectNEventHandler? ItemClick;
 
+        protected virtual void OnItemClick(object? e) => ItemClick?.Invoke(this, new ObjectNEventArgs(e));
+
         internal void DropDownChange(object value)
         {
-            var arge = new ObjectNEventArgs(value);
-            if (SelectedValue == value) ItemClick?.Invoke(this, arge);
+            if (SelectedValue == value) OnItemClick(value);
             else
             {
                 SelectedValue = value;
-                ItemClick?.Invoke(this, arge);
-                SelectedValueChanged?.Invoke(this, arge);
+                OnItemClick(value);
+                OnSelectedValueChanged(value);
             }
             select_x = 0;
             subForm = null;
@@ -159,7 +162,7 @@ namespace AntdUI
         LayeredFormSelectDown? subForm;
         public ILayeredForm? SubForm() => subForm;
 
-        ITask? ThreadExpand;
+        AnimationTask? ThreadExpand;
         bool expand = false;
         bool Expand
         {
@@ -171,33 +174,11 @@ namespace AntdUI
                 if (ShowArrow && Config.HasAnimation(nameof(Dropdown)))
                 {
                     ThreadExpand?.Dispose();
-                    var t = Animation.TotalFrames(10, 100);
-                    if (value)
+                    ThreadExpand = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadExpand = new ITask((i) =>
-                        {
-                            ArrowProg = Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F;
-                            Invalidate();
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            ArrowProg = 1;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadExpand = new ITask((i) =>
-                        {
-                            ArrowProg = -(Animation.Animate(i, t, 2F, AnimationType.Ball) - 1F);
-                            Invalidate();
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            ArrowProg = -1;
-                            Invalidate();
-                        });
-                    }
+                        ArrowProg = i;
+                        Invalidate();
+                    }, 10, Animation.TotalFrames(10, 100), value, AnimationType.Ball).SetArrow());
                 }
                 else ArrowProg = value ? 1F : -1F;
             }

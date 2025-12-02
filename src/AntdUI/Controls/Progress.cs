@@ -141,7 +141,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -343,7 +345,7 @@ namespace AntdUI
                     if (_value > _value_show)
                     {
                         float s = _value_show, v = Math.Abs(_value - s);
-                        ThreadValue = new ITask((i) =>
+                        ThreadValue = new AnimationTask((i) =>
                         {
                             _value_show = s + AntdUI.Animation.Animate(i, t, v, AnimationType.Ball);
                             Invalidate();
@@ -357,7 +359,7 @@ namespace AntdUI
                     else
                     {
                         float s = _value_show, v = Math.Abs(_value_show - _value);
-                        ThreadValue = new ITask((i) =>
+                        ThreadValue = new AnimationTask((i) =>
                         {
                             _value_show = s - AntdUI.Animation.Animate(i, t, v, AnimationType.Ball);
                             Invalidate();
@@ -404,7 +406,7 @@ namespace AntdUI
                 if (showInTaskbar) ShowTaskbar(!loading);
                 if (loading)
                 {
-                    ThreadLoading = new ITask(this, () =>
+                    ThreadLoading = new AnimationTask(new AnimationLoopConfig(this, () =>
                     {
                         AnimationLoadingValue = AnimationLoadingValue.Calculate(0.01F);
                         if (AnimationLoadingValue > 1)
@@ -415,10 +417,7 @@ namespace AntdUI
                         }
                         Invalidate();
                         return loading;
-                    }, 10, () =>
-                    {
-                        Invalidate();
-                    });
+                    }, 10).SetEnd(Invalidate).SetPriority());
                 }
                 else Invalidate();
                 OnPropertyChanged(nameof(Loading));
@@ -500,8 +499,7 @@ namespace AntdUI
             ThreadValue?.Dispose();
             base.Dispose(disposing);
         }
-        ITask? ThreadLoading;
-        ITask? ThreadValue;
+        AnimationTask? ThreadLoading, ThreadValue;
 
         #endregion
 
@@ -639,7 +637,7 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly StringFormat s_c = Helper.SF_NoWrap(), s_r = Helper.SF_NoWrap(lr: StringAlignment.Far), s_l = Helper.SF_NoWrap(lr: StringAlignment.Near);
+        readonly FormatFlags s_c = FormatFlags.Center | FormatFlags.NoWrap;
         protected override void OnDraw(DrawEventArgs e)
         {
             var g = e.Canvas;
@@ -696,7 +694,7 @@ namespace AntdUI
             using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
             {
                 string textShow = ValueFormatChanged?.Invoke(this, new FloatEventArgs(_value_show)) ?? (useSystemText ? Text ?? "" : (_value_show * 100F).ToString("F" + ShowTextDot) + TextUnit);
-                g.String(textShow, Font, brush, new Rectangle(text_rect.X + 8, text_rect.Y, text_rect.Width - 8, text_rect.Height), s_l);
+                g.String(textShow, Font, brush, new Rectangle(text_rect.X + 8, text_rect.Y, text_rect.Width - 8, text_rect.Height), FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrap);
             }
 
             int w = radius == 0 ? (int)Math.Round(icon_rect.Width * .2F) : (int)(radius * Config.Dpi);
@@ -833,7 +831,7 @@ namespace AntdUI
                 using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
                 {
                     string textShow = ValueFormatChanged?.Invoke(this, new FloatEventArgs(_value_show)) ?? (useSystemText ? Text ?? "" : (_value_show * 100F).ToString("F" + ShowTextDot) + TextUnit);
-                    g.String(textShow, Font, brush, new Rectangle(rect.X + has_x2, rect.Y, rect.Width - has_x2, rect.Height), s_l);
+                    g.String(textShow, Font, brush, new Rectangle(rect.X + has_x2, rect.Y, rect.Width - has_x2, rect.Height), FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrap);
                 }
             }
             else
@@ -915,7 +913,7 @@ namespace AntdUI
 
                         using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
                         {
-                            g.String(textShow, Font, brush, rect_rext, s_r);
+                            g.String(textShow, Font, brush, rect_rext, FormatFlags.Right | FormatFlags.VerticalCenter | FormatFlags.NoWrap);
                         }
                     }
                 }

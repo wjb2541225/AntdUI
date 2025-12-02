@@ -114,7 +114,7 @@ namespace AntdUI
             {
                 if (Helper.AreDateTimeArraysEqual(_value, value)) return;
                 _value = value;
-                ValueChanged?.Invoke(this, new DateTimesEventArgs(value));
+                OnValueChanged(value);
                 SetText(value);
                 OnPropertyChanged(nameof(Value));
             }
@@ -295,11 +295,21 @@ namespace AntdUI
 
         public event DateTimesEventHandler? ValueChanged;
 
+        protected virtual void OnValueChanged(DateTime[]? e) => ValueChanged?.Invoke(this, new DateTimesEventArgs(e));
+
         /// <summary>
         /// 预置点击时发生
         /// </summary>
         [Description("预置点击时发生"), Category("行为")]
         public event ObjectNEventHandler? PresetsClickChanged;
+
+        /// <summary>
+        /// 下拉展开 属性值更改时发生
+        /// </summary>
+        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        public event BoolEventHandler? ExpandDropChanged;
+
+        protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
 
         #endregion
 
@@ -355,6 +365,7 @@ namespace AntdUI
                     }
                 }
                 else subForm?.IClose();
+                OnExpandDropChanged(value);
             }
         }
 
@@ -467,10 +478,7 @@ namespace AntdUI
                                 if (DateTime.TryParse(stext, out var date_s))
                                 {
                                     Text = date_s.ToString(Format) + '\t' + date_e.ToString(Format);
-                                    if (subForm is LayeredFormDatePickerRange layered_range)
-                                    {
-                                        layered_range.SetDateE(date_s, date_e);
-                                    }
+                                    if (subForm is LayeredFormDatePickerRange layered_range) layered_range.SetDateE(date_s, date_e);
                                     else if (subForm is LayeredFormDatePickerRangeTime layered_time) layered_time.IClose();
                                 }
                                 else Text = text.Substring(0, index) + '\t' + date_e.ToString(Format);
@@ -572,7 +580,7 @@ namespace AntdUI
 
         bool AnimationBar = false;
         RectangleF AnimationBarValue = RectangleF.Empty;
-        ITask? ThreadBar;
+        AnimationTask? ThreadBar;
 
         string StartEndFocusedTmp = "00";
         void StartEndFocused()
@@ -595,7 +603,7 @@ namespace AntdUI
                     AnimationBar = true;
                     bool left = NewValue.X > AnimationBarValue.X;
                     ThreadBar?.Dispose();
-                    ThreadBar = new ITask(this, () =>
+                    ThreadBar = new AnimationTask(new AnimationLoopConfig(this, () =>
                     {
                         if (AnimationBarValue.Width != NewValue.Width)
                         {
@@ -635,7 +643,7 @@ namespace AntdUI
                         }
                         Invalidate();
                         return true;
-                    }, 10, () =>
+                    }, 10).SetEnd(() =>
                     {
                         if (subForm is LayeredFormDatePickerRange layered)
                         {
@@ -650,7 +658,7 @@ namespace AntdUI
                         AnimationBarValue = NewValue;
                         AnimationBar = false;
                         Invalidate();
-                    });
+                    }));
                     return;
                 }
             }

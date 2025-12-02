@@ -52,7 +52,7 @@ namespace AntdUI
                 else if (value > MaxValue) value = MaxValue;
                 if (_value2 == value) return;
                 _value2 = value;
-                Value2Changed?.Invoke(this, new IntEventArgs(_value2));
+                OnValue2Changed(_value2);
                 Invalidate();
                 OnPropertyChanged(nameof(Value2));
             }
@@ -63,6 +63,8 @@ namespace AntdUI
         /// </summary>
         [Description("Value 属性值更改时发生"), Category("行为")]
         public event IntEventHandler? Value2Changed;
+
+        protected virtual void OnValue2Changed(int e) => Value2Changed?.Invoke(this, new IntEventArgs(e));
 
         #endregion
 
@@ -271,34 +273,12 @@ namespace AntdUI
                     ThreadHover = null;
                     ThreadDot2Hover?.Dispose();
                     AnimationDot2Hover = true;
-                    if (value)
+                    ThreadDot2Hover = new AnimationTask(new AnimationLinearFConfig(this, i =>
                     {
-                        ThreadDot2Hover = new ITask(this, () =>
-                        {
-                            AnimationDot2HoverValue = AnimationDot2HoverValue.Calculate(0.1F);
-                            if (AnimationDot2HoverValue > 1) { AnimationDot2HoverValue = 1; return false; }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
-                        {
-                            AnimationDot2Hover = false;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadDot2Hover = new ITask(this, () =>
-                        {
-                            AnimationDot2HoverValue = AnimationDot2HoverValue.Calculate(-0.1F);
-                            if (AnimationDot2HoverValue <= 0) { AnimationDot2HoverValue = 0F; return false; }
-                            Invalidate();
-                            return true;
-                        }, 10, () =>
-                        {
-                            AnimationDot2Hover = false;
-                            Invalidate();
-                        });
-                    }
+                        AnimationDot2HoverValue = i;
+                        Invalidate();
+                        return true;
+                    }, 10).SetValue(AnimationDot2HoverValue, value, 0.1F).SetEnd(() => AnimationDot2Hover = false));
                 }
                 else Invalidate();
             }
@@ -311,7 +291,7 @@ namespace AntdUI
             ThreadDot2Hover?.Dispose();
             base.Dispose(disposing);
         }
-        ITask? ThreadDot2Hover;
+        AnimationTask? ThreadDot2Hover;
 
         #endregion
 

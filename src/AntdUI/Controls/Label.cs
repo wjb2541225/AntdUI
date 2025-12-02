@@ -82,7 +82,9 @@ namespace AntdUI
         [Description("文本"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -96,8 +98,8 @@ namespace AntdUI
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
-        StringFormat stringCNoWrap = Helper.SF_NoWrap(),
-            stringFormat = Helper.SF(lr: StringAlignment.Near);
+        FormatFlags stringCNoWrap = FormatFlags.Center | FormatFlags.NoWrap,
+            sf = FormatFlags.Left | FormatFlags.VerticalCenter;
         ContentAlignment textAlign = ContentAlignment.MiddleLeft;
         /// <summary>
         /// 文本位置
@@ -110,7 +112,7 @@ namespace AntdUI
             {
                 if (textAlign == value) return;
                 textAlign = value;
-                textAlign.SetAlignment(ref stringFormat);
+                sf = textAlign.SetAlignment(sf);
                 Invalidate();
                 OnPropertyChanged(nameof(TextAlign));
             }
@@ -128,7 +130,8 @@ namespace AntdUI
             {
                 if (autoEllipsis == value) return;
                 autoEllipsis = value;
-                stringFormat.Trimming = value ? StringTrimming.EllipsisCharacter : StringTrimming.None;
+                if (value) sf |= FormatFlags.EllipsisCharacter;
+                else sf &= ~FormatFlags.EllipsisCharacter;
                 Invalidate();
                 OnPropertyChanged(nameof(AutoEllipsis));
             }
@@ -146,7 +149,8 @@ namespace AntdUI
             {
                 if (textMultiLine == value) return;
                 textMultiLine = value;
-                stringFormat.FormatFlags = value ? 0 : StringFormatFlags.NoWrap;
+                if (value) sf &= ~FormatFlags.NoWrap;
+                else sf |= FormatFlags.NoWrap;
                 Invalidate();
                 OnPropertyChanged(nameof(TextMultiLine));
             }
@@ -522,7 +526,6 @@ namespace AntdUI
 
             Color _fore = Colour.DefaultColor.Get(nameof(Label), ColorScheme);
             if (fore.HasValue) _fore = fore.Value;
-            PaintText(g, Text, _fore, rect_read);
             if (shadow > 0)
             {
                 using (var bmp = new Bitmap(Width, Height))
@@ -535,6 +538,7 @@ namespace AntdUI
                     g.Image(bmp, new Rectangle(shadowOffsetX, shadowOffsetY, bmp.Width, bmp.Height), shadowOpacity);
                 }
             }
+            PaintText(g, Text, _fore, rect_read);
             base.OnDraw(e);
         }
 
@@ -575,7 +579,7 @@ namespace AntdUI
                     case TRotate.CounterClockwise_90:
                         if (autoEllipsis)
                         {
-                            bool wrap = stringFormat.FormatFlags.HasFlag(StringFormatFlags.NoWrap);
+                            bool wrap = sf.HasFlag(FormatFlags.NoWrap);
                             if (wrap) ellipsis = rec.Height < font_size.Width;
                             else if (rec.Height < font_size.Width)
                             {
@@ -595,7 +599,7 @@ namespace AntdUI
                     default:
                         if (autoEllipsis)
                         {
-                            bool wrap = stringFormat.FormatFlags.HasFlag(StringFormatFlags.NoWrap);
+                            bool wrap = sf.HasFlag(FormatFlags.NoWrap);
                             if (wrap) ellipsis = rec.Width < font_size.Width;
                             else if (rec.Width < font_size.Width)
                             {
@@ -611,7 +615,7 @@ namespace AntdUI
 
                 using (var brush = colorExtend.BrushEx(rec, color))
                 {
-                    g.DrawText(text, Font, brush, rec, stringFormat);
+                    g.DrawText(text, Font, brush, rec, sf);
                 }
             }
         }

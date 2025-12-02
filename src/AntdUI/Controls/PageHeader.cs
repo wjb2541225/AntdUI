@@ -54,7 +54,9 @@ namespace AntdUI
         [Description("文字"), Category("外观"), DefaultValue(null)]
         public override string? Text
         {
+#pragma warning disable CS8764, CS8766
             get => this.GetLangI(LocalizationText, text);
+#pragma warning restore CS8764, CS8766
             set
             {
                 if (text == value) return;
@@ -311,6 +313,8 @@ namespace AntdUI
             {
                 if (icon == value) return;
                 icon = value;
+                temp_logo?.Dispose();
+                temp_logo = null;
                 Invalidate();
                 OnPropertyChanged(nameof(Icon));
             }
@@ -328,6 +332,8 @@ namespace AntdUI
             {
                 if (iconSvg == value) return;
                 iconSvg = value;
+                temp_logo?.Dispose();
+                temp_logo = null;
                 Invalidate();
                 OnPropertyChanged(nameof(IconSvg));
             }
@@ -370,16 +376,13 @@ namespace AntdUI
                 ThreadLoading?.Dispose();
                 if (loading)
                 {
-                    ThreadLoading = new ITask(this, () =>
+                    ThreadLoading = new AnimationTask(new AnimationLoopConfig(this, () =>
                     {
                         AnimationLoadingValue += 6;
                         if (AnimationLoadingValue > 360) AnimationLoadingValue = 0;
                         Invalidate();
                         return loading;
-                    }, 10, () =>
-                    {
-                        Invalidate();
-                    });
+                    }, 10).SetEnd(Invalidate).SetPriority());
                 }
                 else Invalidate();
                 OnPropertyChanged(nameof(Loading));
@@ -398,7 +401,7 @@ namespace AntdUI
             DisposeBmp();
             base.Dispose(disposing);
         }
-        ITask? ThreadLoading;
+        AnimationTask? ThreadLoading;
 
         #endregion
 
@@ -425,34 +428,11 @@ namespace AntdUI
                     var t = Animation.TotalFrames(10, 200);
                     var _rect = ClientRectangle;
                     var rect = new Rectangle(_rect.X, _rect.Y, _rect.Width - hasr, _rect.Height);
-                    if (value)
+                    ThreadBack = new AnimationTask(new AnimationFixedConfig(i =>
                     {
-                        ThreadBack = new ITask((i) =>
-                        {
-                            AnimationBackValue = Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate(rect);
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            AnimationBackValue = 1F;
-                            AnimationBack = false;
-                            Invalidate();
-                        });
-                    }
-                    else
-                    {
-                        ThreadBack = new ITask((i) =>
-                        {
-                            AnimationBackValue = 1F - Animation.Animate(i, t, 1F, AnimationType.Ball);
-                            Invalidate(rect);
-                            return true;
-                        }, 10, t, () =>
-                        {
-                            AnimationBackValue = 0F;
-                            AnimationBack = false;
-                            Invalidate();
-                        });
-                    }
+                        AnimationBackValue = i;
+                        Invalidate();
+                    }, 10, Animation.TotalFrames(10, 200), value, AnimationType.Ball).SetEnd(() => AnimationBack = false));
                 }
                 else
                 {
@@ -700,8 +680,8 @@ namespace AntdUI
 
         public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, useLeftMargin ? hasl : 0, 0, hasr, 0);
 
-        StringFormat stringLeft = Helper.SF_ALL(lr: StringAlignment.Near);
-        StringFormat stringCenter = Helper.SF_ALL();
+        readonly FormatFlags stringLeft = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis,
+            stringCenter = FormatFlags.Center | FormatFlags.NoWrapEllipsis;
 
         #region 渲染
 
@@ -967,102 +947,22 @@ namespace AntdUI
 
         #region 渲染帮助
 
-        Bitmap? temp_logo, temp_back, temp_back_hover, temp_back_down, temp_full, temp_full_restore, temp_min, temp_max, temp_restore, temp_close, temp_close_hover;
-        void PrintBack(Canvas g, Color color, Rectangle rect_icon)
-        {
-            if (temp_back == null || temp_back.Width != rect_icon.Width)
-            {
-                temp_back?.Dispose();
-                temp_back = SvgExtend.GetImgExtend(BackIcon ?? SvgDb.IcoPageHeaderBack, rect_icon, color);
-            }
-            if (temp_back != null) g.Image(temp_back, rect_icon);
-        }
+        Bitmap? temp_logo;
+        void PrintBack(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(BackIcon ?? SvgDb.IcoPageHeaderBack, rect_icon, color);
         void PrintBackHover(Canvas g, Color color, Rectangle rect_icon)
         {
             PrintBack(g, color, rect_icon);
-            g.GetImgExtend(BackIcon ?? SvgDb.IcoPageHeaderBack, rect_icon, Helper.ToColor(hove_back.Value, Colour.Primary.Get(nameof(PageHeader), ColorScheme)));
+            PrintBack(g, Helper.ToColor(hove_back.Value, Colour.Primary.Get(nameof(PageHeader), ColorScheme)), rect_icon);
         }
-        void PrintBackHover(Canvas g, Rectangle rect_icon)
-        {
-            if (temp_back_hover == null || temp_back_hover.Width != rect_icon.Width)
-            {
-                temp_back_hover?.Dispose();
-                temp_back_hover = SvgExtend.GetImgExtend(BackIcon ?? SvgDb.IcoPageHeaderBack, rect_icon, Colour.Primary.Get(nameof(PageHeader), ColorScheme));
-            }
-            if (temp_back_hover != null) g.Image(temp_back_hover, rect_icon);
-        }
-        void PrintBackDown(Canvas g, Rectangle rect_icon)
-        {
-            if (temp_back_down == null || temp_back_down.Width != rect_icon.Width)
-            {
-                temp_back_down?.Dispose();
-                temp_back_down = SvgExtend.GetImgExtend(BackIcon ?? SvgDb.IcoPageHeaderBack, rect_icon, Colour.PrimaryActive.Get(nameof(PageHeader), ColorScheme));
-            }
-            if (temp_back_down != null) g.Image(temp_back_down, rect_icon);
-        }
-        void PrintClose(Canvas g, Color color, Rectangle rect_icon)
-        {
-            if (temp_close == null || temp_close.Width != rect_icon.Width)
-            {
-                temp_close?.Dispose();
-                temp_close = SvgExtend.GetImgExtend(SvgDb.IcoAppClose, rect_icon, color);
-            }
-            if (temp_close != null) g.Image(temp_close, rect_icon);
-        }
-        void PrintCloseHover(Canvas g, Rectangle rect_icon)
-        {
-            if (temp_close_hover == null || temp_close_hover.Width != rect_icon.Width)
-            {
-                temp_close_hover?.Dispose();
-                temp_close_hover = SvgExtend.GetImgExtend(SvgDb.IcoAppClose, rect_icon, Colour.ErrorColor.Get(nameof(PageHeader), ColorScheme));
-            }
-            if (temp_close_hover != null) g.Image(temp_close_hover, rect_icon);
-        }
-        void PrintFull(Canvas g, Color color, Rectangle rect_icon)
-        {
-            if (temp_full == null || temp_full.Width != rect_icon.Width)
-            {
-                temp_full?.Dispose();
-                temp_full = SvgExtend.GetImgExtend(SvgDb.IcoAppFull, rect_icon, color);
-            }
-            if (temp_full != null) g.Image(temp_full, rect_icon);
-        }
-        void PrintFullRestore(Canvas g, Color color, Rectangle rect_icon)
-        {
-            if (temp_full_restore == null || temp_full_restore.Width != rect_icon.Width)
-            {
-                temp_full_restore?.Dispose();
-                temp_full_restore = SvgExtend.GetImgExtend(SvgDb.IcoAppFullRestore, rect_icon, color);
-            }
-            if (temp_full_restore != null) g.Image(temp_full_restore, rect_icon);
-        }
-        void PrintMax(Canvas g, Color color, Rectangle rect_icon)
-        {
-            if (temp_max == null || temp_max.Width != rect_icon.Width)
-            {
-                temp_max?.Dispose();
-                temp_max = SvgExtend.GetImgExtend(SvgDb.IcoAppMax, rect_icon, color);
-            }
-            if (temp_max != null) g.Image(temp_max, rect_icon);
-        }
-        void PrintRestore(Canvas g, Color color, Rectangle rect_icon)
-        {
-            if (temp_restore == null || temp_restore.Width != rect_icon.Width)
-            {
-                temp_restore?.Dispose();
-                temp_restore = SvgExtend.GetImgExtend(SvgDb.IcoAppRestore, rect_icon, color);
-            }
-            if (temp_restore != null) g.Image(temp_restore, rect_icon);
-        }
-        void PrintMin(Canvas g, Color color, Rectangle rect_icon)
-        {
-            if (temp_min == null || temp_min.Width != rect_icon.Width)
-            {
-                temp_min?.Dispose();
-                temp_min = SvgExtend.GetImgExtend(SvgDb.IcoAppMin, rect_icon, color);
-            }
-            if (temp_min != null) g.Image(temp_min, rect_icon);
-        }
+        void PrintBackHover(Canvas g, Rectangle rect_icon) => PrintBack(g, Colour.Primary.Get(nameof(PageHeader), ColorScheme), rect_icon);
+        void PrintBackDown(Canvas g, Rectangle rect_icon) => PrintBack(g, Colour.PrimaryActive.Get(nameof(PageHeader), ColorScheme), rect_icon);
+        void PrintClose(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppClose, rect_icon, color);
+        void PrintCloseHover(Canvas g, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppClose, rect_icon, Colour.ErrorColor.Get(nameof(PageHeader), ColorScheme));
+        void PrintFull(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppFull, rect_icon, color);
+        void PrintFullRestore(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppFullRestore, rect_icon, color);
+        void PrintMax(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppMax, rect_icon, color);
+        void PrintRestore(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppRestore, rect_icon, color);
+        void PrintMin(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppMin, rect_icon, color);
         bool PrintLogo(Canvas g, string svg, Color color, Rectangle rect_icon)
         {
             if (temp_logo == null || temp_logo.Width != rect_icon.Width)
@@ -1077,25 +977,7 @@ namespace AntdUI
         void DisposeBmp()
         {
             temp_logo?.Dispose();
-            temp_back?.Dispose();
-            temp_back_hover?.Dispose();
-            temp_back_down?.Dispose();
-            temp_full?.Dispose();
-            temp_full_restore?.Dispose();
-            temp_min?.Dispose();
-            temp_max?.Dispose();
-            temp_restore?.Dispose();
-            temp_close?.Dispose();
-            temp_close_hover?.Dispose();
             temp_logo = null;
-            temp_back = temp_back_hover = temp_back_down = null;
-            temp_full = null;
-            temp_full_restore = null;
-            temp_min = null;
-            temp_max = null;
-            temp_restore = null;
-            temp_close = null;
-            temp_close_hover = null;
         }
 
         #endregion
@@ -1184,7 +1066,7 @@ namespace AntdUI
 
         #region 动画
 
-        ITask? ThreadBack;
+        AnimationTask? ThreadBack;
         ITaskOpacity hove_back, hove_close, hove_full, hove_max, hove_min;
         public PageHeader()
         {

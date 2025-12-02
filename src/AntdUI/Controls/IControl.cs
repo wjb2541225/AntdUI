@@ -244,6 +244,8 @@ namespace AntdUI
 
         #region Spin 加载
 
+        #region 同步
+
         /// <summary>
         /// Spin 加载中
         /// </summary>
@@ -266,6 +268,35 @@ namespace AntdUI
         /// <param name="action">需要等待的委托</param>
         /// <param name="end">运行结束后的回调</param>
         public Task Spin(Spin.Config config, Action<Spin.Config> action, Action? end = null) => AntdUI.Spin.open(this, config, action, end);
+
+        #endregion
+
+        #region 异步
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="end">运行结束后的回调</param>
+        public Task Spin(Func<Spin.Config, Task> action, Action? end = null) => Spin(new Spin.Config(), action, end);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="text">加载文本</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="end">运行结束后的回调</param>
+        public Task Spin(string text, Func<Spin.Config, Task> action, Action? end = null) => Spin(new Spin.Config { Text = text }, action, end);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="config">自定义配置</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="end">运行结束后的回调</param>
+        public Task Spin(Spin.Config config, Func<Spin.Config, Task> action, Action? end = null) => AntdUI.Spin.open(this, config, action, end);
+
+        #endregion
 
         #endregion
 
@@ -438,7 +469,7 @@ namespace AntdUI
             return true;
         }
 
-        ITask? taskTouch;
+        AnimationTask? taskTouch;
         protected virtual bool OnTouchUp()
         {
             taskTouch?.Dispose();
@@ -455,7 +486,7 @@ namespace AntdUI
                         int duration = (int)Math.Ceiling(moveYa * .1F), incremental = moveYa / 2, sleep = 20;
                         if (moveY > 0)
                         {
-                            taskTouch = new ITask(this, () =>
+                            taskTouch = new AnimationTask(new AnimationLoopConfig(this, () =>
                             {
                                 if (moveYa > 0 && OnTouchScrollY(-incremental))
                                 {
@@ -463,11 +494,11 @@ namespace AntdUI
                                     return true;
                                 }
                                 return false;
-                            }, sleep);
+                            }, sleep).SetPriority());
                         }
                         else
                         {
-                            taskTouch = new ITask(this, () =>
+                            taskTouch = new AnimationTask(new AnimationLoopConfig(this, () =>
                             {
                                 if (moveYa > 0 && OnTouchScrollY(incremental))
                                 {
@@ -475,7 +506,7 @@ namespace AntdUI
                                     return true;
                                 }
                                 return false;
-                            }, sleep);
+                            }, sleep).SetPriority());
                         }
                     }
                 }
@@ -531,7 +562,7 @@ namespace AntdUI
 
         #region 鼠标悬停
 
-        ITask? taskHover;
+        AnimationTask? taskHover;
         TimeSpan timeHover;
         Stopwatch hoverStopwatch = new Stopwatch();
         int oldx = -1, oldy = -1;
@@ -550,12 +581,12 @@ namespace AntdUI
                 if (taskHover == null)
                 {
                     OnMouseHover(-1, -1);
-                    taskHover = new ITask(this, () =>
+                    taskHover = new AnimationTask(new AnimationLoopConfig(this, () =>
                     {
                         if (hoverStopwatch.Elapsed < timeHover) return true;
                         BeginInvoke(() => OnMouseHover(oldx, oldy));
                         return false;
-                    }, Config.MouseHoverDelay, () => taskHover = null, Config.MouseHoverDelay);
+                    }, Config.MouseHoverDelay).SetEnd(() => taskHover = null).SetSleep(Config.MouseHoverDelay).SetPriority());
                 }
             }
         }
@@ -700,7 +731,8 @@ namespace AntdUI
         /// </summary>
         [Description("文件拖拽后时发生"), Category("行为")]
         public event DragEventHandler? DragChanged;
-        internal void OnDragChanged(string[] files) => DragChanged?.Invoke(this, new StringsEventArgs(files));
+
+        protected virtual void OnDragChanged(string[] files) => DragChanged?.Invoke(this, new StringsEventArgs(files));
 
         #endregion
 
@@ -715,11 +747,20 @@ namespace AntdUI
 
         #region 渲染
 
+        /// <summary>
+        /// 渲染 时发生
+        /// </summary>
         [Description("渲染 时发生"), Category("行为")]
         public event DrawEventHandler? Draw;
+
+        /// <summary>
+        /// 渲染背景 时发生
+        /// </summary>
         [Description("渲染背景 时发生"), Category("行为")]
         public event DrawEventHandler? DrawBg;
+
         protected virtual void OnDrawBg(DrawEventArgs e) => DrawBg?.Invoke(this, e);
+
         protected virtual void OnDraw(DrawEventArgs e) => Draw?.Invoke(this, e);
 
         protected override void OnPaint(PaintEventArgs e)
