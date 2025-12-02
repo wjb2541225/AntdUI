@@ -32,7 +32,7 @@ namespace Demo.Controls
             inputNumberWithValueFormatter.ValueFormatter += (sender, e) =>
             {
                 if (e.Value % 1 == 0) return ((int)e.Value).ToString("N0");
-                else return e.Value.ToString($"N{inputNumberWithValueFormatter.DecimalPlaces}", CultureInfo.CurrentCulture);
+                else return e.Value?.ToString($"N{inputNumberWithValueFormatter.DecimalPlaces}", CultureInfo.CurrentCulture);
             };
         }
 

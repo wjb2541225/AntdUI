@@ -68,7 +68,7 @@ namespace AntdUI
 
     public class InputNumberEventArgs : DecimalEventArgs
     {
-        public InputNumberEventArgs(decimal value) : base(value) { }
+        public InputNumberEventArgs(double? value) : base(value) { }
     }
 
     public delegate string InputNumberRtEventHandler(object sender, InputNumberEventArgs e);

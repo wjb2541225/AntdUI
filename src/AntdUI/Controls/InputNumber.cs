@@ -214,7 +214,7 @@ namespace AntdUI
         [Description("Value 属性值更改时发生"), Category("行为")]
         public event DecimalEventHandler? ValueChanged;
 
-        protected virtual void OnValueChanged(decimal e) => ValueChanged?.Invoke(this, new DecimalEventArgs(e));
+        protected virtual void OnValueChanged(double? e) => ValueChanged?.Invoke(this, new DecimalEventArgs(e));
 
         /// <summary>
         /// 格式化数值以供显示
