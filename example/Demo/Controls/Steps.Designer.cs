@@ -71,16 +71,19 @@ namespace Demo.Controls
             AntdUI.StepsItem stepsItem23 = new AntdUI.StepsItem();
             AntdUI.StepsItem stepsItem24 = new AntdUI.StepsItem();
             AntdUI.StepsItem stepsItem25 = new AntdUI.StepsItem();
+            AntdUI.StepsItem stepsItem26 = new AntdUI.StepsItem();
             header1 = new AntdUI.PageHeader();
             panel1 = new System.Windows.Forms.Panel();
-            switch1 = new AntdUI.Switch();
+            panel2 = new System.Windows.Forms.Panel();
             steps6 = new AntdUI.Steps();
+            switch1 = new AntdUI.Switch();
             steps5 = new AntdUI.Steps();
             steps4 = new AntdUI.Steps();
             steps3 = new AntdUI.Steps();
             steps2 = new AntdUI.Steps();
             steps1 = new AntdUI.Steps();
             panel1.SuspendLayout();
+            panel2.SuspendLayout();
             SuspendLayout();
             // 
             // header1
@@ -101,8 +104,8 @@ namespace Demo.Controls
             // panel1
             // 
             panel1.AutoScroll = true;
+            panel1.Controls.Add(panel2);
             panel1.Controls.Add(switch1);
-            panel1.Controls.Add(steps6);
             panel1.Controls.Add(steps5);
             panel1.Controls.Add(steps4);
             panel1.Controls.Add(steps3);
@@ -114,23 +117,19 @@ namespace Demo.Controls
             panel1.Size = new Size(1300, 602);
             panel1.TabIndex = 7;
             // 
-            // switch1
+            // panel2
             // 
-            switch1.Checked = true;
-            switch1.CheckedText = "当前里程碑处理中";
-            switch1.LocalizationCheckedText = "Steps.CurrentCompleted";
-            switch1.LocalizationUnCheckedText = "Steps.CurrentProcessing";
-            switch1.Location = new Point(3, 161);
-            switch1.Name = "switch1";
-            switch1.Size = new Size(230, 44);
-            switch1.TabIndex = 35;
-            switch1.UnCheckedText = "当前里程碑已完成";
-            switch1.CheckedChanged += switch1_CheckedChanged;
+            panel2.AutoScroll = true;
+            panel2.Controls.Add(steps6);
+            panel2.Dock = DockStyle.Left;
+            panel2.Location = new Point(766, 185);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(232, 417);
+            panel2.TabIndex = 36;
             // 
             // steps6
             // 
             steps6.Current = 2;
-            steps6.Dock = DockStyle.Left;
             stepsItem1.Description = "你想干嘛";
             stepsItem1.Title = "Step 1";
             stepsItem2.Description = "包裹大概是被偷了";
@@ -146,36 +145,54 @@ namespace Demo.Controls
             steps6.Items.Add(stepsItem3);
             steps6.Items.Add(stepsItem4);
             steps6.Items.Add(stepsItem5);
-            steps6.Location = new Point(766, 185);
+            steps6.Items.Add(stepsItem6);
+            steps6.Location = new Point(0, 0);
+            steps6.MinItemHeight = 100;
+            steps6.MinItemWidth = 0;
             steps6.Name = "steps6";
             steps6.Padding = new Padding(10, 0, 0, 0);
-            steps6.Size = new Size(202, 417);
+            steps6.Size = new Size(200, 600);
             steps6.Status = AntdUI.TStepState.Finish;
             steps6.TabIndex = 32;
             steps6.Text = "steps4";
             steps6.Vertical = true;
             steps6.Click += Steps_Click;
             // 
+            // switch1
+            // 
+            switch1.Checked = true;
+            switch1.CheckedText = "当前里程碑处理中";
+            switch1.LocalizationCheckedText = "Steps.CurrentCompleted";
+            switch1.LocalizationUnCheckedText = "Steps.CurrentProcessing";
+            switch1.Location = new Point(3, 161);
+            switch1.Name = "switch1";
+            switch1.Size = new Size(230, 44);
+            switch1.TabIndex = 35;
+            switch1.UnCheckedText = "当前里程碑已完成";
+            switch1.CheckedChanged += switch1_CheckedChanged;
+            // 
             // steps5
             // 
             steps5.Current = 2;
             steps5.Dock = DockStyle.Left;
-            stepsItem6.Description = "你想干嘛";
-            stepsItem6.Icon = Properties.Resources.img1;
-            stepsItem6.Title = "Step 1";
-            stepsItem7.Description = "包裹大概是被偷了";
-            stepsItem7.Title = "Step 2";
-            stepsItem8.Title = "Step 3";
-            stepsItem9.Description = "哈哈哈";
-            stepsItem9.Title = "Step 4";
-            stepsItem10.SubTitle = "星球大战";
-            stepsItem10.Title = "Step 5";
-            steps5.Items.Add(stepsItem6);
+            stepsItem7.Description = "你想干嘛";
+            stepsItem7.Icon = Properties.Resources.img1;
+            stepsItem7.Title = "Step 1";
+            stepsItem8.Description = "包裹大概是被偷了";
+            stepsItem8.Title = "Step 2";
+            stepsItem9.Title = "Step 3";
+            stepsItem10.Description = "哈哈哈";
+            stepsItem10.Title = "Step 4";
+            stepsItem11.SubTitle = "星球大战";
+            stepsItem11.Title = "Step 5";
             steps5.Items.Add(stepsItem7);
             steps5.Items.Add(stepsItem8);
             steps5.Items.Add(stepsItem9);
             steps5.Items.Add(stepsItem10);
+            steps5.Items.Add(stepsItem11);
             steps5.Location = new Point(544, 185);
+            steps5.MinItemHeight = 0;
+            steps5.MinItemWidth = 0;
             steps5.Name = "steps5";
             steps5.Padding = new Padding(10, 0, 0, 0);
             steps5.Size = new Size(222, 417);
@@ -188,35 +205,37 @@ namespace Demo.Controls
             // 
             steps4.Current = 1;
             steps4.Dock = DockStyle.Left;
-            stepsItem11.Description = "准备发车";
-            stepsItem11.IconSvg = "FieldTimeOutlined";
-            stepsItem11.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 6, 30, 0, 0);
-            stepsItem11.SubTitle = "机场南站";
-            stepsItem11.Title = "发车";
-            stepsItem12.Description = "即将到站";
-            stepsItem12.IconSvg = "AimOutlined";
-            stepsItem12.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 6, 55, 25, 0);
-            stepsItem12.SubTitle = "前海站";
-            stepsItem12.Title = "进站";
-            stepsItem13.Description = "还有一站";
-            stepsItem13.IconSvg = "HeatMapOutlined";
-            stepsItem13.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 7, 15, 10, 0);
-            stepsItem13.SubTitle = "南山科技园";
-            stepsItem13.Title = "下一站";
-            stepsItem14.Description = "还有两站";
-            stepsItem14.IconSvg = "CompassOutlined";
-            stepsItem14.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 7, 40, 10, 0);
-            stepsItem14.SubTitle = "福田CBD";
-            stepsItem14.Title = "终点站";
-            steps4.Items.Add(stepsItem11);
+            stepsItem12.Description = "准备发车";
+            stepsItem12.IconSvg = "FieldTimeOutlined";
+            stepsItem12.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 6, 30, 0, 0);
+            stepsItem12.SubTitle = "机场南站";
+            stepsItem12.Title = "发车";
+            stepsItem13.Description = "即将到站";
+            stepsItem13.IconSvg = "AimOutlined";
+            stepsItem13.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 6, 55, 25, 0);
+            stepsItem13.SubTitle = "前海站";
+            stepsItem13.Title = "进站";
+            stepsItem14.Description = "还有一站";
+            stepsItem14.IconSvg = "HeatMapOutlined";
+            stepsItem14.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 7, 15, 10, 0);
+            stepsItem14.SubTitle = "南山科技园";
+            stepsItem14.Title = "下一站";
+            stepsItem15.Description = "还有两站";
+            stepsItem15.IconSvg = "CompassOutlined";
+            stepsItem15.MilestoneTimePoint = new System.DateTime(2025, 7, 13, 7, 40, 10, 0);
+            stepsItem15.SubTitle = "福田CBD";
+            stepsItem15.Title = "终点站";
             steps4.Items.Add(stepsItem12);
             steps4.Items.Add(stepsItem13);
             steps4.Items.Add(stepsItem14);
+            steps4.Items.Add(stepsItem15);
             steps4.Location = new Point(222, 185);
             steps4.MilestoneMode = true;
             steps4.MilestoneTimeFormat = "HH:mm tt";
             steps4.MilestoneTimelineThickness = 12;
             steps4.MilestoneType = AntdUI.TMilestoneType.Time;
+            steps4.MinItemHeight = 0;
+            steps4.MinItemWidth = 0;
             steps4.Name = "steps4";
             steps4.Padding = new Padding(10, 0, 0, 0);
             steps4.Size = new Size(322, 417);
@@ -230,20 +249,22 @@ namespace Demo.Controls
             // 
             steps3.Current = 1;
             steps3.Dock = DockStyle.Left;
-            stepsItem15.Description = "你想干嘛";
-            stepsItem15.Title = "Step 1";
-            stepsItem16.Description = "包裹大概是被偷了";
-            stepsItem16.Title = "Step 2";
-            stepsItem17.Description = "退退退退退";
-            stepsItem17.SubTitle = "￥60.0";
-            stepsItem17.Title = "Step 3";
-            stepsItem18.Description = "哈哈哈";
-            stepsItem18.Title = "END";
-            steps3.Items.Add(stepsItem15);
+            stepsItem16.Description = "你想干嘛";
+            stepsItem16.Title = "Step 1";
+            stepsItem17.Description = "包裹大概是被偷了";
+            stepsItem17.Title = "Step 2";
+            stepsItem18.Description = "退退退退退";
+            stepsItem18.SubTitle = "￥60.0";
+            stepsItem18.Title = "Step 3";
+            stepsItem19.Description = "哈哈哈";
+            stepsItem19.Title = "END";
             steps3.Items.Add(stepsItem16);
             steps3.Items.Add(stepsItem17);
             steps3.Items.Add(stepsItem18);
+            steps3.Items.Add(stepsItem19);
             steps3.Location = new Point(0, 185);
+            steps3.MinItemHeight = 0;
+            steps3.MinItemWidth = 0;
             steps3.Name = "steps3";
             steps3.Padding = new Padding(10, 0, 0, 0);
             steps3.Size = new Size(222, 417);
@@ -257,27 +278,29 @@ namespace Demo.Controls
             // 
             steps2.Current = 1;
             steps2.Dock = DockStyle.Top;
-            stepsItem19.Description = "正式立项";
-            stepsItem19.IconSvg = "AntDesignOutlined";
-            stepsItem19.MilestoneTimePoint = new System.DateTime(2025, 1, 1, 10, 50, 25, 0);
-            stepsItem19.Title = "出发";
-            stepsItem20.Description = "项目开发完成";
-            stepsItem20.IconSvg = "OpenAIOutlined";
-            stepsItem20.MilestoneTimePoint = new System.DateTime(2025, 5, 15, 16, 51, 35, 0);
-            stepsItem21.Description = "项目正式上线";
-            stepsItem21.IconSvg = "CloudUploadOutlined";
-            stepsItem21.MilestoneTimePoint = new System.DateTime(2025, 7, 15, 10, 51, 35, 0);
-            stepsItem22.Description = "项目完成";
-            stepsItem22.IconSvg = "DockerOutlined";
-            stepsItem22.MilestoneTimePoint = new System.DateTime(2025, 12, 1, 10, 51, 35, 0);
-            stepsItem22.Title = "到达";
-            steps2.Items.Add(stepsItem19);
+            stepsItem20.Description = "正式立项";
+            stepsItem20.IconSvg = "AntDesignOutlined";
+            stepsItem20.MilestoneTimePoint = new System.DateTime(2025, 1, 1, 10, 50, 25, 0);
+            stepsItem20.Title = "出发";
+            stepsItem21.Description = "项目开发完成";
+            stepsItem21.IconSvg = "OpenAIOutlined";
+            stepsItem21.MilestoneTimePoint = new System.DateTime(2025, 5, 15, 16, 51, 35, 0);
+            stepsItem22.Description = "项目正式上线";
+            stepsItem22.IconSvg = "CloudUploadOutlined";
+            stepsItem22.MilestoneTimePoint = new System.DateTime(2025, 7, 15, 10, 51, 35, 0);
+            stepsItem23.Description = "项目完成";
+            stepsItem23.IconSvg = "DockerOutlined";
+            stepsItem23.MilestoneTimePoint = new System.DateTime(2025, 12, 1, 10, 51, 35, 0);
+            stepsItem23.Title = "到达";
             steps2.Items.Add(stepsItem20);
             steps2.Items.Add(stepsItem21);
             steps2.Items.Add(stepsItem22);
+            steps2.Items.Add(stepsItem23);
             steps2.Location = new Point(0, 77);
             steps2.MilestoneMode = true;
             steps2.MilestoneTimeFormat = "yy-MM-dd";
+            steps2.MinItemHeight = 0;
+            steps2.MinItemWidth = 0;
             steps2.Name = "steps2";
             steps2.Padding = new Padding(4, 0, 4, 4);
             steps2.Size = new Size(1300, 108);
@@ -289,17 +312,19 @@ namespace Demo.Controls
             // 
             steps1.Current = 1;
             steps1.Dock = DockStyle.Top;
-            stepsItem23.Description = "This is a description.";
-            stepsItem23.Title = "Finished";
             stepsItem24.Description = "This is a description.";
-            stepsItem24.SubTitle = "Left 00:00:08";
-            stepsItem24.Title = "In Progress";
+            stepsItem24.Title = "Finished";
             stepsItem25.Description = "This is a description.";
-            stepsItem25.Title = "Waiting";
-            steps1.Items.Add(stepsItem23);
+            stepsItem25.SubTitle = "Left 00:00:08";
+            stepsItem25.Title = "In Progress";
+            stepsItem26.Description = "This is a description.";
+            stepsItem26.Title = "Waiting";
             steps1.Items.Add(stepsItem24);
             steps1.Items.Add(stepsItem25);
+            steps1.Items.Add(stepsItem26);
             steps1.Location = new Point(0, 0);
+            steps1.MinItemHeight = 0;
+            steps1.MinItemWidth = 0;
             steps1.Name = "steps1";
             steps1.Size = new Size(1300, 77);
             steps1.TabIndex = 28;
@@ -314,6 +339,7 @@ namespace Demo.Controls
             Name = "Steps";
             Size = new Size(1300, 676);
             panel1.ResumeLayout(false);
+            panel2.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -328,5 +354,6 @@ namespace Demo.Controls
         private AntdUI.Steps steps4;
         private AntdUI.Steps steps3;
         private AntdUI.Switch switch1;
+        private System.Windows.Forms.Panel panel2;
     }
 }

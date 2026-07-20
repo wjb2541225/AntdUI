@@ -214,6 +214,12 @@ namespace AntdUI
         [Description("间距"), Category("外观"), DefaultValue(8)]
         public int Gap { get; set; } = 8;
 
+        [Description("步骤最小高度（纵向）"), Category("外观"), DefaultValue(60)]
+        public int MinItemHeight { get; set; }
+
+        [Description("步骤最小宽度（横向）"), Category("外观"), DefaultValue(60)]
+        public int MinItemWidth { get; set; }
+
         StepsItemCollection? items;
         /// <summary>
         /// 集合
@@ -272,6 +278,7 @@ namespace AntdUI
             }
             return false;
         }
+
         internal void ChangeList(bool print = false)
         {
             if (CanLayout())
@@ -294,6 +301,12 @@ namespace AntdUI
                         {
                             if (milestoneMode) rect.X += (int)(milestoneTimelineThickness * Config.Dpi);
                             int t_height_one = rect.Height / count, iod = 0;
+                            if (t_height_one < MinItemHeight)
+                            {
+                                t_height_one = MinItemHeight;
+                                rect.Height = MinItemHeight * count + Padding.Bottom + Padding.Top;
+                                this.Height = rect.Height;
+                            }
                             foreach (var it in items)
                             {
                                 if (it.Visible)

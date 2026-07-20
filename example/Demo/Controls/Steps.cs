@@ -29,6 +29,14 @@ namespace Demo.Controls
         {
             form = _form;
             InitializeComponent();
+            steps6.SizeChanged += Steps6_SizeChanged;
+        }
+
+        private void Steps6_SizeChanged(object sender, EventArgs e)
+        {
+            var height = steps6.Height;
+            //panel2.Height = height;
+           panel2.Refresh();
         }
 
         private void Steps_Click(object sender, EventArgs e)

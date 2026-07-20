@@ -203,7 +203,8 @@ namespace AntdUI
                 {
                     g.ResetClip();
                     var color = borderColor ?? Colour.BorderColor.Get(nameof(Table), ColorScheme);
-                    if (clipath == null) g.Draw(color, borderWidth * Config.Dpi, rect_divider);
+                    var rectF = new RectangleF((float)rect_divider.X + 0.5f, (float)rect_divider.Y + 0.5f, (float)rect_divider.Width, (float)rect_divider.Height);
+                    if (clipath == null) g.Draw(color, borderWidth * Config.Dpi, rectF);
                     else g.Draw(color, borderWidth * Config.Dpi, clipath);
                 }
 

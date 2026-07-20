@@ -53,9 +53,7 @@ namespace Demo.Controls
             divider1 = new AntdUI.Divider();
             label7 = new Label();
             panel1 = new AntdUI.Panel();
-            label1 = new Label();
             divider3 = new AntdUI.Divider();
-            label3 = new Label();
             panel9 = new AntdUI.Panel();
             label9 = new Label();
             label8 = new Label();
@@ -67,6 +65,8 @@ namespace Demo.Controls
             panel5 = new AntdUI.Panel();
             button3 = new AntdUI.Button();
             button4 = new AntdUI.Button();
+            label3 = new Label();
+            label1 = new Label();
             flowLayoutPanel1.SuspendLayout();
             panel8.SuspendLayout();
             panel1.SuspendLayout();
@@ -157,7 +157,7 @@ namespace Demo.Controls
             // 
             // panel1
             // 
-            panel1.ArrowAlign = AntdUI.TAlign.LT;
+            panel1.ArrowAlign = AntdUI.TAlign.RB;
             panel1.ArrowSize = 10;
             panel1.Controls.Add(label1);
             panel1.Controls.Add(divider3);
@@ -171,19 +171,6 @@ namespace Demo.Controls
             panel1.Size = new Size(269, 221);
             panel1.TabIndex = 18;
             // 
-            // label1
-            // 
-            label1.BackColor = Color.Transparent;
-            label1.Dock = DockStyle.Fill;
-            label1.Font = new Font("Microsoft YaHei UI", 11F);
-            label1.Location = new Point(24, 73);
-            label1.Name = "label1";
-            label1.Padding = new Padding(20, 0, 0, 0);
-            label1.Size = new Size(221, 124);
-            label1.TabIndex = 2;
-            label1.Text = "Card content\r\n\r\nCard content\r\n\r\nCard content";
-            label1.TextAlign = ContentAlignment.MiddleLeft;
-            // 
             // divider3
             // 
             divider3.BackColor = Color.Transparent;
@@ -193,19 +180,6 @@ namespace Demo.Controls
             divider3.Name = "divider3";
             divider3.Size = new Size(221, 1);
             divider3.TabIndex = 1;
-            // 
-            // label3
-            // 
-            label3.BackColor = Color.Transparent;
-            label3.Dock = DockStyle.Top;
-            label3.Font = new Font("Microsoft YaHei UI", 15.75F, FontStyle.Bold);
-            label3.Location = new Point(24, 24);
-            label3.Name = "label3";
-            label3.Padding = new Padding(20, 0, 0, 0);
-            label3.Size = new Size(221, 48);
-            label3.TabIndex = 0;
-            label3.Text = "Card title";
-            label3.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // panel9
             // 
@@ -347,6 +321,32 @@ namespace Demo.Controls
             button4.Text = "OK";
             button4.Type = AntdUI.TTypeMini.Primary;
             // 
+            // label3
+            // 
+            label3.BackColor = Color.Transparent;
+            label3.Dock = DockStyle.Top;
+            label3.Font = new Font("Microsoft YaHei UI", 15.75F, FontStyle.Bold);
+            label3.Location = new Point(24, 24);
+            label3.Name = "label3";
+            label3.Padding = new Padding(20, 0, 0, 0);
+            label3.Size = new Size(221, 48);
+            label3.TabIndex = 0;
+            label3.Text = "Card title";
+            label3.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label1
+            // 
+            label1.BackColor = Color.Transparent;
+            label1.Dock = DockStyle.Fill;
+            label1.Font = new Font("Microsoft YaHei UI", 11F);
+            label1.Location = new Point(24, 73);
+            label1.Name = "label1";
+            label1.Padding = new Padding(20, 0, 0, 0);
+            label1.Size = new Size(221, 124);
+            label1.TabIndex = 2;
+            label1.Text = "Card content\r\n\r\nCard content\r\n\r\nCard content";
+            label1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
             // Panel
             // 
             Controls.Add(flowLayoutPanel1);
@@ -376,9 +376,7 @@ namespace Demo.Controls
         private AntdUI.Divider divider1;
         private Label label7;
         private AntdUI.Panel panel1;
-        private Label label1;
         private AntdUI.Divider divider3;
-        private Label label3;
         private AntdUI.Panel panel4;
         private Label label12;
         private Label label13;
@@ -386,5 +384,7 @@ namespace Demo.Controls
         private AntdUI.Panel panel5;
         private AntdUI.Button button3;
         private AntdUI.Button button4;
+        private Label label1;
+        private Label label3;
     }
 }
