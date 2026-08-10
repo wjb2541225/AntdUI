@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -35,32 +22,30 @@ namespace AntdUI
         {
             owner = _owner;
             TopMost = _owner.TopMost;
+            SetDpi(_owner);
             HasBor = owner.FormFrame(out Radius, out Bor);
             if (owner is Window window)
             {
                 SetSize(window.Size);
                 SetLocation(window.Location);
-                Size = window.Size;
-                Location = window.Location;
             }
             else
             {
                 SetSize(owner.Size);
                 SetLocation(owner.Location);
-                Size = owner.Size;
-                Location = owner.Location;
             }
+            Bounds = TargetRect;
         }
         public LayeredFormMask(Form _owner, Control _control) : base(240)
         {
             owner = _owner;
             control = _control;
+            SetDpi(_owner, _control);
             TopMost = _owner.TopMost;
             var point = _control.PointToScreen(Point.Empty);
             SetSize(_control.Size);
             SetLocation(point);
-            Size = _control.Size;
-            Location = point;
+            Bounds = TargetRect;
             if (_control is IControl icontrol) RenderRegion = () => icontrol.RenderRegion;
         }
 
@@ -82,16 +67,13 @@ namespace AntdUI
                 {
                     SetSize(window.Size);
                     SetLocation(window.Location);
-                    Size = window.Size;
-                    Location = window.Location;
                 }
                 else
                 {
                     SetSize(owner.Size);
                     SetLocation(owner.Location);
-                    Size = owner.Size;
-                    Location = owner.Location;
                 }
+                Bounds = TargetRect;
                 owner.VisibleChanged += Parent_VisibleChanged;
             }
             else
@@ -99,8 +81,7 @@ namespace AntdUI
                 var point = control.PointToScreen(Point.Empty);
                 SetLocation(point);
                 SetSize(control.Size);
-                Size = control.Size;
-                Location = point;
+                Bounds = TargetRect;
                 var tmps = control.FindPARENTs();
                 list = tmps.ToArray();
                 foreach (var control in list)
@@ -150,15 +131,11 @@ namespace AntdUI
                 {
                     SetSize(window.Size);
                     SetLocation(window.Location);
-                    Size = window.Size;
-                    Location = window.Location;
                 }
                 else
                 {
                     SetSize(owner.Size);
                     SetLocation(owner.Location);
-                    Size = owner.Size;
-                    Location = owner.Location;
                 }
             }
             else
@@ -166,9 +143,8 @@ namespace AntdUI
                 var point = control.PointToScreen(Point.Empty);
                 SetLocation(point);
                 SetSize(control.Size);
-                Size = control.Size;
-                Location = point;
             }
+            Bounds = TargetRect;
             temp?.Dispose();
             temp = null;
             Print();
@@ -230,7 +206,7 @@ namespace AntdUI
                 temp = new Bitmap(rect_read.Width, rect_read.Height);
                 if (visible)
                 {
-                    using (var g = Graphics.FromImage(temp).High())
+                    using (var g = Graphics.FromImage(temp).High(Dpi))
                     {
                         using (var brush = new SolidBrush(Color.FromArgb(115, 0, 0, 0)))
                         {

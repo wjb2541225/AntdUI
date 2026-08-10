@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -41,61 +28,61 @@ namespace AntdUI
         /// <summary>
         /// 列表自动宽度
         /// </summary>
-        [Description("列表自动宽度"), Category("行为"), DefaultValue(true)]
+        [Description("列表自动宽度"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool ListAutoWidth { get; set; } = true;
 
         /// <summary>
         /// 触发下拉的行为
         /// </summary>
-        [Description("触发下拉的行为"), Category("行为"), DefaultValue(Trigger.Click)]
+        [Description("触发下拉的行为"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(Trigger.Click)]
         public Trigger Trigger { get; set; } = Trigger.Click;
 
         /// <summary>
         /// 菜单弹出位置
         /// </summary>
-        [Description("菜单弹出位置"), Category("行为"), DefaultValue(TAlignFrom.BL)]
+        [Description("菜单弹出位置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TAlignFrom.BL)]
         public TAlignFrom Placement { get; set; } = TAlignFrom.BL;
 
         /// <summary>
         /// 列表最多显示条数
         /// </summary>
-        [Description("列表最多显示条数"), Category("行为"), DefaultValue(4)]
+        [Description("列表最多显示条数"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(4)]
         public int MaxCount { get; set; } = 4;
 
         /// <summary>
         /// 下拉圆角
         /// </summary>
-        [Description("下拉圆角"), Category("外观"), DefaultValue(null)]
+        [Description("下拉圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? DropDownRadius { get; set; }
 
         /// <summary>
         /// 下拉箭头是否显示
         /// </summary>
-        [Description("下拉箭头是否显示"), Category("外观"), DefaultValue(false)]
+        [Description("下拉箭头是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool DropDownArrow { get; set; }
 
         /// <summary>
         /// 下拉边距
         /// </summary>
-        [Description("下拉边距"), Category("外观"), DefaultValue(typeof(Size), "12, 5")]
+        [Description("下拉边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "12, 5")]
         public Size DropDownPadding { get; set; } = new Size(12, 5);
 
         /// <summary>
         /// 下拉文本方向
         /// </summary>
-        [Description("下拉文本方向"), Category("外观"), DefaultValue(TAlign.Left)]
+        [Description("下拉文本方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlign.Left)]
         public TAlign DropDownTextAlign { get; set; } = TAlign.Left;
 
         /// <summary>
         /// 点击到最里层（无节点才能点击）
         /// </summary>
-        [Description("点击到最里层（无节点才能点击）"), Category("行为"), DefaultValue(false)]
+        [Description("点击到最里层（无节点才能点击）"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ClickEnd { get; set; }
 
         /// <summary>
         /// 为空依旧下拉
         /// </summary>
-        [Description("为空依旧下拉"), Category("外观"), DefaultValue(false)]
+        [Description("为空依旧下拉"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Empty { get; set; }
 
         #region 数据
@@ -106,7 +93,7 @@ namespace AntdUI
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Editor("System.Windows.Forms.Design.ListControlStringCollectionEditor", typeof(UITypeEditor))]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public BaseCollection Items
         {
             get
@@ -121,24 +108,8 @@ namespace AntdUI
         /// 选中值
         /// </summary>
         [Browsable(false)]
-        [Description("选中值"), Category("数据"), DefaultValue(null)]
+        [Description("选中值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? SelectedValue { get; set; }
-
-        /// <summary>
-        /// SelectedValue 属性值更改时发生
-        /// </summary>
-        [Description("SelectedValue 属性值更改时发生"), Category("行为")]
-        public event ObjectNEventHandler? SelectedValueChanged;
-
-        protected virtual void OnSelectedValueChanged(object? e) => SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(e));
-
-        /// <summary>
-        /// 点击项时发生
-        /// </summary>
-        [Description("点击项时发生"), Category("行为")]
-        public event ObjectNEventHandler? ItemClick;
-
-        protected virtual void OnItemClick(object? e) => ItemClick?.Invoke(this, new ObjectNEventArgs(e));
 
         internal void DropDownChange(object value)
         {
@@ -171,7 +142,7 @@ namespace AntdUI
             {
                 if (expand == value) return;
                 expand = value;
-                if (ShowArrow && Config.HasAnimation(nameof(Dropdown)))
+                if (ShowArrow && Config.HasAnimation(nameof(Dropdown), Name))
                 {
                     ThreadExpand?.Dispose();
                     ThreadExpand = new AnimationTask(new AnimationFixedConfig(i =>
@@ -247,6 +218,48 @@ namespace AntdUI
                 else subForm?.IClose();
             }
             else subForm?.IClose();
+        }
+
+        #endregion
+
+        #region 事件
+
+        /// <summary>
+        /// SelectedValue 属性值更改时发生
+        /// </summary>
+        [Description("SelectedValue 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
+        public event ObjectNEventHandler? SelectedValueChanged;
+
+        protected virtual void OnSelectedValueChanged(object? e) => SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(e));
+
+        /// <summary>
+        /// 点击项时发生
+        /// </summary>
+        [Description("点击项时发生"), Category(nameof(CategoryAttribute.Behavior))]
+        public event ObjectNEventHandler? ItemClick;
+
+        protected virtual void OnItemClick(object? e) => ItemClick?.Invoke(this, new ObjectNEventArgs(e));
+
+        /// <summary>
+        /// 子项外部渲染前触发
+        /// </summary>
+        [Description("子项外部渲染前触发"), Category(nameof(CategoryAttribute.Appearance))]
+        public event DrawItemEventHandler? DrawItem;
+
+        public virtual bool OnDrawItem(Canvas canvas, Rectangle rect, SelectItemDraw itme, bool select, out Color? fore, out Color? foreSub, out Font? font)
+        {
+            if (DrawItem == null)
+            {
+                fore = foreSub = null;
+                font = null;
+                return false;
+            }
+            var args = new DrawItemEventArgs(canvas, rect, itme, select);
+            DrawItem(this, args);
+            fore = args.Fore;
+            foreSub = args.ForeSub;
+            font = args.Font;
+            return args.Handled;
         }
 
         #endregion

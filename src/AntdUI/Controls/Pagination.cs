@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -42,7 +29,7 @@ namespace AntdUI
         /// <summary>
         /// 当前页数
         /// </summary>
-        [Description("当前页数"), Category("数据"), DefaultValue(1)]
+        [Description("当前页数"), Category(nameof(CategoryAttribute.Data)), DefaultValue(1)]
         public int Current
         {
             get => current;
@@ -62,7 +49,7 @@ namespace AntdUI
         /// <summary>
         /// 数据总数
         /// </summary>
-        [Description("数据总数"), Category("数据"), DefaultValue(0)]
+        [Description("数据总数"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int Total
         {
             get => total;
@@ -75,20 +62,17 @@ namespace AntdUI
             }
         }
 
-
-
         string? _recordsPerPageText;
-
         /// <summary>
         /// 每页记录数文本，标签提醒文本
         /// </summary>
-        [Description("每页记录数文本，标签提醒文本"), Category("外观"), DefaultValue(null)]
+        [Description("每页记录数文本，标签提醒文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? RecordsPerPageText
         {
             get => _recordsPerPageText;
             set
             {
-                if (_recordsPerPageText == value || string.IsNullOrWhiteSpace(value)) return;
+                if (_recordsPerPageText == value) return;
                 _recordsPerPageText = value;
                 OnPropertyChanged(nameof(RecordsPerPageText));
                 ButtonLayout(true);
@@ -100,7 +84,7 @@ namespace AntdUI
         /// <summary>
         /// 每页条数
         /// </summary>
-        [Description("每页条数"), Category("数据"), DefaultValue(10)]
+        [Description("每页条数"), Category(nameof(CategoryAttribute.Data)), DefaultValue(10)]
         public int PageSize
         {
             get => pageSize;
@@ -109,13 +93,13 @@ namespace AntdUI
                 if (pageSize == value) return;
                 pageSize = value;
                 if (total > 0 && Math.Ceiling(total * 1.0 / pageSize) < current) current = (int)Math.Ceiling(total * 1.0 / pageSize);
-                OnValueChanged(current, total, pageSize, PageTotal);
                 if (input_SizeChanger != null)
                 {
                     string tips = RecordsPerPageText ?? Localization.Get("ItemsPerPage", "条/页");
                     input_SizeChanger.Clear();
                     input_SizeChanger.PlaceholderText = value.ToString() + " " + tips;
                 }
+                OnValueChanged(current, total, pageSize, PageTotal);
                 OnPropertyChanged(nameof(PageSize));
                 ButtonLayout(true);
             }
@@ -124,13 +108,13 @@ namespace AntdUI
         /// <summary>
         /// 最大显示总页数
         /// </summary>
-        [Description("最大显示总页数"), Category("行为"), DefaultValue(0)]
+        [Description("最大显示总页数"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(0)]
         public int MaxPageTotal { get; set; }
 
         /// <summary>
         /// 总页数
         /// </summary>
-        [Description("总页数"), Category("数据")]
+        [Description("总页数"), Category(nameof(CategoryAttribute.Data))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int PageTotal { get; private set; } = 1;
 
@@ -138,7 +122,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(8)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(8)]
         public int Gap
         {
             get => _gap;
@@ -154,7 +138,7 @@ namespace AntdUI
         /// <summary>
         /// Value 属性值更改时发生
         /// </summary>
-        [Description("Value 属性值更改时发生"), Category("行为")]
+        [Description("Value 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event PageValueEventHandler? ValueChanged;
 
         protected virtual void OnValueChanged(int current, int total, int pageSize, int pageTotal) => ValueChanged?.Invoke(this, new PagePageEventArgs(current, total, pageSize, pageTotal));
@@ -162,7 +146,7 @@ namespace AntdUI
         /// <summary>
         /// 显示数据总量
         /// </summary>
-        [Description("用于显示数据总量"), Category("行为")]
+        [Description("用于显示数据总量"), Category(nameof(CategoryAttribute.Behavior))]
         public event PageValueRtEventHandler? ShowTotalChanged;
 
         protected virtual string? OnShowTotalChanged(int current, int total, int pageSize, int pageTotal) => ShowTotalChanged?.Invoke(this, new PagePageEventArgs(current, total, pageSize, pageTotal));
@@ -171,7 +155,7 @@ namespace AntdUI
         /// <summary>
         /// 是否展示 PageSize 切换器
         /// </summary>
-        [Description("是否展示 PageSize 切换器"), Category("行为"), DefaultValue(false)]
+        [Description("是否展示 PageSize 切换器"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ShowSizeChanger
         {
             get => showSizeChanger;
@@ -189,7 +173,7 @@ namespace AntdUI
         /// <summary>
         /// 指定每页可以显示多少条
         /// </summary>
-        [Description("指定每页可以显示多少条"), Category("行为"), DefaultValue(null)]
+        [Description("指定每页可以显示多少条"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         public int[]? PageSizeOptions
         {
             get => pageSizeOptions;
@@ -204,7 +188,7 @@ namespace AntdUI
         }
 
         int sizeChangerWidth = 0;
-        [Description("SizeChanger 宽度"), Category("行为"), DefaultValue(0)]
+        [Description("SizeChanger 宽度"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(0)]
         public int SizeChangerWidth
         {
             get => sizeChangerWidth;
@@ -225,7 +209,7 @@ namespace AntdUI
         /// <summary>
         /// 下拉圆角
         /// </summary>
-        [Description("下拉圆角"), Category("外观"), DefaultValue(null)]
+        [Description("下拉圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? DropDownRadius
         {
             get => dropDownRadius;
@@ -241,7 +225,7 @@ namespace AntdUI
         /// <summary>
         /// 是否允许 PageSize 切换器通过 Tab 键获取焦点
         /// </summary>
-        [Description("是否允许 PageSize 切换器通过 Tab 键获取焦点"), Category("行为"), DefaultValue(true)]
+        [Description("是否允许 PageSize 切换器通过 Tab 键获取焦点"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool SizeChangerTabStop
         {
             get => sizeChangerTabStop;
@@ -255,13 +239,13 @@ namespace AntdUI
         }
 
         int pyr = 0;
-        public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, 0, 0, pyr, 0, borderWidth / 2F * Config.Dpi);
+        public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, 0, 0, pyr, 0, borderWidth / 2F * Dpi);
 
         Color? fill;
         /// <summary>
         /// 颜色
         /// </summary>
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -279,7 +263,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -311,7 +295,7 @@ namespace AntdUI
         }
 
         RightToLeft rightToLeft = RightToLeft.No;
-        [Description("反向"), Category("外观"), DefaultValue(RightToLeft.No)]
+        [Description("反向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(RightToLeft.No)]
         public override RightToLeft RightToLeft
         {
             get => rightToLeft;
@@ -325,7 +309,7 @@ namespace AntdUI
         }
 
         string? textdesc;
-        [Description("主动显示内容"), Category("外观"), DefaultValue(null)]
+        [Description("主动显示内容"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? TextDesc
         {
@@ -354,12 +338,12 @@ namespace AntdUI
                 return;
             }
             var g = e.Canvas;
-            float border = borderWidth * Config.Dpi, _radius = radius * Config.Dpi;
+            float border = borderWidth * Dpi, _radius = radius * Dpi;
             var s_f = FormatFlags.Center | FormatFlags.NoWrap;
             if (Enabled)
             {
-                Color fore = Colour.Text.Get(nameof(Pagination), ColorScheme), color = fill ?? Colour.Primary.Get(nameof(Pagination), ColorScheme);
-                using (var brush_hover = new SolidBrush(Colour.FillSecondary.Get(nameof(Pagination), ColorScheme)))
+                Color fore = Colour.Text.Get(ColorScheme, nameof(Pagination), Name), color = fill ?? Colour.Primary.Get(ColorScheme, nameof(Pagination), Name);
+                using (var brush_hover = new SolidBrush(Colour.FillSecondary.Get(ColorScheme, nameof(Pagination), Name)))
                 {
                     #region 渲染上下
 
@@ -371,7 +355,7 @@ namespace AntdUI
                             g.Fill(brush_hover, path_previous);
                         }
                     }
-                    using (var pen_arrow = new Pen(btn_previous.enabled ? fore : Colour.TextQuaternary.Get(nameof(Pagination), ColorScheme), border))
+                    using (var pen_arrow = new Pen(btn_previous.enabled ? fore : Colour.TextQuaternary.Get(ColorScheme, nameof(Pagination), Name), border))
                     {
                         g.DrawLines(pen_arrow, TAlignMini.Left.TriangleLines(btn_previous.rect));
                     }
@@ -385,7 +369,7 @@ namespace AntdUI
                             g.Fill(brush_hover, path_next);
                         }
                     }
-                    using (var pen_arrow = new Pen(btn_next.enabled ? fore : Colour.TextQuaternary.Get(nameof(Pagination), ColorScheme), border))
+                    using (var pen_arrow = new Pen(btn_next.enabled ? fore : Colour.TextQuaternary.Get(ColorScheme, nameof(Pagination), Name), border))
                     {
                         g.DrawLines(pen_arrow, TAlignMini.Right.TriangleLines(btn_next.rect));
                     }
@@ -407,7 +391,7 @@ namespace AntdUI
                             }
                             if (btn.prog > 0)
                             {
-                                using (var brush_prog = new SolidBrush(Colour.TextQuaternary.Get(nameof(Pagination), ColorScheme)))
+                                using (var brush_prog = new SolidBrush(Colour.TextQuaternary.Get(ColorScheme, nameof(Pagination), Name)))
                                 {
                                     g.String("•••", Font, brush_prog, btn.rect, s_f);
                                 }
@@ -429,7 +413,7 @@ namespace AntdUI
             }
             else
             {
-                var fore = Colour.TextQuaternary.Get(nameof(Pagination), "foreDisabled", ColorScheme);
+                var fore = Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Pagination), Name);
 
                 #region 渲染上下
 
@@ -463,7 +447,7 @@ namespace AntdUI
                             {
                                 using (var path = btn.rect.RoundPath(_radius))
                                 {
-                                    g.Fill(Colour.Fill.Get(nameof(Pagination), "bgDisabled", ColorScheme), path);
+                                    g.Fill(Colour.Fill.GetSymbol(ColorScheme, "bgDisabled", nameof(Pagination), Name), path);
                                 }
                             }
                             g.String(btn.key, Font, brush, btn.rect, s_f);
@@ -567,11 +551,11 @@ namespace AntdUI
         {
             if (IsHandleCreated)
             {
-                var rect = ClientRectangle.PaddingRect(Padding, borderWidth / 2F * Config.Dpi);
+                var rect = ClientRectangle.PaddingRect(Padding, borderWidth / 2F * Dpi);
                 if (rect.Width == 0 || rect.Height == 0) return;
                 if (showSizeChanger)
                 {
-                    int wsize = (int)(4 * Config.Dpi);
+                    int wsize = (int)(4 * Dpi);
                     rect.Y += wsize;
                     rect.Height -= wsize * 2;
                 }
@@ -584,7 +568,7 @@ namespace AntdUI
                         _SizeChangerWidth = InitSizeChanger(rect);
                         t_Width -= _SizeChangerWidth;
                     }
-                    int gap = (int)(_gap * Config.Dpi);
+                    int gap = (int)(_gap * Dpi);
                     int total_button = t_Width / (rect.Height + gap);//总共多少按钮
                     if (total_button < 3)
                     {
@@ -597,7 +581,7 @@ namespace AntdUI
                     if (TextDesc == null) showTotal = OnShowTotalChanged(current, total, pageSize, total_page);
                     else showTotal = TextDesc;
 
-                    int pyrn = Helper.GDI(g =>
+                    int pyrn = this.GDI(g =>
                     {
                         var dir = new Dictionary<int, int>();
                         int min = 100, max_size = rect.Height;
@@ -800,11 +784,11 @@ namespace AntdUI
 
         int GetSizeChangerWidth(string placeholder)
         {
-            if (sizeChangerWidth > 0) return (int)(sizeChangerWidth * Config.Dpi);
-            int wsize = (int)(5 * Config.Dpi) * 2;
+            if (sizeChangerWidth > 0) return (int)(sizeChangerWidth * Dpi);
+            int wsize = (int)(5 * Dpi) * 2;
             if (pageSizeOptions == null || pageSizeOptions.Length == 0)
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     var size = g.MeasureString(placeholder, Font);
                     return size.Width + wsize + size.Height;
@@ -812,7 +796,7 @@ namespace AntdUI
             }
             else
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     var size = g.MeasureString(placeholder, Font);
                     return size.Width + wsize + (int)Math.Ceiling(size.Height * 1.8F);

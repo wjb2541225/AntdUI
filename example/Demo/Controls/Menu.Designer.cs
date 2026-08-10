@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -97,10 +78,10 @@ namespace Demo.Controls
             tableLayoutPanel1 = new TableLayoutPanel();
             panel2 = new System.Windows.Forms.Panel();
             switch4 = new AntdUI.Switch();
-            switch5 = new AntdUI.Switch();
             menu3 = new AntdUI.Menu();
             switch3 = new AntdUI.Switch();
             panel1 = new System.Windows.Forms.Panel();
+            switch5 = new AntdUI.Switch();
             switch2 = new AntdUI.Switch();
             switch1 = new AntdUI.Switch();
             divider3 = new AntdUI.Divider();
@@ -115,7 +96,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Menu.Description";
-            header1.LocalizationText = "Menu.Text";
+            header1.LocalizationText = "Menu";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -186,23 +167,23 @@ namespace Demo.Controls
             menu2.Dock = DockStyle.Left;
             menuItem8.IconSvg = "MailOutlined";
             menuItem8.Select = true;
+            menuItem9.IconSvg = "MenuOutlined";
             menuItem9.Select = true;
+            menuItem10.IconSvg = "CheckCircleOutlined";
             menuItem10.Select = true;
             menuItem10.Text = "Option 1";
-            menuItem10.IconSvg = "CheckCircleOutlined";
             menuItem11.IconSvg = "ClockCircleOutlined";
             menuItem11.Text = "Option 2";
             menuItem9.Sub.Add(menuItem10);
             menuItem9.Sub.Add(menuItem11);
             menuItem9.Text = "Item 1";
-            menuItem9.IconSvg = "MenuOutlined";
+            menuItem12.Expand = false;
+            menuItem12.IconSvg = "InfoCircleOutlined";
             menuItem13.Text = "Option 3";
             menuItem14.Text = "Option 4";
             menuItem12.Sub.Add(menuItem13);
             menuItem12.Sub.Add(menuItem14);
             menuItem12.Text = "Item 2";
-            menuItem12.IconSvg = "InfoCircleOutlined";
-            menuItem12.Expand = false;
             menuItem8.Sub.Add(menuItem9);
             menuItem8.Sub.Add(menuItem12);
             menuItem8.Text = "Navigation One";
@@ -235,6 +216,7 @@ namespace Demo.Controls
             menu2.Items.Add(menuItem21);
             menu2.Location = new Point(0, 0);
             menu2.Name = "menu2";
+            menu2.ScrollBarBlock = true;
             menu2.Size = new Size(251, 460);
             menu2.TabIndex = 4;
             // 
@@ -280,18 +262,6 @@ namespace Demo.Controls
             switch4.TabIndex = 5;
             switch4.UnCheckedText = "展开";
             switch4.CheckedChanged += switch4_CheckedChanged;
-            // 
-            // switch5
-            // 
-            switch5.CheckedText = "平展";
-            switch5.LocalizationCheckedText = "Menu.flatten";
-            switch5.LocalizationUnCheckedText = "Menu.indent";
-            switch5.Location = new Point(267, 91);
-            switch5.Name = "switch5";
-            switch5.Size = new Size(84, 33);
-            switch5.TabIndex = 5;
-            switch5.UnCheckedText = "缩进";
-            switch5.CheckedChanged += switch5_CheckedChanged;
             // 
             // menu3
             // 
@@ -340,6 +310,7 @@ namespace Demo.Controls
             menu3.Location = new Point(0, 0);
             menu3.Mode = AntdUI.TMenuMode.Vertical;
             menu3.Name = "menu3";
+            menu3.ScrollBarBlock = true;
             menu3.Size = new Size(247, 460);
             menu3.TabIndex = 4;
             // 
@@ -354,7 +325,7 @@ namespace Demo.Controls
             switch3.CheckedChanged += switch3_CheckedChanged;
             // 
             // panel1
-            //
+            // 
             panel1.Controls.Add(switch5);
             panel1.Controls.Add(switch2);
             panel1.Controls.Add(switch1);
@@ -365,6 +336,18 @@ namespace Demo.Controls
             panel1.Name = "panel1";
             panel1.Size = new Size(650, 460);
             panel1.TabIndex = 0;
+            // 
+            // switch5
+            // 
+            switch5.CheckedText = "平展";
+            switch5.LocalizationCheckedText = "Menu.flatten";
+            switch5.LocalizationUnCheckedText = "Menu.indent";
+            switch5.Location = new Point(267, 91);
+            switch5.Name = "switch5";
+            switch5.Size = new Size(84, 33);
+            switch5.TabIndex = 5;
+            switch5.UnCheckedText = "缩进";
+            switch5.CheckedChanged += switch5_CheckedChanged;
             // 
             // switch2
             // 

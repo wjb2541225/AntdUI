@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -42,127 +29,235 @@ namespace AntdUI
         /// <summary>
         /// 左侧列表标题
         /// </summary>
-        [Description("左侧列表标题"), Category("数据"), DefaultValue(null), Localizable(true)]
+        [Description("左侧列表标题"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null), Localizable(true)]
         public string? SourceTitle { get; set; }
 
         /// <summary>
         /// 右侧列表标题
         /// </summary>
-        [Description("右侧列表标题"), Category("数据"), DefaultValue(null), Localizable(true)]
+        [Description("右侧列表标题"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null), Localizable(true)]
         public string? TargetTitle { get; set; }
 
-        ///// <summary>
-        ///// 是否显示搜索框
-        ///// </summary>
-        //[Description("是否显示搜索框"), Category("行为"), DefaultValue(false)]
-        //public bool ShowSearch { get; set; } = false;
+        #region 搜索框
+
+        bool showSearch = false;
+        /// <summary>
+        /// 是否显示搜索框
+        /// </summary>
+        [Description("是否显示搜索框"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public bool ShowSearch
+        {
+            get => showSearch;
+            set
+            {
+                if (showSearch == value) return;
+                showSearch = value;
+                LoadLayout();
+            }
+        }
+
+        string? placeholderSource, placeholderTarget;
+        /// <summary>
+        /// 搜索的水印文本
+        /// </summary>
+        [Description("搜索的水印文本 源"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
+        [Localizable(true)]
+        public string? SearchPlaceholderSource
+        {
+            get => placeholderSource;
+            set
+            {
+                if (placeholderSource == value) return;
+                placeholderSource = value;
+                if (input_source == null) return;
+                input_source.LocalizationPlaceholderText = placeholderSourceLocalization;
+                input_source.PlaceholderText = placeholderSource;
+            }
+        }
+
+        /// <summary>
+        /// 搜索的水印文本
+        /// </summary>
+        [Description("搜索的水印文本 目标"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
+        [Localizable(true)]
+        public string? SearchPlaceholderTarget
+        {
+            get => placeholderTarget;
+            set
+            {
+                if (placeholderTarget == value) return;
+                placeholderTarget = value;
+                if (input_target == null) return;
+                input_target.LocalizationPlaceholderText = placeholderTargetLocalization;
+                input_target.PlaceholderText = placeholderTarget;
+            }
+        }
+
+        string? placeholderSourceLocalization, placeholderTargetLocalization;
+        /// <summary>
+        /// 搜索的水印文本 源
+        /// </summary>
+        [Description("搜索的水印文本 源"), Category("国际化"), DefaultValue(null)]
+        public string? LocalizationSearchPlaceholderSource
+        {
+            get => placeholderSourceLocalization;
+            set
+            {
+                if (placeholderSourceLocalization == value) return;
+                placeholderSourceLocalization = value;
+                if (input_source == null) return;
+                input_source.LocalizationPlaceholderText = placeholderSourceLocalization;
+                input_source.PlaceholderText = placeholderSource;
+            }
+        }
+
+        /// <summary>
+        /// 搜索的水印文本 目标
+        /// </summary>
+        [Description("搜索的水印文本 目标"), Category("国际化"), DefaultValue(null)]
+        public string? LocalizationSearchPlaceholderTarget
+        {
+            get => placeholderTargetLocalization;
+            set
+            {
+                if (placeholderTargetLocalization == value) return;
+                placeholderTargetLocalization = value;
+                if (input_target == null) return;
+                input_target.LocalizationPlaceholderText = placeholderTargetLocalization;
+                input_target.PlaceholderText = placeholderTarget;
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// 是否显示全选勾选框
         /// </summary>
-        [Description("是否显示全选勾选框"), Category("行为"), DefaultValue(true)]
+        [Description("是否显示全选勾选框"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool ShowSelectAll { get; set; } = true;
 
         /// <summary>
         /// 是否单向模式（只能从左到右）
         /// </summary>
-        [Description("是否单向模式（只能从左到右）"), Category("行为"), DefaultValue(false)]
+        [Description("是否单向模式（只能从左到右）"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool OneWay { get; set; }
+
+        /// <summary>
+        /// 改变后到最下面
+        /// </summary>
+        [Description("改变后到最下面"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public bool ChangeToBottom { get; set; }
 
         /// <summary>
         /// 列表项高度
         /// </summary>
-        [Description("列表项高度"), Category("外观"), DefaultValue(null)]
+        [Description("列表项高度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? ItemHeight { get; set; }
 
         /// <summary>
-        /// 列表项圆角
+        /// 拖拽排序
         /// </summary>
-        [Description("列表项圆角"), Category("外观"), DefaultValue(4)]
-        public int ItemRadius { get; set; } = 4;
+        [Description("拖拽排序"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public bool DragSort { get; set; }
 
         /// <summary>
         /// 列表框圆角
         /// </summary>
-        [Description("列表框圆角"), Category("外观"), DefaultValue(6)]
+        [Description("列表框圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int PanelRadius { get; set; } = 6;
+
+        /// <summary>
+        /// 列表框背景颜色
+        /// </summary>
+        [Description("列表框背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
+        public Color? PanelBack { get; set; }
 
         /// <summary>
         /// 列表框边框颜色
         /// </summary>
-        [Description("列表框边框颜色"), Category("外观"), DefaultValue(null)]
+        [Description("列表框边框颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BorderColor { get; set; }
 
         /// <summary>
         /// 悬停背景颜色
         /// </summary>
-        [Description("悬停背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackHover { get; set; }
 
         /// <summary>
         /// 激活背景颜色
         /// </summary>
-        [Description("激活背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackActive { get; set; }
 
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor { get; set; }
 
         /// <summary>
         /// 激活文字颜色
         /// </summary>
-        [Description("激活文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ForeActive { get; set; }
 
         /// <summary>
         /// 按钮文字颜色
         /// </summary>
-        [Description("按钮文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("按钮文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ButtonForeColor { get; set; }
 
         /// <summary>
         /// 按钮背景颜色
         /// </summary>
-        [Description("按钮背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("按钮背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ButtonBackColor { get; set; }
 
         /// <summary>
         /// 按钮悬停背景颜色
         /// </summary>
-        [Description("按钮悬停背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("按钮悬停背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ButtonBackHover { get; set; }
 
         /// <summary>
         /// 按钮激活背景颜色
         /// </summary>
-        [Description("按钮激活背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("按钮激活背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ButtonBackActive { get; set; }
 
         /// <summary>
         /// 按钮禁用背景颜色
         /// </summary>
-        [Description("按钮禁用背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("按钮禁用背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ButtonBackDisable { get; set; }
 
+        TransferItemCollection? items;
         /// <summary>
         /// 数据源
         /// </summary>
-        [Description("数据源"), Category("数据"), DefaultValue(null)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public List<TransferItem> Items { get; set; } = new List<TransferItem>();
+        [Description("数据源"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
+        public TransferItemCollection Items
+        {
+            get
+            {
+                items ??= new TransferItemCollection(this);
+                return items;
+            }
+            set => items = value.BindData(this);
+        }
 
         #endregion
 
@@ -200,14 +295,17 @@ namespace AntdUI
             return false;
         }
 
-        Rectangle rect_source, rect_source_com, rect_sourceTitle, rect_sourceCheckbox, rect_sourceCheckboxText, rect_toRight;
-        Rectangle rect_target, rect_target_com, rect_targetTitle, rect_targetCheckbox, rect_targetCheckboxText, rect_toLeft;
+        Rectangle rect_source, rect_source_com, rect_source_input, rect_sourceTitle, rect_sourceCheckbox, rect_sourceCheckboxText, rect_toRight;
+        Rectangle rect_target, rect_target_com, rect_target_input, rect_targetTitle, rect_targetCheckbox, rect_targetCheckboxText, rect_toLeft;
+        Point[]? rect_source_line, rect_target_line;
+        Input? input_source, input_target;
         internal void LoadLayout(bool print = true)
         {
+            if (pause) return;
             if (CanLayout())
             {
                 var rect = DisplayRectangle;
-                int buttonWidth = (int)(80 * Config.Dpi), buttonSize = (int)(36 * Config.Dpi), buttonGap = (int)(10 * Config.Dpi),
+                int buttonWidth = (int)(80 * Dpi), buttonSize = (int)(36 * Dpi), buttonGap = (int)(10 * Dpi),
                     buttonY = rect.Y + (rect.Height - (buttonSize * 2 + buttonGap)) / 2, buttonX = rect.X + (rect.Width - buttonSize) / 2,
                     panelWidth = (rect.Width - buttonWidth) / 2;
 
@@ -219,59 +317,126 @@ namespace AntdUI
                 rect_toRight = new Rectangle(buttonX, buttonY, buttonSize, buttonSize);
                 rect_toLeft = new Rectangle(buttonX, buttonY + buttonSize + buttonGap, buttonSize, buttonSize);
 
-                Helper.GDI(g =>
+                this.GDI(g =>
                 {
-                    int useY = rect.Y, rh = g.MeasureString(Config.NullText, Font).Height, check_size = (int)(rh * 0.7), gap = (int)(rh * 0.26), gap2 = gap * 2;
+                    int useY = rect.Y, txt_height = g.MeasureString(Config.NullText, Font).Height, check_size = (int)(txt_height * 0.8F), gap = (int)(txt_height * 0.4F), gap2 = gap * 2;
+                    int gapx = (int)(txt_height * 0.6F), gapx2 = gapx * 2;
+                    int head_height = txt_height * 2, item_height = (int)(txt_height * 1.6F);
+
+                    #region 头部
 
                     if (ShowSelectAll)
                     {
-                        int y = useY + gap, yi = y + (rh - check_size) / 2;
-                        rect_sourceCheckbox = new Rectangle(rect_source.X + gap, yi, check_size, check_size);
-                        rect_targetCheckbox = new Rectangle(rect_target.X + gap, yi, check_size, check_size);
-                        int ux = gap2 + check_size;
-                        rect_sourceCheckboxText = new Rectangle(rect_source.X + ux, y, rect_source.Width - ux - gap, rh);
-                        rect_targetCheckboxText = new Rectangle(rect_target.X + ux, y, rect_target.Width - ux - gap, rh);
+                        int yi = useY + (head_height - check_size) / 2;
+                        rect_sourceCheckbox = new Rectangle(rect_source.X + gapx, yi, check_size, check_size);
+                        rect_targetCheckbox = new Rectangle(rect_target.X + gapx, yi, check_size, check_size);
+                        int ux = gapx2 + check_size, ux2 = ux + gapx;
+                        rect_sourceCheckboxText = new Rectangle(rect_source.X + ux, useY, rect_source.Width - ux2, head_height);
+                        rect_targetCheckboxText = new Rectangle(rect_target.X + ux, useY, rect_target.Width - ux2, head_height);
 
-                        rect_sourceTitle = new Rectangle(rect_source.X + ux, y, rect_source.Width - ux - gap2, rh);
-                        rect_targetTitle = new Rectangle(rect_target.X + ux, y, rect_target.Width - ux - gap2, rh);
+                        rect_sourceTitle = new Rectangle(rect_source.X + ux, useY, rect_source.Width - ux2, head_height);
+                        rect_targetTitle = new Rectangle(rect_target.X + ux, useY, rect_target.Width - ux2, head_height);
                     }
                     else
                     {
-                        rect_sourceTitle = new Rectangle(rect_source.X + gap, useY + gap, rect_source.Width - gap2, rh);
-                        rect_targetTitle = new Rectangle(rect_target.X + gap, useY + gap, rect_target.Width - gap2, rh);
+                        rect_sourceTitle = new Rectangle(rect_source.X + gapx, useY, rect_source.Width - gapx2, head_height);
+                        rect_targetTitle = new Rectangle(rect_target.X + gapx, useY, rect_target.Width - gapx2, head_height);
                     }
-                    useY += rh + gap2;
 
-                    int listHeight = rect_source.Height - useY - gap2, lh;
-                    if (ItemHeight.HasValue) lh = (int)(ItemHeight.Value * Config.Dpi);
-                    else lh = rh + gap2;
+                    rect_source_line = new Point[] { new Point(rect_source.X, rect_sourceTitle.Bottom), new Point(rect_source.Right, rect_sourceTitle.Bottom) };
+                    rect_target_line = new Point[] { new Point(rect_target.X, rect_targetTitle.Bottom), new Point(rect_target.Right, rect_targetTitle.Bottom) };
 
-                    rect_source_com = new Rectangle(rect_source.X + gap, useY, rect_source.Width - gap2, listHeight);
-                    rect_target_com = new Rectangle(rect_target.X + gap, useY, rect_target.Width - gap2, listHeight);
-                    int y1 = CalculateLayout(g, sourceItems, rect_source_com, lh, gap, gap2, check_size);
-                    int y2 = CalculateLayout(g, targetItems, rect_target_com, lh, gap, gap2, check_size);
+                    useY += head_height;
 
-                    ScrollBarSource.SizeChange(rect_source_com);
-                    ScrollBarTarget.SizeChange(rect_target_com);
+                    #endregion
 
-                    ScrollBarSource.SetVrSize(y1);
-                    ScrollBarTarget.SetVrSize(y2);
+                    #region 搜索栏
+
+                    if (showSearch)
+                    {
+                        int h = head_height;
+                        rect_source_input = new Rectangle(rect_source.X + gap, useY + gap, rect_source.Width - gap2, h);
+                        rect_target_input = new Rectangle(rect_target.X + gap, useY + gap, rect_target.Width - gap2, h);
+                        if (input_source == null)
+                        {
+                            input_source = new Input
+                            {
+                                PrefixSvg = "SearchOutlined",
+                                LocalizationPlaceholderText = placeholderSourceLocalization,
+                                PlaceholderText = placeholderSource,
+                                Bounds = rect_source_input,
+                                Text = sourceSearchText
+                            };
+                            OnInputStyle(input_source, true);
+                            Controls.Add(input_source);
+                            input_source.TextChanged += input_source_TextChanged;
+                        }
+                        else input_source.Bounds = rect_source_input;
+                        if (input_target == null)
+                        {
+                            input_target = new Input
+                            {
+                                PrefixSvg = "SearchOutlined",
+                                LocalizationPlaceholderText = placeholderTargetLocalization,
+                                PlaceholderText = placeholderTarget,
+                                Bounds = rect_target_input,
+                                Text = targetSearchText
+                            };
+                            OnInputStyle(input_target, false);
+                            Controls.Add(input_target);
+                            input_target.TextChanged += input_target_TextChanged;
+                        }
+                        else input_target.Bounds = rect_target_input;
+                        useY += h + gap2;
+                    }
+                    else
+                    {
+                        input_source?.Dispose();
+                        input_target?.Dispose();
+                        input_source = input_target = null;
+                    }
+
+                    #endregion
+
+                    int listHeight = rect_source.Height - useY + rect.Y, lh;
+                    if (ItemHeight.HasValue) lh = (int)(ItemHeight.Value * Dpi);
+                    else lh = item_height;
+
+                    rect_source_com = new Rectangle(rect_source.X, useY, rect_source.Width, listHeight);
+                    rect_target_com = new Rectangle(rect_target.X, useY, rect_target.Width, listHeight);
+
+                    if (items == null) return;
+                    List<TransferItem> sourceItems = new List<TransferItem>(items.Count), targetItems = new List<TransferItem>(items.Count);
+                    foreach (var it in items)
+                    {
+                        if (it.Visible)
+                        {
+                            if (it.IsTarget) targetItems.Add(it);
+                            else sourceItems.Add(it);
+                        }
+                    }
+
+                    int y1 = CalculateLayout(g, sourceItems, rect_source_com, lh, gap, gap2, gapx, gapx2, check_size);
+                    int y2 = CalculateLayout(g, targetItems, rect_target_com, lh, gap, gap2, gapx, gapx2, check_size);
+
+                    ScrollBarSource.SetVrSize(y1, rect_source_com);
+                    ScrollBarTarget.SetVrSize(y2, rect_target_com);
                 });
 
                 if (print) Invalidate();
             }
         }
 
-        int CalculateLayout(Canvas g, List<TransferItem> list, Rectangle rect, int rh, int gap, int gap2, int check_size)
+        int CalculateLayout(Canvas g, List<TransferItem> list, Rectangle rect, int rh, int gap, int gap2, int gapx, int gapx2, int check_size)
         {
             int usey = 0;
             foreach (var it in list)
             {
                 it.PARENT = this;
                 it.rect = new Rectangle(rect.X, rect.Y + usey, rect.Width, rh);
-                it.rect_check = new Rectangle(rect.X + gap, rect.Y + usey + (rh - check_size) / 2, check_size, check_size);
-                int ux = gap2 + check_size;
-                it.rect_text = new Rectangle(rect.X + ux, rect.Y + usey, rect.Width - ux - gap, rh);
+                it.rect_check = new Rectangle(rect.X + gapx, rect.Y + usey + (rh - check_size) / 2, check_size, check_size);
+                int ux = gapx2 + check_size;
+                it.rect_text = new Rectangle(rect.X + ux, rect.Y + usey, rect.Width - ux - gapx, rh);
                 usey += rh;
             }
             return usey;
@@ -287,161 +452,247 @@ namespace AntdUI
             var g = e.Canvas;
 
             // 绘制源列表
-            PaintListPanel(g, rect_source, rect_source_com, rect_sourceTitle, rect_sourceCheckbox, SourceTitle ?? Localization.Get("Transfer.Source", "源列表"), sourceFilteredItems, ScrollBarSource, sourceSelectAll, true);
+            PaintListPanel(g, rect_source, rect_source_com, rect_sourceTitle, rect_sourceCheckbox, rect_source_line, SourceTitle ?? Localization.Get("Transfer.Source", "源列表"), ScrollBarSource, sourceSelectAll, false);
 
             // 绘制目标列表
-            PaintListPanel(g, rect_target, rect_target_com, rect_targetTitle, rect_targetCheckbox, TargetTitle ?? Localization.Get("Transfer.Target", "目标列表"), targetFilteredItems, ScrollBarTarget, targetSelectAll, false);
+            PaintListPanel(g, rect_target, rect_target_com, rect_targetTitle, rect_targetCheckbox, rect_target_line, TargetTitle ?? Localization.Get("Transfer.Target", "目标列表"), ScrollBarTarget, targetSelectAll, true);
 
             // 绘制操作按钮
             PaintOperationButtons(g);
         }
 
-        readonly FormatFlags sf = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.EllipsisCharacter, sfL = FormatFlags.Left | FormatFlags.VerticalCenter, sfR = FormatFlags.Right | FormatFlags.VerticalCenter;
-        private void PaintListPanel(Canvas g, Rectangle rect, Rectangle rect_com, Rectangle rect_title, Rectangle rect_checkbox, string title, List<TransferItem> items, ScrollBar scroll, bool selectAll, bool isSource)
+        readonly FormatFlags sf = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis, sfL = FormatFlags.Left | FormatFlags.VerticalCenter, sfR = FormatFlags.Right | FormatFlags.VerticalCenter;
+        private void PaintListPanel(Canvas g, Rectangle rect, Rectangle rect_com, Rectangle rect_title, Rectangle rect_checkbox, Point[]? rect_line, string title, ScrollBar scroll, CheckState selectAll, bool isTarget)
         {
-            // 获取颜色
-            Color borderColor = BorderColor ?? Colour.BorderColor.Get(nameof(Transfer), ColorScheme), foreColor = ForeColor ?? Colour.Text.Get(nameof(Transfer), ColorScheme), foreActive = ForeActive ?? Colour.Primary.Get(nameof(Transfer), ColorScheme);
-
             // 绘制面板边框和背景
-            using (var path = rect.RoundPath(PanelRadius * Config.Dpi))
+            var panelRadius = (int)(PanelRadius * Dpi);
+            using (var path = rect.RoundPath(panelRadius))
             {
-                using (var brush = new SolidBrush(Colour.FillQuaternary.Get(nameof(Transfer), ColorScheme)))
+                ScrollBarSource.Radius = ScrollBarTarget.Radius = panelRadius;
+                using (var brush = new SolidBrush(PanelBack ?? Colour.BgContainer.Get(ColorScheme, nameof(Transfer), Name)))
                 {
                     g.Fill(brush, path);
                 }
-                using (var pen = new Pen(borderColor))
+
+                PaintListItems(g, rect_com, rect_title, title, scroll, isTarget, panelRadius);
+
+                using (var pen = new Pen(BorderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Transfer), Name), Dpi))
                 {
                     g.Draw(pen, path);
+                    g.DrawLines(pen, rect_line!);
                 }
             }
-
-            // 绘制标题/数量
-            int selectedCount = items.Count(i => i.selected);
-            string countText = $"{selectedCount}/{items.Count}";
-            using (var brush = new SolidBrush(foreColor))
-            {
-                g.String(title, Font, brush, rect_title, sfL);
-                g.String(countText, Font, brush, rect_title, sfR);
-            }
-
-            #region 绘制搜索框
-
-            // 绘制搜索框
-            //if (ShowSearch)
-            //{
-            //    var searchRect = new Rectangle(rect.X + 10, contentTop, rect.Width - 20, 30);
-            //    using (var path = new GraphicsPath())
-            //    {
-            //        path.AddRoundedRectangle(searchRect, 4);
-            //        using (var brush = new SolidBrush(Style.Db.FillTertiary))
-            //        {
-            //            g.FillPath(brush, path);
-            //        }
-            //        using (var pen = new Pen(borderColor))
-            //        {
-            //            g.DrawPath(pen, path);
-            //        }
-            //    }
-
-            //    // 绘制搜索图标
-            //    var searchIconRect = new Rectangle(searchRect.X + 5, searchRect.Y + 5, 20, 20);
-            //    g.DrawSvg(g,"search", searchIconRect, foreColor);
-
-            //    // 绘制搜索文本
-            //    var searchTextRect = new Rectangle(searchRect.X + 30, searchRect.Y, searchRect.Width - 35, searchRect.Height);
-            //    string searchText = isSource ? sourceSearchText : targetSearchText;
-            //    if (string.IsNullOrEmpty(searchText))
-            //    {
-            //        using (var brush = new SolidBrush(Color.FromArgb(150, foreColor.R, foreColor.G, foreColor.B)))
-            //        using (var font = new Font(Font.FontFamily, 9))
-            //        {
-            //            g.DrawString("搜索", font, brush, searchTextRect, new StringFormat { LineAlignment = StringAlignment.Center });
-            //        }
-            //    }
-            //    else
-            //    {
-            //        using (var brush = new SolidBrush(foreColor))
-            //        using (var font = new Font(Font.FontFamily, 9))
-            //        {
-            //            g.DrawString(searchText, font, brush, searchTextRect, new StringFormat { LineAlignment = StringAlignment.Center });
-            //        }
-            //    }
-
-            //    contentTop += 40;
-            //}
-
-            #endregion
 
             // 绘制全选复选框
-            if (ShowSelectAll)
-            {
-                // 绘制复选框
-                using (var path = rect_checkbox.RoundPath(rect_checkbox.Height * .2F))
-                {
-                    if (selectAll)
-                    {
-                        g.Fill(Colour.Primary.Get(nameof(Transfer), ColorScheme), path);
-                        g.DrawLines(Colour.BgBase.Get(nameof(Transfer), ColorScheme), 2.6F * Config.Dpi, rect_checkbox.CheckArrow());
-                    }
-                    else g.Draw(Colour.BorderColor.Get("FillTertiary", ColorScheme), 2F * Config.Dpi, path);
-                }
-            }
+            if (ShowSelectAll) PaintCheck(g, rect_checkbox, selectAll);
+        }
 
+        private void PaintListItems(Canvas g, Rectangle rect_com, Rectangle rect_title, string title, ScrollBar scroll, bool isTarget, int panelRadius)
+        {
+            if (items == null) return;
+            int count = 0, selectedCount = 0;
             var state = g.Save();
-            g.SetClip(rect_com);
-            g.TranslateTransform(0, -scroll.ValueY);
-            float radius = ItemRadius * Config.Dpi;
-            foreach (var it in items)
+            if (scroll.ShowY)
             {
-                // 绘制项背景
-                using (var path = it.rect.RoundPath(radius))
+                using (var path = rect_com.RoundPath(panelRadius, false, false, true, true))
                 {
-                    if (it.selected)
-                    {
-                        using (var brush = new SolidBrush(BackActive ?? Colour.FillTertiary.Get(nameof(Transfer), ColorScheme)))
-                        {
-                            g.Fill(brush, path);
-                        }
-                    }
-                    else if (it.Hover)
-                    {
-                        using (var brush = new SolidBrush(BackHover ?? Colour.FillSecondary.Get(nameof(Transfer), ColorScheme)))
-                        {
-                            g.Fill(brush, path);
-                        }
-                    }
-                }
-
-                // 绘制复选框
-                using (var path = it.rect_check.RoundPath(it.rect_check.Height * .2F))
-                {
-                    if (it.selected)
-                    {
-                        g.Fill(Colour.Primary.Get(nameof(Transfer), ColorScheme), path);
-                        g.DrawLines(Colour.BgBase.Get(nameof(Transfer), ColorScheme), 2.6F * Config.Dpi, it.rect_check.CheckArrow());
-                    }
-                    else g.Draw(Colour.BorderColor.Get(nameof(Transfer), ColorScheme), 2F * Config.Dpi, path);
-                }
-
-                // 绘制项文本
-                using (var brush = new SolidBrush(it.selected ? foreActive : foreColor))
-                {
-                    g.String(it.Text, Font, brush, it.rect_text, sf);
+                    g.SetClip(path);
                 }
             }
-            g.Restore(state);
+            else g.SetClip(rect_com);
+            int sy = scroll.ValueY;
+            g.TranslateTransform(0, -sy);
+            var name = nameof(Transfer);
+            using (var fore = new SolidBrush(ForeColor ?? Colour.Text.Get(ColorScheme, name, Name)))
+            using (var foreActive = new SolidBrush(ForeActive ?? Colour.Text.Get(ColorScheme, name, Name)))
+            {
+                if (dragBody == null)
+                {
+                    foreach (var it in items)
+                    {
+                        if (it.IsTarget == isTarget)
+                        {
+                            if (it.Visible)
+                            {
+                                count++;
+                                it.show = rect_com.IsItemVisible(sy + rect_com.Y, it.rect);
+                                if (it.show)
+                                {
+                                    if (it.selected)
+                                    {
+                                        selectedCount++;
+                                        using (var brush = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(ColorScheme, name, Name)))
+                                        {
+                                            g.Fill(brush, it.rect);
+                                        }
+                                    }
+                                    if (it.Hover)
+                                    {
+                                        using (var brush = new SolidBrush(BackHover ?? Colour.FillTertiary.Get(ColorScheme, name, Name)))
+                                        {
+                                            g.Fill(brush, it.rect);
+                                        }
+                                    }
+                                    PaintItem(g, it, name, fore, foreActive);
+                                }
+                                else if (it.selected) selectedCount++;
+                            }
+                            else it.show = false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (dragBody.hand)
+                    {
+                        foreach (var it in items)
+                        {
+                            if (it.IsTarget == isTarget)
+                            {
+                                if (it.Visible)
+                                {
+                                    count++;
+                                    it.show = rect_com.IsItemVisible(sy + rect_com.Y, it.rect);
+                                    if (it.show)
+                                    {
+                                        if (it.selected)
+                                        {
+                                            selectedCount++;
+                                            using (var brush = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(ColorScheme, name, Name)))
+                                            {
+                                                g.Fill(brush, it.rect);
+                                            }
+                                        }
+                                        PaintItem(g, it, name, fore, foreActive);
+                                    }
+                                    else if (it.selected) selectedCount++;
+                                }
+                                else it.show = false;
+                            }
+                        }
+                        foreach (var it in items)
+                        {
+                            if (dragBody.i == it) g.Fill(Colour.FillSecondary.Get(ColorScheme, name, Name), it.rect);
+                            else if (dragBody.im == it)
+                            {
+                                using (var brush_split = new SolidBrush(Colour.BorderColor.Get(ColorScheme, name, Name)))
+                                {
+                                    int sp = (int)(2 * Dpi);
+                                    if (dragBody.last) g.Fill(brush_split, new Rectangle(it.rect.X, it.rect.Bottom - sp, it.rect.Width, sp * 2));
+                                    else g.Fill(brush_split, new Rectangle(it.rect.X, it.rect.Y - sp, it.rect.Width, sp * 2));
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var it in items)
+                        {
+                            if (it.IsTarget == isTarget)
+                            {
+                                if (it.Visible)
+                                {
+                                    it.show = rect_com.IsItemVisible(sy + rect_com.Y, it.rect);
+                                    if (it.show)
+                                    {
+                                        count++;
+                                        if (it.selected)
+                                        {
+                                            selectedCount++;
+                                            using (var brush = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(ColorScheme, name, Name)))
+                                            {
+                                                g.Fill(brush, it.rect);
+                                            }
+                                        }
+                                        if (dragBody.i == it) g.Fill(Colour.FillSecondary.Get(ColorScheme, name, Name), it.rect);
+                                        if (it.Hover)
+                                        {
+                                            using (var brush = new SolidBrush(BackHover ?? Colour.FillTertiary.Get(ColorScheme, name, Name)))
+                                            {
+                                                g.Fill(brush, it.rect);
+                                            }
+                                        }
+                                        PaintItem(g, it, name, fore, foreActive);
+                                    }
+                                    else if (it.selected) selectedCount++;
+                                }
+                                else it.show = false;
+                            }
+                        }
+                    }
+                }
+                g.Restore(state);
+
+                // 绘制标题/数量
+                string countText = $"{selectedCount}/{count}";
+
+                g.String(title, Font, fore, rect_title, sfL);
+                g.String(countText, Font, fore, rect_title, sfR);
+            }
+
             // 绘制滚动条
             if (scroll.Show) scroll.Paint(g, ColorScheme);
+        }
+
+        private void PaintItem(Canvas g, TransferItem it, string name, SolidBrush fore, SolidBrush foreActive)
+        {
+            PaintItemCheck(g, it, name);
+            // 绘制项文本
+            if (it.Enabled) g.String(it.Text, Font, it.selected ? foreActive : fore, it.rect_text, sf);
+            else g.String(it.Text, Font, Colour.TextQuaternary.Get(ColorScheme, name, Name), it.rect_text, sf);
+        }
+
+        private void PaintCheck(Canvas g, Rectangle rect_checkbox, CheckState state)
+        {
+            using (var path = rect_checkbox.RoundPath(rect_checkbox.Height * .2F))
+            {
+                switch (state)
+                {
+                    case CheckState.Checked:
+                        g.Fill(Colour.Primary.Get(ColorScheme, nameof(Transfer), Name), path);
+                        g.DrawLines(Colour.BgBase.Get(ColorScheme, nameof(Transfer), Name), 2.6F * Dpi, rect_checkbox.CheckArrow());
+                        break;
+                    case CheckState.Indeterminate:
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Transfer), Name), 2F * Dpi, path);
+                        g.Fill(Colour.Primary.Get(ColorScheme, nameof(Transfer), Name), Checkbox.PaintBlock(rect_checkbox));
+                        break;
+                    case CheckState.Unchecked:
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Transfer), Name), 2F * Dpi, path);
+                        break;
+                }
+            }
+        }
+
+        private void PaintItemCheck(Canvas g, TransferItem it, string name)
+        {
+            using (var path = it.rect_check.RoundPath(it.rect_check.Height * .2F))
+            {
+                if (it.Enabled)
+                {
+                    if (it.selected)
+                    {
+                        g.Fill(Colour.Primary.Get(ColorScheme, name, Name), path);
+                        g.DrawLines(Colour.BgBase.Get(ColorScheme, name, Name), 2.6F * Dpi, it.rect_check.CheckArrow());
+                    }
+                    else g.Draw(Colour.BorderColor.Get(ColorScheme, name, Name), 2F * Dpi, path);
+                }
+                else
+                {
+                    g.Fill(Colour.FillQuaternary.Get(ColorScheme, name, Name), path);
+                    if (it.selected) g.DrawLines(Colour.TextQuaternary.Get(ColorScheme, name, Name), 2.6F * Dpi, it.rect_check.CheckArrow());
+                    g.Draw(Colour.BorderColorDisable.Get(ColorScheme, name, Name), 2F * Dpi, path);
+                }
+            }
         }
 
         private void PaintOperationButtons(Canvas g)
         {
             // 获取颜色
-            var buttonForeColor = ButtonForeColor ?? Colour.Text.Get(nameof(Transfer), ColorScheme);
-            var buttonBackColor = ButtonBackColor ?? Colour.FillTertiary.Get(nameof(Transfer), ColorScheme);
-            var buttonBackHover = ButtonBackHover ?? Colour.Primary.Get(nameof(Transfer), ColorScheme);
-            var buttonBackActive = ButtonBackActive ?? Colour.PrimaryActive.Get(nameof(Transfer), ColorScheme);
-            var buttonBackDisable = ButtonBackDisable ?? Colour.FillTertiary.Get(nameof(Transfer), ColorScheme);
+            var buttonForeColor = ButtonForeColor ?? Colour.Text.Get(ColorScheme, nameof(Transfer), Name);
+            var buttonBackColor = ButtonBackColor ?? Colour.FillTertiary.Get(ColorScheme, nameof(Transfer), Name);
+            var buttonBackHover = ButtonBackHover ?? Colour.Primary.Get(ColorScheme, nameof(Transfer), Name);
+            var buttonBackActive = ButtonBackActive ?? Colour.PrimaryActive.Get(ColorScheme, nameof(Transfer), Name);
+            var buttonBackDisable = ButtonBackDisable ?? Colour.FillTertiary.Get(ColorScheme, nameof(Transfer), Name);
 
             // 绘制向右按钮
             PaintOperationButton(g, rect_toRight, "RightOutlined", hover_to_right, buttonForeColor, buttonBackColor, buttonBackHover, buttonBackActive, buttonBackDisable);
@@ -452,23 +703,23 @@ namespace AntdUI
 
         private void PaintOperationButton(Canvas g, Rectangle rect, string icon, ITaskOpacity hove, Color foreColor, Color backColor, Color backHover, Color backActive, Color backDisable)
         {
-            int gap = (int)(8 * Config.Dpi), gap2 = gap * 2;
+            int gap = (int)(8 * Dpi), gap2 = gap * 2;
             var iconRect = new Rectangle(rect.X + gap, rect.Y + gap, rect.Width - gap2, rect.Height - gap2);
             if (hove.Animation)
             {
                 g.FillEllipse(backColor, rect);
                 g.FillEllipse(backColor.BlendColors(hove.Value, backHover), rect);
-                DrawSvg(g, icon, iconRect, Colour.PrimaryColor.Get(nameof(Transfer), ColorScheme));
+                DrawSvg(g, icon, iconRect, Colour.PrimaryColor.Get(ColorScheme, nameof(Transfer), Name));
             }
             else if (hove.Down)
             {
                 g.FillEllipse(backActive, rect);
-                DrawSvg(g, icon, iconRect, Colour.PrimaryColor.Get(nameof(Transfer), ColorScheme));
+                DrawSvg(g, icon, iconRect, Colour.PrimaryColor.Get(ColorScheme, nameof(Transfer), Name));
             }
             else if (hove.Switch)
             {
                 g.FillEllipse(backHover, rect);
-                DrawSvg(g, icon, iconRect, Colour.PrimaryColor.Get(nameof(Transfer), ColorScheme));
+                DrawSvg(g, icon, iconRect, Colour.PrimaryColor.Get(ColorScheme, nameof(Transfer), Name));
             }
             else if (hove.Enable)
             {
@@ -478,7 +729,7 @@ namespace AntdUI
             else
             {
                 g.FillEllipse(backDisable, rect);
-                DrawSvg(g, icon, iconRect, Colour.TextQuaternary.Get(nameof(Transfer), ColorScheme));
+                DrawSvg(g, icon, iconRect, Colour.TextQuaternary.Get(ColorScheme, nameof(Transfer), Name));
             }
         }
 
@@ -489,14 +740,7 @@ namespace AntdUI
         /// <param name="icon">图标名称</param>
         /// <param name="rect">矩形</param>
         /// <param name="color">颜色</param>
-        void DrawSvg(Canvas g, string icon, Rectangle rect, Color color)
-        {
-            using (var svg = SvgExtend.GetImgExtend(icon, rect, color))
-            {
-                if (svg == null) return;
-                g.Image(svg, rect);
-            }
-        }
+        void DrawSvg(Canvas g, string icon, Rectangle rect, Color color) => g.Svg(icon, rect, color);
 
         #endregion
 
@@ -507,64 +751,163 @@ namespace AntdUI
             if (ScrollBarSource.MouseMoveY(e.X, e.Y) && ScrollBarTarget.MouseMoveY(e.X, e.Y))
             {
                 base.OnMouseMove(e);
-
+                if (DragSort && mdown is TransferItem item)
+                {
+                    if (dragBody != null)
+                    {
+                        if (dragBody.hand)
+                        {
+                            DropItem(e.X, e.Y, dragBody);
+                            SetCursor(CursorType.SizeAll);
+                            Invalidate();
+                            return;
+                        }
+                        else
+                        {
+                            int cx = e.X - dragBody._ox, cy = e.Y - dragBody._oy;
+                            int threshold = (int)(Config.TouchThreshold * Dpi);
+                            if (Math.Abs(cx) > threshold || Math.Abs(cy) > threshold)
+                            {
+                                SetCursor(CursorType.SizeAll);
+                                dragBody.hand = true;
+                                DropItem(e.X, e.Y, dragBody);
+                                return;
+                            }
+                        }
+                    }
+                }
                 hover_to_left.Switch = rect_toLeft.Contains(e.X, e.Y);
                 hover_to_right.Switch = rect_toRight.Contains(e.X, e.Y);
-
-                int sy = ScrollBarSource.ValueY;
-                foreach (var it in sourceFilteredItems) it.Hover = it.rect.Contains(e.X, e.Y + sy);
-
-                sy = ScrollBarTarget.ValueY;
-                foreach (var it in targetFilteredItems) it.Hover = it.rect.Contains(e.X, e.Y + sy);
+                if (hover_to_left.Switch || hover_to_right.Switch)
+                {
+                    SetCursor(true);
+                    return;
+                }
+                if (ShowSelectAll)
+                {
+                    if (rect_sourceCheckbox.Contains(e.X, e.Y) || rect_sourceCheckboxText.Contains(e.X, e.Y))
+                    {
+                        SetCursor(true);
+                        return;
+                    }
+                    if (rect_targetCheckbox.Contains(e.X, e.Y) || rect_targetCheckboxText.Contains(e.X, e.Y))
+                    {
+                        SetCursor(true);
+                        return;
+                    }
+                }
+                int count = 0;
+                int sy1 = ScrollBarSource.ValueY, sy2 = ScrollBarTarget.ValueY;
+                if (items == null) return;
+                foreach (var it in items)
+                {
+                    if (it.Visible && it.Enabled)
+                    {
+                        if (it.IsTarget) it.Hover = it.rect.Contains(e.X, e.Y + sy2);
+                        else it.Hover = it.rect.Contains(e.X, e.Y + sy1);
+                        if (it.Hover) count++;
+                    }
+                    else it.Hover = false;
+                }
+                SetCursor(count > 0);
             }
         }
 
+        void DropItem(int x, int y, DragHeader dragBody)
+        {
+            foreach (var it in items!)
+            {
+                if (it.Visible && it.Enabled && it.IsTarget == dragBody.i.IsTarget)
+                {
+                    if (it == dragBody.i) continue;
+                    dragBody.last = y > dragBody._oy;
+                    var scrollBar = it.IsTarget ? ScrollBarTarget : ScrollBarSource;
+                    bool hover = it.rect.Contains(x, y + scrollBar.ValueY);
+                    if (hover)
+                    {
+                        dragBody.im = it;
+                        if (scrollBar.ShowY)
+                        {
+                            scrollItem = it;
+                            if (!it.show && taskItem == null)
+                            {
+                                if (y > rect_source_com.Y) scrollValue = (int)(60 * Dpi);
+                                else scrollValue = -(int)(60 * Dpi);
+                                taskItem = new AnimationTask(this, () =>
+                                {
+                                    if (scrollItem == null) return false;
+                                    if (scrollItem.show || !scrollItem.Visible) return false;
+                                    var old = scrollBar.ValueY;
+                                    scrollBar.ValueY += scrollValue;
+                                    if (scrollBar.ValueY == old) return false;
+                                    return true;
+                                }, 10, () => taskItem = null);
+                            }
+                            return;
+                        }
+                        Invalidate();
+                        return;
+                    }
+                }
+            }
+        }
+
+        object? mdown;
+        DragHeader? dragBody;
+        AnimationTask? taskItem;
+        TransferItem? scrollItem;
+        int scrollValue;
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            if (showSearch) Focus();
+            mdown = null;
+            dragBody = null;
+            scrollItem = null;
             if (ScrollBarSource.MouseDownY(e.X, e.Y) && ScrollBarTarget.MouseDownY(e.X, e.Y))
             {
                 base.OnMouseDown(e);
                 if (e.Button == MouseButtons.Left)
                 {
+                    if (items == null) return;
                     if (ShowSelectAll)
                     {
                         if (rect_sourceCheckbox.Contains(e.X, e.Y) || rect_sourceCheckboxText.Contains(e.X, e.Y))
                         {
-                            // 切换全选状态
-                            bool newSelectAllState = !sourceSelectAll;
-                            sourceSelectAll = newSelectAllState;
-                            // 更新所有项的选中状态
-                            foreach (var item in sourceFilteredItems) item.selected = newSelectAllState;
-                            hover_to_right.Enable = sourceFilteredItems.Any(i => i.selected);
-                            LoadLayout();
+                            mdown = "sourceCheckbox";
                             return;
                         }
                         if (rect_targetCheckbox.Contains(e.X, e.Y) || rect_targetCheckboxText.Contains(e.X, e.Y))
                         {
-                            // 切换全选状态
-                            bool newSelectAllState = !targetSelectAll;
-                            targetSelectAll = newSelectAllState;
-                            // 更新所有项的选中状态
-                            foreach (var item in targetFilteredItems) item.selected = newSelectAllState;
-                            hover_to_left.Enable = !OneWay && targetFilteredItems.Any(i => i.selected);
-                            LoadLayout();
+                            mdown = "targetCheckbox";
                             return;
                         }
+                    }
+                    if (rect_toRight.Contains(e.X, e.Y))
+                    {
+                        mdown = "toRight";
+                        return;
+                    }
+                    if (rect_toLeft.Contains(e.X, e.Y) && !OneWay)
+                    {
+                        mdown = "toLeft";
+                        return;
                     }
                     // 处理源列表项点击
                     if (rect_source.Contains(e.X, e.Y))
                     {
                         int sy = ScrollBarSource.ValueY;
-                        foreach (var it in sourceFilteredItems)
+                        foreach (var it in items)
                         {
-                            if (it.rect.Contains(e.X, e.Y + sy))
+                            if (it.Visible && it.Enabled)
                             {
-                                // 切换选中状态
-                                it.selected = !it.selected;
-                                // 更新全选状态
-                                sourceSelectAll = sourceFilteredItems.All(i => i.selected);
-                                hover_to_right.Enable = sourceFilteredItems.Any(i => i.selected);
-                                Invalidate();
+                                if (it.IsTarget) continue;
+                                if (it.rect.Contains(e.X, e.Y + sy))
+                                {
+                                    mdown = it;
+                                    if (DragSort) dragBody = new DragHeader(e.X, e.Y, it);
+                                    return;
+                                }
                             }
                         }
                     }
@@ -573,34 +916,213 @@ namespace AntdUI
                     if (rect_target.Contains(e.X, e.Y))
                     {
                         int sy = ScrollBarTarget.ValueY;
-                        foreach (var it in targetFilteredItems)
+                        foreach (var it in items)
                         {
-                            if (it.rect.Contains(e.X, e.Y + sy))
+                            if (it.Visible && it.Enabled && it.IsTarget)
                             {
-                                // 切换选中状态
-                                it.selected = !it.selected;
-                                targetSelectAll = targetFilteredItems.All(i => i.selected);
-                                hover_to_left.Enable = !OneWay && targetFilteredItems.Any(i => i.selected);
-                                Invalidate();
+                                if (it.rect.Contains(e.X, e.Y + sy))
+                                {
+                                    mdown = it;
+                                    if (DragSort) dragBody = new DragHeader(e.X, e.Y, it);
+                                    return;
+                                }
                             }
                         }
                     }
+
                 }
             }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            scrollItem = null;
+            if (dragBody != null)
+            {
+                taskItem?.Dispose();
+                taskItem = null;
+                if (dragBody.hand)
+                {
+                    var dir = new Dictionary<int, TransferItem>(items!.Count);
+                    int i = 0, dim = -1, di = -1;
+                    foreach (var it in items)
+                    {
+                        if (it.IsTarget == dragBody.i.IsTarget)
+                        {
+                            dir.Add(i, it);
+                            if (it == dragBody.i) di = i;
+                            if (it == dragBody.im) dim = i;
+                        }
+                        i++;
+                    }
+                    if (dim > -1 && di > -1 && dim != di)
+                    {
+                        try
+                        {
+                            int newIndex = dim > di ? (dragBody.last ? dim : dim - 1) : (dragBody.last ? dim + 1 : dim);
+                            items.InsertAntRemove(newIndex, dragBody.i);
+                        }
+                        catch { }
+                    }
+                    dragBody = null;
+                    Invalidate();
+                    return;
+                }
+            }
+            dragBody = null;
             if (ScrollBarSource.MouseUp() && ScrollBarTarget.MouseUp())
             {
                 base.OnMouseUp(e);
-                if (e.Button == MouseButtons.Left)
+                if (mdown == null) return;
+                if (mdown is TransferItem it)
                 {
-                    // 执行向右移动操作
-                    if (rect_toRight.Contains(e.X, e.Y)) MoveSelectedItemsToRight();
-                    if (rect_toLeft.Contains(e.X, e.Y) && !OneWay) MoveSelectedItemsToLeft();
+                    if (it.IsTarget)
+                    {
+                        if (it.rect.Contains(e.X, e.Y + ScrollBarTarget.ValueY)) ClickTarget(it);
+                    }
+                    else
+                    {
+                        if (it.rect.Contains(e.X, e.Y + ScrollBarSource.ValueY)) ClickSource(it);
+                    }
+                }
+                else if (mdown is string code)
+                {
+                    switch (code)
+                    {
+                        case "sourceCheckbox":
+                            if (rect_sourceCheckbox.Contains(e.X, e.Y) || rect_sourceCheckboxText.Contains(e.X, e.Y)) CheckAllSource();
+                            break;
+                        case "targetCheckbox":
+                            if (rect_targetCheckbox.Contains(e.X, e.Y) || rect_targetCheckboxText.Contains(e.X, e.Y)) CheckAllTarget();
+                            break;
+                        case "toRight":
+                            if (rect_toRight.Contains(e.X, e.Y)) MoveSelectedItemsToRight();
+                            break;
+                        case "toLeft":
+                            if (rect_toLeft.Contains(e.X, e.Y) && !OneWay) MoveSelectedItemsToLeft();
+                            break;
+                    }
                 }
             }
+        }
+
+        void CheckAllSource()
+        {
+            if (items == null) return;
+            bool newState = sourceSelectAll == CheckState.Unchecked ? true : false;
+            int count = 0, check_count = 0;
+            // 更新所有项的选中状态
+            foreach (var it in items)
+            {
+                if (it.Visible && it.Enabled)
+                {
+                    if (it.IsTarget) continue;
+                    count++;
+                    it.selected = newState;
+                    if (it.selected) check_count++;
+                }
+            }
+            if (count > 0)
+            {
+                sourceSelectAll = newState ? CheckState.Checked : CheckState.Unchecked;
+                hover_to_right.Enable = check_count > 0;
+                LoadLayout();
+            }
+        }
+        void CheckAllTarget()
+        {
+            if (items == null) return;
+            bool newState = targetSelectAll == CheckState.Unchecked ? true : false;
+            int count = 0, check_count = 0;
+            // 更新所有项的选中状态
+            foreach (var it in items)
+            {
+                if (it.Visible && it.Enabled && it.IsTarget)
+                {
+                    count++;
+                    it.selected = newState;
+                    if (it.selected) check_count++;
+                }
+            }
+            if (count > 0)
+            {
+                targetSelectAll = newState ? CheckState.Checked : CheckState.Unchecked;
+                hover_to_left.Enable = !OneWay && check_count > 0;
+                LoadLayout();
+            }
+        }
+        void ClickSource(TransferItem item)
+        {
+            int change = 0, count = 0, check_count = 0;
+            foreach (var it in items!)
+            {
+                if (it.Visible && it.Enabled)
+                {
+                    if (it.IsTarget) continue;
+                    if (it == item)
+                    {
+                        it.selected = !it.selected;
+                        change++;
+                    }
+                    count++;
+                    if (it.selected) check_count++;
+                }
+            }
+            if (change > 0)
+            {
+                // 更新全选状态
+                if (check_count > 0) sourceSelectAll = check_count >= count ? CheckState.Checked : CheckState.Indeterminate;
+                else sourceSelectAll = CheckState.Unchecked;
+                hover_to_right.Enable = check_count > 0;
+                Invalidate();
+            }
+        }
+        void ClickTarget(TransferItem item)
+        {
+            int change = 0, count = 0, check_count = 0;
+            foreach (var it in items!)
+            {
+                if (it.Visible && it.Enabled && it.IsTarget)
+                {
+                    if (it == item)
+                    {
+                        it.selected = !it.selected;
+                        change++;
+                    }
+                    count++;
+                    if (it.selected) check_count++;
+                }
+            }
+            if (change > 0)
+            {
+                if (check_count > 0) targetSelectAll = check_count >= count ? CheckState.Checked : CheckState.Indeterminate;
+                else targetSelectAll = CheckState.Unchecked;
+                hover_to_left.Enable = !OneWay && check_count > 0;
+                Invalidate();
+            }
+        }
+
+        internal class DragHeader
+        {
+            public DragHeader(int ox, int oy, TransferItem _i)
+            {
+                _ox = ox;
+                _oy = oy;
+                i = _i;
+            }
+            public int _ox { get; set; }
+            public int _oy { get; set; }
+            public void SetEnable(int x, int y)
+            {
+                if (x == _ox && y == _oy) return;
+                enable = true;
+            }
+
+            public bool enable { get; set; }
+            public TransferItem i { get; set; }
+            public TransferItem? im { get; set; }
+            public bool last { get; set; }
+            public bool hand { get; set; }
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -609,15 +1131,14 @@ namespace AntdUI
             if (rect_source.Contains(e.X, e.Y)) ScrollBarSource.MouseWheel(e);
             else if (rect_target.Contains(e.X, e.Y)) ScrollBarTarget.MouseWheel(e);
         }
-        //protected override bool OnTouchScrollY(int value) => ScrollBarSource.MouseWheelYCore(value);
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
             hover_to_left.Switch = false;
             hover_to_right.Switch = false;
-            foreach (var it in sourceFilteredItems) it.Hover = false;
-            foreach (var it in targetFilteredItems) it.Hover = false;
+            if (items == null) return;
+            foreach (var it in items) it.Hover = false;
         }
 
         #endregion
@@ -654,14 +1175,15 @@ namespace AntdUI
         /// <summary>
         /// 穿梭框选项变化事件
         /// </summary>
-        [Description("穿梭框选项变化事件"), Category("行为")]
+        [Description("穿梭框选项变化事件"), Category(nameof(CategoryAttribute.Behavior))]
         public event EventHandler<TransferEventArgs>? TransferChanged;
 
         /// <summary>
         /// 触发穿梭框选项变化事件
         /// </summary>
-        /// <param name="e">事件参数</param>
-        protected virtual void OnTransferChanged(TransferEventArgs e) => TransferChanged?.Invoke(this, e);
+        /// <param name="sourceItems">源列表项</param>
+        /// <param name="targetItems">目标列表项</param>
+        protected virtual void OnTransferChanged(List<TransferItem> sourceItems, List<TransferItem> targetItems) => TransferChanged?.Invoke(this, new TransferEventArgs(sourceItems, targetItems));
 
         /// <summary>
         /// 搜索事件参数
@@ -693,14 +1215,49 @@ namespace AntdUI
         /// <summary>
         /// 搜索事件
         /// </summary>
-        [Description("搜索事件"), Category("行为")]
+        [Description("搜索事件"), Category(nameof(CategoryAttribute.Behavior))]
         public event EventHandler<SearchEventArgs>? Search;
 
         /// <summary>
         /// 触发搜索事件
         /// </summary>
+        /// <param name="searchText">搜索文本</param>
+        /// <param name="isSource">是否为源列表搜索</param>
+        protected virtual void OnSearch(string searchText, bool isSource) => Search?.Invoke(this, new SearchEventArgs(searchText, isSource));
+
+        /// <summary>
+        /// 输入样式事件参数
+        /// </summary>
+        public class InputStyleEventArgs : EventArgs
+        {
+            /// <summary>
+            /// 文本框
+            /// </summary>
+            public Input Input { get; }
+
+            /// <summary>
+            /// 是否为源列表样式
+            /// </summary>
+            public bool IsSource { get; }
+
+            public InputStyleEventArgs(Input input, bool isSource)
+            {
+                Input = input;
+                IsSource = isSource;
+            }
+        }
+
+        /// <summary>
+        /// 输入样式事件
+        /// </summary>
+        [Description("输入样式事件"), Category(nameof(CategoryAttribute.Behavior))]
+        public event EventHandler<InputStyleEventArgs>? InputStyle;
+
+        /// <summary>
+        /// 触发搜索事件
+        /// </summary>
         /// <param name="e">事件参数</param>
-        protected virtual void OnSearch(SearchEventArgs e) => Search?.Invoke(this, e);
+        protected virtual void OnInputStyle(Input input, bool isSource) => InputStyle?.Invoke(this, new InputStyleEventArgs(input, isSource));
 
         #endregion
 
@@ -713,18 +1270,18 @@ namespace AntdUI
             hover_to_left = new ITaskOpacity(nameof(Transfer), this);
             ScrollBarSource = new ScrollBar(this);
             ScrollBarTarget = new ScrollBar(this);
+            ScrollBarSource.Back = ScrollBarTarget.Back = false;
+            ScrollBarSource.RT = ScrollBarTarget.RT = false;
+            ScrollBarSource.RB = ScrollBarTarget.RB = true;
         }
 
         #endregion
 
         #region 私有变量
 
-        private List<TransferItem> sourceItems = new List<TransferItem>(), targetItems = new List<TransferItem>();
-        private List<TransferItem> sourceFilteredItems = new List<TransferItem>(), targetFilteredItems = new List<TransferItem>();
-
         private string sourceSearchText = "", targetSearchText = "";
 
-        private bool sourceSelectAll = false, targetSelectAll = false;
+        private CheckState sourceSelectAll = CheckState.Unchecked, targetSelectAll = CheckState.Unchecked;
 
         private ITaskOpacity hover_to_right, hover_to_left;
 
@@ -734,44 +1291,76 @@ namespace AntdUI
 
         private void InitializeItems()
         {
-            sourceSelectAll = targetSelectAll = false;
-            sourceItems.Clear();
-            targetItems.Clear();
-
-            // 初始化源列表和目标列表
-            foreach (var item in Items)
-            {
-                if (item.IsTarget) targetItems.Add(item);
-                else sourceItems.Add(item);
-            }
-
+            sourceSelectAll = targetSelectAll = CheckState.Unchecked;
             // 应用过滤
             ApplyFilter();
         }
 
         private void ApplyFilter()
         {
+            if (items == null)
+            {
+                hover_to_right.Enable = hover_to_left.Enable = false;
+                return;
+            }
             // 过滤源列表
-            if (string.IsNullOrEmpty(sourceSearchText)) sourceFilteredItems = new List<TransferItem>(sourceItems);
-
+            int check_source = 0, check_target = 0;
+            bool es = string.IsNullOrEmpty(sourceSearchText), et = string.IsNullOrEmpty(targetSearchText);
+            if (es && et)
+            {
+                foreach (var it in items)
+                {
+                    it.Visible = true;
+                    if (it.selected)
+                    {
+                        if (it.IsTarget) check_target++;
+                        else check_source++;
+                    }
+                }
+            }
             else
             {
-                sourceFilteredItems = sourceItems
-                    .Where(item => item.Text?.IndexOf(sourceSearchText, StringComparison.OrdinalIgnoreCase) >= 0)
-                    .ToList();
+                foreach (var it in items)
+                {
+                    var pinyin = it.Text;
+                    if (it.IsTarget)
+                    {
+                        if (pinyin == null) it.Visible = et;
+                        else
+                        {
+                            if (it.PY == null)
+                            {
+                                it.PY = new string[] {
+                                    pinyin.ToLower(),
+                                    Pinyin.GetPinyin(pinyin).ToLower(),
+                                    Pinyin.GetInitials(pinyin).ToLower()
+                                };
+                            }
+                            it.Visible = et || Helper.SearchContains(targetSearchText, pinyin, it.PY, out _) > 0;
+                        }
+                        if (it.Visible && it.Enabled && it.selected) check_target++;
+                    }
+                    else
+                    {
+                        if (pinyin == null) it.Visible = es;
+                        else
+                        {
+                            if (it.PY == null)
+                            {
+                                it.PY = new string[] {
+                                    pinyin.ToLower(),
+                                    Pinyin.GetPinyin(pinyin).ToLower(),
+                                    Pinyin.GetInitials(pinyin).ToLower()
+                                };
+                            }
+                            it.Visible = es || Helper.SearchContains(sourceSearchText, pinyin, it.PY, out _) > 0;
+                        }
+                        if (it.Visible && it.Enabled && it.selected) check_source++;
+                    }
+                }
             }
-
-            // 过滤目标列表
-            if (string.IsNullOrEmpty(targetSearchText)) targetFilteredItems = new List<TransferItem>(targetItems);
-
-            else
-            {
-                targetFilteredItems = targetItems
-                    .Where(item => item.Text?.IndexOf(targetSearchText, StringComparison.OrdinalIgnoreCase) >= 0)
-                    .ToList();
-            }
-            hover_to_right.Enable = sourceFilteredItems.Any(i => i.selected);
-            hover_to_left.Enable = !OneWay && targetFilteredItems.Any(i => i.selected);
+            hover_to_right.Enable = check_source > 0;
+            hover_to_left.Enable = !OneWay && check_target > 0;
             LoadLayout();
             ScrollBarSource.ValueY = 0;
             ScrollBarTarget.ValueY = 0;
@@ -779,46 +1368,75 @@ namespace AntdUI
 
         private void MoveSelectedItemsToRight()
         {
-            bool changed = false;
-            var selectedItems = sourceItems.Where(i => i.selected).ToList();
-            sourceSelectAll = targetSelectAll = false;
-            foreach (var item in selectedItems)
+            if (items == null) return;
+            sourceSelectAll = targetSelectAll = CheckState.Unchecked;
+            List<TransferItem> sourceItems = new List<TransferItem>(items.Count), targetItems = new List<TransferItem>(items.Count),
+                changeItems = new List<TransferItem>(items.Count);
+            foreach (var it in items)
             {
-                sourceItems.Remove(item);
-                item.IsTarget = true;
-                item.selected = false;
-                targetItems.Add(item);
-                changed = true;
+                if (it.Visible && it.Enabled)
+                {
+                    if (it.IsTarget) targetItems.Add(it);
+                    else if (it.selected)
+                    {
+                        changeItems.Add(it);
+                        targetItems.Add(it);
+                        it.selected = false;
+                        it.IsTarget = true;
+                    }
+                    else sourceItems.Add(it);
+                }
             }
-
-            if (changed)
+            if (changeItems.Count > 0)
             {
+                if (ChangeToBottom)
+                {
+                    pause = true;
+                    foreach (var it in changeItems) items.Remove(it);
+                    items.AddRange(changeItems);
+                    pause = false;
+                }
                 ApplyFilter();
-                OnTransferChanged(new TransferEventArgs(sourceItems, targetItems));
+                OnTransferChanged(sourceItems, targetItems);
             }
         }
 
+        bool pause = false;
         private void MoveSelectedItemsToLeft()
         {
-            if (OneWay) return;
-
-            bool changed = false;
-            var selectedItems = targetItems.Where(i => i.selected).ToList();
-            sourceSelectAll = targetSelectAll = false;
-
-            foreach (var item in selectedItems)
+            if (items == null || OneWay) return;
+            List<TransferItem> sourceItems = new List<TransferItem>(items.Count), targetItems = new List<TransferItem>(items.Count),
+                changeItems = new List<TransferItem>(items.Count);
+            sourceSelectAll = targetSelectAll = CheckState.Unchecked;
+            foreach (var it in items)
             {
-                targetItems.Remove(item);
-                item.IsTarget = false;
-                item.selected = false;
-                sourceItems.Add(item);
-                changed = true;
+                if (it.Visible && it.Enabled)
+                {
+                    if (it.IsTarget)
+                    {
+                        if (it.selected)
+                        {
+                            changeItems.Add(it);
+                            sourceItems.Add(it);
+                            it.selected = false;
+                            it.IsTarget = false;
+                        }
+                        else targetItems.Add(it);
+                    }
+                    else sourceItems.Add(it);
+                }
             }
-
-            if (changed)
+            if (changeItems.Count > 0)
             {
+                if (ChangeToBottom)
+                {
+                    pause = true;
+                    foreach (var it in changeItems) items.Remove(it);
+                    items.AddRange(changeItems);
+                    pause = false;
+                }
                 ApplyFilter();
-                OnTransferChanged(new TransferEventArgs(sourceItems, targetItems));
+                OnTransferChanged(sourceItems, targetItems);
             }
         }
 
@@ -828,11 +1446,10 @@ namespace AntdUI
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                hover_to_right.Dispose();
-                hover_to_left.Dispose();
-            }
+            hover_to_right.Dispose();
+            hover_to_left.Dispose();
+            input_source?.Dispose();
+            input_target?.Dispose();
             base.Dispose(disposing);
         }
 
@@ -853,13 +1470,35 @@ namespace AntdUI
         /// 获取源列表项
         /// </summary>
         /// <returns>源列表项</returns>
-        public List<TransferItem> GetSourceItems() => new List<TransferItem>(sourceItems);
+        public List<TransferItem> GetSourceItems()
+        {
+            if (items == null) return new List<TransferItem>(0);
+            var sourceItems = new List<TransferItem>(items.Count);
+            foreach (var it in items)
+            {
+                if (it.Visible && it.Enabled)
+                {
+                    if (it.IsTarget) continue;
+                    sourceItems.Add(it);
+                }
+            }
+            return sourceItems;
+        }
 
         /// <summary>
         /// 获取目标列表项
         /// </summary>
         /// <returns>目标列表项</returns>
-        public List<TransferItem> GetTargetItems() => new List<TransferItem>(targetItems);
+        public List<TransferItem> GetTargetItems()
+        {
+            if (items == null) return new List<TransferItem>(0);
+            var targetItems = new List<TransferItem>(items.Count);
+            foreach (var it in items)
+            {
+                if (it.Visible && it.Enabled && it.IsTarget) targetItems.Add(it);
+            }
+            return targetItems;
+        }
 
         /// <summary>
         /// 设置源列表搜索文本
@@ -867,9 +1506,8 @@ namespace AntdUI
         /// <param name="text">搜索文本</param>
         public void SetSourceSearchText(string text)
         {
-            sourceSearchText = text;
-            OnSearch(new SearchEventArgs(text, true));
-            ApplyFilter();
+            if (input_source == null) SetSourceSearchTextCore(text.Trim());
+            else input_source.Text = text;
         }
 
         /// <summary>
@@ -878,12 +1516,134 @@ namespace AntdUI
         /// <param name="text">搜索文本</param>
         public void SetTargetSearchText(string text)
         {
+            if (input_target == null) SetTargetSearchTextCore(text.Trim());
+            else input_target.Text = text;
+        }
+
+        void SetSourceSearchTextCore(string text)
+        {
+            if (sourceSearchText == text) return;
+            sourceSearchText = text;
+            OnSearch(text, true);
+            ApplyFilter();
+        }
+        void SetTargetSearchTextCore(string text)
+        {
+            if (targetSearchText == text) return;
             targetSearchText = text;
-            OnSearch(new SearchEventArgs(text, false));
+            OnSearch(text, false);
             ApplyFilter();
         }
 
+        /// <summary>
+        /// 按指定顺序设置目标项（通过TransferItem引用）
+        /// </summary>
+        /// <param name="targetItems">目标项集合，按顺序排列</param>
+        public void SetTargetItems(IEnumerable<TransferItem> targetItems)
+        {
+            if (items == null) return;
+            pause = true;
+            foreach (var it in items) it.IsTarget = false;
+            var targetList = new List<TransferItem>();
+            foreach (var targetItem in targetItems)
+            {
+                if (items.Contains(targetItem))
+                {
+                    targetItem.IsTarget = true;
+                    targetList.Add(targetItem);
+                }
+            }
+            var sourceItems = items.Where(it => !it.IsTarget).ToList();
+            items.Dispose();
+            foreach (var it in sourceItems) items.Add(it);
+            foreach (var it in targetList) items.Add(it);
+            pause = false;
+            ApplyFilter();
+        }
+
+        /// <summary>
+        /// 按指定顺序设置目标项（通过ID匹配）
+        /// </summary>
+        /// <param name="targetIds">目标项ID集合，按顺序排列</param>
+        public void SetTargetItemsById(IEnumerable<string> targetIds)
+        {
+            if (items == null) return;
+            pause = true;
+            foreach (var it in items) it.IsTarget = false;
+            var targetList = new List<TransferItem>();
+            foreach (var targetId in targetIds)
+            {
+                var item = items.FirstOrDefault(it => it.ID == targetId);
+                if (item != null)
+                {
+                    item.IsTarget = true;
+                    targetList.Add(item);
+                }
+            }
+            var sourceItems = items.Where(it => !it.IsTarget).ToList();
+            items.Dispose();
+            foreach (var it in sourceItems) items.Add(it);
+            foreach (var it in targetList) items.Add(it);
+            pause = false;
+            ApplyFilter();
+        }
+
+        /// <summary>
+        /// 按指定顺序设置目标项（通过Value匹配）
+        /// </summary>
+        /// <param name="targetValues">目标项Value集合，按顺序排列</param>
+        public void SetTargetItemsByValue(IEnumerable<object> targetValues)
+        {
+            if (items == null) return;
+            pause = true;
+            foreach (var it in items) it.IsTarget = false;
+            var targetList = new List<TransferItem>();
+            foreach (var targetValue in targetValues)
+            {
+                var item = items.FirstOrDefault(it => Equals(it.Value, targetValue));
+                if (item != null)
+                {
+                    item.IsTarget = true;
+                    targetList.Add(item);
+                }
+            }
+            var sourceItems = items.Where(it => !it.IsTarget).ToList();
+            items.Dispose();
+            foreach (var it in sourceItems) items.Add(it);
+            foreach (var it in targetList) items.Add(it);
+            pause = false;
+            ApplyFilter();
+        }
+
+        private void input_source_TextChanged(object? sender, EventArgs e)
+        {
+            if (sender is Input input) SetSourceSearchTextCore(input.Text.Trim());
+        }
+
+        private void input_target_TextChanged(object? sender, EventArgs e)
+        {
+            if (sender is Input input) SetTargetSearchTextCore(input.Text.Trim());
+        }
+
         #endregion
+    }
+
+    public class TransferItemCollection : iCollection<TransferItem>
+    {
+        public TransferItemCollection(Transfer it)
+        {
+            BindData(it);
+        }
+
+        internal TransferItemCollection BindData(Transfer it)
+        {
+            action = render =>
+            {
+                if (render) it.LoadLayout(true);
+                else it.Invalidate();
+            };
+            return this;
+        }
     }
 
     /// <summary>
@@ -922,20 +1682,20 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         /// <summary>
         /// 名称
         /// </summary>
-        [Description("名称"), Category("数据"), DefaultValue(null)]
+        [Description("名称"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? Name { get; set; }
 
         string? text;
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null), Localizable(true)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null), Localizable(true)]
         public string? Text
         {
             get => Localization.GetLangI(LocalizationText, text, new string?[] { "{id}", ID });
@@ -943,7 +1703,7 @@ namespace AntdUI
             {
                 if (text == value) return;
                 text = value;
-                Invalidate();
+                PARENT?.Invalidate();
             }
         }
 
@@ -966,7 +1726,7 @@ namespace AntdUI
             {
                 if (selected == value) return;
                 selected = value;
-                Invalidate();
+                PARENT?.Invalidate();
             }
         }
 
@@ -983,7 +1743,43 @@ namespace AntdUI
             {
                 if (hover == value) return;
                 hover = value;
-                Invalidate();
+                PARENT?.Invalidate();
+            }
+        }
+
+        #endregion
+
+        bool visible = true;
+        /// <summary>
+        /// 是否显示
+        /// </summary>
+        [Description("是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
+        public bool Visible
+        {
+            get => visible;
+            set
+            {
+                if (visible == value) return;
+                visible = value;
+                PARENT?.LoadLayout();
+            }
+        }
+
+        #region 禁用
+
+        bool enabled = true;
+        /// <summary>
+        /// 禁用状态
+        /// </summary>
+        [Description("禁用状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool Enabled
+        {
+            get => enabled;
+            set
+            {
+                if (enabled == value) return;
+                enabled = value;
+                PARENT?.Invalidate();
             }
         }
 
@@ -993,15 +1789,16 @@ namespace AntdUI
         /// 是否在目标列表
         /// </summary>
         public bool IsTarget { get; set; }
+
         public object? Tag { get; set; }
 
         #region 内部
 
+        internal bool show { get; set; }
         internal Transfer? PARENT { get; set; }
         internal Rectangle rect { get; set; }
         internal Rectangle rect_text { get; set; }
         internal Rectangle rect_check { get; set; }
-        void Invalidate() => PARENT?.Invalidate();
 
         #endregion
 
@@ -1026,15 +1823,48 @@ namespace AntdUI
             return this;
         }
 
+        public TransferItem SetVisible(bool value = false)
+        {
+            visible = value;
+            return this;
+        }
+
+        public TransferItem SetEnabled(bool value = false)
+        {
+            enabled = value;
+            return this;
+        }
+
         public TransferItem SetSelected(bool value = true)
         {
             selected = value;
             return this;
         }
 
+        public TransferItem SetTarget(bool value = true)
+        {
+            IsTarget = value;
+            return this;
+        }
+
         public TransferItem SetTag(object? value)
         {
             Tag = value;
+            return this;
+        }
+
+        internal string[]? PY { get; set; }
+        public TransferItem SetPinyin(string? value)
+        {
+            if (value == null) PY = new string[0];
+            else
+            {
+                PY = new string[] {
+                    value.ToLower(),
+                    Pinyin.GetPinyin(value).ToLower(),
+                    Pinyin.GetInitials(value).ToLower()
+                };
+            }
             return this;
         }
 

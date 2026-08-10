@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -49,6 +36,7 @@ namespace AntdUI
                     tmp = control;
                     control.SizeChanged += tmp_SizeChanged;
                     control.LocationChanged += tmp_SizeChanged;
+                    if (config.Form is Window window) return GetControlPath(control, window.Location, config.Scale);
                     return GetControlPath(control, config.Form.Location, config.Scale);
                 }
                 else if (data.Data is Rectangle rect) return rect;
@@ -249,7 +237,6 @@ namespace AntdUI
         Tour.Config config;
         Func<int, Rectangle?> call;
         int i = 0;
-        internal bool topMost = false;
         public LayeredFormTour(Tour.Config _config, Func<int, Rectangle?> _call) : base(240)
         {
             config = _config;
@@ -260,22 +247,20 @@ namespace AntdUI
                 Close();
                 return;
             }
-            topMost = config.Form.SetTopMost(Handle);
+            SetTopMost(config.Form, Handle);
+            SetDpi(config.Form);
             HasBor = config.Form.FormFrame(out Radius, out Bor);
             if (config.Form is Window window)
             {
                 SetSize(window.Size);
                 SetLocation(window.Location);
-                Size = window.Size;
-                Location = window.Location;
             }
             else
             {
                 SetSize(config.Form.Size);
                 SetLocation(config.Form.Location);
-                Size = config.Form.Size;
-                Location = config.Form.Location;
             }
+            Bounds = TargetRect;
         }
 
         public override string name => nameof(Tour);
@@ -289,16 +274,13 @@ namespace AntdUI
             {
                 SetSize(window.Size);
                 SetLocation(window.Location);
-                Size = window.Size;
-                Location = window.Location;
             }
             else
             {
                 SetSize(config.Form.Size);
                 SetLocation(config.Form.Location);
-                Size = config.Form.Size;
-                Location = config.Form.Location;
             }
+            Bounds = TargetRect;
             config.Form.LocationChanged += Form_LSChanged;
             config.Form.SizeChanged += Form_LSChanged;
             base.OnLoad(e);
@@ -310,16 +292,13 @@ namespace AntdUI
             {
                 SetSize(window.Size);
                 SetLocation(window.Location);
-                Size = window.Size;
-                Location = window.Location;
             }
             else
             {
                 SetSize(config.Form.Size);
                 SetLocation(config.Form.Location);
-                Size = config.Form.Size;
-                Location = config.Form.Location;
             }
+            Bounds = TargetRect;
             temp?.Dispose(); temp = null;
             Print();
         }
@@ -368,7 +347,7 @@ namespace AntdUI
         Bitmap PrintBmp(Rectangle rect_read, Rectangle rect)
         {
             var bmp = new Bitmap(rect_read.Width, rect_read.Height);
-            using (var g = Graphics.FromImage(bmp).High())
+            using (var g = Graphics.FromImage(bmp).High(Dpi))
             {
                 using (var brush = new SolidBrush(Color.FromArgb(115, 0, 0, 0)))
                 {

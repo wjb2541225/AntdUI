@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -39,7 +26,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -57,7 +44,7 @@ namespace AntdUI
         /// <summary>
         /// 状态
         /// </summary>
-        [Description("状态"), Category("外观"), DefaultValue(TState.Default)]
+        [Description("状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TState.Default)]
         public TState State
         {
             get => state;
@@ -75,7 +62,7 @@ namespace AntdUI
         /// <summary>
         /// 点比例
         /// </summary>
-        [Description("点比例"), Category("外观"), DefaultValue(.4F)]
+        [Description("点比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.4F)]
         public float DotRatio
         {
             get => dotratio;
@@ -92,7 +79,7 @@ namespace AntdUI
         /// <summary>
         /// 间隔
         /// </summary>
-        [Description("间隔"), Category("外观"), DefaultValue(0)]
+        [Description("间隔"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Gap
         {
             get => gap;
@@ -110,7 +97,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -135,7 +122,7 @@ namespace AntdUI
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("外观"), DefaultValue(ContentAlignment.MiddleLeft)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -153,7 +140,7 @@ namespace AntdUI
         /// <summary>
         /// 颜色
         /// </summary>
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -172,7 +159,7 @@ namespace AntdUI
         void StartAnimation()
         {
             StopAnimation();
-            if (Config.HasAnimation(nameof(AntdUI.Badge)) && state == TState.Processing)
+            if (Config.HasAnimation(nameof(AntdUI.Badge), Name) && state == TState.Processing)
             {
                 ThreadState = new AnimationTask(new AnimationLinearConfig(this, i =>
                 {
@@ -214,14 +201,14 @@ namespace AntdUI
                     if (state == TState.Processing)
                     {
                         float max = size.Height * AnimationStateValue, alpha = 255 * (1F - AnimationStateValue);
-                        g.DrawEllipse(Helper.ToColor(alpha, brush.Color), 4F * Config.Dpi, new RectangleF((rect.Width - max) / 2F, (rect.Height - max) / 2F, max, max));
+                        g.DrawEllipse(Helper.ToColor(alpha, brush.Color), 4F * Dpi, new RectangleF((rect.Width - max) / 2F, (rect.Height - max) / 2F, max, max));
                     }
                 }
             }
             else
             {
                 var size = g.MeasureText(Text, Font);
-                int dot_size = (int)(size.Height * dotratio), _gap = (int)(gap * Config.Dpi);
+                int dot_size = (int)(size.Height * dotratio), _gap = (int)(gap * Dpi);
                 using (var brush = new SolidBrush(GetColor(fill, state)))
                 {
                     var rect_dot = new RectangleF(rect.X + (size.Height - dot_size) / 2, rect.Y + (rect.Height - dot_size) / 2, dot_size, dot_size);
@@ -229,10 +216,10 @@ namespace AntdUI
                     if (state == TState.Processing)
                     {
                         float max = size.Height * AnimationStateValue, alpha = 255 * (1F - AnimationStateValue);
-                        g.DrawEllipse(Helper.ToColor(alpha, brush.Color), 4F * Config.Dpi, new RectangleF(rect_dot.X + (rect_dot.Width - max) / 2F, rect_dot.Y + (rect_dot.Height - max) / 2F, max, max));
+                        g.DrawEllipse(Helper.ToColor(alpha, brush.Color), 4F * Dpi, new RectangleF(rect_dot.X + (rect_dot.Width - max) / 2F, rect_dot.Y + (rect_dot.Height - max) / 2F, max, max));
                     }
                 }
-                using (var brush = fore.Brush(Colour.Text.Get(nameof(AntdUI.Badge), ColorScheme), Colour.TextQuaternary.Get(nameof(AntdUI.Badge), "foreDisabled", ColorScheme), Enabled))
+                using (var brush = fore.Brush(Colour.Text.Get(ColorScheme, nameof(AntdUI.Badge), Name), Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(AntdUI.Badge), Name), Enabled))
                 {
                     g.DrawText(Text, Font, brush, new Rectangle(rect.X + _gap + size.Height, rect.Y, rect.Width - size.Height, rect.Height), s_f);
                 }
@@ -251,12 +238,12 @@ namespace AntdUI
         {
             switch (state)
             {
-                case TState.Success: return Colour.Success.Get(nameof(AntdUI.Badge), ColorScheme);
-                case TState.Error: return Colour.Error.Get(nameof(AntdUI.Badge), ColorScheme);
+                case TState.Success: return Colour.Success.Get(ColorScheme, nameof(AntdUI.Badge), Name);
+                case TState.Error: return Colour.Error.Get(ColorScheme, nameof(AntdUI.Badge), Name);
                 case TState.Primary:
-                case TState.Processing: return Colour.Primary.Get(nameof(AntdUI.Badge), ColorScheme);
-                case TState.Warn: return Colour.Warning.Get(nameof(AntdUI.Badge), ColorScheme);
-                default: return Colour.TextQuaternary.Get(nameof(AntdUI.Badge), ColorScheme);
+                case TState.Processing: return Colour.Primary.Get(ColorScheme, nameof(AntdUI.Badge), Name);
+                case TState.Warn: return Colour.Warning.Get(ColorScheme, nameof(AntdUI.Badge), Name);
+                default: return Colour.TextQuaternary.Get(ColorScheme, nameof(AntdUI.Badge), Name);
             }
         }
 
@@ -270,7 +257,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -291,7 +278,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("外观"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -318,11 +305,11 @@ namespace AntdUI
             return PSize;
         }
 
-        public Size PSize
+        public virtual Size PSize
         {
             get
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     if (has_text)
                     {

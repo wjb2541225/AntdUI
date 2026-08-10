@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -48,7 +35,7 @@ namespace AntdUI
         /// <summary>
         /// 右侧部分的文本颜色
         /// </summary>
-        [Description("右侧部分的文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("右侧部分的文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fore
         {
@@ -66,7 +53,7 @@ namespace AntdUI
         /// <summary>
         /// 右侧部分的背景颜色
         /// </summary>
-        [Description("右侧部分的背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("右侧部分的背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Color
         {
@@ -84,7 +71,7 @@ namespace AntdUI
         /// <summary>
         /// 左侧部分的文本颜色
         /// </summary>
-        [Description("左侧部分的文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("左侧部分的文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? LabelFore
         {
@@ -102,7 +89,7 @@ namespace AntdUI
         /// <summary>
         /// 左侧部分的背景颜色
         /// </summary>
-        [Description("左侧部分的背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("左侧部分的背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? LabelColor
         {
@@ -120,7 +107,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -139,7 +126,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue("AntdUI")]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue("AntdUI")]
         public override string Text
         {
             get => this.GetLangIN(LocalizationText, text);
@@ -161,7 +148,7 @@ namespace AntdUI
         /// <summary>
         /// 左侧文本
         /// </summary>
-        [Description("左侧文本"), Category("外观"), DefaultValue(null), Localizable(true)]
+        [Description("左侧文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null), Localizable(true)]
         public string? Label
         {
             get => this.GetLangI(LocalizationLabel, label);
@@ -183,7 +170,7 @@ namespace AntdUI
         /// <summary>
         /// 左侧文本粗体
         /// </summary>
-        [Description("左侧文本粗体"), Category("外观"), DefaultValue(false)]
+        [Description("左侧文本粗体"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Bold { get; set; }
 
         /// <summary>
@@ -201,7 +188,7 @@ namespace AntdUI
         #endregion
 
         Image? logo;
-        [Description("Logo"), Category("外观"), DefaultValue(null)]
+        [Description("Logo"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Logo
         {
             get => logo;
@@ -215,7 +202,7 @@ namespace AntdUI
         }
 
         string? logoSvg;
-        [Description("LogoSvg"), Category("外观"), DefaultValue(null)]
+        [Description("LogoSvg"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? LogoSvg
         {
             get => logoSvg;
@@ -258,7 +245,7 @@ namespace AntdUI
                     PaintBack(g, rect_l_full);
                     Color _fore = fore ?? System.Drawing.Color.White;
                     if (logo != null) g.Image(logo, rect_logo);
-                    if (logoSvg != null) g.GetImgExtend(logoSvg, rect_logo, _fore);
+                    if (logoSvg != null) g.Svg(logoSvg, rect_logo, _fore);
                     PaintFore(g, Text, Font, _fore, rect_r, Bold);
                 }
             }
@@ -286,7 +273,7 @@ namespace AntdUI
                     PaintBack(g, rect_l_full, rect_r);
                     Color _label = labelFore ?? System.Drawing.Color.White;
                     if (logo != null) g.Image(logo, rect_logo);
-                    if (logoSvg != null) g.GetImgExtend(logoSvg, rect_logo, _label);
+                    if (logoSvg != null) g.Svg(logoSvg, rect_logo, _label);
                     PaintFore(g, Label, Font, _label, rect_l);
                     PaintFore(g, Text, Font, fore ?? System.Drawing.Color.White, rect_r, Bold);
                 }
@@ -298,7 +285,7 @@ namespace AntdUI
         {
             if (radius > 0)
             {
-                float _radius = radius * Config.Dpi;
+                float _radius = radius * Dpi;
                 using (var path = rect_l.RoundPath(_radius, true, false, false, true))
                 {
                     g.Fill(labelColor ?? System.Drawing.Color.FromArgb(85, 85, 85), path);
@@ -318,7 +305,7 @@ namespace AntdUI
         {
             if (radius > 0)
             {
-                float _radius = radius * Config.Dpi;
+                float _radius = radius * Dpi;
                 using (var path = rect.RoundPath(_radius))
                 {
                     g.Fill(color ?? System.Drawing.Color.FromArgb(68, 204, 17), path);
@@ -339,7 +326,7 @@ namespace AntdUI
         }
         void PaintFore(Canvas g, string? text, Font font, Color color, Rectangle rect)
         {
-            if (ShadowOffsetX > 0 || ShadowOffsetY > 0) g.String(text, font, System.Drawing.Color.FromArgb(77, 1, 1, 1), new Rectangle(rect.X + (int)(ShadowOffsetX * Config.Dpi), rect.Y + (int)(ShadowOffsetY * Config.Dpi), rect.Width, rect.Height));
+            if (ShadowOffsetX > 0 || ShadowOffsetY > 0) g.String(text, font, System.Drawing.Color.FromArgb(77, 1, 1, 1), new Rectangle(rect.X + (int)(ShadowOffsetX * Dpi), rect.Y + (int)(ShadowOffsetY * Dpi), rect.Width, rect.Height));
             g.String(text, font, color, rect);
         }
 
@@ -351,7 +338,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -372,7 +359,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("外观"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -399,11 +386,11 @@ namespace AntdUI
             return PSize;
         }
 
-        public Size PSize
+        public virtual Size PSize
         {
             get
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     if (label == null)
                     {

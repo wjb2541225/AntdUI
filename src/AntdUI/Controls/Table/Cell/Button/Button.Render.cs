@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -24,7 +11,7 @@ namespace AntdUI
 {
     partial class CellButton
     {
-        public override void Paint(Canvas g, Font font, bool enable, SolidBrush fore) => Table.PaintButton(g, font, PARENT.PARENT.Gaps, Rect, this, enable, PARENT.PARENT.ColorScheme);
+        public override void Paint(Canvas g, Font font, bool enable, SolidBrush fore) => Table.PaintButton(g, font, PARENT.PARENT.Gaps, Rect, this, enable, PARENT.PARENT.ColorScheme, PARENT.PARENT.Name);
 
         #region GetSize
 
@@ -32,12 +19,12 @@ namespace AntdUI
         {
             if (Gap.HasValue)
             {
-                int sp = (int)(Gap.Value * Config.Dpi);
+                int sp = (int)(Gap.Value * g.Dpi);
                 return GetSizeCore(g, font, sp, sp * 2);
             }
             else if (PARENT.PARENT.GapCell.HasValue)
             {
-                int sp = (int)(PARENT.PARENT.GapCell.Value * Config.Dpi);
+                int sp = (int)(PARENT.PARENT.GapCell.Value * g.Dpi);
                 return GetSizeCore(g, font, sp, sp * 2);
             }
             else return GetSizeCore(g, font, gap.x, gap.x2);
@@ -88,24 +75,24 @@ namespace AntdUI
                     switch (Type)
                     {
                         case TTypeMini.Default:
-                            if (BorderWidth > 0) _back_hover = Colour.PrimaryHover.Get(nameof(Button), PARENT.PARENT.ColorScheme);
-                            else _back_hover = Colour.FillSecondary.Get(nameof(Button), PARENT.PARENT.ColorScheme);
+                            if (BorderWidth > 0) _back_hover = Colour.PrimaryHover.Get(PARENT.PARENT.ColorScheme, nameof(Button), PARENT.PARENT.Name);
+                            else _back_hover = Colour.FillSecondary.Get(PARENT.PARENT.ColorScheme, nameof(Button), PARENT.PARENT.Name);
                             break;
                         case TTypeMini.Success:
-                            _back_hover = Colour.SuccessHover.Get(nameof(Button), PARENT.PARENT.ColorScheme);
+                            _back_hover = Colour.SuccessHover.Get(PARENT.PARENT.ColorScheme, nameof(Button), PARENT.PARENT.Name);
                             break;
                         case TTypeMini.Error:
-                            _back_hover = Colour.ErrorHover.Get(nameof(Button), PARENT.PARENT.ColorScheme);
+                            _back_hover = Colour.ErrorHover.Get(PARENT.PARENT.ColorScheme, nameof(Button), PARENT.PARENT.Name);
                             break;
                         case TTypeMini.Info:
-                            _back_hover = Colour.InfoHover.Get(nameof(Button), PARENT.PARENT.ColorScheme);
+                            _back_hover = Colour.InfoHover.Get(PARENT.PARENT.ColorScheme, nameof(Button), PARENT.PARENT.Name);
                             break;
                         case TTypeMini.Warn:
-                            _back_hover = Colour.WarningHover.Get(nameof(Button), PARENT.PARENT.ColorScheme);
+                            _back_hover = Colour.WarningHover.Get(PARENT.PARENT.ColorScheme, nameof(Button), PARENT.PARENT.Name);
                             break;
                         case TTypeMini.Primary:
                         default:
-                            _back_hover = Colour.PrimaryHover.Get(nameof(Button), PARENT.PARENT.ColorScheme);
+                            _back_hover = Colour.PrimaryHover.Get(PARENT.PARENT.ColorScheme, nameof(Button), PARENT.PARENT.Name);
                             break;
                     }
 

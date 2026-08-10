@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +32,7 @@ namespace AntdUI
         /// <summary>
         /// 是否列表样式
         /// </summary>
-        [Description("是否列表样式"), Category("外观"), DefaultValue(false)]
+        [Description("是否列表样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool List
         {
             get => _list;
@@ -61,91 +48,97 @@ namespace AntdUI
         /// <summary>
         /// 菜单弹出位置
         /// </summary>
-        [Description("菜单弹出位置"), Category("行为"), DefaultValue(TAlignFrom.BL)]
+        [Description("菜单弹出位置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TAlignFrom.BL)]
         public TAlignFrom Placement { get; set; } = TAlignFrom.BL;
 
         /// <summary>
         /// 是否列表自动宽度
         /// </summary>
-        [Description("是否列表自动宽度"), Category("行为"), DefaultValue(false)]
+        [Description("是否列表自动宽度"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ListAutoWidth { get; set; }
 
         /// <summary>
         /// 列表最多显示条数
         /// </summary>
-        [Description("列表最多显示条数"), Category("行为"), DefaultValue(4)]
+        [Description("列表最多显示条数"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(4)]
         public int MaxCount { get; set; } = 4;
 
         /// <summary>
         /// 下拉圆角
         /// </summary>
-        [Description("下拉圆角"), Category("外观"), DefaultValue(null)]
+        [Description("下拉圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? DropDownRadius { get; set; }
 
         /// <summary>
         /// 下拉箭头是否显示
         /// </summary>
-        [Description("下拉箭头是否显示"), Category("外观"), DefaultValue(false)]
+        [Description("下拉箭头是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool DropDownArrow { get; set; }
 
         /// <summary>
         /// 下拉边距
         /// </summary>
-        [Description("下拉边距"), Category("外观"), DefaultValue(typeof(Size), "12, 5")]
+        [Description("下拉边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "12, 5")]
         public Size DropDownPadding { get; set; } = new Size(12, 5);
 
         /// <summary>
         /// 下拉文本方向
         /// </summary>
-        [Description("下拉文本方向"), Category("外观"), DefaultValue(TAlign.Left)]
+        [Description("下拉文本方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlign.Left)]
         public TAlign DropDownTextAlign { get; set; } = TAlign.Left;
 
         /// <summary>
         /// 是否允许回车键触发下拉框
         /// </summary>
-        [Description("是否允许回车键触发下拉框"), Category("行为"), DefaultValue(true)]
+        [Description("是否允许回车键触发下拉框"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool EnterDropDown { get; set; } = true;
 
         /// <summary>
         /// 下拉为空关闭
         /// </summary>
-        [Description("下拉为空关闭"), Category("行为"), DefaultValue(false)]
+        [Description("下拉为空关闭"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool DropDownEmptyClose { get; set; }
 
         /// <summary>
         /// 点击到最里层（无节点才能点击）
         /// </summary>
-        [Description("点击到最里层（无节点才能点击）"), Category("行为"), DefaultValue(false)]
+        [Description("点击到最里层（无节点才能点击）"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ClickEnd { get; set; }
 
         /// <summary>
         /// 点击切换下拉
         /// </summary>
-        [Description("点击切换下拉"), Category("行为"), DefaultValue(true)]
+        [Description("点击切换下拉"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool ClickSwitchDropdown { get; set; } = true;
 
         /// <summary>
         /// 是否显示关闭图标
         /// </summary>
-        [Description("是否显示关闭图标"), Category("行为"), DefaultValue(false)]
+        [Description("是否显示关闭图标"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool CloseIcon { get; set; }
 
         /// <summary>
         /// 为空依旧下拉
         /// </summary>
-        [Description("为空依旧下拉"), Category("外观"), DefaultValue(false)]
+        [Description("为空依旧下拉"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Empty { get; set; }
 
         /// <summary>
         /// 自动设置下拉前缀
         /// </summary>
-        [Description("自动设置下拉前缀"), Category("外观"), DefaultValue(false)]
+        [Description("自动设置下拉前缀"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool AutoPrefixSvg { get; set; }
+
+        /// <summary>
+        /// 自动设置文本
+        /// </summary>
+        [Description("自动设置文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
+        public bool AutoText { get; set; } = true;
 
         /// <summary>
         /// 鼠标滚轮修改值
         /// </summary>
-        [Description("鼠标滚轮修改值"), Category("交互"), DefaultValue(true)]
+        [Description("鼠标滚轮修改值"), Category(nameof(CategoryAttribute.Action)), DefaultValue(true)]
         public bool WheelModifyEnabled { get; set; } = true;
 
         #region 数据
@@ -156,7 +149,7 @@ namespace AntdUI
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Editor("System.Windows.Forms.Design.ListControlStringCollectionEditor", typeof(UITypeEditor))]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public BaseCollection Items
         {
             get
@@ -172,7 +165,7 @@ namespace AntdUI
         /// <summary>
         /// 选中序号
         /// </summary>
-        [Description("选中序号"), Category("数据"), DefaultValue(-1)]
+        [Description("选中序号"), Category(nameof(CategoryAttribute.Data)), DefaultValue(-1)]
         public int SelectedIndex
         {
             get => selectedIndex;
@@ -196,7 +189,7 @@ namespace AntdUI
         /// 选中值
         /// </summary>
         [Browsable(false)]
-        [Description("选中值"), Category("数据"), DefaultValue(null)]
+        [Description("选中值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? SelectedValue
         {
             get => selectedValue;
@@ -216,14 +209,17 @@ namespace AntdUI
         object? selectedValue;
         SelectItem? selectedItem;
 
+        bool noex = false;
         void ChangeValueNULL()
         {
+            noex = true;
             Text = "";
             selectedItem = null;
             selectedValue = null;
             selectedIndex = -1;
             OnSelectedValueChanged(selectedValue);
             OnSelectedIndexChanged(selectedIndex);
+            noex = false;
         }
 
         void ChangeValue(int value, object? obj)
@@ -234,17 +230,26 @@ namespace AntdUI
                 selectedItem = it;
                 selectedValue = it.Tag;
                 if (AutoPrefixSvg) PrefixSvg = it.IconSvg;
-                Text = it.Text;
+                ChangeText(it.Text);
             }
             else
             {
                 selectedItem = null;
                 selectedValue = obj;
-                if (obj == null) Text = "";
-                else Text = obj.ToString() ?? "";
+                ChangeText(obj?.ToString());
             }
             OnSelectedValueChanged(selectedValue);
             OnSelectedIndexChanged(selectedIndex);
+        }
+        bool disableText = false;
+        void ChangeText(string? text)
+        {
+            if (AutoText)
+            {
+                disableText = true;
+                Text = text ?? "";
+                disableText = false;
+            }
         }
         void SetChangeValue(BaseCollection items, object val)
         {
@@ -263,38 +268,51 @@ namespace AntdUI
                 }
                 else if (item is SelectItem itp && itp.Sub != null && itp.Sub.Count > 0)
                 {
-                    foreach (var sub in itp.Sub)
-                    {
-                        if (val.Equals(sub))
-                        {
-                            ChangeValue(i, sub);
-                            return;
-                        }
-                        else if (sub is SelectItem it2 && it2.Tag.Equals(val))
-                        {
-                            ChangeValue(i, sub);
-                            return;
-                        }
-                    }
+                    if (FindSelectItemInSub(itp.Sub, val, i))
+                        return;
                 }
                 else if (item is GroupSelectItem group && group.Sub != null && group.Sub.Count > 0)
                 {
-                    foreach (var sub in group.Sub)
-                    {
-                        if (val.Equals(sub))
-                        {
-                            ChangeValue(i, sub);
-                            return;
-                        }
-                        else if (sub is SelectItem it2 && it2.Tag.Equals(val))
-                        {
-                            ChangeValue(i, sub);
-                            return;
-                        }
-                    }
+                    if (FindSelectItemInSub(group.Sub, val, i))
+                        return;
                 }
             }
             ChangeValue(items.IndexOf(val), val);
+        }
+
+        /// <summary>
+        /// 在子项中查找匹配的 SelectItem 或 GroupSelectItem，并触发 ChangeValue。
+        /// </summary>
+        /// <param name="subItems">要查找的子项集合。</param>
+        /// <param name="val">要匹配的值。</param>
+        /// <param name="parentIndex">父项的索引，用于 ChangeValue。</param>
+        /// <returns>如果找到匹配项并成功触发 ChangeValue，则返回 true；否则返回 false。</returns>
+        private bool FindSelectItemInSub(IList<Object> subItems, object val, int parentIndex)
+        {
+            foreach (var sub in subItems)
+            {
+                if (val.Equals(sub))
+                {
+                    ChangeValue(parentIndex, sub);
+                    return true;
+                }
+                else if (sub is SelectItem it && it.Tag?.Equals(val) == true)
+                {
+                    ChangeValue(parentIndex, sub);
+                    return true;
+                }
+                else if (sub is SelectItem itp && itp.Sub != null && itp.Sub.Count > 0)
+                {
+                    if (FindSelectItemInSub(itp.Sub, val, parentIndex))
+                        return true;
+                }
+                else if (sub is GroupSelectItem group && group.Sub != null && group.Sub.Count > 0)
+                {
+                    if (FindSelectItemInSub(group.Sub, val, parentIndex))
+                        return true;
+                }
+            }
+            return false;
         }
 
         internal void DropDownChange(int x, int y, object value, SelectItem? item, string text)
@@ -303,7 +321,7 @@ namespace AntdUI
             selectedIndex = y;
             selectedItem = item;
             selectedValue = value;
-            Text = text;
+            ChangeText(text);
             if (AutoPrefixSvg && item != null) PrefixSvg = item.IconSvg;
             OnSelectedValueChanged(selectedValue);
             OnSelectedIndexChanged(selectedIndex);
@@ -327,7 +345,7 @@ namespace AntdUI
         /// <summary>
         /// SelectedIndex 属性值更改时发生
         /// </summary>
-        [Description("SelectedIndex 属性值更改时发生"), Category("行为")]
+        [Description("SelectedIndex 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event IntEventHandler? SelectedIndexChanged;
 
         protected virtual void OnSelectedIndexChanged(int e) => SelectedIndexChanged?.Invoke(this, new IntEventArgs(e));
@@ -335,13 +353,13 @@ namespace AntdUI
         /// <summary>
         /// 多层树结构更改时发生
         /// </summary>
-        [Description("多层树结构更改时发生"), Category("行为"), Obsolete("use SelectedValueChanged")]
+        [Description("多层树结构更改时发生"), Category(nameof(CategoryAttribute.Behavior)), Obsolete("use SelectedValueChanged")]
         public event IntXYEventHandler? SelectedIndexsChanged;
 
         /// <summary>
         /// SelectedValue 属性值更改时发生
         /// </summary>
-        [Description("SelectedValue 属性值更改时发生"), Category("行为")]
+        [Description("SelectedValue 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ObjectNEventHandler? SelectedValueChanged;
 
         protected virtual void OnSelectedValueChanged(object? e) => SelectedValueChanged?.Invoke(this, new ObjectNEventArgs(e));
@@ -349,15 +367,37 @@ namespace AntdUI
         /// <summary>
         /// 下拉展开 属性值更改时发生
         /// </summary>
-        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        [Description("下拉展开 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? ExpandDropChanged;
 
         protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
 
         /// <summary>
+        /// 子项外部渲染前触发
+        /// </summary>
+        [Description("子项外部渲染前触发"), Category(nameof(CategoryAttribute.Appearance))]
+        public event DrawItemEventHandler? DrawItem;
+
+        public virtual bool OnDrawItem(Canvas canvas, Rectangle rect, SelectItemDraw item, bool select, out Color? fore, out Color? foreSub, out Font? font)
+        {
+            if (DrawItem == null)
+            {
+                fore = foreSub = null;
+                font = null;
+                return false;
+            }
+            var args = new DrawItemEventArgs(canvas, rect, item, select);
+            DrawItem(this, args);
+            fore = args.Fore;
+            foreSub = args.ForeSub;
+            font = args.Font;
+            return args.Handled;
+        }
+
+        /// <summary>
         /// 关闭某项 时发生
         /// </summary>
-        [Description("关闭某项 时发生"), Category("行为")]
+        [Description("关闭某项 时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ObjectNEventHandler? ClosedItem;
 
         public delegate IList<object>? FilterEventHandler(object sender, string value);
@@ -365,20 +405,22 @@ namespace AntdUI
         /// <summary>
         /// 控制筛选 Text更改时发生
         /// </summary>
-        [Description("控制筛选 Text更改时发生"), Category("行为")]
+        [Description("控制筛选 Text更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event FilterEventHandler? FilterChanged;
 
         string? filtertext;
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
+            if (disableText) return;
             if (HasFocus)
             {
-                if (filtertext == Text) return;
-                filtertext = Text;
+                var searchText = Text.Trim();
+                if (noex || filtertext == searchText) return;
+                filtertext = searchText;
                 if (FilterChanged == null)
                 {
-                    if (expandDrop) subForm?.TextChange(Text);
+                    if (expandDrop) subForm?.TextChange(filtertext);
                     else ExpandDrop = true;
                 }
                 else
@@ -390,7 +432,7 @@ namespace AntdUI
                         if (filtertext == temp)
                         {
                             Items.Clear();
-                            if (list == null || list.Count == 0) subForm?.IClose();
+                            if (list == null || list.Count == 0) CloseSubForm(true);
                             else
                             {
                                 Items.AddRange(list);
@@ -415,7 +457,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示图标
         /// </summary>
-        [Description("是否显示图标"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowIcon
         {
             get => showicon;
@@ -434,10 +476,10 @@ namespace AntdUI
         {
             if (showicon)
             {
-                using (var pen = new Pen(Colour.TextQuaternary.Get(nameof(Select), ColorScheme), 2F))
+                using (var pen = new Pen(Colour.TextQuaternary.Get(ColorScheme, nameof(Select), Name), 2F))
                 {
                     pen.StartCap = pen.EndCap = LineCap.Round;
-                    g.DrawLines(pen, rect_r.TriangleLines(ArrowProg));
+                    g.DrawLines(pen, rect_r.TriangleLinesVertical(ArrowProg));
                 }
             }
         }
@@ -458,7 +500,7 @@ namespace AntdUI
         /// 箭头是否展开(UI)
         /// </summary>
         [Browsable(false)]
-        [Description("箭头是否展开(UI)"), Category("外观"), DefaultValue(false)]
+        [Description("箭头是否展开(UI)"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Expand
         {
             get => expand;
@@ -490,7 +532,7 @@ namespace AntdUI
         /// 展开下拉菜单
         /// </summary>
         [Browsable(false)]
-        [Description("展开下拉菜单"), Category("行为"), DefaultValue(false)]
+        [Description("展开下拉菜单"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ExpandDrop
         {
             get => expandDrop;
@@ -498,38 +540,40 @@ namespace AntdUI
             {
                 if (expandDrop == value) return;
                 expandDrop = value;
-                if (value)
+                if (IsHandleCreated)
                 {
-                    if (ReadOnly || items == null || items.Count == 0)
-                    {
-                        if (Empty && subForm == null) ShowLayeredForm(new List<object>(0));
-                        else
-                        {
-                            subForm?.IClose();
-                            subForm = null;
-                            expandDrop = false;
-                        }
-                    }
-                    else
-                    {
-                        if (subForm == null)
-                        {
-                            var objs = new List<object>(items.Count);
-                            foreach (var it in items) objs.Add(it);
-                            ShowLayeredForm(objs);
-                        }
-                    }
+                    if (value) OpenSubForm();
+                    else CloseSubForm(true);
                 }
-                else
-                {
-                    subForm?.IClose();
-                    subForm = null;
-                    filtertext = "";
-                }
+                else if (!value) filtertext = "";
                 OnExpandDropChanged(value);
             }
         }
 
+        void CloseSubForm(bool close)
+        {
+            if (close) subForm?.IClose();
+            subForm = null;
+            ExpandDrop = false;
+            filtertext = "";
+        }
+        void OpenSubForm()
+        {
+            if (ReadOnly || items == null || items.Count == 0)
+            {
+                if (Empty && subForm == null) ShowLayeredForm(new List<object>(0));
+                else CloseSubForm(true);
+            }
+            else
+            {
+                if (subForm == null)
+                {
+                    var objs = new List<object>(items.Count);
+                    foreach (var it in items) objs.Add(it);
+                    ShowLayeredForm(objs);
+                }
+            }
+        }
         void ShowLayeredForm(IList<object> list)
         {
             try
@@ -545,14 +589,13 @@ namespace AntdUI
                 subForm.Disposed += (a, b) =>
                 {
                     select_x = 0;
-                    subForm = null;
                     Expand = false;
-                    ExpandDrop = false;
+                    CloseSubForm(false);
                 };
             }
             catch
             {
-                subForm = null;
+                CloseSubForm(true);
             }
         }
 
@@ -653,6 +696,7 @@ namespace AntdUI
         {
             this.AddListener();
             base.OnHandleCreated(e);
+            if (expandDrop) OpenSubForm();
         }
         public void HandleEvent(EventType id, object? tag)
         {
@@ -660,7 +704,7 @@ namespace AntdUI
             switch (id)
             {
                 case EventType.LANG:
-                    Text = selectedItem.Text;
+                    ChangeText(selectedItem.Text);
                     break;
             }
         }
@@ -671,7 +715,7 @@ namespace AntdUI
     public class DividerSelectItem : ISelectItem
     {
     }
-    public class SelectItem : ISelectItem, iSelectItem
+    public class SelectItem : ISelectItem, SelectItemDraw
     {
         public SelectItem(int online, Image? ico, string text, object tag) : this(text, tag)
         {
@@ -775,6 +819,9 @@ namespace AntdUI
         public int MaxCount { get; set; }
 
         public object Tag { get; set; }
+
+        internal int TextWidth { get; set; }
+        internal int SubTextWidth { get; set; }
 
         #region 主题
 
@@ -955,7 +1002,7 @@ namespace AntdUI
         public override string ToString() => Text;
     }
 
-    internal interface iSelectItem
+    public interface SelectItemDraw
     {
         /// <summary>
         /// 在线状态
@@ -1038,6 +1085,11 @@ namespace AntdUI
 
     public class GroupSelectItem : ISelectItem
     {
+        public GroupSelectItem()
+        {
+            _title = "";
+        }
+
         public GroupSelectItem(string title)
         {
             _title = title;
@@ -1065,6 +1117,29 @@ namespace AntdUI
 
         public object? Tag { get; set; }
 
+        #region 设置
+
+        public GroupSelectItem SetTitle(string value, string? localization = null)
+        {
+            _title = value;
+            LocalizationTitle = localization;
+            return this;
+        }
+
+        public GroupSelectItem SetSub(params object[] value)
+        {
+            Sub = value;
+            return this;
+        }
+
+        public GroupSelectItem SetTag(object? value)
+        {
+            Tag = value;
+            return this;
+        }
+
+        #endregion
+
         public override string ToString() => Title;
     }
     public class ISelectItem { }
@@ -1077,7 +1152,14 @@ namespace AntdUI
             Value = value;
         }
         public int Weight { get; set; }
+        public string? Group { get; set; }
         public virtual object Value { get; set; }
+
+        public virtual iItemSearchWeigth SetGroup(string? value)
+        {
+            Group = value;
+            return this;
+        }
     }
     public class ItemSearchWeigth<T> : iItemSearchWeigth
     {
@@ -1086,9 +1168,15 @@ namespace AntdUI
             Value = value;
         }
         public new T Value { get; set; }
+
+        public new ItemSearchWeigth<T> SetGroup(string? value)
+        {
+            Group = value;
+            return this;
+        }
     }
 
-    internal class ObjectItem : iSelectItem
+    internal class ObjectItem : SelectItemDraw
     {
         public ObjectItem(object item, int i, Rectangle rect, Rectangle rect_text)
         {
@@ -1249,6 +1337,7 @@ namespace AntdUI
 
         public Rectangle Rect { get; set; }
         public Rectangle RectText { get; set; }
+        public Rectangle RectSubText { get; set; }
         public Rectangle RectArrow { get; set; }
         public Rectangle RectClose { get; set; }
         public bool HoverClose { get; set; }
@@ -1283,7 +1372,7 @@ namespace AntdUI
         }
     }
 
-    internal class ObjectItemCheck : iSelectItem
+    internal class ObjectItemCheck : SelectItemDraw
     {
         public ObjectItemCheck(object item, Rectangle rect, Rectangle rect_text, Rectangle rect_check)
         {
@@ -1485,7 +1574,7 @@ namespace AntdUI
             }
         }
 
-        public IList<object> List { get; private set; }
+        public IList<object> List { get; internal set; }
         public Dictionary<object, int> Dir { get; private set; }
 
         public int this[object obj]

@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -86,14 +73,14 @@ namespace AntdUI
         /// <summary>
         /// 滑块大小
         /// </summary>
-        [Description("滑块大小"), Category("行为"), DefaultValue(20)]
+        [Description("滑块大小"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(20)]
         public int SplitterSize { get; set; } = 20;
 
         int? splitterWidth;
         /// <summary>
         /// 确定拆分器的粗细
         /// </summary>
-        [Description("确定拆分器的粗细"), Category("布局"), DefaultValue(4)]
+        [Description("确定拆分器的粗细"), Category(nameof(CategoryAttribute.Layout)), DefaultValue(4)]
         public new int SplitterWidth
         {
             get => splitterWidth ?? base.SplitterWidth;
@@ -109,7 +96,7 @@ namespace AntdUI
         /// <summary>
         /// 滑块背景
         /// </summary>
-        [Description("滑块背景"), DefaultValue(null), Category("外观")]
+        [Description("滑块背景"), DefaultValue(null), Category(nameof(CategoryAttribute.Appearance))]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? SplitterBack
         {
@@ -125,7 +112,7 @@ namespace AntdUI
         /// <summary>
         /// 滑块移动背景
         /// </summary>
-        [Description("滑块移动背景"), DefaultValue(null), Category("外观")]
+        [Description("滑块移动背景"), DefaultValue(null), Category(nameof(CategoryAttribute.Appearance))]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? SplitterBackMove { get; set; }
 
@@ -133,7 +120,7 @@ namespace AntdUI
         /// <summary>
         /// 箭头颜色
         /// </summary>
-        [Description("箭头颜色"), DefaultValue(null), Category("外观")]
+        [Description("箭头颜色"), DefaultValue(null), Category(nameof(CategoryAttribute.Appearance))]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ArrowColor
         {
@@ -149,12 +136,12 @@ namespace AntdUI
         /// <summary>
         /// 鼠标悬浮箭头颜色
         /// </summary>
-        [Description("鼠标悬浮箭头颜色"), DefaultValue(null), Category("外观")]
+        [Description("鼠标悬浮箭头颜色"), DefaultValue(null), Category(nameof(CategoryAttribute.Appearance))]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ArrawColorHover { get; set; }
 
         Color? _arrowBackColor;
-        [Description("箭头背景色"), DefaultValue(null), Category("外观")]
+        [Description("箭头背景色"), DefaultValue(null), Category(nameof(CategoryAttribute.Appearance))]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ArrawBackColor
         {
@@ -170,7 +157,7 @@ namespace AntdUI
         /// <summary>
         /// 鼠标悬浮箭头背景色
         /// </summary>
-        [Description("鼠标悬浮箭头背景色"), DefaultValue(null), Category("外观")]
+        [Description("鼠标悬浮箭头背景色"), DefaultValue(null), Category(nameof(CategoryAttribute.Appearance))]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ArrawBackHover { get; set; }
 
@@ -178,7 +165,7 @@ namespace AntdUI
         /// <summary>
         /// 点击后收起的Panel
         /// </summary>
-        [Description("点击后收起的Panel"), Category("行为"), DefaultValue(ADCollapsePanel.None)]
+        [Description("点击后收起的Panel"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(ADCollapsePanel.None)]
         public ADCollapsePanel CollapsePanel
         {
             get => _collapsePanel;
@@ -201,7 +188,7 @@ namespace AntdUI
         /// <summary>
         /// 拆分器是水平的还是垂直的
         /// </summary>
-        [Description("拆分器是水平的还是垂直的"), Category("行为"), DefaultValue(Orientation.Vertical)]
+        [Description("拆分器是水平的还是垂直的"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(Orientation.Vertical)]
         public new Orientation Orientation
         {
             get => base.Orientation;
@@ -217,7 +204,7 @@ namespace AntdUI
         /// 当前折叠状态
         /// </summary>
         bool _splitPanelState = true;
-        [Description("是否进行展开"), Category("行为"), DefaultValue(true)]
+        [Description("是否进行展开"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool SplitPanelState
         {
             get => _splitPanelState;
@@ -237,7 +224,7 @@ namespace AntdUI
         /// <summary>
         /// 延时渲染
         /// </summary>
-        [Description("延时渲染"), Category("行为"), DefaultValue(true)]
+        [Description("延时渲染"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Lazy { get; set; } = true;
 
         #endregion
@@ -285,7 +272,7 @@ namespace AntdUI
         /// <summary>
         /// SplitPanelState 属性值更改时发生
         /// </summary>
-        [Description("SplitPanelState 属性值更改时发生"), Category("行为")]
+        [Description("SplitPanelState 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? SplitPanelStateChanged;
 
         #endregion
@@ -299,16 +286,16 @@ namespace AntdUI
             var rect = SplitterRectangle;
             if (_collapsePanel == ADCollapsePanel.None)
             {
-                if (moving) g.Fill(SplitterBackMove ?? Colour.PrimaryBg.Get(nameof(Splitter)), rect);
-                else g.Fill(splitterBack ?? Colour.FillTertiary.Get(nameof(Splitter)), rect);
+                if (moving) g.Fill(SplitterBackMove ?? Colour.PrimaryBg.Get(nameof(Splitter), Name), rect);
+                else g.Fill(splitterBack ?? Colour.FillTertiary.Get(nameof(Splitter), Name), rect);
                 int size = (int)(SplitterSize * Config.Dpi);
-                if (Orientation == Orientation.Horizontal) g.Fill(Colour.Fill.Get(nameof(Splitter)), new Rectangle(rect.X + (rect.Width - size) / 2, rect.Y, size, rect.Height));
-                else g.Fill(Colour.Fill.Get(nameof(Splitter)), new Rectangle(rect.X, rect.Y + (rect.Height - size) / 2, rect.Width, size));
+                if (Orientation == Orientation.Horizontal) g.Fill(Colour.Fill.Get(nameof(Splitter), Name), new Rectangle(rect.X + (rect.Width - size) / 2, rect.Y, size, rect.Height));
+                else g.Fill(Colour.Fill.Get(nameof(Splitter), Name), new Rectangle(rect.X, rect.Y + (rect.Height - size) / 2, rect.Width, size));
             }
             else
             {
-                if (moving) g.Fill(SplitterBackMove ?? Colour.PrimaryBg.Get(nameof(Splitter)), rect);
-                else g.Fill(splitterBack ?? Colour.FillTertiary.Get(nameof(Splitter)), rect);
+                if (moving) g.Fill(SplitterBackMove ?? Colour.PrimaryBg.Get(nameof(Splitter), Name), rect);
+                else g.Fill(splitterBack ?? Colour.FillTertiary.Get(nameof(Splitter), Name), rect);
 
                 //计算显示图标
                 int index = 0;
@@ -322,13 +309,13 @@ namespace AntdUI
                 //绘制箭头
                 if (m_bIsArrowRegion)
                 {
-                    g.FillPolygon(ArrawBackHover ?? Colour.Primary.Get(nameof(Splitter)), points);
-                    SvgExtend.GetImgExtend(g, arrowSvg[index], rect_arrow, ArrawColorHover ?? Colour.PrimaryColor.Get(nameof(Splitter)));
+                    g.FillPolygon(ArrawBackHover ?? Colour.Primary.Get(nameof(Splitter), Name), points);
+                    g.Svg(arrowSvg[index], rect_arrow, ArrawColorHover ?? Colour.PrimaryColor.Get(nameof(Splitter), Name));
                 }
                 else
                 {
-                    g.FillPolygon(_arrowBackColor ?? Colour.PrimaryBg.Get(nameof(Splitter)), points);
-                    SvgExtend.GetImgExtend(g, arrowSvg[index], rect_arrow, _arrowColor ?? Colour.PrimaryBorder.Get(nameof(Splitter)));
+                    g.FillPolygon(_arrowBackColor ?? Colour.PrimaryBg.Get(nameof(Splitter), Name), points);
+                    g.Svg(arrowSvg[index], rect_arrow, _arrowColor ?? Colour.PrimaryBorder.Get(nameof(Splitter), Name));
                 }
             }
         }

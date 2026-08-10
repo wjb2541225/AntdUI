@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -43,10 +30,10 @@ namespace AntdUI
         {
             var ColorScheme = PARENT.PARENT.ColorScheme;
             float dot_size = icon_rect.Height;
-            var bor2 = 2F * Config.Dpi;
+            var bor2 = 2F * g.Dpi;
             if (enabled)
             {
-                var color = fill ?? Colour.Primary.Get(nameof(Radio), ColorScheme);
+                var color = fill ?? Colour.Primary.Get(ColorScheme, nameof(Radio), PARENT.PARENT.Name);
                 if (AnimationCheck)
                 {
                     float dot = dot_size * 0.3F;
@@ -72,24 +59,24 @@ namespace AntdUI
                 }
                 else
                 {
-                    if (AnimationHover) g.DrawEllipse(Colour.BorderColor.Get(nameof(Radio), ColorScheme).BlendColors(AnimationHoverValue, color), bor2, icon_rect);
+                    if (AnimationHover) g.DrawEllipse(Colour.BorderColor.Get(ColorScheme, nameof(Radio), PARENT.PARENT.Name).BlendColors(AnimationHoverValue, color), bor2, icon_rect);
                     else if (ExtraMouseHover) g.DrawEllipse(color, bor2, icon_rect);
-                    else g.DrawEllipse(Colour.BorderColor.Get(nameof(Radio), ColorScheme), bor2, icon_rect);
+                    else g.DrawEllipse(Colour.BorderColor.Get(ColorScheme, nameof(Radio), PARENT.PARENT.Name), bor2, icon_rect);
                 }
             }
             else
             {
-                g.FillEllipse(Colour.FillQuaternary.Get(nameof(Radio), ColorScheme), icon_rect);
+                g.FillEllipse(Colour.FillQuaternary.Get(ColorScheme, nameof(Radio), PARENT.PARENT.Name), icon_rect);
                 if (_checked)
                 {
                     float dot = dot_size / 2F, dot2 = dot / 2F;
-                    g.FillEllipse(Colour.TextQuaternary.Get(nameof(Radio), ColorScheme), new RectangleF(icon_rect.X + dot2, icon_rect.Y + dot2, icon_rect.Width - dot, icon_rect.Height - dot));
+                    g.FillEllipse(Colour.TextQuaternary.Get(ColorScheme, nameof(Radio), PARENT.PARENT.Name), new RectangleF(icon_rect.X + dot2, icon_rect.Y + dot2, icon_rect.Width - dot, icon_rect.Height - dot));
                 }
-                g.DrawEllipse(Colour.BorderColorDisable.Get(nameof(Radio), ColorScheme), bor2, icon_rect);
+                g.DrawEllipse(Colour.BorderColorDisable.Get(ColorScheme, nameof(Radio), PARENT.PARENT.Name), bor2, icon_rect);
             }
         }
 
-        bool nullText = false;
+        public bool nullText = false;
         public override Size GetSize(Canvas g, Font font, TableGaps gap)
         {
             nullText = string.IsNullOrWhiteSpace(Text);
@@ -105,7 +92,7 @@ namespace AntdUI
             }
         }
 
-        Rectangle RectText, RectIcon;
+        public Rectangle RectText, RectIcon;
         public override void SetRect(Canvas g, Font font, Rectangle rect, Size size, int maxwidth, TableGaps gap)
         {
             int width = rect.Width;

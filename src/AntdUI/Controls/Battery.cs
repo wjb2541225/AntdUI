@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.ComponentModel;
 using System.Drawing;
@@ -42,7 +29,7 @@ namespace AntdUI
         /// <summary>
         /// 原装背景颜色
         /// </summary>
-        [Description("原装背景颜色"), Category("外观"), DefaultValue(typeof(Color), "Transparent")]
+        [Description("原装背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "Transparent")]
         public Color OriginalBackColor
         {
             get => base.BackColor;
@@ -53,7 +40,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? BackColor
         {
@@ -71,7 +58,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -89,7 +76,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(4)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(4)]
         public int Radius
         {
             get => radius;
@@ -106,7 +93,7 @@ namespace AntdUI
         /// <summary>
         /// 点大小
         /// </summary>
-        [Description("点大小"), Category("外观"), DefaultValue(8)]
+        [Description("点大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(8)]
         public int DotSize
         {
             get => dotsize;
@@ -125,7 +112,7 @@ namespace AntdUI
         /// <summary>
         /// 进度条
         /// </summary>
-        [Description("进度条"), Category("数据"), DefaultValue(0)]
+        [Description("进度条"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int Value
         {
             get => _value;
@@ -140,7 +127,7 @@ namespace AntdUI
             }
         }
 
-        [Description("显示"), Category("外观"), DefaultValue(true)]
+        [Description("显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowText { get; set; } = true;
 
         #endregion
@@ -149,7 +136,7 @@ namespace AntdUI
         /// <summary>
         /// 满电颜色
         /// </summary>
-        [Description("满电颜色"), Category("外观"), DefaultValue(typeof(Color), "0, 210, 121")]
+        [Description("满电颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "0, 210, 121")]
         public Color FillFully
         {
             get => fillfully;
@@ -165,25 +152,25 @@ namespace AntdUI
         /// <summary>
         /// 警告电量颜色
         /// </summary>
-        [Description("警告电量颜色"), Category("外观"), DefaultValue(typeof(Color), "250, 173, 20")]
+        [Description("警告电量颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "250, 173, 20")]
         public Color FillWarn { get; set; } = Color.FromArgb(250, 173, 20);
 
         /// <summary>
         /// 危险电量颜色
         /// </summary>
-        [Description("危险电量颜色"), Category("外观"), DefaultValue(typeof(Color), "255, 77, 79")]
+        [Description("危险电量颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "255, 77, 79")]
         public Color FillDanger { get; set; } = Color.FromArgb(255, 77, 79);
 
         /// <summary>
         /// 警告电量阈值
         /// </summary>
-        [Description("警告电量阈值"), Category("外观"), DefaultValue(30)]
+        [Description("警告电量阈值"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(30)]
         public int ValueWarn { get; set; } = 30;
 
         /// <summary>
         /// 危险电量阈值
         /// </summary>
-        [Description("危险电量阈值"), Category("外观"), DefaultValue(20)]
+        [Description("危险电量阈值"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(20)]
         public int ValueDanger { get; set; } = 20;
 
         #endregion
@@ -195,7 +182,7 @@ namespace AntdUI
             var g = e.Canvas;
             var size = g.MeasureString("100%", Font);
             var rect = new Rectangle((e.Rect.Width - size.Width) / 2, (e.Rect.Height - size.Height) / 2, size.Width, size.Height);
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
             using (var path_pain = rect.RoundPath(_radius))
             {
                 if (_value >= 100)
@@ -205,23 +192,23 @@ namespace AntdUI
                         g.Fill(brush, path_pain);
                         if (dotsize > 0)
                         {
-                            float _dotsize = dotsize * Config.Dpi;
+                            float _dotsize = dotsize * Dpi;
                             using (var path = new RectangleF(rect.Right, rect.Top + (rect.Height - _dotsize) / 2F, _dotsize / 2F, _dotsize).RoundPath(_radius / 2, false, true, true, false))
                             {
                                 g.Fill(brush, path);
                             }
                         }
                     }
-                    if (ShowText) g.String("100%", Font, fore ?? Colour.Text.Get(nameof(Battery), ColorScheme), rect);
+                    if (ShowText) g.String("100%", Font, fore ?? Colour.Text.Get(ColorScheme, nameof(Battery), Name), rect);
                 }
                 else
                 {
-                    using (var brush = new SolidBrush(back ?? Colour.FillSecondary.Get(nameof(Battery), ColorScheme)))
+                    using (var brush = new SolidBrush(back ?? Colour.FillSecondary.Get(ColorScheme, nameof(Battery), Name)))
                     {
                         g.Fill(brush, path_pain);
                         if (dotsize > 0)
                         {
-                            float _dotsize = dotsize * Config.Dpi;
+                            float _dotsize = dotsize * Dpi;
                             using (var path = new RectangleF(rect.Right, rect.Top + (rect.Height - _dotsize) / 2F, _dotsize / 2F, _dotsize).RoundPath(_radius / 2, false, true, true, false))
                             {
                                 g.Fill(brush, path);
@@ -232,7 +219,7 @@ namespace AntdUI
                     {
                         using (var bmp = new Bitmap(e.Rect.Width, e.Rect.Height))
                         {
-                            using (var g2 = Graphics.FromImage(bmp).High())
+                            using (var g2 = Graphics.FromImage(bmp).High(Dpi))
                             {
                                 Color _color;
                                 if (_value > ValueWarn) _color = fillfully;
@@ -246,7 +233,7 @@ namespace AntdUI
                             g.Image(bmp, e.Rect);
                         }
                     }
-                    if (ShowText) g.String(_value + "%", Font, fore ?? Colour.Text.Get(nameof(Battery), ColorScheme), rect);
+                    if (ShowText) g.String(_value + "%", Font, fore ?? Colour.Text.Get(ColorScheme, nameof(Battery), Name), rect);
                 }
             }
             base.OnDraw(e);

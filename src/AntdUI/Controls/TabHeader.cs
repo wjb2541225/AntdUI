@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -43,7 +30,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -59,14 +46,14 @@ namespace AntdUI
         /// <summary>
         /// 内容圆角
         /// </summary>
-        [Description("内容圆角"), Category("外观"), DefaultValue(4)]
+        [Description("内容圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(4)]
         public int RadiusContent { get; set; } = 4;
 
         int offsetY = 0;
         /// <summary>
         /// Y偏移量
         /// </summary>
-        [Description("Y偏移量"), Category("外观"), DefaultValue(0)]
+        [Description("Y偏移量"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int OffsetY
         {
             get => offsetY;
@@ -83,7 +70,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示添加
         /// </summary>
-        [Description("是否显示添加"), Category("外观"), DefaultValue(false)]
+        [Description("是否显示添加"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ShowAdd
         {
             get => showAdd;
@@ -100,7 +87,7 @@ namespace AntdUI
         /// <summary>
         /// 新增按钮Svg图标（默认 PlusOutlined）
         /// </summary>
-        [Description("新增按钮Svg图标（默认 PlusOutlined）"), Category("外观"), DefaultValue(null)]
+        [Description("新增按钮Svg图标（默认 PlusOutlined）"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? AddIconSvg
         {
             get => addIconSvg;
@@ -116,14 +103,14 @@ namespace AntdUI
         /// <summary>
         /// 拖拽排序
         /// </summary>
-        [Description("拖拽排序"), Category("行为"), DefaultValue(false)]
+        [Description("拖拽排序"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool DragSort { get; set; }
 
         Color? fore;
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -140,25 +127,25 @@ namespace AntdUI
         /// <summary>
         /// 悬浮文本颜色
         /// </summary>
-        [Description("悬浮文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬浮文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? ForeHover { get; set; }
 
         /// <summary>
         /// 悬浮背景颜色
         /// </summary>
-        [Description("悬浮背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬浮背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? BackHover { get; set; }
 
         /// <summary>
         /// 激活文本颜色
         /// </summary>
-        [Description("激活文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? ForeActive { get; set; }
 
         /// <summary>
         /// 激活背景颜色
         /// </summary>
-        [Description("激活背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? BackActive { get; set; }
 
         #region 边框
@@ -193,7 +180,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(1.34F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(1.34F)]
         public float TabIconRatio
         {
             get => tabIconRatio;
@@ -210,7 +197,7 @@ namespace AntdUI
         /// <summary>
         /// 关闭按钮比例
         /// </summary>
-        [Description("关闭按钮比例"), Category("外观"), DefaultValue(1.408F)]
+        [Description("关闭按钮比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(1.408F)]
         public float TabCloseRatio
         {
             get => tabCloseRatio;
@@ -226,14 +213,14 @@ namespace AntdUI
         /// <summary>
         /// 关闭图标比例
         /// </summary>
-        [Description("关闭图标比例"), Category("外观"), DefaultValue(.74F)]
+        [Description("关闭图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.74F)]
         public float TabCloseIconRatio { get; set; } = .74F;
 
         float tabGapRatio = .6F;
         /// <summary>
         /// 边距比例
         /// </summary>
-        [Description("边距比例"), Category("外观"), DefaultValue(.6F)]
+        [Description("边距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.6F)]
         public float TabGapRatio
         {
             get => tabGapRatio;
@@ -250,7 +237,7 @@ namespace AntdUI
         /// <summary>
         /// 图标与文字间距比例
         /// </summary>
-        [Description("图标与文字间距比例"), Category("外观"), DefaultValue(.74F)]
+        [Description("图标与文字间距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.74F)]
         public float TabIconGapRatio
         {
             get => tabIconGapRatio;
@@ -267,7 +254,7 @@ namespace AntdUI
         /// <summary>
         /// 新增按钮图标比例
         /// </summary>
-        [Description("新增按钮图标比例"), Category("外观"), DefaultValue(1.18F)]
+        [Description("新增按钮图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(1.18F)]
         public float TabAddIconRatio
         {
             get => tabAddIconRatio;
@@ -284,7 +271,7 @@ namespace AntdUI
         /// <summary>
         /// 新增按钮边距比例
         /// </summary>
-        [Description("新增按钮边距比例"), Category("外观"), DefaultValue(.148F)]
+        [Description("新增按钮边距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.148F)]
         public float TabAddGapRatio
         {
             get => tabAddGapRatio;
@@ -301,7 +288,7 @@ namespace AntdUI
         /// <summary>
         /// 左侧边距
         /// </summary>
-        [Description("左侧边距"), Category("外观"), DefaultValue(0)]
+        [Description("左侧边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int LeftGap
         {
             get => leftGap;
@@ -318,7 +305,7 @@ namespace AntdUI
         /// <summary>
         /// 右侧边距
         /// </summary>
-        [Description("右侧边距"), Category("外观"), DefaultValue(0)]
+        [Description("右侧边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int RightGap
         {
             get => rightGap;
@@ -340,7 +327,7 @@ namespace AntdUI
         /// 数据
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public TagTabCollection Items
         {
             get
@@ -352,7 +339,7 @@ namespace AntdUI
         }
 
         int _select = 0;
-        [Description("选中序号"), Category("数据"), DefaultValue(0)]
+        [Description("选中序号"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int SelectedIndex
         {
             get => _select;
@@ -363,6 +350,11 @@ namespace AntdUI
                 _select = value;
                 Invalidate();
                 if (items == null) return;
+                if (value < 0)
+                {
+                    _selectItem = null;
+                    return;
+                }
                 SelectedItem = items[value];
                 OnTabChanged(_selectItem!, value);
             }
@@ -370,17 +362,16 @@ namespace AntdUI
 
         TagTabItem? _selectItem;
         [Browsable(false)]
-        [Description("选中选项"), Category("数据"), DefaultValue(null)]
+        [Description("选中选项"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public TagTabItem? SelectedItem
         {
             get => _selectItem;
             set
             {
-                if (_selectItem == value || value is null) return;
+                if (_selectItem == value) return;
                 _selectItem = value;
                 Invalidate();
-                if (items == null) return;
-                //获取Index
+                if (items == null || value == null) return;
                 var index = items.IndexOf(value);
                 OnTabSelectedItemChanged(value, index);
             }
@@ -428,10 +419,10 @@ namespace AntdUI
         {
             if (CanLayout(out bool hd))
             {
-                Helper.GDI(g =>
+                this.GDI(g =>
                 {
-                    int txtHeight = g.MeasureString(Config.NullText, Font).Height, txtTW = 0, border = (int)(borderWidth * Config.Dpi), border2 = border * 2, offset = (int)(offsetY * Config.Dpi);
-                    Rectangle crect = ClientRectangle.PaddingRect(Padding), rect = new Rectangle(crect.X, crect.Y + offset, crect.Width - rightGap, crect.Height - offset);
+                    int txtHeight = g.MeasureString(Config.NullText, Font).Height, txtTW = 0, border = (int)(borderWidth * Dpi), border2 = border * 2, offset = (int)(offsetY * Dpi), _rightGap = (int)(rightGap * Dpi);
+                    Rectangle crect = ClientRectangle.PaddingRect(Padding), rect = new Rectangle(crect.X, crect.Y + offset, crect.Width - _rightGap, crect.Height - offset);
                     if (showAdd) rect.Width -= rect.Height;
                     int paddx = (int)(txtHeight * tabGapRatio), paddx2 = paddx * 2, gap = (int)(txtHeight * tabIconGapRatio), gap2 = gap * 2,
                     ico_size = (int)(txtHeight * tabIconRatio), close_size = (int)(txtHeight * tabCloseRatio), close_i_size = (int)(txtHeight * TabCloseIconRatio),
@@ -617,8 +608,8 @@ namespace AntdUI
                     }
                     return use_x;
                 });
+                if (print) Invalidate();
             }
-            if (print) Invalidate();
         }
 
         Rectangle RectAdd, RectAddIco;
@@ -635,8 +626,8 @@ namespace AntdUI
             // 设置新的剪裁区域
             g.SetClip(rect_real);
             g.TranslateTransform(left, 0);
-            int _radius = (int)(radius * Config.Dpi), radiusContent = (int)(RadiusContent * Config.Dpi), border = (int)(borderWidth * Config.Dpi);
-            var color = Colour.Text.Get(nameof(TabHeader), ColorScheme);
+            int _radius = (int)(radius * Dpi), radiusContent = (int)(RadiusContent * Dpi), border = (int)(borderWidth * Dpi);
+            var color = Colour.Text.Get(ColorScheme, nameof(TabHeader), Name);
             if (items != null && items.Count > 0)
             {
                 TagTabItem? tabselect = null;
@@ -658,9 +649,9 @@ namespace AntdUI
                     g.Restore(state);
                     state = g.Save();
                     var it = items[dragHeader.im];
-                    using (var brush_split = new SolidBrush(Colour.BorderColor.Get(nameof(TabHeader), ColorScheme)))
+                    using (var brush_split = new SolidBrush(Colour.BorderColor.Get(ColorScheme, nameof(TabHeader), Name)))
                     {
-                        int sp = (int)(2 * Config.Dpi);
+                        int sp = (int)(2 * Dpi);
                         if (dragHeader.last) g.Fill(brush_split, new Rectangle(left + it.Rect.Right - sp, it.Rect.Y, sp * 2, it.Rect.Height));
                         else g.Fill(brush_split, new Rectangle(left + it.Rect.X - sp, it.Rect.Y, sp * 2, it.Rect.Height));
                     }
@@ -671,10 +662,10 @@ namespace AntdUI
                 {
                     using (var path = tabselect.Rect.RoundPath(radius, true, true, false, false))
                     {
-                        g.Fill(BackActive ?? Colour.BgBase.Get(nameof(TabHeader), ColorScheme), path);
+                        g.Fill(BackActive ?? Colour.BgBase.Get(ColorScheme, nameof(TabHeader), Name), path);
                         if (border > 0)
                         {
-                            using (var pen = new Pen(BorderColor ?? Colour.BorderColor.Get(nameof(TabHeader), ColorScheme), border))
+                            using (var pen = new Pen(BorderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(TabHeader), Name), border))
                             {
                                 g.Draw(pen, path);
                             }
@@ -690,10 +681,10 @@ namespace AntdUI
                 {
                     using (var path = RectAdd.RoundPath(radiusContent))
                     {
-                        g.Fill(Colour.FillSecondary.Get(nameof(TabHeader)), path);
+                        g.Fill(Colour.FillSecondary.Get(nameof(TabHeader), Name), path);
                     }
                 }
-                g.PaintIconCore(RectAddIco, addIconSvg ?? "PlusOutlined", color);
+                g.Svg(addIconSvg ?? "PlusOutlined", RectAddIco, color);
             }
             g.Restore(state);
         }
@@ -708,7 +699,7 @@ namespace AntdUI
             {
                 using (var path = tab.Rect.RoundPath(radius, true, true, false, false))
                 {
-                    g.Fill(BackHover ?? Colour.FillTertiary.Get(nameof(TabHeader), ColorScheme), path);
+                    g.Fill(BackHover ?? Colour.FillTertiary.Get(ColorScheme, nameof(TabHeader), Name), path);
                 }
                 DrawText(g, tab, ForeHover ?? fore ?? color);
             }
@@ -740,7 +731,7 @@ namespace AntdUI
             {
                 if (tab.Loading)
                 {
-                    using (var pen = new Pen(Colour.Fill.Get(nameof(PageHeader), ColorScheme), tab.RectIcon.Height * .14F))
+                    using (var pen = new Pen(Colour.Fill.Get(ColorScheme, nameof(PageHeader), Name), tab.RectIcon.Height * .14F))
                     using (var brush = new Pen(Color.FromArgb(170, color), pen.Width))
                     {
                         g.DrawEllipse(pen, tab.RectIcon);
@@ -752,10 +743,10 @@ namespace AntdUI
                 {
                     // 绘制图标
                     if (tab.Icon != null) g.Image(tab.Icon, tab.RectIcon);
-                    if (tab.IconSvg != null) g.GetImgExtend(tab.IconSvg, tab.RectIcon, color);
+                    if (tab.IconSvg != null) g.Svg(tab.IconSvg, tab.RectIcon, color);
                 }
             }
-            tab.PaintBadge(Font, tab.Rect, g, ColorScheme);
+            tab.PaintBadge(Font, tab.Rect, g, ColorScheme, Name);
         }
 
         /// <summary>
@@ -771,10 +762,10 @@ namespace AntdUI
             {
                 using (var path = tab.RectClose.RoundPath(radius))
                 {
-                    g.Fill(Colour.FillSecondary.Get(nameof(TabHeader)), path);
+                    g.Fill(Colour.FillSecondary.Get(nameof(TabHeader), Name), path);
                 }
             }
-            g.PaintIconClose(tab.RectCloseIco, color);
+            g.Svg(SvgDb.IcoErrorGhost, tab.RectCloseIco, color);
         }
 
         #region Loading
@@ -846,7 +837,7 @@ namespace AntdUI
                     {
                         bool hoveClose = it.ShowClose && it.RectClose.Contains(x, y);
                         if (hoveClose) hand++;
-                        if (it.Hover == true && it.HoverClose == hoveClose) continue;
+                        if (it.Hover && it.HoverClose == hoveClose) continue;
                         it.Hover = true;
                         it.HoverClose = hoveClose;
                         count++;
@@ -1202,14 +1193,14 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         string _text;
         /// <summary>
         /// 文本
         /// </summary>
-        [Category("外观"), Description("文本"), Localizable(true)]
+        [Category(nameof(CategoryAttribute.Appearance)), Description("文本"), Localizable(true)]
         public string Text
         {
             get => Localization.GetLangI(LocalizationText, _text, new string?[] { "{id}", ID }) ?? _text;
@@ -1228,7 +1219,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Category("外观"), Description("图标"), DefaultValue(null)]
+        [Category(nameof(CategoryAttribute.Appearance)), Description("图标"), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -1244,7 +1235,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Category("外观"), Description("图标SVG"), DefaultValue(null)]
+        [Category(nameof(CategoryAttribute.Appearance)), Description("图标SVG"), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -1271,7 +1262,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示
         /// </summary>
-        [Description("是否显示关闭"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示关闭"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowClose
         {
             get => showClose;
@@ -1287,7 +1278,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示
         /// </summary>
-        [Description("是否显示"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Visible
         {
             get => visible;
@@ -1305,7 +1296,7 @@ namespace AntdUI
         /// <summary>
         /// 禁用状态
         /// </summary>
-        [Description("禁用状态"), Category("行为"), DefaultValue(true)]
+        [Description("禁用状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Enabled
         {
             get => enabled;
@@ -1324,7 +1315,7 @@ namespace AntdUI
         /// <summary>
         /// 加载状态
         /// </summary>
-        [Description("加载状态"), Category("外观"), DefaultValue(false)]
+        [Description("加载状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading { get; set; }
 
         #endregion
@@ -1334,6 +1325,9 @@ namespace AntdUI
         #region 徽标
 
         string? badge;
+        /// <summary>
+        /// 徽标内容
+        /// </summary>
         [Description("徽标内容"), Category("徽标"), DefaultValue(null), Localizable(true)]
         public string? Badge
         {
@@ -1347,6 +1341,9 @@ namespace AntdUI
         }
 
         string? badgeSvg;
+        /// <summary>
+        /// 徽标SVG
+        /// </summary>
         [Description("徽标SVG"), Category("徽标"), DefaultValue(null)]
         public string? BadgeSvg
         {
@@ -1360,6 +1357,9 @@ namespace AntdUI
         }
 
         TAlign badgeAlign = TAlign.Right;
+        /// <summary>
+        /// 徽标方向
+        /// </summary>
         [Description("徽标方向"), Category("徽标"), DefaultValue(TAlign.Right)]
         public TAlign BadgeAlign
         {
@@ -1373,6 +1373,9 @@ namespace AntdUI
         }
 
         float badgeSize = .6F;
+        /// <summary>
+        /// 徽标比例
+        /// </summary>
         [Description("徽标比例"), Category("徽标"), DefaultValue(.6F)]
         public float BadgeSize
         {
@@ -1386,6 +1389,9 @@ namespace AntdUI
         }
 
         bool badgeMode = false;
+        /// <summary>
+        /// 徽标模式（镂空）
+        /// </summary>
         [Description("徽标模式（镂空）"), Category("徽标"), DefaultValue(false)]
         public bool BadgeMode
         {
@@ -1398,7 +1404,26 @@ namespace AntdUI
             }
         }
 
+        Color? badgefore;
+        /// <summary>
+        /// 徽标前景颜色
+        /// </summary>
+        [Description("徽标前景颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeFore
+        {
+            get => badgefore;
+            set
+            {
+                if (badgefore == value) return;
+                badgefore = value;
+                if (badge != null || badgeSvg != null) PARENT?.Invalidate();
+            }
+        }
+
         Color? badgeback;
+        /// <summary>
+        /// 徽标背景颜色
+        /// </summary>
         [Description("徽标背景颜色"), Category("徽标"), DefaultValue(null)]
         public Color? BadgeBack
         {
@@ -1407,6 +1432,38 @@ namespace AntdUI
             {
                 if (badgeback == value) return;
                 badgeback = value;
+                if (badge != null || badgeSvg != null) PARENT?.Invalidate();
+            }
+        }
+
+        Color? badgeBorderColor;
+        /// <summary>
+        /// 徽标边框颜色
+        /// </summary>
+        [Description("徽标边框颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeBorderColor
+        {
+            get => badgeBorderColor;
+            set
+            {
+                if (badgeBorderColor == value) return;
+                badgeBorderColor = value;
+                if (badge != null || badgeSvg != null) PARENT?.Invalidate();
+            }
+        }
+
+        float? badgeBorderWidth;
+        /// <summary>
+        /// 徽标边框宽度
+        /// </summary>
+        [Description("徽标边框宽度"), Category("徽标"), DefaultValue(null)]
+        public float? BadgeBorderWidth
+        {
+            get => badgeBorderWidth;
+            set
+            {
+                if (badgeBorderWidth == value) return;
+                badgeBorderWidth = value;
                 if (badge != null || badgeSvg != null) PARENT?.Invalidate();
             }
         }
@@ -1550,9 +1607,30 @@ namespace AntdUI
             BadgeSize = value;
             return this;
         }
+        public TagTabItem SetBadgeFore(Color? value)
+        {
+            BadgeFore = value;
+            return this;
+        }
         public TagTabItem SetBadgeBack(Color? value)
         {
             BadgeBack = value;
+            return this;
+        }
+        public TagTabItem SetBadgeBorderColor(Color? value)
+        {
+            BadgeBorderColor = value;
+            return this;
+        }
+        public TagTabItem SetBadgeBorderWidth(float? value)
+        {
+            BadgeBorderWidth = value;
+            return this;
+        }
+        public TagTabItem SetBadgeBorder(float value, Color color)
+        {
+            BadgeBorderWidth = value;
+            BadgeBorderColor = color;
             return this;
         }
 

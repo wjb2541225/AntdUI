@@ -1,28 +1,13 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using Vanara.PInvoke;
-using static Vanara.PInvoke.User32;
 
 namespace AntdUI
 {
@@ -32,9 +17,8 @@ namespace AntdUI
         {
             SetStyle(
                 ControlStyles.UserPaint |
-                ControlStyles.DoubleBuffer |
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.OptimizedDoubleBuffer, true);
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
         }
 
@@ -54,7 +38,7 @@ namespace AntdUI
         /// <summary>
         /// 深色模式
         /// </summary>
-        [Description("深色模式"), Category("外观"), DefaultValue(false)]
+        [Description("深色模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Dark
         {
             get => dark;
@@ -63,7 +47,10 @@ namespace AntdUI
                 if (dark == value) return;
                 dark = value;
                 mode = dark ? TAMode.Dark : TAMode.Light;
-                if (IsHandleCreated) Win32.WindowTheme(this, value);
+                if (IsHandleCreated)
+                {
+                    if (Win32.WindowTheme(this, value)) SetThemeOK(value);
+                }
             }
         }
 
@@ -71,7 +58,7 @@ namespace AntdUI
         /// <summary>
         /// 色彩模式
         /// </summary>
-        [Description("色彩模式"), Category("外观"), DefaultValue(TAMode.Auto)]
+        [Description("色彩模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAMode.Auto)]
         public TAMode Mode
         {
             get => mode;
@@ -87,7 +74,7 @@ namespace AntdUI
         /// <summary>
         /// 是否禁用主题
         /// </summary>
-        [Description("是否禁用主题"), Category("外观"), DefaultValue(false)]
+        [Description("是否禁用主题"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool DisableTheme { get; set; }
 
         internal ThemeConfig? themeConfig;
@@ -116,8 +103,10 @@ namespace AntdUI
                 }
                 else SetTheme(themeConfig);
             }
-            if (mode == TAMode.Dark || (mode == TAMode.Auto && Config.Mode == TMode.Dark)) Win32.WindowTheme(this, true);
+            bool dark = mode == TAMode.Dark || (mode == TAMode.Auto && Config.Mode == TMode.Dark);
+            if (Win32.WindowTheme(this, dark, true)) SetThemeOK(dark);
         }
+        protected virtual void SetThemeOK(bool dark) { }
         internal void SetTheme(ThemeConfig themeConfig)
         {
             if (themeConfig.pageheader == null && (themeConfig.headerLight.HasValue || themeConfig.headerDark.HasValue)) themeConfig.pageheader = GetPageHeader(Controls);
@@ -145,7 +134,7 @@ namespace AntdUI
         #region 程序
 
         FormBorderStyle formBorderStyle = FormBorderStyle.Sizable;
-        [Description("指示窗体的边框和标题栏的外观和行为"), Category("行为"), DefaultValue(FormBorderStyle.Sizable)]
+        [Description("指示窗体的边框和标题栏的外观和行为"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(FormBorderStyle.Sizable)]
         public new FormBorderStyle FormBorderStyle
         {
             get => formBorderStyle;
@@ -248,22 +237,26 @@ namespace AntdUI
 
         #endregion
 
+        #region DPI
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public virtual bool AutoHandDpi { get; set; } = true;
 
-        #region DPI
 
-        public float Dpi() => Config.Dpi;
-
-        protected override void OnHandleCreated(EventArgs e)
+        float? dpi;
+        public float Dpi
         {
-            base.OnHandleCreated(e);
-            if (DesignMode) return;
-            SetTheme();
-            if (AutoHandDpi) AutoDpi(Dpi(), this);
+            get
+            {
+                if (Config._dpi_custom.HasValue) return Config._dpi_custom.Value;
+                if (dpi.HasValue) return dpi.Value;
+                var _dpi = Helper.GetScreenDpi(this);
+                dpi = _dpi;
+                return _dpi;
+            }
         }
 
-        public void AutoDpi(Control control) => AutoDpi(Dpi(), control);
+        public void AutoDpi(Control control) => AutoDpi(Dpi, control);
 
         public void AutoDpi(float dpi, Control control) => Helper.DpiAuto(dpi, control);
 
@@ -271,10 +264,29 @@ namespace AntdUI
         {
             if (m.Msg == 0x02E0)
             {
+                var old = Dpi;
                 // 低字节是水平DPI，高字节是垂直DPI
-                int newDpiX = (int)(m.WParam.ToInt64() & 0xFFFF), newDpiY = (int)(m.WParam.ToInt64() >> 16);
+                int dpiX = (int)(m.WParam.ToInt64() & 0xFFFF), dpiY = (int)(m.WParam.ToInt64() >> 16);
+                var _dpi = Helper.GetDpi(dpiX, dpiY);
+                dpi = _dpi;
+                if (AutoHandDpi) BeginInvoke(() => Helper.DpiChangeAuto(_dpi, old, this));
             }
             base.WndProc(ref m);
+        }
+
+        bool isload = false;
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (isload || DesignMode) return;
+            OnCreated‌();
+            SetTheme();
+            if (AutoHandDpi) AutoDpi(Dpi, this);
+            isload = true;
+        }
+
+        public virtual void OnCreated‌()
+        {
         }
 
         #endregion
@@ -289,8 +301,8 @@ namespace AntdUI
         public virtual void DraggableMouseDown()
         {
             if (IsFull) return;
-            ReleaseCapture();
-            SendMessage(Handle, 0x0112, 61456 | 2, IntPtr.Zero);
+            Win32.User32.ReleaseCapture();
+            Win32.User32.SendMessage(Handle, 0x0112, 61456 | 2, IntPtr.Zero);
         }
 
         #endregion
@@ -306,10 +318,10 @@ namespace AntdUI
             if (WindowState == FormWindowState.Normal)
             {
                 var retval = HitTest(PointToClient(MousePosition));
-                if (retval != HitTestValues.HTNOWHERE)
+                if (retval != Win32.User32.HitTestValues.HTNOWHERE)
                 {
                     var mode = retval;
-                    if (mode != HitTestValues.HTCLIENT)
+                    if (mode != Win32.User32.HitTestValues.HTCLIENT)
                     {
                         SetCursorHit(mode);
                         return true;
@@ -328,10 +340,10 @@ namespace AntdUI
             if (WindowState == FormWindowState.Normal)
             {
                 var retval = HitTest(point);
-                if (retval != HitTestValues.HTNOWHERE)
+                if (retval != Win32.User32.HitTestValues.HTNOWHERE)
                 {
                     var mode = retval;
-                    if (mode != HitTestValues.HTCLIENT)
+                    if (mode != Win32.User32.HitTestValues.HTCLIENT)
                     {
                         SetCursorHit(mode);
                         return true;
@@ -350,12 +362,12 @@ namespace AntdUI
         {
             Point pointScreen = MousePosition;
             var mode = HitTest(PointToClient(pointScreen));
-            if (mode != HitTestValues.HTCLIENT)
+            if (mode != Win32.User32.HitTestValues.HTCLIENT)
             {
                 is_resizable = true;
                 SetCursorHit(mode);
-                ReleaseCapture();
-                SendMessage(Handle, WindowMessage.WM_NCLBUTTONDOWN, mode, Macros.MAKELPARAM(pointScreen.X, pointScreen.Y));
+                Win32.User32.ReleaseCapture();
+                Win32.User32.SendMessage(Handle, Win32.User32.WindowMessage.WM_NCLBUTTONDOWN, mode, Win32.Macros.MAKELPARAM(pointScreen.X, pointScreen.Y));
                 is_resizable = false;
                 return true;
             }
@@ -369,53 +381,53 @@ namespace AntdUI
         /// <summary>
         /// 鼠标拖拽大小使能
         /// </summary>
-        [Description("鼠标拖拽大小使能"), Category("交互"), DefaultValue(true)]
+        [Description("鼠标拖拽大小使能"), Category(nameof(CategoryAttribute.Action)), DefaultValue(true)]
         public bool EnableHitTest { get; set; } = true;
-        internal HitTestValues HitTest(Point point)
+        internal Win32.User32.HitTestValues HitTest(Point point)
         {
             if (Window.CanHandMessage && EnableHitTest)
             {
-                float htSize = 8F * Config.Dpi, htSize2 = htSize * 2;
-                GetWindowRect(Handle, out var lpRect);
+                float htSize = 8F * Dpi, htSize2 = htSize * 2;
+                Win32.User32.GetWindowRect(Handle, out var lpRect);
 
                 var rect = new Rectangle(Point.Empty, lpRect.Size);
 
-                var hitTestValue = HitTestValues.HTCLIENT;
+                var hitTestValue = Win32.User32.HitTestValues.HTCLIENT;
                 var x = point.X;
                 var y = point.Y;
 
-                if (x < rect.Left + htSize2 && y < rect.Top + htSize2) hitTestValue = HitTestValues.HTTOPLEFT;
-                else if (x >= rect.Left + htSize2 && x <= rect.Right - htSize2 && y <= rect.Top + htSize) hitTestValue = HitTestValues.HTTOP;
-                else if (x > rect.Right - htSize2 && y <= rect.Top + htSize2) hitTestValue = HitTestValues.HTTOPRIGHT;
-                else if (x <= rect.Left + htSize && y >= rect.Top + htSize2 && y <= rect.Bottom - htSize2) hitTestValue = HitTestValues.HTLEFT;
-                else if (x >= rect.Right - htSize && y >= rect.Top * 2 + htSize && y <= rect.Bottom - htSize2) hitTestValue = HitTestValues.HTRIGHT;
-                else if (x <= rect.Left + htSize2 && y >= rect.Bottom - htSize2) hitTestValue = HitTestValues.HTBOTTOMLEFT;
-                else if (x > rect.Left + htSize2 && x < rect.Right - htSize2 && y >= rect.Bottom - htSize) hitTestValue = HitTestValues.HTBOTTOM;
-                else if (x >= rect.Right - htSize2 && y >= rect.Bottom - htSize2) hitTestValue = HitTestValues.HTBOTTOMRIGHT;
+                if (x < rect.Left + htSize2 && y < rect.Top + htSize2) hitTestValue = Win32.User32.HitTestValues.HTTOPLEFT;
+                else if (x >= rect.Left + htSize2 && x <= rect.Right - htSize2 && y <= rect.Top + htSize) hitTestValue = Win32.User32.HitTestValues.HTTOP;
+                else if (x > rect.Right - htSize2 && y <= rect.Top + htSize2) hitTestValue = Win32.User32.HitTestValues.HTTOPRIGHT;
+                else if (x <= rect.Left + htSize && y >= rect.Top + htSize2 && y <= rect.Bottom - htSize2) hitTestValue = Win32.User32.HitTestValues.HTLEFT;
+                else if (x >= rect.Right - htSize && y >= rect.Top * 2 + htSize && y <= rect.Bottom - htSize2) hitTestValue = Win32.User32.HitTestValues.HTRIGHT;
+                else if (x <= rect.Left + htSize2 && y >= rect.Bottom - htSize2) hitTestValue = Win32.User32.HitTestValues.HTBOTTOMLEFT;
+                else if (x > rect.Left + htSize2 && x < rect.Right - htSize2 && y >= rect.Bottom - htSize) hitTestValue = Win32.User32.HitTestValues.HTBOTTOM;
+                else if (x >= rect.Right - htSize2 && y >= rect.Bottom - htSize2) hitTestValue = Win32.User32.HitTestValues.HTBOTTOMRIGHT;
 
                 return hitTestValue;
             }
-            else return HitTestValues.HTCLIENT;
+            else return Win32.User32.HitTestValues.HTCLIENT;
         }
 
-        internal void SetCursorHit(HitTestValues mode)
+        internal void SetCursorHit(Win32.User32.HitTestValues mode)
         {
             switch (mode)
             {
-                case HitTestValues.HTTOP:
-                case HitTestValues.HTBOTTOM:
+                case Win32.User32.HitTestValues.HTTOP:
+                case Win32.User32.HitTestValues.HTBOTTOM:
                     LoadCursors(32645);
                     break;
-                case HitTestValues.HTLEFT:
-                case HitTestValues.HTRIGHT:
+                case Win32.User32.HitTestValues.HTLEFT:
+                case Win32.User32.HitTestValues.HTRIGHT:
                     LoadCursors(32644);
                     break;
-                case HitTestValues.HTTOPLEFT:
-                case HitTestValues.HTBOTTOMRIGHT:
+                case Win32.User32.HitTestValues.HTTOPLEFT:
+                case Win32.User32.HitTestValues.HTBOTTOMRIGHT:
                     LoadCursors(32642);
                     break;
-                case HitTestValues.HTTOPRIGHT:
-                case HitTestValues.HTBOTTOMLEFT:
+                case Win32.User32.HitTestValues.HTTOPRIGHT:
+                case Win32.User32.HitTestValues.HTBOTTOMLEFT:
                     LoadCursors(32643);
                     break;
             }
@@ -423,9 +435,9 @@ namespace AntdUI
 
         internal void LoadCursors(int id)
         {
-            var handle = LoadCursor(IntPtr.Zero, id);
+            var handle = Win32.User32.LoadCursor(IntPtr.Zero, id);
             if (handle == IntPtr.Zero) return;
-            User32.SetCursor(handle);
+            Win32.User32.SetCursor(handle);
         }
 
         #endregion

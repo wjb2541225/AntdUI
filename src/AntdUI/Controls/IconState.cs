@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.ComponentModel;
 using System.Drawing;
@@ -33,7 +20,7 @@ namespace AntdUI
         #region 属性
 
         Color? back;
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Back
         {
@@ -48,7 +35,7 @@ namespace AntdUI
         }
 
         Color? color;
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Color
         {
@@ -66,7 +53,7 @@ namespace AntdUI
         /// <summary>
         /// 状态
         /// </summary>
-        [Description("状态"), Category("外观"), DefaultValue(TType.Success)]
+        [Description("状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TType.Success)]
         public TType State
         {
             get => state;
@@ -102,16 +89,16 @@ namespace AntdUI
                 switch (state)
                 {
                     case TType.Success:
-                        g.GetImgExtend(SvgDb.IcoSuccess, rect, back ?? Colour.Success.Get("IconComplete", ColorScheme));
+                        g.Svg(SvgDb.IcoSuccess, rect, back ?? Colour.Success.Get(ColorScheme, "IconComplete", Name));
                         break;
                     case TType.Error:
-                        g.GetImgExtend(SvgDb.IcoError, rect, back ?? Colour.Error.Get("IconError", ColorScheme));
+                        g.Svg(SvgDb.IcoError, rect, back ?? Colour.Error.Get(ColorScheme, "IconError", Name));
                         break;
                     case TType.Info:
-                        g.GetImgExtend(SvgDb.IcoInfo, rect, back ?? Colour.Info.Get("IconInfo", ColorScheme));
+                        g.Svg(SvgDb.IcoInfo, rect, back ?? Colour.Info.Get(ColorScheme, "IconInfo", Name));
                         break;
                     case TType.Warn:
-                        g.GetImgExtend(SvgDb.IcoWarn, rect, back ?? Colour.Warning.Get("IconWarn", ColorScheme));
+                        g.Svg(SvgDb.IcoWarn, rect, back ?? Colour.Warning.Get(ColorScheme, "IconWarn", Name));
                         break;
                     default:
                         break;

@@ -1,22 +1,10 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -34,7 +22,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(typeof(Color), "Transparent")]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "Transparent")]
         public Color Back
         {
             get => back;
@@ -50,7 +38,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius
         {
             get => radius;
@@ -66,7 +54,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角样式
         /// </summary>
-        [Description("圆角样式"), Category("外观"), DefaultValue(false)]
+        [Description("圆角样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Round
         {
             get => round;
@@ -82,7 +70,7 @@ namespace AntdUI
         /// <summary>
         /// 图片
         /// </summary>
-        [Description("图片"), Category("外观"), DefaultValue(null)]
+        [Description("图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Image
         {
             get => image;
@@ -97,7 +85,7 @@ namespace AntdUI
         /// <summary>
         /// 图片布局
         /// </summary>
-        [Description("图片布局"), Category("外观"), DefaultValue(TFit.Cover)]
+        [Description("图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Cover)]
         public TFit ImageFit
         {
             get => imageFit;
@@ -208,6 +196,46 @@ namespace AntdUI
 
         #endregion
 
+        #region 悬浮
+
+        /// <summary>
+        /// 启用悬浮交互
+        /// </summary>
+        [Description("启用悬浮交互"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
+        public bool EnableHover { get; set; }
+
+        /// <summary>
+        /// 悬浮前景
+        /// </summary>
+        [Description("悬浮前景"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? HoverFore { get; set; }
+
+        /// <summary>
+        /// 悬浮背景
+        /// </summary>
+        [Description("悬浮背景"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? HoverBack { get; set; }
+
+        /// <summary>
+        /// 悬浮图标
+        /// </summary>
+        [Description("悬浮图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Image? HoverImage { get; set; }
+
+        /// <summary>
+        /// 悬浮图标SVG
+        /// </summary>
+        [Description("悬浮图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public string? HoverImageSvg { get; set; }
+
+        /// <summary>
+        /// 悬浮图标比例
+        /// </summary>
+        [Description("悬浮图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.4F)]
+        public float HoverImageRatio { get; set; } = .4F;
+
+        #endregion
+
         #endregion
 
         #region 动画
@@ -221,7 +249,7 @@ namespace AntdUI
             if (image != null && value != null)
             {
                 var t = Animation.TotalFrames(Speed, Duration);
-                float _radius = radius * Config.Dpi;
+                float _radius = radius * Dpi;
                 ITask.Run(() =>
                 {
                     var _rect = ClientRectangle;
@@ -229,12 +257,12 @@ namespace AntdUI
                     using (var bmpo = new Bitmap(_rect.Width, _rect.Height))
                     using (var bmpo2 = new Bitmap(_rect.Width, _rect.Height))
                     {
-                        using (var g = Graphics.FromImage(bmpo).High())
+                        using (var g = Graphics.FromImage(bmpo).High(Dpi))
                         {
                             if (shadow > 0 && shadowOpacity > 0) g.PaintShadow(this, _rect, rect, _radius, round);
                             g.Image(rect, image, imageFit, _radius, round);
                         }
-                        using (var g = Graphics.FromImage(bmpo2).High())
+                        using (var g = Graphics.FromImage(bmpo2).High(Dpi))
                         {
                             if (shadow > 0 && shadowOpacity > 0) g.PaintShadow(this, _rect, rect, _radius, round);
                             g.Image(rect, value, imageFit, _radius, round);
@@ -324,11 +352,19 @@ namespace AntdUI
             }
             var g = e.Canvas;
             var rect = e.Rect.PaddingRect(Padding);
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
             if (run == null && shadow > 0 && shadowOpacity > 0) g.PaintShadow(this, e.Rect, rect, _radius, round);//应在绘制背景前绘制阴影，否则会影响背景色
             FillRect(g, rect, back, _radius, round);
             if (run != null && run.Tag is PointF point) g.Image(run, point.X, point.Y, run.Width, run.Height);
             else g.Image(rect, image, imageFit, _radius, round);
+            if (Hover)
+            {
+                int size = (int)((rect.Width > rect.Height ? rect.Height : rect.Width) * HoverImageRatio);
+                FillRect(g, rect, HoverBack ?? Colour.TextTertiary.Get(ColorScheme, nameof(Image3D), Name), _radius, round);
+                var rect_hover = new Rectangle(rect.X + (rect.Width - size) / 2, rect.Y + (rect.Height - size) / 2, size, size);
+                if (HoverImage != null) g.Image(HoverImage, rect_hover);
+                if (HoverImageSvg != null) g.Svg(HoverImageSvg, rect_hover, HoverFore ?? Colour.BgBase.Get(ColorScheme, nameof(Image3D), Name));
+            }
             base.OnDraw(e);
         }
 
@@ -348,6 +384,33 @@ namespace AntdUI
         }
 
         #endregion
+
+        #endregion
+
+        #region 键盘
+
+        bool hover = false;
+        bool Hover
+        {
+            get => hover;
+            set
+            {
+                if (hover == value) return;
+                hover = value;
+                Invalidate();
+            }
+        }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (EnableHover) Hover = true;
+            else if (Hover) Hover = false;
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            Hover = false;
+        }
 
         #endregion
     }

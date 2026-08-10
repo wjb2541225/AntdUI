@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -46,7 +33,7 @@ namespace AntdUI
         /// <summary>
         /// 是否列表样式
         /// </summary>
-        [Description("是否列表样式"), Category("外观"), DefaultValue(false)]
+        [Description("是否列表样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool List
         {
             get => _list;
@@ -62,20 +49,20 @@ namespace AntdUI
         /// <summary>
         /// 复选框模式
         /// </summary>
-        [Description("复选框模式"), Category("行为"), DefaultValue(false)]
+        [Description("复选框模式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool CheckMode { get; set; }
 
         /// <summary>
         /// 自动高度
         /// </summary>
-        [Description("自动高度"), Category("行为"), DefaultValue(false)]
+        [Description("自动高度"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool AutoHeight { get; set; }
 
         bool canDelete = true;
         /// <summary>
         /// 是否可以删除
         /// </summary>
-        [Description("是否可以删除"), Category("交互"), DefaultValue(true)]
+        [Description("是否可以删除"), Category(nameof(CategoryAttribute.Action)), DefaultValue(true)]
         public bool CanDelete
         {
             get => canDelete;
@@ -92,7 +79,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示勾选项的边框
         /// </summary>
-        [Description("是否显示勾选项的边框"), Category("外观"), DefaultValue(false)]
+        [Description("是否显示勾选项的边框"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool TagBordered
         {
             get => tagBordered;
@@ -107,61 +94,61 @@ namespace AntdUI
         /// <summary>
         /// 菜单弹出位置
         /// </summary>
-        [Description("菜单弹出位置"), Category("行为"), DefaultValue(TAlignFrom.BL)]
+        [Description("菜单弹出位置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TAlignFrom.BL)]
         public TAlignFrom Placement { get; set; } = TAlignFrom.BL;
 
         /// <summary>
         /// 是否列表自动宽度
         /// </summary>
-        [Description("是否列表自动宽度"), Category("行为"), DefaultValue(false)]
+        [Description("是否列表自动宽度"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ListAutoWidth { get; set; }
 
         /// <summary>
         /// 列表最多显示条数
         /// </summary>
-        [Description("列表最多显示条数"), Category("行为"), DefaultValue(4)]
+        [Description("列表最多显示条数"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(4)]
         public int MaxCount { get; set; } = 4;
 
         /// <summary>
         /// 最大选中数量
         /// </summary>
-        [Description("最大选中数量"), Category("行为"), DefaultValue(0)]
+        [Description("最大选中数量"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(0)]
         public int MaxChoiceCount { get; set; }
 
         /// <summary>
         /// 下拉箭头是否显示
         /// </summary>
-        [Description("下拉箭头是否显示"), Category("外观"), DefaultValue(false)]
+        [Description("下拉箭头是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool DropDownArrow { get; set; }
 
         /// <summary>
         /// 下拉边距
         /// </summary>
-        [Description("下拉边距"), Category("外观"), DefaultValue(typeof(Size), "12, 5")]
+        [Description("下拉边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "12, 5")]
         public Size DropDownPadding { get; set; } = new Size(12, 5);
 
         /// <summary>
         /// 下拉文本方向
         /// </summary>
-        [Description("下拉文本方向"), Category("外观"), DefaultValue(TAlign.Left)]
+        [Description("下拉文本方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlign.Left)]
         public TAlign DropDownTextAlign { get; set; } = TAlign.Left;
 
         /// <summary>
         /// 下拉为空关闭
         /// </summary>
-        [Description("下拉为空关闭"), Category("行为"), DefaultValue(false)]
+        [Description("下拉为空关闭"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool DropDownEmptyClose { get; set; }
 
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(2)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(2)]
         public int Gap { get; set; } = 2;
 
         /// <summary>
         /// 为空依旧下拉
         /// </summary>
-        [Description("为空依旧下拉"), Category("外观"), DefaultValue(false)]
+        [Description("为空依旧下拉"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Empty { get; set; }
 
         #region 数据
@@ -172,7 +159,7 @@ namespace AntdUI
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Editor("System.Windows.Forms.Design.ListControlStringCollectionEditor", typeof(UITypeEditor))]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public BaseCollection Items
         {
             get
@@ -230,6 +217,7 @@ namespace AntdUI
             selectedValue = selecteds.ToArray();
             CalculateRect();
             SetCaretPostion();
+            Invalidate();
             subForm?.SetValues(selecteds);
             OnSelectedValueChanged(selectedValue);
         }
@@ -237,7 +225,7 @@ namespace AntdUI
         /// <summary>
         /// SelectedValue 属性值更改时发生
         /// </summary>
-        [Description("SelectedValue 属性值更改时发生"), Category("行为")]
+        [Description("SelectedValue 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ObjectsEventHandler? SelectedValueChanged;
 
         protected virtual void OnSelectedValueChanged(object[] e) => SelectedValueChanged?.Invoke(this, new ObjectsEventArgs(e));
@@ -248,9 +236,10 @@ namespace AntdUI
             base.OnTextChanged(e);
             if (HasFocus)
             {
-                if (filtertext == Text) return;
-                filtertext = Text;
-                if (expandDrop) subForm?.TextChange(Text);
+                var searchText = Text.Trim();
+                if (filtertext == searchText) return;
+                filtertext = searchText;
+                if (expandDrop) subForm?.TextChange(searchText);
                 else ExpandDrop = true;
             }
         }
@@ -298,7 +287,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示图标
         /// </summary>
-        [Description("是否显示图标"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowIcon
         {
             get => showicon;
@@ -317,10 +306,10 @@ namespace AntdUI
         {
             if (showicon)
             {
-                using (var pen = new Pen(Colour.TextQuaternary.Get(nameof(Select), ColorScheme), 2F))
+                using (var pen = new Pen(Colour.TextQuaternary.Get(ColorScheme, nameof(Select), Name), 2F))
                 {
                     pen.StartCap = pen.EndCap = LineCap.Round;
-                    g.DrawLines(pen, rect_r.TriangleLines(ArrowProg));
+                    g.DrawLines(pen, rect_r.TriangleLinesVertical(ArrowProg));
                 }
             }
         }
@@ -334,7 +323,7 @@ namespace AntdUI
 
         protected override bool HasLeft() => selectedValue.Length > 0;
 
-        protected override int[] UseLeft(Rectangle rect_read, int font_height, bool delgap)
+        protected override int[] UseLeft(Rectangle rect_read, int font_height)
         {
             if (selectedValue.Length > 0)
             {
@@ -351,15 +340,15 @@ namespace AntdUI
                         }
                     }
                 }
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     var _style_left = new List<SelectItem?>(selectedValue.Length);
                     List<Rectangle> _rect_left = new List<Rectangle>(selectedValue.Length), _rect_left_txt = new List<Rectangle>(selectedValue.Length), _rect_left_del = new List<Rectangle>(selectedValue.Length);
-                    int gap = (int)(Gap * Config.Dpi), gap2 = gap * 2, gap4 = gap2 * 2, height = font_height + gap2, del_icon = (int)(height * .4);
+                    int gap = (int)(Gap * Dpi), gap2 = gap * 2, gap4 = gap2 * 2, height = font_height + gap2, del_icon = (int)(height * .4);
                     if (AutoHeight || rect_read.Height > height * 2)
                     {
                         //多行
-                        int y = gap, usex = delgap ? 0 : y, usey = 0;
+                        int y = gap, usex = y, usey = 0;
                         for (int i = 0; i < selectedValue.Length; i++)
                         {
                             var it = selectedValue[i];
@@ -380,7 +369,7 @@ namespace AntdUI
                                 if (AutoHeight)
                                 {
                                     usey += height + gap;
-                                    usex = delgap ? 0 : y;
+                                    usex = y;
                                 }
                                 else if ((usey + height + gap) + (height + gap) > rect_read.Height)//超出
                                 {
@@ -395,7 +384,7 @@ namespace AntdUI
                                 else
                                 {
                                     usey += height + gap;
-                                    usex = delgap ? 0 : y;
+                                    usex = y;
                                 }
                             }
                             _style_left.Add(style);
@@ -422,11 +411,11 @@ namespace AntdUI
                         rect_left_txts = _rect_left_txt.ToArray();
                         rect_left_dels = _rect_left_del.ToArray();
                         rect_lefts = _rect_left.ToArray();
-                        return new int[] { usex - (delgap ? 0 : gap), usey };
+                        return new int[] { usex, usey };
                     }
                     else
                     {
-                        int y = (rect_read.Height - height) / 2, use = delgap ? 0 : y;
+                        int y = (rect_read.Height - height) / 2, use = y;
                         for (int i = 0; i < selectedValue.Length; i++)
                         {
                             var it = selectedValue[i];
@@ -477,7 +466,7 @@ namespace AntdUI
                         rect_left_txts = _rect_left_txt.ToArray();
                         rect_left_dels = _rect_left_del.ToArray();
                         rect_lefts = _rect_left.ToArray();
-                        return new int[] { use - (delgap ? 0 : gap), 0 };
+                        return new int[] { use, 0 };
                     }
                 });
             }
@@ -488,8 +477,9 @@ namespace AntdUI
         {
             if (AutoHeight)
             {
-                int pr = (int)Math.Round((WaveSize + BorderWidth / 2F) * Config.Dpi) * 2, gap = (int)(Gap * Config.Dpi) * 4;
+                int pr = (int)Math.Round((WaveSize + BorderWidth / 2F) * Dpi) * 2, gap = (int)(Gap * Dpi) * 4;
                 Height = (height + Padding.Top + Padding.Vertical + pr) + y + gap;
+                subForm?.SizeChange();
             }
         }
 
@@ -498,15 +488,15 @@ namespace AntdUI
             switch (Status)
             {
                 case TType.Success:
-                    return Style.Get(bg ? Colour.SuccessBg : Colour.Success, nameof(SelectMultiple), ColorScheme);
+                    return Style.Get(bg ? Colour.SuccessBg : Colour.Success, ColorScheme, nameof(SelectMultiple));
                 case TType.Warn:
-                    return Style.Get(bg ? Colour.WarningBg : Colour.Warning, nameof(SelectMultiple), ColorScheme);
+                    return Style.Get(bg ? Colour.WarningBg : Colour.Warning, ColorScheme, nameof(SelectMultiple));
                 case TType.Error:
-                    return Style.Get(bg ? Colour.ErrorBg : Colour.Error, nameof(SelectMultiple), ColorScheme);
+                    return Style.Get(bg ? Colour.ErrorBg : Colour.Error, ColorScheme, nameof(SelectMultiple));
                 case TType.Info:
-                    return Style.Get(bg ? Colour.InfoBg : Colour.Info, nameof(SelectMultiple), ColorScheme);
+                    return Style.Get(bg ? Colour.InfoBg : Colour.Info, ColorScheme, nameof(SelectMultiple));
                 default:
-                    return (bg ? Colour.TagDefaultBg : Colour.TagDefaultColor).Get(nameof(SelectMultiple), ColorScheme);
+                    return (bg ? Colour.FillSecondary : Colour.Text).Get(ColorScheme, nameof(SelectMultiple), Name);
             }
         }
 
@@ -527,22 +517,22 @@ namespace AntdUI
                                 if (style == null)
                                 {
                                     g.Fill(GetStatusColor(true), path);
-                                    if (tagBordered) g.Draw(brush, 1f * Config.Dpi, path);
+                                    if (tagBordered) g.Draw(brush, 1f * Dpi, path);
                                     var rect_del = rect_left_dels[i];
-                                    if (rect_del.Width > 0 && rect_del.Height > 0) g.PaintIconClose(rect_del, Colour.TagDefaultColor.Get(nameof(Select), ColorScheme));
+                                    if (rect_del.Width > 0 && rect_del.Height > 0) g.Svg(SvgDb.IcoErrorGhost, rect_del, Colour.TagDefaultColor.Get(ColorScheme, nameof(Select), Name));
                                     g.String(it.ToString(), Font, brush, rect_left_txts[i], sf_center);
                                 }
                                 else
                                 {
                                     using (var brushbg = style.TagBackExtend.BrushEx(rect_lefts[i], style.TagBack ?? GetStatusColor(true)))
                                     {
-                                        if (tagBordered) g.Draw(brush, 1f * Config.Dpi, path);
+                                        if (tagBordered) g.Draw(brush, 1f * Dpi, path);
                                         g.Fill(brushbg, path);
                                     }
                                     if (style.TagFore.HasValue)
                                     {
                                         var rect_del = rect_left_dels[i];
-                                        if (rect_del.Width > 0 && rect_del.Height > 0) g.PaintIconClose(rect_del, style.TagFore.Value);
+                                        if (rect_del.Width > 0 && rect_del.Height > 0) g.Svg(SvgDb.IcoErrorGhost, rect_del, style.TagFore.Value);
                                         using (var brushf = new SolidBrush(style.TagFore.Value))
                                         {
                                             g.String(style.Text, Font, brushf, rect_left_txts[i], sf_center);
@@ -551,7 +541,7 @@ namespace AntdUI
                                     else
                                     {
                                         var rect_del = rect_left_dels[i];
-                                        if (rect_del.Width > 0 && rect_del.Height > 0) g.PaintIconClose(rect_del, Colour.TagDefaultColor.Get(nameof(Select), ColorScheme));
+                                        if (rect_del.Width > 0 && rect_del.Height > 0) g.Svg(SvgDb.IcoErrorGhost, rect_del, Colour.TagDefaultColor.Get(ColorScheme, nameof(Select), Name));
                                         g.String(style.Text, Font, brush, rect_left_txts[i], sf_center);
                                     }
                                 }
@@ -626,7 +616,7 @@ namespace AntdUI
         /// 箭头是否展开(UI)
         /// </summary>
         [Browsable(false)]
-        [Description("箭头是否展开(UI)"), Category("外观"), DefaultValue(false)]
+        [Description("箭头是否展开(UI)"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Expand
         {
             get => expand;
@@ -657,10 +647,32 @@ namespace AntdUI
         /// <summary>
         /// 下拉展开 属性值更改时发生
         /// </summary>
-        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        [Description("下拉展开 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? ExpandDropChanged;
 
         protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
+
+        /// <summary>
+        /// 子项外部渲染前触发
+        /// </summary>
+        [Description("子项外部渲染前触发"), Category(nameof(CategoryAttribute.Appearance))]
+        public event DrawItemEventHandler? DrawItem;
+
+        public virtual bool OnDrawItem(Canvas canvas, Rectangle rect, SelectItemDraw itme, bool select, out Color? fore, out Color? foreSub, out Font? font)
+        {
+            if (DrawItem == null)
+            {
+                fore = foreSub = null;
+                font = null;
+                return false;
+            }
+            var args = new DrawItemEventArgs(canvas, rect, itme, select);
+            DrawItem(this, args);
+            fore = args.Fore;
+            foreSub = args.ForeSub;
+            font = args.Font;
+            return args.Handled;
+        }
 
         #endregion
 
@@ -671,7 +683,7 @@ namespace AntdUI
         /// 展开下拉菜单
         /// </summary>
         [Browsable(false)]
-        [Description("展开下拉菜单"), Category("行为"), DefaultValue(false)]
+        [Description("展开下拉菜单"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ExpandDrop
         {
             get => expandDrop;
@@ -679,36 +691,40 @@ namespace AntdUI
             {
                 if (expandDrop == value) return;
                 expandDrop = value;
-                if (value)
+                if (IsHandleCreated)
                 {
-                    if (ReadOnly || items == null || items.Count == 0)
-                    {
-                        if (Empty && subForm == null) ShowLayeredForm(new List<object>(0));
-                        else
-                        {
-                            subForm?.IClose();
-                            expandDrop = false;
-                        }
-                    }
-                    else
-                    {
-                        if (subForm == null)
-                        {
-                            var objs = new List<object>(items.Count);
-                            foreach (var it in items) objs.Add(it);
-                            ShowLayeredForm(objs);
-                        }
-                    }
+                    if (value) OpenSubForm();
+                    else CloseSubForm(true);
                 }
-                else
-                {
-                    subForm?.IClose();
-                    filtertext = "";
-                }
+                else if (!value) filtertext = "";
                 OnExpandDropChanged(value);
             }
         }
 
+        void CloseSubForm(bool close)
+        {
+            if (close) subForm?.IClose();
+            subForm = null;
+            ExpandDrop = false;
+            filtertext = "";
+        }
+        void OpenSubForm()
+        {
+            if (ReadOnly || items == null || items.Count == 0)
+            {
+                if (Empty && subForm == null) ShowLayeredForm(new List<object>(0));
+                else CloseSubForm(true);
+            }
+            else
+            {
+                if (subForm == null)
+                {
+                    var objs = new List<object>(items.Count);
+                    foreach (var it in items) objs.Add(it);
+                    ShowLayeredForm(objs);
+                }
+            }
+        }
         void ShowLayeredForm(IList<object> list)
         {
             try
@@ -724,15 +740,14 @@ namespace AntdUI
                 subForm.Disposed += (a, b) =>
                 {
                     select_x = 0;
-                    subForm = null;
                     Expand = false;
-                    ExpandDrop = false;
+                    CloseSubForm(false);
                 };
                 subForm.Show(this);
             }
             catch
             {
-                subForm = null;
+                CloseSubForm(true);
             }
         }
 
@@ -749,6 +764,12 @@ namespace AntdUI
                     break;
             }
             return r;
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (expandDrop) OpenSubForm();
         }
 
         protected override void OnLostFocus(EventArgs e)

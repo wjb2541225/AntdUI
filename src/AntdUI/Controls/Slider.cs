@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -42,7 +29,7 @@ namespace AntdUI
         /// <summary>
         /// 颜色
         /// </summary>
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -58,14 +45,14 @@ namespace AntdUI
         /// <summary>
         /// 悬停颜色
         /// </summary>
-        [Description("悬停颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? FillHover { get; set; }
 
         /// <summary>
         /// 激活颜色
         /// </summary>
-        [Description("激活颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? FillActive { get; set; }
 
@@ -73,7 +60,7 @@ namespace AntdUI
         /// <summary>
         /// 滑轨颜色
         /// </summary>
-        [Description("滑轨颜色"), Category("外观"), DefaultValue(null)]
+        [Description("滑轨颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? TrackColor
         {
@@ -90,7 +77,7 @@ namespace AntdUI
         /// <summary>
         /// 最小值
         /// </summary>
-        [Description("最小值"), Category("数据"), DefaultValue(0)]
+        [Description("最小值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int MinValue
         {
             get => _minValue;
@@ -107,7 +94,7 @@ namespace AntdUI
         /// <summary>
         /// 最大值
         /// </summary>
-        [Description("最大值"), Category("数据"), DefaultValue(100)]
+        [Description("最大值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(100)]
         public int MaxValue
         {
             get => _maxValue;
@@ -124,7 +111,7 @@ namespace AntdUI
         /// <summary>
         /// 当前值
         /// </summary>
-        [Description("当前值"), Category("数据"), DefaultValue(0)]
+        [Description("当前值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int Value
         {
             get => _value;
@@ -134,8 +121,8 @@ namespace AntdUI
                 else if (value > _maxValue) value = _maxValue;
                 if (_value == value) return;
                 _value = value;
-                OnValueChanged(_value);
                 Invalidate();
+                OnValueChanged(_value);
                 OnPropertyChanged(nameof(Value));
             }
         }
@@ -143,7 +130,7 @@ namespace AntdUI
         /// <summary>
         /// Value格式化时发生
         /// </summary>
-        [Description("Value格式化时发生"), Category("行为")]
+        [Description("Value格式化时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ValueFormatEventHandler? ValueFormatChanged;
 
         TooltipForm? toolTip;
@@ -176,7 +163,7 @@ namespace AntdUI
         /// <summary>
         /// 方向
         /// </summary>
-        [Description("方向"), Category("外观"), DefaultValue(TAlignMini.Left)]
+        [Description("方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlignMini.Left)]
         public TAlignMini Align
         {
             get => align;
@@ -192,7 +179,7 @@ namespace AntdUI
         /// <summary>
         /// Value 属性值更改时发生
         /// </summary>
-        [Description("Value 属性值更改时发生"), Category("行为")]
+        [Description("Value 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event IntEventHandler? ValueChanged;
 
         protected virtual void OnValueChanged(int e) => ValueChanged?.Invoke(this, new IntEventArgs(e));
@@ -200,14 +187,14 @@ namespace AntdUI
         /// <summary>
         /// 是否显示数值
         /// </summary>
-        [Description("是否显示数值"), Category("行为"), DefaultValue(false)]
+        [Description("是否显示数值"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ShowValue { get; set; }
 
         int lineSize = 4;
         /// <summary>
         /// 线条粗细
         /// </summary>
-        [Description("线条粗细"), Category("外观"), DefaultValue(4)]
+        [Description("线条粗细"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(4)]
         public int LineSize
         {
             get => lineSize;
@@ -223,7 +210,7 @@ namespace AntdUI
         /// <summary>
         /// 点大小
         /// </summary>
-        [Description("点大小"), Category("外观"), DefaultValue(10)]
+        [Description("点大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(10)]
         public int DotSize
         {
             get => dotSize;
@@ -239,7 +226,7 @@ namespace AntdUI
         /// <summary>
         /// 点激活大小
         /// </summary>
-        [Description("点激活大小"), Category("外观"), DefaultValue(12)]
+        [Description("点激活大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(12)]
         public int DotSizeActive
         {
             get => dotSizeActive;
@@ -254,7 +241,7 @@ namespace AntdUI
         /// <summary>
         /// 是否只能拖拽到刻度上
         /// </summary>
-        [Description("是否只能拖拽到刻度上"), Category("数据"), DefaultValue(false)]
+        [Description("是否只能拖拽到刻度上"), Category(nameof(CategoryAttribute.Data)), DefaultValue(false)]
         public bool Dots { get; set; }
 
         SliderMarkItemCollection? marks;
@@ -262,7 +249,7 @@ namespace AntdUI
         /// 刻度标记
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("刻度标记"), Category("数据"), DefaultValue(null)]
+        [Description("刻度标记"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public SliderMarkItemCollection Marks
         {
             get
@@ -276,7 +263,7 @@ namespace AntdUI
         /// <summary>
         /// 刻度文本间距
         /// </summary>
-        [Description("刻度文本间距"), Category("外观"), DefaultValue(4)]
+        [Description("刻度文本间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(4)]
         public int MarkTextGap { get; set; } = 4;
 
         #endregion
@@ -289,7 +276,7 @@ namespace AntdUI
             var padding = Padding;
             var _rect = e.Rect.PaddingRect(padding);
             if (_rect.Width == 0 || _rect.Height == 0) return;
-            int LineSize = (int)(lineSize * Config.Dpi), DotS = (int)((dotSizeActive > dotSize ? dotSizeActive : dotSize) * Config.Dpi), DotS2 = DotS * 2;
+            int LineSize = (int)(lineSize * Dpi), DotS = (int)((dotSizeActive > dotSize ? dotSizeActive : dotSize) * Dpi), DotS2 = DotS * 2;
             if (align == TAlignMini.Top || align == TAlignMini.Bottom)
             {
                 if (padding.Top > DotS || padding.Bottom > DotS)
@@ -312,7 +299,7 @@ namespace AntdUI
             }
 
             var enabled = Enabled;
-            Color color = enabled ? fill ?? Colour.InfoBorder.Get(nameof(Slider), ColorScheme) : Colour.FillTertiary.Get(nameof(Slider), "bgDisabled", ColorScheme), color_dot = enabled ? fill ?? Colour.InfoBorder.Get(nameof(Slider), ColorScheme) : Colour.SliderHandleColorDisabled.Get(nameof(Slider), "dotDisabled", ColorScheme), color_hover = FillHover ?? Colour.InfoHover.Get(nameof(Slider), ColorScheme), color_active = FillActive ?? Colour.Primary.Get(nameof(Slider), ColorScheme);
+            Color color = enabled ? fill ?? Colour.InfoBorder.Get(ColorScheme, nameof(Slider), Name) : Colour.FillTertiary.GetSymbol(ColorScheme, "bgDisabled", nameof(Slider), Name), color_dot = enabled ? fill ?? Colour.InfoBorder.Get(ColorScheme, nameof(Slider), Name) : Colour.SliderHandleColorDisabled.GetSymbol(ColorScheme, "dotDisabled", nameof(Slider), Name), color_hover = FillHover ?? Colour.InfoHover.Get(ColorScheme, nameof(Slider), Name), color_active = FillActive ?? Colour.Primary.Get(ColorScheme, nameof(Slider), Name);
 
             var g = e.Canvas;
             IPaint(g, _rect, enabled, color, color_dot, color_hover, color_active);
@@ -327,7 +314,7 @@ namespace AntdUI
 
             using (var path = rect_read.RoundPath(rect_read.Height / 2))
             {
-                using (var brush = new SolidBrush(trackColor ?? Colour.FillQuaternary.Get(nameof(Slider), ColorScheme)))
+                using (var brush = new SolidBrush(trackColor ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Slider), Name)))
                 {
                     g.Fill(brush, path);
                     if (AnimationHover) g.Fill(Helper.ToColorN(AnimationHoverValue, brush.Color), path);
@@ -349,7 +336,7 @@ namespace AntdUI
 
             #endregion
 
-            using (var brush = new SolidBrush(Colour.BgBase.Get(nameof(Slider), ColorScheme)))
+            using (var brush = new SolidBrush(Colour.BgBase.Get(ColorScheme, nameof(Slider), Name)))
             {
                 PaintMarksEllipse(g, rect, rect_read, brush, color, LineSize);
                 PaintEllipse(g, rect, rect_read, prog, brush, color_dot, color_hover, color_active, LineSize);
@@ -359,7 +346,7 @@ namespace AntdUI
         internal RectangleF rectEllipse;
         internal void PaintEllipse(Canvas g, Rectangle rect, RectangleF rect_read, float prog, SolidBrush brush, Color color, Color color_hover, Color color_active, int LineSize)
         {
-            int DotSize = (int)(dotSize * Config.Dpi), DotSizeActive = (int)(dotSizeActive * Config.Dpi);
+            int DotSize = (int)(dotSize * Dpi), DotSizeActive = (int)(dotSizeActive * Dpi);
             rectEllipse = RectDot(rect, rect_read, prog, DotSizeActive + LineSize);
 
             var rect_ellipse_rl = RectDot(rect, rect_read, prog, DotSize + LineSize);
@@ -416,9 +403,9 @@ namespace AntdUI
         {
             if (marks != null && marks.Count > 0)
             {
-                using (var fore = new SolidBrush(Colour.Text.Get(nameof(Slider), ColorScheme)))
+                using (var fore = new SolidBrush(Colour.Text.Get(ColorScheme, nameof(Slider), Name)))
                 {
-                    int markTextGap = (int)(MarkTextGap * Config.Dpi);
+                    int markTextGap = (int)(MarkTextGap * Dpi);
                     int size2 = LineSize, size = size2 * 2;
                     foreach (var it in marks)
                     {
@@ -554,7 +541,7 @@ namespace AntdUI
                 if (Dots)
                 {
                     var rect = ClientRectangle;
-                    int DotSize = (int)(dotSize * Config.Dpi);
+                    int DotSize = (int)(dotSize * Dpi);
                     var mark_list = new List<float>(marks.Count);
                     int i = 0;
                     switch (align)
@@ -581,7 +568,7 @@ namespace AntdUI
                 if (mark)
                 {
                     var rect = ClientRectangle;
-                    int DotSize = (int)(dotSize * Config.Dpi);
+                    int DotSize = (int)(dotSize * Dpi);
                     foreach (var it in marks)
                     {
                         float uks = ProgValue(it.Value);
@@ -593,19 +580,19 @@ namespace AntdUI
             switch (align)
             {
                 case TAlignMini.Right:
-                    float xr = 1F - ((x - rect_read.X) * 1.0F / rect_read.Width);
+                    float xr = 1F - ((x - rect_read.X) * 1F / rect_read.Width);
                     if (xr > 0) return (int)Math.Round(xr * max) + _minValue;
                     else return _minValue;
                 case TAlignMini.Top:
-                    float yt = (y - rect_read.Y) * 1.0F / rect_read.Height;
+                    float yt = (y - rect_read.Y) * 1F / rect_read.Height;
                     if (yt > 0) return (int)Math.Round(yt * max) + _minValue;
                     else return _minValue;
                 case TAlignMini.Bottom:
-                    float yb = 1F - ((y - rect_read.Y) * 1.0F / rect_read.Height);
+                    float yb = 1F - ((y - rect_read.Y) * 1F / rect_read.Height);
                     if (yb > 0) return (int)Math.Round(yb * max) + _minValue;
                     else return _minValue;
                 default:
-                    float xl = (x - rect_read.X) * 1.0F / rect_read.Width;
+                    float xl = (x - rect_read.X) * 1F / rect_read.Width;
                     if (xl > 0) return (int)Math.Round(xl * max) + _minValue;
                     else return _minValue;
             }
@@ -649,7 +636,7 @@ namespace AntdUI
                 _mouseHover = value;
                 var enabled = Enabled;
                 SetCursor(value && enabled);
-                if (Config.HasAnimation(nameof(Slider)))
+                if (Config.HasAnimation(nameof(Slider), Name))
                 {
                     ThreadHover?.Dispose();
                     AnimationHover = true;
@@ -677,7 +664,7 @@ namespace AntdUI
                 if (_mouseDotHover == value) return;
                 _mouseDotHover = value;
                 if (!value) CloseTips();
-                if (Config.HasAnimation(nameof(Slider)))
+                if (Config.HasAnimation(nameof(Slider), Name))
                 {
                     ThreadHover?.Dispose();
                     ThreadHover = null;
@@ -770,7 +757,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("值"), Category("外观"), DefaultValue(0)]
+        [Description("值"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Value
         {
             get => _value;
@@ -787,7 +774,7 @@ namespace AntdUI
         /// <summary>
         /// 文本颜色
         /// </summary>
-        [Description("文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? Fore
         {
             get => fore;
@@ -803,7 +790,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? Text
         {
             get => text;
@@ -818,7 +805,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         internal Slider? PARENT { get; set; }

@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -298,9 +285,30 @@ namespace AntdUI
             public bool TopMost { get; set; }
 
             /// <summary>
-            /// 超链接回调
+            /// 超链接
             /// </summary>
-            public ConfigLink? Link { get; set; }
+            public IConfigControl? Link
+            {
+                get
+                {
+                    if (Links == null || Links.Length == 0) return null;
+                    return Links[0];
+                }
+                set
+                {
+                    if (value == null) Links = null;
+                    else
+                    {
+                        if (Links == null || Links.Length == 0) Links = new IConfigControl[] { value };
+                        else Links[0] = value;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// 超链接组合
+            /// </summary>
+            public IConfigControl[]? Links { get; set; }
 
             /// <summary>
             /// 关闭回调
@@ -321,6 +329,19 @@ namespace AntdUI
             /// 是否启用声音
             /// </summary>
             public bool EnableSound { get; set; }
+
+            #region 样式
+
+            /// <summary>
+            /// 自定义背景色
+            /// </summary>
+            public Color? Back { get; set; }
+            /// <summary>
+            /// 自定义前景色
+            /// </summary>
+            public Color? Fore { get; set; }
+
+            #endregion
 
             #region 设置
 
@@ -351,6 +372,17 @@ namespace AntdUI
             {
                 text = value;
                 LocalizationText = localization;
+                return this;
+            }
+
+            public Config SetBack(Color? value)
+            {
+                Back = value;
+                return this;
+            }
+            public Config SetFore(Color? value)
+            {
+                Fore = value;
                 return this;
             }
 
@@ -458,47 +490,135 @@ namespace AntdUI
 
             public Config SetLink(string text, Func<bool> call)
             {
-                Link = new ConfigLink(text, call);
+                Links = new IConfigControl[] { new ConfigLink(text, call) };
                 return this;
             }
 
             public Config SetLink(string text, object tag, Func<bool> call)
             {
-                Link = new ConfigLink(text, call).SetTag(tag);
+                Links = new IConfigControl[] { new ConfigLink(text, call).SetTag(tag) };
+                return this;
+            }
+
+            public Config SetLink(params IConfigControl[] value)
+            {
+                Links = value;
                 return this;
             }
 
             #endregion
         }
 
-        public class ConfigLink
+        public class ConfigLink : IConfigControl
         {
+            public ConfigLink() { }
+
+            public ConfigLink(string text)
+            {
+                _text = text;
+            }
+
             public ConfigLink(string text, Func<bool> call)
             {
-                Text = text;
+                _text = text;
                 Call = call;
             }
 
+            string? _text;
             /// <summary>
-            /// 连接文本
+            /// 文本
             /// </summary>
-            public string Text { get; set; }
+            public string? Text
+            {
+                get => Localization.GetLangI(LocalizationText, _text);
+                set => _text = value;
+            }
+
+            /// <summary>
+            /// 国际化（文本）
+            /// </summary>
+            public string? LocalizationText { get; set; }
+
+            /// <summary>
+            /// 文本颜色
+            /// </summary>
+            public Color? Fore { get; set; }
+
+            /// <summary>
+            /// 是否显示标签
+            /// </summary>
+            public bool Link { get; set; } = true;
 
             /// <summary>
             /// 点击回调
             /// </summary>
-            public Func<bool> Call { get; set; }
+            public Func<bool>? Call { get; set; }
 
             /// <summary>
             /// 用户定义数据
             /// </summary>
             public object? Tag { get; set; }
 
+            #region 设置
+
+            public ConfigLink SetText(string? value, string? localization = null)
+            {
+                _text = value;
+                LocalizationText = localization;
+                return this;
+            }
+            public ConfigLink SetFore(Color? value)
+            {
+                Fore = value;
+                return this;
+            }
+            public ConfigLink SetLink(bool value = false)
+            {
+                Link = value;
+                return this;
+            }
             public ConfigLink SetTag(object? value)
             {
                 Tag = value;
                 return this;
             }
+
+            #endregion
+
+            #region 内部
+
+            public bool Contains(int x, int y) => Rect.Contains(x, y);
+
+            internal Rectangle Rect { get; set; }
+            internal Rectangle RectText { get; set; }
+            internal Rectangle RectArrow { get; set; }
+
+            #endregion
+        }
+
+        public interface IConfigControl
+        {
+            /// <summary>
+            /// 文本
+            /// </summary>
+            string? Text { get; set; }
+
+            /// <summary>
+            /// 文本颜色
+            /// </summary>
+            Color? Fore { get; set; }
+
+            /// <summary>
+            /// 点击回调
+            /// </summary>
+            Func<bool>? Call { get; set; }
+
+            /// <summary>
+            /// 用户定义数据
+            /// </summary>
+            object? Tag { get; set; }
+
+            bool Contains(int x, int y);
         }
     }
 
@@ -506,18 +626,18 @@ namespace AntdUI
     {
         Font font_title;
         internal Notification.Config config;
-        int shadow_size = 10;
+        int shadow_size = 0;
         public NotificationFrm(Notification.Config _config, string? id)
         {
             config = _config;
             Tag = id;
-            if (config.TopMost) Helper.SetTopMost(Handle);
-            else config.Target.SetTopMost(Handle);
-            shadow_size = (int)(shadow_size * Config.Dpi);
+            SetTopMost(config.Target, Handle, config.TopMost);
+            SetDpi(config.Target);
+            if (Config.ShadowEnabled) shadow_size = (int)(Config.ShadowSize * Dpi);
             config.Target.SetFontConfig(config.Font, this);
             config.Target.SetIcon(this);
             font_title = config.FontTitle ?? new Font(Font.FontFamily, Font.Size * 1.14F, config.FontStyleTitle ?? Font.Style);
-            Helper.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
+            this.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
             close_button = new ITaskOpacity(name, this);
         }
 
@@ -572,11 +692,19 @@ namespace AntdUI
             var rect = TargetRectXY;
             var rect_read = rect.PaddingRect(Padding, shadow_size);
             Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(rbmp).High())
+            using (var g = Graphics.FromImage(rbmp).High(Dpi))
             {
-                using (var path = DrawShadow(g, rect, rect_read))
+                using (var path = DrawShadow(g, rect, rect_read, out int radius))
                 {
-                    g.Fill(Colour.BgElevated.Get(nameof(Notification)), path);
+                    g.Fill(config.Back ?? Colour.BgElevated.Get(name), path);
+                    if (radius > -1)
+                    {
+                        int bor = (int)(Dpi), bor2 = bor * 2;
+                        using (var path2 = new Rectangle(rect_read.X + bor, rect_read.Y + bor, rect_read.Width - bor2, rect_read.Height - bor2).RoundPath(radius))
+                        {
+                            g.Draw(Colour.BorderColor.Get(name), bor, path2);
+                        }
+                    }
                 }
                 if (config.IconCustom != null) g.PaintIcons(config.IconCustom, rect_icon);
                 else if (config.Icon != TType.None) g.PaintIcons(config.Icon, rect_icon, "Notification", TAMode.Auto);
@@ -585,37 +713,47 @@ namespace AntdUI
                 {
                     if (close_button.Animation)
                     {
-                        using (var path = rect_close.RoundPath((int)(4 * Config.Dpi)))
+                        using (var path = rect_close.RoundPath((int)(4 * Dpi)))
                         {
-                            g.Fill(Helper.ToColor(close_button.Value, Colour.FillSecondary.Get(nameof(Notification))), path);
+                            g.Fill(Helper.ToColor(close_button.Value, Colour.FillSecondary.Get(name)), path);
                         }
-                        g.PaintIconClose(rect_close, Colour.Text.Get(nameof(Notification)), .6F);
+                        g.PaintIconCore(rect_close, SvgDb.IcoErrorGhost, Colour.Text.Get(name), .6F);
                     }
                     else if (close_button.Switch)
                     {
-                        using (var path = rect_close.RoundPath((int)(4 * Config.Dpi)))
+                        using (var path = rect_close.RoundPath((int)(4 * Dpi)))
                         {
-                            g.Fill(Colour.FillSecondary.Get(nameof(Notification)), path);
+                            g.Fill(Colour.FillSecondary.Get(name), path);
                         }
-                        g.PaintIconClose(rect_close, Colour.Text.Get(nameof(Notification)), .6F);
+                        g.PaintIconCore(rect_close, SvgDb.IcoErrorGhost, Colour.Text.Get(name), .6F);
                     }
-                    else g.PaintIconClose(rect_close, Colour.TextTertiary.Get(nameof(Notification)), .6F);
+                    else g.PaintIconCore(rect_close, SvgDb.IcoErrorGhost, Colour.TextTertiary.Get(name), .6F);
                 }
-                using (var brush = new SolidBrush(Colour.TextBase.Get(nameof(Notification))))
+                using (var brush = new SolidBrush(config.Fore ?? Colour.TextBase.Get(name)))
                 {
                     g.DrawText(config.Title, font_title, brush, rect_title, s_f_left);
                     g.DrawText(config.Text, Font, brush, rect_txt, s_f_left_left);
                 }
-                if (config.Link != null)
+                PrintLink(g);
+            }
+            return rbmp;
+        }
+
+        void PrintLink(Canvas g)
+        {
+            if (config.Links == null) return;
+            foreach (var it in config.Links)
+            {
+                if (it is Notification.ConfigLink link)
                 {
-                    using (var pen = new Pen(Colour.Primary.Get(nameof(Notification)), Config.Dpi))
+                    var linkcolor = link.Fore ?? Colour.Primary.Get(name);
+                    using (var pen = new Pen(linkcolor, Dpi))
                     {
-                        g.DrawText(config.Link.Text, Font, Colour.Primary.Get(nameof(Notification)), rect_link_text, s_f);
-                        g.DrawLines(pen, TAlignMini.Right.TriangleLines(rect_links));
+                        g.DrawText(link.Text, Font, linkcolor, link.RectText, s_f);
+                        if (link.Link) g.DrawLines(pen, TAlignMini.Right.TriangleLines(link.RectArrow));
                     }
                 }
             }
-            return rbmp;
         }
 
         SafeBitmap? shadow_temp;
@@ -625,27 +763,33 @@ namespace AntdUI
         /// <param name="g">GDI</param>
         /// <param name="rect_client">客户区域</param>
         /// <param name="rect_read">真实区域</param>
-        GraphicsPath DrawShadow(Canvas g, Rectangle rect_client, Rectangle rect_read)
+        GraphicsPath DrawShadow(Canvas g, Rectangle rect_client, Rectangle rect_read, out int r)
         {
-            var path = rect_read.RoundPath((int)(config.Radius * Config.Dpi));
-            if (Config.ShadowEnabled)
+            r = -1;
+            var radius = (int)(config.Radius * Dpi);
+            var path = rect_read.RoundPath(radius);
+            if (shadow_size > 0)
             {
                 if (shadow_temp == null || (shadow_temp.Width != rect_client.Width || shadow_temp.Height != rect_client.Height))
                 {
                     shadow_temp?.Dispose();
                     shadow_temp = path.PaintShadow(rect_client.Width, rect_client.Height);
                 }
-                g.Image(shadow_temp.Bitmap, rect_client, 0.2F);
+                g.Image(shadow_temp.Bitmap, rect_client, Config.ShadowOpacity);
             }
+            else r = radius;
             return path;
         }
 
+        #endregion
+
+        #region 布局
+
         Rectangle rect_icon, rect_title, rect_txt, rect_close;
-        Rectangle rect_link_text, rect_links;
         Size RenderMeasure(Canvas g, int shadow)
         {
             int shadow2 = shadow * 2;
-            float dpi = Config.Dpi;
+            float dpi = Dpi;
 
             var size_title = g.MeasureText(config.Title, font_title, 10000, s_f_left);
             int paddingx = (int)(config.Padding.Width * dpi), paddingy = (int)(config.Padding.Height * dpi), t_max_width = (int)Math.Ceiling(360 * dpi);
@@ -670,13 +814,8 @@ namespace AntdUI
 
                 if (size_desc.Height > 0) h += size_desc.Height + sp;
 
-                if (config.Link != null)
-                {
-                    var size_link = g.MeasureText(config.Link.Text, Font, 10000, s_f);
-                    rect_link_text = new Rectangle(rect_title.X, rect_txt.Bottom + sp, size_link.Width, size_link.Height);
-                    rect_links = new Rectangle(rect_link_text.Right, rect_link_text.Y, rect_link_text.Height, rect_link_text.Height);
-                    h += size_link.Height + sp;
-                }
+                MeasureButton(g, ref h, sp, rect_title.X, rect_txt.Bottom, max_width);
+
                 return new Size(max_width + paddingx * 2 + shadow2, h + paddingy * 2 + shadow2);
             }
             else
@@ -693,14 +832,35 @@ namespace AntdUI
 
                 if (size_desc.Height > 0) h += size_desc.Height + sp;
 
-                if (config.Link != null)
-                {
-                    var size_link = g.MeasureText(config.Link.Text, Font, 10000, s_f);
-                    rect_link_text = new Rectangle(rect_title.X, rect_txt.Bottom + sp, size_link.Width, size_link.Height);
-                    rect_links = new Rectangle(rect_link_text.Right, rect_link_text.Y, rect_link_text.Height, rect_link_text.Height);
-                    h += size_link.Height + sp;
-                }
+                MeasureButton(g, ref h, sp, rect_title.X, rect_txt.Bottom, max_width);
+
                 return new Size(max_width + icon_size + icon_sp + paddingx * 2 + shadow2, h + paddingy * 2 + shadow2);
+            }
+        }
+
+        void MeasureButton(Canvas g, ref int h, int sp, int x, int y, int w)
+        {
+            if (config.Links == null) return;
+            int ry = y + sp, uw = 0, count = 0;
+            foreach (var it in config.Links)
+            {
+                if (it is Notification.ConfigLink link)
+                {
+                    var size_link = g.MeasureText(link.Text, Font, 10000, s_f);
+                    int rw = size_link.Width + size_link.Height + sp, rh = size_link.Height + sp;
+                    if (uw + rw > w)
+                    {
+                        ry += rh;
+                        h += rh;
+                        uw = 0;
+                    }
+                    else if (count == 0) h += rh;
+                    link.Rect = new Rectangle(x + uw, ry, size_link.Width + size_link.Height, size_link.Height);
+                    link.RectText = new Rectangle(link.Rect.X, link.Rect.Y, size_link.Width, link.Rect.Height);
+                    link.RectArrow = new Rectangle(link.RectText.Right, link.Rect.Y, link.Rect.Height, link.Rect.Height);
+                    uw += rw;
+                    count++;
+                }
             }
         }
 
@@ -713,7 +873,7 @@ namespace AntdUI
         {
             if (config.CloseIcon)
             {
-                close_button.MaxValue = Colour.FillSecondary.Get(nameof(Notification), TAMode.Auto).A;
+                close_button.MaxValue = Colour.FillSecondary.Get(TAMode.Auto, name).A;
                 close_button.Switch = rect_close.Contains(e.X, e.Y);
                 SetCursor(close_button.Switch);
                 if (close_button.Switch)
@@ -722,15 +882,27 @@ namespace AntdUI
                     return;
                 }
             }
-            if (config.Link != null) SetCursor(rect_link_text.Contains(e.X, e.Y));
+            if (config.Links != null)
+            {
+                int hand = 0;
+                foreach (var it in config.Links)
+                {
+                    if (it.Contains(e.X, e.Y)) hand++;
+                }
+                SetCursor(hand > 0);
+            }
             base.OnMouseMove(e);
         }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
-            if (config.Link != null && rect_link_text.Contains(e.X, e.Y))
+            if (config.Links != null)
             {
-                if (!config.Link.Call()) return;
+                foreach (var it in config.Links)
+                {
+                    if (it.Call == null) continue;
+                    if (it.Contains(e.X, e.Y) && it.Call()) return;
+                }
             }
             if (config.ClickClose) CloseMe();
             base.OnMouseClick(e);

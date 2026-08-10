@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections;
@@ -30,7 +17,7 @@ namespace AntdUI
 
         public Action<bool>? action;
         public Action<T>? action_add;
-        public Action<T, int>? action_del;
+        public Action<object>? action_del;
         void PropertyChanged(T value)
         {
             if (value is NotifyProperty notify)
@@ -57,7 +44,7 @@ namespace AntdUI
                 if (action_add == null && action_del == null) list[index] = value;
                 else
                 {
-                    action_del?.Invoke(list[index], index);
+                    action_del?.Invoke(new object[] { list[index]!, index });
                     list[index] = value;
                     action_add?.Invoke(value);
                 }
@@ -75,7 +62,7 @@ namespace AntdUI
                     if (action_add == null && action_del == null) list[index] = item;
                     else
                     {
-                        action_del?.Invoke(list[index], index);
+                        action_del?.Invoke(new object[] { list[index]!, index });
                         list[index] = item;
                         action_add?.Invoke(item);
                     }
@@ -221,15 +208,16 @@ namespace AntdUI
 
         #region 删除
 
+        public void Dispose() => list.Clear();
+
         public void Clear()
         {
-            if (action_del != null)
-            {
-                foreach (var item in list) action_del?.Invoke(item, -1);
-            }
+            action_del?.Invoke(-1);
             list.Clear();
             action?.Invoke(true);
         }
+
+        #region 删除
 
         public void Remove(object? value)
         {
@@ -237,7 +225,7 @@ namespace AntdUI
             {
                 int i = IndexOf(item);
                 list.Remove(item);
-                action_del?.Invoke(item, i);
+                action_del?.Invoke(new object[] { item, i });
                 action?.Invoke(true);
             }
         }
@@ -247,7 +235,7 @@ namespace AntdUI
             bool flag = list.Remove(item);
             if (flag)
             {
-                action_del?.Invoke(item, i);
+                action_del?.Invoke(new object[] { item!, i });
                 action?.Invoke(true);
             }
             return flag;
@@ -258,24 +246,31 @@ namespace AntdUI
             {
                 try
                 {
-                    action_del?.Invoke(list[index], index);
+                    action_del?.Invoke(new object[] { list[index]!, index });
                 }
                 catch { }
             }
             list.RemoveAt(index);
             action?.Invoke(true);
         }
-        public int RemoveAll(Predicate<T> match)
+        public List<T> RemoveAll(Predicate<T> match)
         {
-            int i = list.RemoveAll(match);
+            var removedItems = list.FindAll(match);
+            if (removedItems.Count == 0) return removedItems;
+            list.RemoveAll(match);
+            action_del?.Invoke(removedItems);
             action?.Invoke(true);
-            return i;
+            return removedItems;
         }
         public void RemoveRange(int index, int count)
         {
+            var tmps = list.GetRange(index, count);
             list.RemoveRange(index, count);
+            action_del?.Invoke(tmps);
             action?.Invoke(true);
         }
+
+        #endregion
 
         #endregion
 

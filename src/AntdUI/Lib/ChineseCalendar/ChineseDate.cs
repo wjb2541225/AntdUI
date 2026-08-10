@@ -27,8 +27,10 @@ namespace ChineseCalendar
         {
             try
             {
-                var cdate = new ChineseDate();
-                cdate.Year = chineseCalendar.GetYear(date);
+                var cdate = new ChineseDate
+                {
+                    Year = chineseCalendar.GetYear(date)
+                };
                 cdate.MonthIndex = cdate.Month = chineseCalendar.GetMonth(date);
                 cdate.Day = chineseCalendar.GetDayOfMonth(date);
                 //获取闰月， 0 则表示没有闰月
@@ -44,6 +46,24 @@ namespace ChineseCalendar
             catch (ArgumentOutOfRangeException ex)
             {
                 throw new ArgumentOutOfRangeException($"日期超出范围 1901-02-19(公历) -- 2101-01-28(公历)", ex);
+            }
+        }
+
+        /// <summary>
+        /// 转换一个公历日期为农历日期
+        /// </summary>
+        /// <param name="date">公历日期</param>
+        /// <exception cref="ArgumentOutOfRangeException">日期超出范围</exception>
+        /// <returns>农历日期</returns>
+        public static string? FromDayString(DateTime date)
+        {
+            try
+            {
+                return From(date).DayString;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -89,8 +109,10 @@ namespace ChineseCalendar
                 day = days + day + 1;
             }
 
-            var cdate = new ChineseDate();
-            cdate.Year = year;
+            var cdate = new ChineseDate
+            {
+                Year = year
+            };
             cdate.MonthIndex = cdate.Month = month;
             cdate.Day = day;
             int leapMonth = chineseCalendar.GetLeapMonth(year);
@@ -160,13 +182,15 @@ namespace ChineseCalendar
                 day = days + day + 1;
             }
 
-            var cdate = new ChineseDate();
-            cdate.Year = year;
-            cdate.MonthIndex = monthIndex;
-            cdate.Month = month;
-            cdate.Day = day;
-            cdate.IsLeapMonth = monthIndex == leapMonth;
-            cdate.LeapMonthOfYear = Math.Max(0, leapMonth - 1);
+            var cdate = new ChineseDate
+            {
+                Year = year,
+                MonthIndex = monthIndex,
+                Month = month,
+                Day = day,
+                IsLeapMonth = monthIndex == leapMonth,
+                LeapMonthOfYear = Math.Max(0, leapMonth - 1)
+            };
             return cdate;
         }
 

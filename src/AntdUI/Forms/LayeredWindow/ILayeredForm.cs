@@ -1,23 +1,11 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -35,15 +23,14 @@ namespace AntdUI
                 ControlStyles.UserPaint |
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.OptimizedDoubleBuffer |
-                ControlStyles.ResizeRedraw |
-                ControlStyles.DoubleBuffer, true);
+                ControlStyles.ResizeRedraw, true);
             UpdateStyles();
             FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.CenterScreen;
             ShowInTaskbar = false;
             Size = new Size(0, 0);
-            actionLoadMessage = LoadMessage;
             actionCursor = val => SetCursor(val);
-            memDc = Win32.CreateCompatibleDC(Win32.screenDC);
+            memDc = Win32.Render.CreateCompatibleDC(Win32.Render.screenDC);
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -55,18 +42,22 @@ namespace AntdUI
         public Control? PARENT;
         public Func<Keys, bool>? KeyCall;
 
-        Action actionLoadMessage;
         MessageHandler? messageHandler;
         public virtual void LoadMessage()
         {
-            if (messageHandler == null)
+            if (messageHandler == null && FunRun)
             {
-                if (InvokeRequired)
+                if (CloseMode == CloseMode.None && KeyCall == null) return;
+                try
                 {
-                    Invoke(actionLoadMessage);
-                    return;
+                    if (InvokeRequired)
+                    {
+                        Invoke(LoadMessage);
+                        return;
+                    }
+                    messageHandler = new MessageHandler(this);
                 }
-                if (MessageEnable) messageHandler = new MessageHandler(this);
+                catch { }
             }
         }
 
@@ -79,18 +70,20 @@ namespace AntdUI
         bool FunRun = true;
         protected override void Dispose(bool disposing)
         {
+            FunRun = false;
             try
             {
                 base.Dispose(disposing);
             }
             catch { }
             handle = null;
-            FunRun = false;
             messageHandler?.Dispose();
             messageHandler = null;
-            Win32.Dispose(memDc, ref hBitmap, ref oldBits);
+            popover?.CloseLockedDel(this);
+            popover = null;
+            Win32.Render.Dispose(memDc, ref hBitmap, ref oldBits);
             if (memDc == IntPtr.Zero) return;
-            Win32.DeleteDC(memDc);
+            Win32.Render.DeleteDC(memDc);
             memDc = IntPtr.Zero;
         }
 
@@ -163,6 +156,11 @@ namespace AntdUI
             target_rect.X = x;
             target_rect.Y = y;
         }
+        public virtual void SetLocationCenter(Rectangle screen)
+        {
+            target_rect.X = screen.X + (screen.Width - target_rect.Width) / 2;
+            target_rect.Y = screen.Y + (screen.Height - target_rect.Height) / 2;
+        }
 
         #endregion
 
@@ -170,11 +168,12 @@ namespace AntdUI
         public Bitmap? Printmap()
         {
             RenderCache = false;
-            Win32.Dispose(memDc, ref hBitmap, ref oldBits);
+            Win32.Render.Dispose(memDc, ref hBitmap, ref oldBits);
             return PrintBit();
         }
 
-        public RenderResult Print(bool fore = false)
+        public void PrintNo() => Print();
+        public Win32.RenderResult Print(bool fore = false)
         {
             if (CanRender(out var handle))
             {
@@ -182,29 +181,29 @@ namespace AntdUI
                 {
                     using (var bmp = Printmap())
                     {
-                        if (bmp == null) return RenderResult.Skip;
+                        if (bmp == null) return Win32.RenderResult.Skip;
                         return Render(handle, alpha, bmp, target_rect);
                     }
                 }
                 catch { }
-                return RenderResult.Error;
+                return Win32.RenderResult.Error;
             }
-            else return RenderResult.Skip;
+            else return Win32.RenderResult.Skip;
         }
-        public RenderResult Print(Bitmap bmp)
+        public Win32.RenderResult Print(Bitmap bmp)
         {
             if (CanRender(out var handle)) return Render(handle, alpha, bmp, target_rect);
-            else return RenderResult.Skip;
+            else return Win32.RenderResult.Skip;
         }
-        public RenderResult Print(Bitmap bmp, Rectangle rect)
+        public Win32.RenderResult Print(Bitmap bmp, Rectangle rect)
         {
             using (bmp)
             {
                 if (CanRender(out var handle)) return Render(handle, alpha, bmp, rect);
-                else return RenderResult.Skip;
+                else return Win32.RenderResult.Skip;
             }
         }
-        public RenderResult PrintCache(bool fore = false)
+        public Win32.RenderResult PrintCache(bool fore = false)
         {
             if (CanRender(out var handle))
             {
@@ -213,42 +212,42 @@ namespace AntdUI
                     return Render(handle, alpha, target_rect);
                 }
                 catch { }
-                return RenderResult.Error;
+                return Win32.RenderResult.Error;
             }
-            else return RenderResult.Skip;
+            else return Win32.RenderResult.Skip;
         }
 
         public bool RenderCache = false;
         IntPtr hBitmap, oldBits;
-        RenderResult Render(IntPtr handle, byte alpha, Bitmap bmp, Rectangle rect)
+        Win32.RenderResult Render(IntPtr handle, byte alpha, Bitmap bmp, Rectangle rect)
         {
             if (InvokeRequired)
             {
                 try
                 {
-                    if (IsDisposed || Disposing) return RenderResult.Skip;
-                    if (RenderCache) return Invoke(() => Win32.SetBits(memDc, rect, handle, alpha));
+                    if (IsDisposed || Disposing) return Win32.RenderResult.Skip;
+                    if (RenderCache) return Invoke(() => Win32.Render.SetBits(memDc, rect, handle, alpha));
                     RenderCache = true;
-                    return Invoke(() => Win32.SetBits(memDc, bmp, rect, handle, alpha, out hBitmap, out oldBits));
+                    return Invoke(() => Win32.Render.SetBits(memDc, bmp, rect, handle, alpha, out hBitmap, out oldBits));
                 }
                 catch { }
             }
-            if (RenderCache) return Win32.SetBits(memDc, rect, handle, alpha);
+            if (RenderCache) return Win32.Render.SetBits(memDc, rect, handle, alpha);
             RenderCache = true;
-            return Win32.SetBits(memDc, bmp, rect, handle, alpha, out hBitmap, out oldBits);
+            return Win32.Render.SetBits(memDc, bmp, rect, handle, alpha, out hBitmap, out oldBits);
         }
-        RenderResult Render(IntPtr handle, byte alpha, Rectangle rect)
+        Win32.RenderResult Render(IntPtr handle, byte alpha, Rectangle rect)
         {
             if (InvokeRequired)
             {
                 try
                 {
-                    if (IsDisposed || Disposing) return RenderResult.Skip;
-                    return Invoke(() => Win32.SetBits(memDc, rect, handle, alpha));
+                    if (IsDisposed || Disposing) return Win32.RenderResult.Skip;
+                    return Invoke(() => Win32.Render.SetBits(memDc, rect, handle, alpha));
                 }
                 catch { }
             }
-            return Win32.SetBits(memDc, rect, handle, alpha);
+            return Win32.Render.SetBits(memDc, rect, handle, alpha);
         }
 
         Action<bool> actionCursor;
@@ -256,6 +255,11 @@ namespace AntdUI
         {
             if (InvokeRequired) Invoke(actionCursor, val);
             else Cursor = val ? Cursors.Hand : DefaultCursor;
+        }
+        public Point PointToScreen(Control control)
+        {
+            if (InvokeRequired) return Invoke(() => control.PointToScreen(Point.Empty));
+            return control.PointToScreen(Point.Empty);
         }
 
         #region 无焦点窗体
@@ -266,7 +270,7 @@ namespace AntdUI
             {
                 var cp = base.CreateParams;
                 cp.ExStyle |= 0x00080000 | 0x08000000 | 0x00000080;
-                cp.Parent = IntPtr.Zero;
+                cp.Parent = PARENT?.Handle ?? IntPtr.Zero;
                 return cp;
             }
         }
@@ -275,7 +279,14 @@ namespace AntdUI
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
         {
-            if (UFocus && m.Msg == 0x21)
+            if (m.Msg == 0x02E0)
+            {
+                // 低字节是水平DPI，高字节是垂直DPI
+                int dpiX = (int)(m.WParam.ToInt64() & 0xFFFF), dpiY = (int)(m.WParam.ToInt64() >> 16);
+                dpi = Helper.GetDpi(dpiX, dpiY);
+            }
+            else if (m.Msg == 0x000A) messageHandler?.SetEnabled(m.WParam != IntPtr.Zero);
+            else if (UFocus && m.Msg == 0x21)
             {
                 m.Result = new IntPtr(3);
                 return;
@@ -285,62 +296,101 @@ namespace AntdUI
 
         #endregion
 
-        int countClose = 0;
+        #region 关闭
+
+        bool isClosing = false;
         public virtual void IClosing() { }
         public void IClose(bool isdispose = false)
+        {
+            if (isdispose) _Dispose();
+            else _Close();
+        }
+        void _Close()
+        {
+            try
+            {
+                if (isClosing || IsDisposed) return;
+                isClosing = true;
+                if (InvokeRequired) Invoke(Close);
+                else Close();
+            }
+            catch { }
+        }
+        void _Dispose()
         {
             try
             {
                 if (IsDisposed) return;
-                if (InvokeRequired)
-                {
-                    Invoke(() => IClose(isdispose));
-                    return;
-                }
-                if (countClose > 2) isdispose = true;
-                if (isdispose)
-                {
-                    IClosing();
-                    Dispose();
-                    return;
-                }
-                countClose++;
-                Close();
+                IClosing();
+                if (InvokeRequired) Invoke(Dispose);
+                else Dispose();
             }
             catch { }
         }
+
+        #endregion
 
         #region 属性
 
         /// <summary>
         /// 加载后绑定消息
         /// </summary>
-        [Description("加载后绑定消息"), Category("行为"), DefaultValue(true)]
+        [Description("加载后绑定消息"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public virtual bool CanLoadMessage { get; set; } = true;
 
         /// <summary>
-        /// 消息使能
+        /// 关闭行为
         /// </summary>
-        [Description("消息使能"), Category("行为"), DefaultValue(false)]
-        public virtual bool MessageEnable { get; set; }
+        [Description("关闭行为"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(CloseMode.None)]
+        public CloseMode CloseMode { get; set; } = CloseMode.None;
 
         /// <summary>
-        /// 点击子菜单关闭（true后点击子菜单不关闭）
+        /// 区域判断模式
         /// </summary>
-        [Description("点击子菜单关闭"), Category("行为"), DefaultValue(false)]
-        public virtual bool MessageCloseSub { get; set; }
+        [Description("区域判断模式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public virtual bool AreaJudge { get; set; }
 
-        /// <summary>
-        /// 点击自己是否关闭（true 点击自己不关闭）
-        /// </summary>
-        [Description("点击自己是否关闭"), Category("行为"), DefaultValue(true)]
-        public virtual bool MessageClickMe { get; set; } = true;
+        #endregion
 
-        /// <summary>
-        /// 鼠标离开关闭
-        /// </summary>
-        [Description("鼠标离开关闭"), Category("行为"), DefaultValue(false)]
-        public virtual bool MessageCloseMouseLeave { get; set; }
+        #region DPI
+
+        float? dpi;
+        public float Dpi
+        {
+            get
+            {
+                if (Config._dpi_custom.HasValue) return Config._dpi_custom.Value;
+                if (dpi.HasValue) return dpi.Value;
+                var _dpi = Helper.GetScreenDpi(this);
+                dpi = _dpi;
+                return _dpi;
+            }
+        }
+
+        internal void SetDpi(Target target)
+        {
+            if (target.Value is BaseForm baseForm) SetDpi(baseForm);
+            else if (target.Value is ILayeredForm layeredForm) SetDpi(layeredForm);
+            else if (target.Value is IControl icontrol) SetDpi(icontrol);
+        }
+        internal void SetDpi(Form? form)
+        {
+            if (form is BaseForm baseForm) SetDpi(baseForm);
+            else if (form is ILayeredForm layeredForm) SetDpi(layeredForm);
+        }
+        internal void SetDpi(Control? control)
+        {
+            if (control is IControl icontrol) SetDpi(icontrol);
+        }
+        internal void SetDpi(Form? form, Control? control)
+        {
+            if (form is BaseForm baseForm) SetDpi(baseForm);
+            else if (form is ILayeredForm layeredForm) SetDpi(layeredForm);
+            else if (control is IControl icontrol) SetDpi(icontrol);
+        }
+        internal void SetDpi(BaseForm form) => dpi = form.Dpi;
+        internal void SetDpi(ILayeredForm form) => dpi = form.Dpi;
+        internal void SetDpi(IControl control) => dpi = control.Dpi;
 
         #endregion
 
@@ -348,57 +398,38 @@ namespace AntdUI
 
         public void IMOUSECLICK()
         {
+            if (CloseMode == CloseMode.None) return;
             var mousePosition = MousePosition;
-            if (!target_rect.Contains(mousePosition))
-            {
-                try
-                {
-                    if (PARENT != null && PARENT.IsHandleCreated)
-                    {
-                        if (MessageClickMe)
-                        {
-                            if (ContainsPosition(PARENT, mousePosition)) return;
-                            if (new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size).Contains(mousePosition)) return;
-                        }
-
-                        #region 判断内容
-
-                        if (MessageCloseSub && FunSub(PARENT, mousePosition)) return;
-
-                        #endregion
-                    }
-                    IClose();
-                }
-                catch { }
-            }
+            if (IMOUSECM(mousePosition)) return;
+            if (ICanClose()) IClose();
         }
 
-        public void IMOUSELEAVE()
+        public void IMOUSEMOVE()
         {
-            if (MessageCloseMouseLeave)
+            if (CloseMode.HasFlag(CloseMode.Leave))
             {
                 var mousePosition = MousePosition;
-                if (!target_rect.Contains(mousePosition))
-                {
-                    try
-                    {
-                        if (PARENT != null && PARENT.IsHandleCreated)
-                        {
-                            if (ContainsPosition(PARENT, mousePosition)) return;
-                            if (new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size).Contains(mousePosition)) return;
-
-                            #region 判断内容
-
-                            if (MessageCloseSub && FunSub(PARENT, mousePosition)) return;
-
-                            #endregion
-                        }
-                        IClose();
-                    }
-                    catch { }
-                }
+                if (IMOUSEMOVEAfter(mousePosition.X, mousePosition.Y)) return;
+                if (IMOUSECM(mousePosition)) return;
+                if (ICanClose()) IClose();
             }
         }
+
+        bool IMOUSECM(Point mousePosition)
+        {
+            if (AreaJudge)
+            {
+                foreach (var rect in ALLRECTs())
+                {
+                    if (rect.Contains(mousePosition)) return true;
+                }
+            }
+            else if (ALLRECT().Contains(mousePosition)) return true;
+            return false;
+        }
+
+        public virtual bool ICanClose() => true;
+        public virtual bool IMOUSEMOVEAfter(int x, int y) => false;
 
         public bool IKEYS(Keys keys)
         {
@@ -406,52 +437,68 @@ namespace AntdUI
             return KeyCall(keys);
         }
 
-        bool FunSub(Control control, Point mousePosition)
+        internal Rectangle ALLRECT()
         {
-            if (control is SubLayeredForm subForm)
+            if (PARENT == null)
             {
-                var subform = subForm.SubForm();
-                if (subform != null && ContainsPosition(subform, mousePosition) > 0) return true;
+                if (this is SubLayeredForm subForm)
+                {
+                    var rect = new Rectangle(target_rect.X, target_rect.Y, target_rect.Width, target_rect.Height);
+                    FunSub(subForm, ref rect);
+                    return rect;
+                }
+                return target_rect;
             }
-            if (control.Controls == null || control.Controls.Count == 0) return false;
-            foreach (Control it in control.Controls)
+            else
             {
-                if (FunSub(it, mousePosition)) return true;
+                var rect = new Rectangle(target_rect.X, target_rect.Y, target_rect.Width, target_rect.Height);
+                try
+                {
+                    if (!CloseMode.HasFlag(CloseMode.NoControl) && PARENT.IsHandleCreated) rect = Rectangle.Union(rect, new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size));
+                }
+                catch { }
+                if (PARENT is SubLayeredForm subForm) FunSub(subForm, ref rect);
+                return rect;
             }
-            return false;
+        }
+        void FunSub(SubLayeredForm form, ref Rectangle rect)
+        {
+            var subform = form.SubForm();
+            if (subform == null) return;
+            rect = Rectangle.Union(rect, subform.TargetRect);
+            if (subform is SubLayeredForm sub) FunSub(sub, ref rect);
         }
 
-        bool ContainsPosition(Control control, Point mousePosition)
+        internal List<Rectangle> ALLRECTs()
         {
-            if (new Rectangle(control.PointToScreen(Point.Empty), control.Size).Contains(mousePosition)) return true;
-            try
+            if (PARENT == null)
             {
-                if (control is SubLayeredForm subForm)
+                if (this is SubLayeredForm subForm)
                 {
-                    var subform = subForm.SubForm();
-                    if (subform != null && ContainsPosition(subform, mousePosition) > 0) return true;
+                    var rects = new List<Rectangle>(2) { new Rectangle(target_rect.X, target_rect.Y, target_rect.Width, target_rect.Height) };
+                    FunSub(subForm, ref rects);
+                    return rects;
                 }
+                return new List<Rectangle> { target_rect };
             }
-            catch { }
-
-            return false;
+            else
+            {
+                var rects = new List<Rectangle>(3) { new Rectangle(target_rect.X, target_rect.Y, target_rect.Width, target_rect.Height) };
+                try
+                {
+                    if (!CloseMode.HasFlag(CloseMode.NoControl) && PARENT.IsHandleCreated) rects.Add(new Rectangle(PARENT.PointToScreen(Point.Empty), PARENT.Size));
+                }
+                catch { }
+                if (PARENT is SubLayeredForm subForm) FunSub(subForm, ref rects);
+                return rects;
+            }
         }
-
-        int ContainsPosition(ILayeredForm control, Point mousePosition)
+        void FunSub(SubLayeredForm form, ref List<Rectangle> rects)
         {
-            int count = 0;
-            try
-            {
-                if (control.TargetRect.Contains(mousePosition)) count++;
-
-                if (control is SubLayeredForm subForm)
-                {
-                    var subform = subForm.SubForm();
-                    if (subform != null) count += ContainsPosition(subform, mousePosition);
-                }
-            }
-            catch { }
-            return count;
+            var subform = form.SubForm();
+            if (subform == null) return;
+            rects.Add(subform.TargetRect);
+            if (subform is SubLayeredForm sub) FunSub(sub, ref rects);
         }
 
         #endregion
@@ -476,7 +523,6 @@ namespace AntdUI
                 timeHover = hoverStopwatch.Elapsed + TimeSpan.FromMilliseconds(Config.MouseHoverDelay);
                 if (taskHover == null)
                 {
-                    OnMouseHover(-1, -1);
                     taskHover = new AnimationTask(new AnimationLoopConfig(this, () =>
                     {
                         if (hoverStopwatch.Elapsed < timeHover) return true;
@@ -526,7 +572,7 @@ namespace AntdUI
         {
             if (mdown)
             {
-                int moveX = oldX - x, moveY = oldY - y, moveXa = Math.Abs(moveX), moveYa = Math.Abs(moveY), threshold = (int)(Config.TouchThreshold * Config.Dpi);
+                int moveX = oldX - x, moveY = oldY - y, moveXa = Math.Abs(moveX), moveYa = Math.Abs(moveY), threshold = (int)(Config.TouchThreshold * Dpi);
                 if (mdownd > 0 || (moveXa > threshold || moveYa > threshold))
                 {
                     oldMY = moveY;
@@ -561,8 +607,8 @@ namespace AntdUI
             {
                 if (mdownd == 1)
                 {
-                    int moveY = oldMY, moveYa = Math.Abs(moveY);
-                    if (moveYa > 10)
+                    int moveY = oldMY, moveYa = Math.Abs(moveY), threshold = (int)(Config.TouchThreshold * Dpi);
+                    if (moveYa > threshold)
                     {
                         // 缓冲动画
                         int duration = (int)Math.Ceiling(moveYa * .1F), incremental = moveYa / 2, sleep = 20;
@@ -608,6 +654,60 @@ namespace AntdUI
 
         #endregion
 
+        #region 置顶
+
+        public bool topMost = false;
+
+        /// <summary>
+        /// 根据控件的TopMost属性设置窗口置顶
+        /// </summary>
+        /// <param name="control">参考控件</param>
+        /// <param name="hand">要设置的窗口句柄</param>
+        /// <returns>是否设置成功</returns>
+        public void SetTopMost(Control? control, IntPtr hand, bool top = false) => SetTopMostCore(control.FindPARENT(), hand, top);
+
+        /// <summary>
+        /// 根据Target的TopMost属性设置窗口置顶
+        /// </summary>
+        /// <param name="target">参考Target</param>
+        /// <param name="hand">要设置的窗口句柄</param>
+        /// <returns>是否设置成功</returns>
+        public void SetTopMost(Target? target, IntPtr hand, bool top = false) => SetTopMostCore(target.FindPARENT(), hand, top);
+
+        LayeredFormPopover? popover;
+        void SetTopMostCore(Form? form, IntPtr hand, bool top = false)
+        {
+            if (top)
+            {
+                SetTopMostCore(hand);
+                if (form == null) return;
+                if (form is LayeredFormPopover layeredFormPopover)
+                {
+                    popover = layeredFormPopover;
+                    popover.CloseLockedAdd(this);
+                }
+            }
+            else
+            {
+                if (form == null) return;
+                if (form is LayeredFormPopover layeredFormPopover)
+                {
+                    popover = layeredFormPopover;
+                    popover.CloseLockedAdd(this);
+                    if (layeredFormPopover.topMost) SetTopMostCore(hand);
+                    return;
+                }
+                if (form.TopMost || (form is ILayeredForm layered && layered.topMost)) SetTopMostCore(hand);
+            }
+        }
+        void SetTopMostCore(IntPtr hand)
+        {
+            topMost = true;
+            Helper.SetTopMost(hand);
+        }
+
+        #endregion
+
         #region 委托
 
 #if NET40 || NET46 || NET48
@@ -626,5 +726,15 @@ namespace AntdUI
     public interface SubLayeredForm
     {
         ILayeredForm? SubForm();
+    }
+
+    public interface ControlEvent
+    {
+        void LoadCompleted();
+    }
+
+    public interface ControlPopup
+    {
+        bool Locked { get; }
     }
 }

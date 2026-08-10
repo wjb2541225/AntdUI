@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -43,7 +30,7 @@ namespace AntdUI
         /// <summary>
         /// 跨度
         /// </summary>
-        [Description("跨度"), Category("外观"), DefaultValue("50% 50%;50% 50%")]
+        [Description("跨度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue("50% 50%;50% 50%")]
         [Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(UITypeEditor))]
         public string Span
         {
@@ -60,7 +47,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(0)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Gap
         {
             get => layoutengine.Gap;
@@ -74,7 +61,7 @@ namespace AntdUI
         }
 
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -163,7 +150,7 @@ namespace AntdUI
                         if (controls.Count > 0)
                         {
                             var rects = parent.ConvertToRects(rect, Span);
-                            HandLayout(controls, rects, rect);
+                            HandLayout(parent, controls, rects, rect);
                         }
                     }
                 }
@@ -205,10 +192,10 @@ namespace AntdUI
 
             #endregion
 
-            void HandLayout(List<Control> controls, Rects[] rects, Rectangle rect)
+            void HandLayout(GridPanel parent, List<Control> controls, Rects[] rects, Rectangle rect)
             {
                 if (rects.Length == 0 || controls.Count == 0) return;
-                int gap = (int)Math.Round(Gap * Config.Dpi), gap2 = gap * 2;
+                int gap = (int)Math.Round(Gap * parent.Dpi), gap2 = gap * 2;
                 int index = 0;
                 for (int i = 0; i < controls.Count; i++)
                 {
@@ -224,10 +211,7 @@ namespace AntdUI
                         }
                         rect_real = rects[index];
                     }
-                    Point point = rect_real.Location;
-                    point.Offset(control.Margin.Left + gap, control.Margin.Top + gap);
-                    control.Location = point;
-                    control.Size = new Size(rect_real.Width - control.Margin.Horizontal - gap2, rect_real.Height - control.Margin.Vertical - gap2);
+                    control.Bounds = new Rectangle(rect_real.X + control.Margin.Left + gap, rect_real.Y + control.Margin.Top + gap, rect_real.Width - control.Margin.Horizontal - gap2, rect_real.Height - control.Margin.Vertical - gap2);
                     index++;
                     if (index >= rects.Length)
                     {
@@ -444,7 +428,7 @@ namespace AntdUI
             }
 
             // int类型（仅int乘Dpi）
-            if (int.TryParse(dimensionStr, out int intValue)) return (float)Math.Round(Math.Abs(intValue) * Config.Dpi);
+            if (int.TryParse(dimensionStr, out int intValue)) return (float)Math.Round(Math.Abs(intValue) * Dpi);
 
             // float类型（直接使用）
             if (float.TryParse(dimensionStr, out float floatValue)) return floatValue;
@@ -472,6 +456,8 @@ namespace AntdUI
             public bool IsEmpty { get; set; }
 
             public Point Location => Rect.Location;
+            public int X => Rect.X;
+            public int Y => Rect.Y;
             public int Width => Rect.Width;
             public int Height => Rect.Height;
         }
@@ -490,9 +476,9 @@ namespace AntdUI
                     var rects = ConvertToRects(DisplayRectangle, Span);
                     using (var fore = new SolidBrush(Style.Db.Text))
                     using (var bg = new SolidBrush(Style.Db.Fill))
-                    using (var pen = new Pen(Style.Db.PrimaryBorder, Config.Dpi * 2))
+                    using (var pen = new Pen(Style.Db.PrimaryBorder, Dpi * 2))
                     {
-                        int gap = (int)(3 * Config.Dpi), gap2 = gap * 2;
+                        int gap = (int)(3 * Dpi), gap2 = gap * 2;
                         foreach (var it in rects)
                         {
                             var rect = new Rectangle(it.Rect.X + gap, it.Rect.Y + gap, it.Rect.Width - gap2, it.Rect.Height - gap2);

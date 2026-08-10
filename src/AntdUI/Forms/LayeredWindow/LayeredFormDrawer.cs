@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -33,7 +20,6 @@ namespace AntdUI
         int padding = 24;
         ILayeredForm? formMask;
         public bool isclose = false;
-        internal bool topMost = false;
         public LayeredFormDrawer(Drawer.Config _config, ILayeredForm mask) : this(_config)
         {
             formMask = mask;
@@ -46,32 +32,44 @@ namespace AntdUI
                 };
             }
         }
+
+        int shadow_size = 0;
         public LayeredFormDrawer(Drawer.Config _config)
         {
             config = _config;
-            topMost = config.Form.SetTopMost(Handle);
+            SetTopMost(config.Form, Handle);
+            SetDpi(config.Form);
             Font = config.Form.Font;
-            padding = (int)Math.Round(config.Padding * Config.Dpi);
+            if (Config.ShadowEnabled) shadow_size = (int)(Config.ShadowSize * Dpi) * 2;
+            padding = (int)Math.Round(config.Padding * Dpi);
             Padding = new Padding(padding);
             HasBor = Helper.FormFrame(config.Form, out FrmRadius, out FrmBor);
-            config.Content.BackColor = Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme);
-            config.Content.ForeColor = Colour.Text.Get(nameof(Drawer), config.ColorScheme);
+            config.Content.BackColor = Colour.BgElevated.Get(config.ColorScheme, nameof(Drawer));
+            config.Content.ForeColor = Colour.Text.Get(config.ColorScheme, nameof(Drawer));
             SetPoint();
             SetSize(start_W, start_H);
             SetLocation(start_X, start_Y);
-            if (vertical) tempContent = new Bitmap(end_W - padding * 2, end_H - 20 - padding * 2);
-            else tempContent = new Bitmap(end_W - 20 - padding * 2, end_H - padding * 2);
+            int p2 = padding * 2, contentW, contentH;
+            if (vertical)
+            {
+                contentW = end_W - p2;
+                contentH = end_H - shadow_size - p2;
+            }
+            else
+            {
+                contentW = end_W - shadow_size - p2;
+                contentH = end_H - p2;
+            }
             if (config.Content.Tag is Size) { }
             else
             {
                 config.Content.Tag = config.Content.Size;
                 Win32.WindowTheme(config.Content, Config.IsDark);
-                Helper.DpiAuto(Config.Dpi, config.Content);
+                Helper.DpiAuto(Dpi, config.Content);
             }
-            config.Content.Location = Helper.OffScreenArea(tempContent.Width * 2, tempContent.Height * 2);
-            config.Content.Size = new Size(tempContent.Width, tempContent.Height);
+            config.Content.Bounds = Helper.OffScreenArea(contentW, contentH);
             LoadContent();
-            config.Content.DrawToBitmap(tempContent, new Rectangle(0, 0, tempContent.Width, tempContent.Height));
+            tempContent = config.Content.CaptureControl();
             config.Form.LocationChanged += Form_LocationChanged;
             config.Form.SizeChanged += Form_SizeChanged;
         }
@@ -84,7 +82,7 @@ namespace AntdUI
                 case TAlignMini.Top:
                     vertical = true;
                     start_H = 0;
-                    end_H = (int)(config.Content.Height * Config.Dpi) + padding * 2 + 20;
+                    end_H = (int)(config.Content.Height * Dpi) + padding * 2 + shadow_size;
                     if (config.Form is Window windowT)
                     {
                         start_W = end_W = windowT.Width;
@@ -101,7 +99,7 @@ namespace AntdUI
                 case TAlignMini.Bottom:
                     vertical = true;
                     start_H = 0;
-                    end_H = (int)(config.Content.Height * Config.Dpi) + padding * 2 + 20;
+                    end_H = (int)(config.Content.Height * Dpi) + padding * 2 + shadow_size;
                     if (config.Form is Window windowB)
                     {
                         start_W = end_W = windowB.Width;
@@ -118,7 +116,7 @@ namespace AntdUI
                     break;
                 case TAlignMini.Left:
                     start_W = 0;
-                    end_W = (int)(config.Content.Width * Config.Dpi) + padding * 2 + 20;
+                    end_W = (int)(config.Content.Width * Dpi) + padding * 2 + shadow_size;
                     if (config.Form is Window windowL)
                     {
                         start_H = end_H = windowL.Height;
@@ -135,7 +133,7 @@ namespace AntdUI
                 case TAlignMini.Right:
                 default:
                     start_W = 0;
-                    end_W = (int)(config.Content.Width * Config.Dpi) + padding * 2 + 20;
+                    end_W = (int)(config.Content.Width * Dpi) + padding * 2 + shadow_size;
                     if (config.Form is Window windowR)
                     {
                         start_H = end_H = windowR.Height;
@@ -227,8 +225,7 @@ namespace AntdUI
                 {
                     isok = false;
                     var rect = Ang();
-                    form.Location = rect.Location;
-                    form.Size = rect.Size;
+                    form.Bounds = rect;
                     isok = true;
                 }
                 Print();
@@ -242,7 +239,7 @@ namespace AntdUI
                 SetLocation(-end_W * 2, -end_H * 2);
                 if (task_start == null)
                 {
-                    if (form != null) form.Location = Helper.OffScreenArea(form.Width * 2, form.Height * 2);
+                    if (form != null) form.Location = Helper.OffScreenLocation(form.Width, form.Height);
                     Print();
                 }
                 return;
@@ -357,27 +354,27 @@ namespace AntdUI
 
         #region 控件
 
-        Form? form = null;
+        Form? form;
         void LoadContent()
         {
             var rect = Ang();
-            var hidelocation = Helper.OffScreenArea(rect.Width * 2, rect.Height * 2);
+            var hidelocation = Helper.OffScreenArea(rect.Width, rect.Height);
             if (config.Content is Form form_)
             {
-                form_.BackColor = Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme);
+                form_.BackColor = Colour.BgElevated.Get(config.ColorScheme, nameof(Drawer));
                 form_.FormBorderStyle = FormBorderStyle.None;
-                form_.Location = hidelocation;
-                form_.ClientSize = rect.Size;
+                form_.Bounds = hidelocation;
+                form_.StartPosition = FormStartPosition.Manual;
                 form = form_;
             }
             else
             {
                 form = new DoubleBufferForm(this, config.Content)
                 {
-                    BackColor = Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme),
+                    BackColor = Colour.BgElevated.Get(config.ColorScheme, nameof(Drawer)),
                     FormBorderStyle = FormBorderStyle.None,
-                    Location = hidelocation,
-                    ClientSize = rect.Size
+                    StartPosition = FormStartPosition.Manual,
+                    Bounds = hidelocation
                 };
             }
             if (!config.Dispose && config.Content.Tag is Size size)
@@ -385,8 +382,7 @@ namespace AntdUI
                 form.FormClosing += (a, b) =>
                 {
                     config.Content.Dock = DockStyle.None;
-                    config.Content.Size = size;
-                    config.Content.Location = Helper.OffScreenArea(config.Content.Width * 2, config.Content.Height * 2);
+                    config.Content.Bounds = Helper.OffScreenArea(size.Width, size.Height);
                     config.Form.Controls.Add(config.Content);
                 };
             }
@@ -396,16 +392,13 @@ namespace AntdUI
                 Close();
             };
             form.Show(this);
-            form.Location = hidelocation;
-            form.ClientSize = rect.Size;
         }
 
         void ShowContent()
         {
             if (form == null) return;
             var rect = Ang();
-            if (form.ClientSize != rect.Size) form.ClientSize = rect.Size;
-            form.Location = rect.Location;
+            form.Bounds = rect;
             config.OnLoad?.Invoke();
             IsLoad = false;
             LoadCompleted?.Invoke();
@@ -425,7 +418,7 @@ namespace AntdUI
                 switch (config.Align)
                 {
                     case TAlignMini.Top:
-                        end_H = (int)(size.Height * Config.Dpi) + padding * 2 + 20;
+                        end_H = (int)(size.Height * Dpi) + padding * 2 + shadow_size;
                         if (config.Form is Window windowT)
                         {
                             start_W = end_W = windowT.Width;
@@ -440,7 +433,7 @@ namespace AntdUI
                         }
                         break;
                     case TAlignMini.Bottom:
-                        end_H = (int)(size.Height * Config.Dpi) + padding * 2 + 20;
+                        end_H = (int)(size.Height * Dpi) + padding * 2 + shadow_size;
                         if (config.Form is Window windowB)
                         {
                             start_W = end_W = windowB.Width;
@@ -456,7 +449,7 @@ namespace AntdUI
                         end_Y = start_Y - end_H;
                         break;
                     case TAlignMini.Left:
-                        end_W = (int)(size.Width * Config.Dpi) + padding * 2 + 20;
+                        end_W = (int)(size.Width * Dpi) + padding * 2 + shadow_size;
                         if (config.Form is Window windowL)
                         {
                             start_H = end_H = windowL.Height;
@@ -472,7 +465,7 @@ namespace AntdUI
                         break;
                     case TAlignMini.Right:
                     default:
-                        end_W = (int)(size.Width * Config.Dpi) + padding * 2 + 20;
+                        end_W = (int)(size.Width * Dpi) + padding * 2 + shadow_size;
                         if (config.Form is Window windowR)
                         {
                             start_H = end_H = windowR.Height;
@@ -491,8 +484,7 @@ namespace AntdUI
                 SetLocation(end_X, end_Y);
                 SetSize(end_W, end_H);
                 var rect = Ang();
-                form.Location = rect.Location;
-                form.Size = rect.Size;
+                form.Bounds = rect;
                 Print();
                 ITask.Run(() =>
                 {
@@ -505,24 +497,24 @@ namespace AntdUI
         /// <summary>
         /// 是否正在加载
         /// </summary>
-        [Description("是否正在加载"), Category("参数"), DefaultValue(true)]
+        [Description("是否正在加载"), Category(nameof(CategoryAttribute.Data)), DefaultValue(true)]
         public bool IsLoad { get; set; } = true;
 
         /// <summary>
         /// 加载完成回调
         /// </summary>
-        [Description("加载完成回调"), Category("参数"), DefaultValue(null)]
+        [Description("加载完成回调"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public Action? LoadCompleted { get; set; }
 
         Rectangle Ang()
         {
             switch (config.Align)
             {
-                case TAlignMini.Top: return new Rectangle(end_X + padding, end_Y + padding, end_W - padding * 2, end_H - 20 - padding * 2);
-                case TAlignMini.Bottom: return new Rectangle(end_X + padding, end_Y + padding + 20, end_W - padding * 2, end_H - 20 - padding * 2);
-                case TAlignMini.Left: return new Rectangle(end_X + padding, end_Y + padding, end_W - 20 - padding * 2, end_H - padding * 2);
+                case TAlignMini.Top: return new Rectangle(end_X + padding, end_Y + padding, end_W - padding * 2, end_H - shadow_size - padding * 2);
+                case TAlignMini.Bottom: return new Rectangle(end_X + padding, end_Y + padding + shadow_size, end_W - padding * 2, end_H - shadow_size - padding * 2);
+                case TAlignMini.Left: return new Rectangle(end_X + padding, end_Y + padding, end_W - shadow_size - padding * 2, end_H - padding * 2);
                 case TAlignMini.Right:
-                default: return new Rectangle(end_X + padding + 20, end_Y + padding, end_W - 20 - padding * 2, end_H - padding * 2);
+                default: return new Rectangle(end_X + padding + shadow_size, end_Y + padding, end_W - shadow_size - padding * 2, end_H - padding * 2);
             }
         }
 
@@ -575,9 +567,8 @@ namespace AntdUI
                 config.Form.LocationChanged -= Form_LocationChanged;
                 config.Form.SizeChanged -= Form_SizeChanged;
                 tempContent?.Dispose();
-                tempContent = new Bitmap(config.Content.Width, config.Content.Height);
-                config.Content.DrawToBitmap(tempContent, new Rectangle(0, 0, tempContent.Width, tempContent.Height));
-                if (form != null) form.Location = Helper.OffScreenArea(form.Width * 2, form.Height * 2);
+                tempContent = config.Content.CaptureControl();
+                if (form != null) form.Location = Helper.OffScreenLocation(form.Width, form.Height);
                 e.Cancel = true;
                 if (Config.HasAnimation(nameof(Drawer)))
                 {
@@ -656,12 +647,12 @@ namespace AntdUI
         {
             Rectangle rect_t = TargetRectXY, rect = HasBor ? new Rectangle(FrmBor, 0, rect_t.Width - FrmBor * 2, rect_t.Height - FrmBor) : rect_t;
             var rbmp = new Bitmap(rect_t.Width, rect_t.Height);
-            using (var g = Graphics.FromImage(rbmp).High())
+            using (var g = Graphics.FromImage(rbmp).High(Dpi))
             {
                 var rect_read = DrawShadow(g, rect);
                 using (var path = rect_read.RoundPath(FrmRadius))
                 {
-                    g.Fill(Colour.BgElevated.Get(nameof(Drawer), config.ColorScheme), path);
+                    g.Fill(Colour.BgElevated.Get(config.ColorScheme, nameof(Drawer)), path);
                     if (tempContent != null) g.Image(tempContent, new Rectangle(rect_read.X + padding, rect_read.Y + padding, tempContent.Width, tempContent.Height));
                 }
             }
@@ -676,83 +667,76 @@ namespace AntdUI
         /// <param name="rect">客户区域</param>
         Rectangle DrawShadow(Canvas g, Rectangle rect)
         {
-            var matrix = new ColorMatrix { Matrix33 = 0.3F };
-            switch (config.Align)
+            if (shadow_size > 0)
             {
-                case TAlignMini.Top:
-                    if (Config.ShadowEnabled)
-                    {
+                int size = shadow_size * 2, size2 = size * 2;
+                var matrix = new ColorMatrix { Matrix33 = Config.ShadowOpacity };
+                switch (config.Align)
+                {
+                    case TAlignMini.Top:
                         if (shadow_temp == null || shadow_temp.Width != end_W)
                         {
                             shadow_temp?.Dispose();
-                            using (var path = new Rectangle(rect.X, rect.Y + 20, end_W, 40).RoundPath(FrmRadius))
+                            using (var path = new Rectangle(rect.X, rect.Y + shadow_size, end_W, size).RoundPath(FrmRadius))
                             {
-                                shadow_temp = path.PaintShadow(end_W, 80, 20);
+                                shadow_temp = path.PaintShadow(end_W, size2, shadow_size);
                             }
                         }
                         using (var attributes = new ImageAttributes())
                         {
                             attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.Y, rect.Bottom - 80, rect.Width, 80), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
+                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.Y, rect.Bottom - size2, rect.Width, size2), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
                         }
-                    }
-                    return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height - 20);
-                case TAlignMini.Bottom:
-                    if (Config.ShadowEnabled)
-                    {
+                        return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height - shadow_size);
+                    case TAlignMini.Bottom:
                         if (shadow_temp == null || shadow_temp.Width != end_W)
                         {
                             shadow_temp?.Dispose();
-                            using (var path = new Rectangle(rect.X, rect.Y + 20, end_W, 40).RoundPath(FrmRadius))
+                            using (var path = new Rectangle(rect.X, rect.Y + shadow_size, end_W, size).RoundPath(FrmRadius))
                             {
-                                shadow_temp = path.PaintShadow(end_W, 80, 20);
+                                shadow_temp = path.PaintShadow(end_W, size2, shadow_size);
                             }
                         }
                         using (var attributes = new ImageAttributes())
                         {
                             attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.Y, rect.Y, rect.Width, 80), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
+                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.Y, rect.Y, rect.Width, size2), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
                         }
-                    }
-                    return new Rectangle(rect.X, rect.Y + 20, rect.Width, rect.Height - 20);
-                case TAlignMini.Left:
-                    if (Config.ShadowEnabled)
-                    {
+                        return new Rectangle(rect.X, rect.Y + shadow_size, rect.Width, rect.Height - shadow_size);
+                    case TAlignMini.Left:
                         if (shadow_temp == null || shadow_temp.Height != end_H)
                         {
                             shadow_temp?.Dispose();
-                            using (var path = new Rectangle(rect.X + 20, rect.Y, 40, end_H).RoundPath(FrmRadius))
+                            using (var path = new Rectangle(rect.X + shadow_size, rect.Y, size, end_H).RoundPath(FrmRadius))
                             {
-                                shadow_temp = path.PaintShadow(80, end_H, 20);
+                                shadow_temp = path.PaintShadow(size2, end_H, shadow_size);
                             }
                         }
                         using (var attributes = new ImageAttributes())
                         {
                             attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.Right - 80, rect.Y, 80, rect.Height), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
+                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.Right - size2, rect.Y, size2, rect.Height), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
                         }
-                    }
-                    return new Rectangle(rect.X, rect.Y, rect.Width - 20, rect.Height);
-                case TAlignMini.Right:
-                default:
-                    if (Config.ShadowEnabled)
-                    {
+                        return new Rectangle(rect.X, rect.Y, rect.Width - shadow_size, rect.Height);
+                    case TAlignMini.Right:
+                    default:
                         if (shadow_temp == null || shadow_temp.Height != end_H)
                         {
                             shadow_temp?.Dispose();
-                            using (var path = new Rectangle(rect.X + 20, rect.Y, 40, end_H).RoundPath(FrmRadius))
+                            using (var path = new Rectangle(rect.X + shadow_size, rect.Y, size, end_H).RoundPath(FrmRadius))
                             {
-                                shadow_temp = path.PaintShadow(80, end_H, 20);
+                                shadow_temp = path.PaintShadow(size2, end_H, shadow_size);
                             }
                         }
                         using (var attributes = new ImageAttributes())
                         {
                             attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.X, rect.Y, 80, rect.Height), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
+                            g.Image(shadow_temp.Bitmap, new Rectangle(rect.X, rect.Y, size2, rect.Height), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
                         }
-                    }
-                    return new Rectangle(rect.X + 20, rect.Y, rect.Width - 20, rect.Height);
+                        return new Rectangle(rect.X + shadow_size, rect.Y, rect.Width - shadow_size, rect.Height);
+                }
             }
+            return rect;
         }
 
         #endregion

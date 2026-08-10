@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Collections.Generic;
 using System.Drawing;
@@ -38,10 +25,12 @@ namespace AntdUI
         ScrollBar ScrollBar;
         public LayeredFormMenuDown(Menu control, int radius, Rectangle rect, IList<MenuItem> items)
         {
-            MessageCloseMouseLeave = true;
+            CloseMode = CloseMode.Leave;
             ColorScheme = control.ColorScheme;
+            cname = control.Name;
             isdark = Config.IsDark || control.ColorScheme == TAMode.Dark;
-            control.Parent.SetTopMost(Handle);
+            SetTopMost(control.Parent, Handle);
+            SetDpi(control);
             PARENT = control;
             select_x = 0;
             Font = control.Font;
@@ -53,29 +42,57 @@ namespace AntdUI
             DPadding = control.DropDownPadding;
             IconRatio = control.DropIconRatio;
             IconGap = control.DropIconGap;
-            Radius = (int)(radius * Config.Dpi);
+            Radius = (int)(radius * Dpi);
             ScrollBar = new ScrollBar(this, ColorScheme);
             var point = control.PointToScreen(Point.Empty);
             Items = LoadLayout(items, point);
-            if (control.Mode == TMenuMode.Horizontal) CLocation(control, TAlignFrom.BL, rect, true, -shadow);
+            var screen = Screen.FromPoint(point).WorkingArea;
+            int offsetX = (int)(control.DropDownOffset.Width * Dpi), offsetY = (int)(control.DropDownOffset.Height * Dpi);
+            int x, y;
+            if (control.IsModeHorizontal)
+            {
+                // 水平模式：子菜单显示在主菜单项下方
+                x = point.X + rect.X;
+                y = point.Y + rect.Bottom;
+
+                // 左右对齐判断
+                if (x + TargetRect.Width > screen.Right) x = point.X + rect.Right - TargetRect.Width;
+
+                // 上下方向判断：计算可用空间并决定显示方向
+                int spaceBelow = screen.Bottom - y - offsetY, spaceAbove = point.Y + rect.Y - screen.Top - offsetY;
+                if ((spaceBelow < TargetRect.Height && spaceAbove > spaceBelow && spaceAbove >= TargetRect.Height))
+                {
+                    animateConfig.Inverted = true;
+                    y = point.Y + rect.Y - TargetRect.Height + shadow2 - offsetY; // 向上
+                }
+                else y += offsetY; // 向下
+                x += offsetX;
+            }
             else
             {
-                var screen = Screen.FromPoint(point).WorkingArea;
-                int x = point.X + control.Width - rect.X - shadow, y = point.Y + rect.Y + shadow;
-                if (screen.Right < x + TargetRect.Width) x = x - ((x + TargetRect.Width) - screen.Right) + shadow;
-                if (screen.Bottom < y + TargetRect.Height) y = y - ((y + TargetRect.Height) - screen.Bottom) + shadow;
-                SetLocationO(x, y);
+                // 垂直模式：子菜单显示在主菜单项右侧
+                x = point.X + control.Width - rect.X - shadow + offsetX;
+                y = point.Y + rect.Y + shadow + offsetY;
             }
+
+            // 边界限制
+            x = System.Math.Max(screen.Left, System.Math.Min(x, screen.Right - TargetRect.Width));
+            y = System.Math.Max(screen.Top, System.Math.Min(y, screen.Bottom - TargetRect.Height));
+
+            SetLocationO(x, y);
             Init();
         }
 
         SubLayeredForm? lay;
-
-        public LayeredFormMenuDown(Menu control, int sx, LayeredFormMenuDown parent, int radius, float itemHeight, Rectangle rect, MenuItemCollection items)
+        object? Guid;
+        public LayeredFormMenuDown(Menu control, int sx, LayeredFormMenuDown parent, int radius, float itemHeight, Rectangle rect, object guid, MenuItemCollection items)
         {
+            Guid = guid;
             ColorScheme = control.ColorScheme;
+            cname = control.Name;
             isdark = Config.IsDark || control.ColorScheme == TAMode.Dark;
-            control.Parent.SetTopMost(Handle);
+            SetTopMost(control.Parent, Handle);
+            SetDpi(control);
             select_x = sx;
             PARENT = control;
             Font = parent.Font;
@@ -98,9 +115,13 @@ namespace AntdUI
         }
 
         public override string name => nameof(AntdUI.Menu);
+        string cname;
 
         public ILayeredForm? SubForm() => subForm;
         LayeredFormMenuDown? subForm;
+        public override bool EnableSafetyTriangleZone => true;
+        public override Rectangle? OnSafetyTriangleZone(int x, int y) => subForm?.TargetRect;
+
         void Init()
         {
             if (OS.Win7OrLower) Select();
@@ -208,15 +229,23 @@ namespace AntdUI
         readonly FormatFlags sf = FormatFlags.Left | FormatFlags.VerticalCenter;
         public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
         {
-            using (var brush = new SolidBrush(backColor ?? Colour.BgElevated.Get(name, ColorScheme)))
+            using (var brush = new SolidBrush(backColor ?? Colour.BgElevated.Get(ColorScheme, name, cname)))
             {
                 g.Fill(brush, path);
+                if (shadow == 0)
+                {
+                    int bor = (int)(Dpi), bor2 = bor * 2;
+                    using (var path2 = new Rectangle(rect.X + bor, rect.Y + bor, rect.Width - bor2, rect.Height - bor2).RoundPath(Radius))
+                    {
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, name, cname), bor, path2);
+                    }
+                }
             }
         }
         public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
         {
             if (ScrollBar.ShowY) g.TranslateTransform(0, -ScrollBar.ValueY);
-            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(AntdUI.Menu), ColorScheme)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(ColorScheme, name, cname)))
             {
                 if (foreColor.HasValue)
                 {
@@ -231,7 +260,7 @@ namespace AntdUI
                 }
                 else
                 {
-                    using (var brush = new SolidBrush(Colour.Text.Get(nameof(AntdUI.Menu), ColorScheme)))
+                    using (var brush = new SolidBrush(Colour.Text.Get(ColorScheme, name, cname)))
                     {
                         foreach (var it in Items)
                         {
@@ -255,9 +284,9 @@ namespace AntdUI
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.Primary.Get(nameof(AntdUI.Menu), ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.Primary.Get(ColorScheme, name, cname), path);
                         }
-                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get(nameof(AntdUI.Menu), ColorScheme)))
+                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get(ColorScheme, name, cname)))
                         {
                             g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush_select, it.RectText, sf);
                         }
@@ -269,7 +298,7 @@ namespace AntdUI
                         {
                             using (var path = it.Rect.RoundPath(Radius))
                             {
-                                g.Fill(BackHover ?? Colour.FillTertiary.Get(nameof(AntdUI.Menu), ColorScheme), path);
+                                g.Fill(BackHover ?? Colour.FillTertiary.Get(ColorScheme, name, cname), path);
                             }
                         }
                         g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush, it.RectText, sf);
@@ -282,9 +311,9 @@ namespace AntdUI
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.PrimaryBg.Get(nameof(AntdUI.Menu), ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.PrimaryBg.Get(ColorScheme, name, cname), path);
                         }
-                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get(nameof(AntdUI.Menu), ColorScheme)))
+                        using (var brush_select = new SolidBrush(ForeActive ?? Colour.TextBase.Get(ColorScheme, name, cname)))
                         {
                             g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush_select, it.RectText, sf);
                         }
@@ -295,7 +324,7 @@ namespace AntdUI
                         {
                             using (var path = it.Rect.RoundPath(Radius))
                             {
-                                g.Fill(BackHover ?? Colour.FillTertiary.Get(nameof(AntdUI.Menu), ColorScheme), path);
+                                g.Fill(BackHover ?? Colour.FillTertiary.Get(ColorScheme, name, cname), path);
                             }
                         }
                         g.DrawText(it.Val.Text, it.Val.Font ?? Font, brush, it.RectText, sf);
@@ -311,18 +340,18 @@ namespace AntdUI
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.Primary.Get(nameof(AntdUI.Menu), ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.Primary.Get(ColorScheme, name, cname), path);
                         }
                     }
                     else
                     {
                         using (var path = it.Rect.RoundPath(Radius))
                         {
-                            g.Fill(BackActive ?? Colour.PrimaryBg.Get(nameof(AntdUI.Menu), ColorScheme), path);
+                            g.Fill(BackActive ?? Colour.PrimaryBg.Get(ColorScheme, name, cname), path);
                         }
                     }
                 }
-                using (var fore = new SolidBrush(Colour.TextQuaternary.Get(nameof(AntdUI.Menu), ColorScheme)))
+                using (var fore = new SolidBrush(Colour.TextQuaternary.Get(ColorScheme, name, cname)))
                 {
                     g.DrawText(it.Val.Text, it.Val.Font ?? Font, fore, it.RectText, sf);
                 }
@@ -333,20 +362,15 @@ namespace AntdUI
         void PaintIcon(Canvas g, OMenuItem it, Color fore)
         {
             if (it.Val.Icon != null) g.Image(it.Val.Icon, it.RectIcon);
-            if (it.Val.IconSvg != null) g.GetImgExtend(it.Val.IconSvg, it.RectIcon, fore);
+            if (it.Val.IconSvg != null) g.Svg(it.Val.IconSvg, it.RectIcon, fore);
         }
-        void PaintArrow(Canvas g, OMenuItem item, Color color)
+        void PaintArrow(Canvas g, OMenuItem it, Color color)
         {
-            var state = g.Save();
-            int size = item.RectArrow.Width, size_arrow = size / 2;
-            g.TranslateTransform(item.RectArrow.X + size_arrow, item.RectArrow.Y + size_arrow);
-            g.RotateTransform(-90F);
-            using (var pen = new Pen(color, Config.Dpi * 1.4F))
+            using (var pen = new Pen(color, Dpi * 1.4F))
             {
                 pen.StartCap = pen.EndCap = LineCap.Round;
-                g.DrawLines(pen, new Rectangle(-size_arrow, -size_arrow, item.RectArrow.Width, item.RectArrow.Height).TriangleLines(-1, .7F));
+                g.DrawLines(pen, it.RectArrow.TriangleLinesHorizontal(-1, .7F));
             }
-            g.Restore(state);
         }
 
         #endregion
@@ -354,12 +378,12 @@ namespace AntdUI
         #region 布局
 
         int tmp_padd = 0;
-        List<IMenuItem> LoadLayout(IList<MenuItem> items, Point point) => Helper.GDI(g => LoadLayout(g, items, point));
+        List<IMenuItem> LoadLayout(IList<MenuItem> items, Point point) => this.GDI(g => LoadLayout(g, items, point));
         List<IMenuItem> LoadLayout(Canvas g, IList<MenuItem> items, Point point)
         {
             var text_height = g.MeasureString(Config.NullText, Font).Height;
 
-            int sp = (int)Config.Dpi, padd = (int)(text_height * .18F), padd2 = padd * 2, gap_x = (int)(DPadding.Width * Config.Dpi), gap_y = (int)(DPadding.Height * Config.Dpi),
+            int sp = (int)Dpi, padd = (int)(text_height * .18F), padd2 = padd * 2, gap_x = (int)(DPadding.Width * Dpi), gap_y = (int)(DPadding.Height * Dpi),
             icon_size = (int)(text_height * IconRatio), icon_gap = (int)(text_height * IconGap), item_height = text_height + gap_y * 2, icon_xy = (item_height - icon_size) / 2,
             gap_x2 = gap_x * 2, gap_y2 = gap_y * 2;
 
@@ -418,8 +442,7 @@ namespace AntdUI
             if (h > screen.Height - shadow2)
             {
                 h = screen.Height - shadow2;
-                ScrollBar.SizeChange(new Rectangle(0, 0, w, h));
-                ScrollBar.SetVrSize(0, maxh);
+                ScrollBar.SetVrSize(0, maxh, new Rectangle(0, 0, w, h));
                 if (sy > 0) ScrollBar.ValueY = sy;
             }
 
@@ -519,7 +542,7 @@ namespace AntdUI
             if (it.Sub == null || it.Sub.Count == 0)
             {
                 if (PARENT is Menu menu) menu.DropDownChange(it.Val);
-                IClose();
+                CloseSub();
                 return true;
             }
             else
@@ -527,6 +550,7 @@ namespace AntdUI
                 if (subForm == null) OpenDown(it);
                 else
                 {
+                    if (subForm.Guid == it.Val) return false;
                     subForm?.IClose();
                     subForm = null;
                 }
@@ -539,10 +563,22 @@ namespace AntdUI
             var rect = new Rectangle(it.Rect.X + tmp_padd, it.Rect.Y - ScrollBar.ValueY - tmp_padd, it.Rect.Width, it.Rect.Height);
             if (PARENT is Menu menu)
             {
-                subForm = new LayeredFormMenuDown(menu, select_x + 1, this, Radius, tmp_padd + it.Rect.Height / 2F, rect, it.Sub);
+                subForm = new LayeredFormMenuDown(menu, select_x + 1, this, Radius, tmp_padd + it.Rect.Height / 2F, rect, it.Val, it.Sub);
                 subForm.Show(this);
             }
         }
+        void CloseSub()
+        {
+            IClose();
+            var item = this;
+            while (item.lay is LayeredFormMenuDown form)
+            {
+                if (item == form) return;
+                form.IClose();
+                item = form;
+            }
+        }
+
         public override void IClosing()
         {
             if (select_x == 0)
@@ -556,7 +592,6 @@ namespace AntdUI
                 }
             }
         }
-
 
         #endregion
 

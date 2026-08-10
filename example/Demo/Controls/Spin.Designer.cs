@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 
 namespace Demo.Controls
@@ -52,14 +33,16 @@ namespace Demo.Controls
             spin2 = new AntdUI.Spin();
             spin1 = new AntdUI.Spin();
             stackPanel2 = new AntdUI.StackPanel();
+            spin5 = new AntdUI.Spin();
             spin3 = new AntdUI.Spin();
             spin4 = new AntdUI.Spin();
             divider2 = new AntdUI.Divider();
             divider3 = new AntdUI.Divider();
             stackPanel3 = new AntdUI.StackPanel();
+            btnGif = new AntdUI.Button();
+            buttonError = new AntdUI.Button();
             btnWindow = new AntdUI.Button();
             btnControl = new AntdUI.Button();
-            buttonError = new AntdUI.Button();
             stackPanel1.SuspendLayout();
             stackPanel2.SuspendLayout();
             stackPanel3.SuspendLayout();
@@ -83,7 +66,7 @@ namespace Demo.Controls
             header1.Dock = System.Windows.Forms.DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Spin.Description";
-            header1.LocalizationText = "Spin.Text";
+            header1.LocalizationText = "Spin";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
@@ -131,6 +114,7 @@ namespace Demo.Controls
             // 
             // stackPanel2
             // 
+            stackPanel2.Controls.Add(spin5);
             stackPanel2.Controls.Add(spin3);
             stackPanel2.Controls.Add(spin4);
             stackPanel2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -138,6 +122,17 @@ namespace Demo.Controls
             stackPanel2.Name = "stackPanel2";
             stackPanel2.Size = new Size(596, 100);
             stackPanel2.TabIndex = 2;
+            // 
+            // spin5
+            // 
+            spin5.Fill = Color.FromArgb(255, 87, 34);
+            spin5.Indicator = Properties.Resources.Loading_indicator_wavy_transparent;
+            spin5.LocalizationText = "Loading";
+            spin5.Location = new Point(255, 3);
+            spin5.Name = "spin5";
+            spin5.Size = new Size(120, 94);
+            spin5.TabIndex = 2;
+            spin5.Text = "Gif";
             // 
             // spin3
             // 
@@ -184,6 +179,7 @@ namespace Demo.Controls
             // 
             // stackPanel3
             // 
+            stackPanel3.Controls.Add(btnGif);
             stackPanel3.Controls.Add(buttonError);
             stackPanel3.Controls.Add(btnWindow);
             stackPanel3.Controls.Add(btnControl);
@@ -193,6 +189,28 @@ namespace Demo.Controls
             stackPanel3.Name = "stackPanel3";
             stackPanel3.Size = new Size(596, 48);
             stackPanel3.TabIndex = 3;
+            // 
+            // btnGif
+            // 
+            btnGif.Location = new Point(415, 3);
+            btnGif.Name = "btnGif";
+            btnGif.Size = new Size(111, 42);
+            btnGif.TabIndex = 5;
+            btnGif.Text = "Gif";
+            btnGif.Type = AntdUI.TTypeMini.Primary;
+            btnGif.Click += BtnGif_Click;
+            // 
+            // buttonError
+            // 
+            buttonError.AutoSizeMode = AntdUI.TAutoSize.Width;
+            buttonError.LocalizationText = "Spin.{id}";
+            buttonError.Location = new Point(300, 3);
+            buttonError.Name = "buttonError";
+            buttonError.Size = new Size(109, 42);
+            buttonError.TabIndex = 4;
+            buttonError.Text = "带错误回调";
+            buttonError.Type = AntdUI.TTypeMini.Error;
+            buttonError.Click += buttonError_Click;
             // 
             // btnWindow
             // 
@@ -217,18 +235,6 @@ namespace Demo.Controls
             btnControl.Text = "上面控件";
             btnControl.Type = AntdUI.TTypeMini.Primary;
             btnControl.Click += btnControl_Click;
-            // 
-            // buttonError
-            // 
-            buttonError.AutoSizeMode = AntdUI.TAutoSize.Width;
-            buttonError.LocalizationText = "Spin.{id}";
-            buttonError.Location = new Point(300, 3);
-            buttonError.Name = "buttonError";
-            buttonError.Size = new Size(109, 42);
-            buttonError.TabIndex = 4;
-            buttonError.Text = "带错误回调";
-            buttonError.Type = AntdUI.TTypeMini.Error;
-            buttonError.Click += buttonError_Click;
             // 
             // Spin
             // 
@@ -266,5 +272,7 @@ namespace Demo.Controls
         private AntdUI.Button btnWindow;
         private AntdUI.Button btnControl;
         private AntdUI.Button buttonError;
+        private AntdUI.Button btnGif;
+        private AntdUI.Spin spin5;
     }
 }

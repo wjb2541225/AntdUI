@@ -1,26 +1,13 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace AntdUI
 {
@@ -28,51 +15,47 @@ namespace AntdUI
     {
         #region 渲染
 
-        internal FormatFlags sf_center = FormatFlags.Center | FormatFlags.NoWrap;
+        readonly internal FormatFlags sf_center = FormatFlags.Center | FormatFlags.NoWrap;
         internal FormatFlags sf_placeholder = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
 
-        internal Action? TakePaint;
-        public new void Invalidate()
-        {
-            if (TakePaint == null) base.Invalidate();
-            else TakePaint();
-        }
+        public new virtual void Invalidate() => base.Invalidate();
+
         protected override void OnDraw(DrawEventArgs e)
         {
             var g = e.Canvas;
-            Rectangle rect = e.Rect.PaddingRect(Padding), rect_read = rect.ReadRect((WaveSize + borderWidth / 2F) * Config.Dpi, joinMode, JoinLeft, JoinRight);
+            Rectangle rect = e.Rect.PaddingRect(Padding), rect_read = rect.ReadRect((WaveSize + borderWidth / 2F) * Dpi, joinMode, JoinLeft, JoinRight);
             IPaint(g, rect, rect_read);
             base.OnDraw(e);
         }
 
         internal void IPaint(Canvas g, Rectangle rect, Rectangle rect_read)
         {
-            float _radius = round ? rect_read.Height : radius * Config.Dpi;
+            float _radius = round ? rect_read.Height : radius * Dpi;
             if (backImage != null) g.Image(rect_read, backImage, backFit, _radius, false);
-            using (var path = Path(rect_read, _radius))
+            using (var path = Helper.PathJoin(rect_read, _radius, joinMode, JoinLeft, JoinRight))
             {
-                Color _back = back ?? Colour.BgContainer.Get(nameof(Input), ColorScheme),
-                    _fore = fore ?? Colour.Text.Get(nameof(Input), ColorScheme),
-                   _border = borderColor ?? Colour.BorderColor.Get(nameof(Input), ColorScheme),
-                   _borderHover = BorderHover ?? Colour.PrimaryHover.Get(nameof(Input), ColorScheme),
-               _borderActive = BorderActive ?? Colour.Primary.Get(nameof(Input), ColorScheme);
+                Color _back = back ?? Colour.BgContainer.Get(ColorScheme, nameof(Input), Name),
+                    _fore = fore ?? Colour.Text.Get(ColorScheme, nameof(Input), Name),
+                   _border = borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Input), Name),
+                   _borderHover = BorderHover ?? Colour.PrimaryHover.Get(ColorScheme, nameof(Input), Name),
+               _borderActive = BorderActive ?? Colour.Primary.Get(ColorScheme, nameof(Input), Name);
 
                 switch (status)
                 {
                     case TType.Success:
-                        _border = Colour.SuccessBorder.Get(nameof(Input), ColorScheme);
-                        _borderHover = Colour.SuccessHover.Get(nameof(Input), ColorScheme);
-                        _borderActive = Colour.Success.Get(nameof(Input), ColorScheme);
+                        _border = Colour.SuccessBorder.Get(ColorScheme, nameof(Input), Name);
+                        _borderHover = Colour.SuccessHover.Get(ColorScheme, nameof(Input), Name);
+                        _borderActive = Colour.Success.Get(ColorScheme, nameof(Input), Name);
                         break;
                     case TType.Error:
-                        _border = Colour.ErrorBorder.Get(nameof(Input), ColorScheme);
-                        _borderHover = Colour.ErrorHover.Get(nameof(Input), ColorScheme);
-                        _borderActive = Colour.Error.Get(nameof(Input), ColorScheme);
+                        _border = Colour.ErrorBorder.Get(ColorScheme, nameof(Input), Name);
+                        _borderHover = Colour.ErrorHover.Get(ColorScheme, nameof(Input), Name);
+                        _borderActive = Colour.Error.Get(ColorScheme, nameof(Input), Name);
                         break;
                     case TType.Warn:
-                        _border = Colour.WarningBorder.Get(nameof(Input), ColorScheme);
-                        _borderHover = Colour.WarningHover.Get(nameof(Input), ColorScheme);
-                        _borderActive = Colour.Warning.Get(nameof(Input), ColorScheme);
+                        _border = Colour.WarningBorder.Get(ColorScheme, nameof(Input), Name);
+                        _borderHover = Colour.WarningHover.Get(ColorScheme, nameof(Input), Name);
+                        _borderActive = Colour.Warning.Get(ColorScheme, nameof(Input), Name);
                         break;
                 }
 
@@ -90,7 +73,7 @@ namespace AntdUI
                     PaintScroll(g, rect_read, _radius);
                     if (borderWidth > 0)
                     {
-                        var borWidth = borderWidth * Config.Dpi;
+                        var borWidth = borderWidth * Dpi;
                         if (Variant == TVariant.Underlined)
                         {
                             if (AnimationHover) g.DrawLine(_border.BlendColors(AnimationHoverValue, _borderHover), borWidth, rect_read.X, rect_read.Bottom, rect_read.Right, rect_read.Bottom);
@@ -111,57 +94,124 @@ namespace AntdUI
                 }
                 else
                 {
-                    g.Fill(Colour.FillTertiary.Get(nameof(Input), "bgDisabled", ColorScheme), path);
-                    var fore = Colour.TextQuaternary.Get(nameof(Input), "foreDisabled", ColorScheme);
+                    g.Fill(Colour.FillTertiary.GetSymbol(ColorScheme, "bgDisabled", nameof(Input), Name), path);
+                    var fore = Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Input), Name);
                     PaintIcon(g, fore);
                     PaintText(g, fore, rect_read.Right, rect_read.Bottom);
                     PaintOtherBor(g, rect_read, _radius, _back, _border, _borderActive);
                     PaintScroll(g, rect_read, _radius);
-                    if (borderWidth > 0) g.Draw(_border, borderWidth * Config.Dpi, path);
+                    if (borderWidth > 0) g.Draw(_border, borderWidth * Dpi, path);
                 }
             }
         }
 
         void PaintScroll(Canvas g, Rectangle rect_read, float _radius)
         {
-            if (ScrollYShow && autoscroll)
+            if (autoscroll && (ScrollY.Show || ScrollX.Show))
             {
-                int SIZE = (int)(16 * Config.Dpi), SIZE_BAR = (int)(6 * Config.Dpi), SIZE_MINIY = (int)(Config.ScrollMinSizeY * Config.Dpi);
-                ScrollRect = new Rectangle(rect_read.Right - SIZE, rect_read.Y, SIZE, rect_read.Height);
-                if (IsPaintScroll())
+                int SIZE = (int)(16 * Dpi), SIZE_BAR = (int)(6 * Dpi),
+                    SIZE_MINIY = (int)((Config.ScrollMinSizeY ?? SystemInformation.VerticalScrollBarThumbHeight) * Dpi), SIZE_MINIX = (int)((Config.ScrollMinSizeX ?? SystemInformation.HorizontalScrollBarThumbWidth) * Dpi);
+                var bg = Colour.TextBase.Get(ColorScheme, nameof(Input), Name);
+                if (ScrollX.Show)
                 {
-                    var color = Color.FromArgb(10, Colour.TextBase.Get(nameof(Input), ColorScheme));
-                    if (JoinRight) g.Fill(color, ScrollRect);
-                    else
+                    if (ScrollY.Show)
                     {
-                        using (var pathScroll = Helper.RoundPath(ScrollRect, _radius, false, true, true, false))
+                        ScrollX.Rect = new Rectangle(rect_read.X, rect_read.Bottom - SIZE, rect_read.Width - SIZE, SIZE);
+                        if (IsPaintScroll())
                         {
-                            g.Fill(color, pathScroll);
+                            var color = Color.FromArgb(10, bg);
+                            if ((joinMode == TJoinMode.Right || joinMode == TJoinMode.Top) || JoinLeft) g.Fill(color, ScrollX.Rect);
+                            else
+                            {
+                                using (var pathScroll = Helper.RoundPath(ScrollX.Rect, _radius, false, false, false, true))
+                                {
+                                    g.Fill(color, pathScroll);
+                                }
+                            }
                         }
                     }
+                    else
+                    {
+                        ScrollX.Rect = new Rectangle(rect_read.X, rect_read.Bottom - SIZE, rect_read.Width, SIZE);
+                        if (IsPaintScroll())
+                        {
+                            var color = Color.FromArgb(10, bg);
+                            g.Fill(color, ScrollX.Rect);
+                        }
+                    }
+                    float val = ScrollX.Value, VrValue = ScrollX.Max + ScrollX.Rect.Width, gap = (ScrollX.Rect.Height - SIZE_BAR) / 2F, gap2 = gap * 2, min = SIZE_MINIX + gap2;
+                    float widthfull = ((ScrollX.Rect.Width / VrValue) * ScrollX.Rect.Width), width = widthfull - SIZE;
+                    if (width < min) width = min;
+                    else if (width < SIZE) width = SIZE;
+                    float x = val == 0 ? 0 : (val / (VrValue - ScrollX.Rect.Width)) * (ScrollX.Rect.Width - width);
+                    ScrollX.Slider = new RectangleF(ScrollX.Rect.X + x + gap, ScrollX.Rect.Y + gap, width - gap2, SIZE_BAR);
+
+                    if (widthfull < SIZE_MINIX) widthfull = SIZE_MINIX;
+                    else if (widthfull < SIZE) widthfull = SIZE;
+                    ScrollX.SliderFull = widthfull;
+
+                    int alpha = ScrollX.Hover ? 141 : 110;
+                    using (var path = ScrollX.Slider.RoundPath(ScrollX.Slider.Width))
+                    {
+                        g.Fill(Color.FromArgb(alpha, bg), path);
+                    }
                 }
-                float val = scrolly, VrValue = ScrollYMax + ScrollRect.Height, gap = (ScrollRect.Width - SIZE_BAR) / 2, min = SIZE_MINIY + gap * 2;
-                float heightfull = ((ScrollRect.Height / VrValue) * ScrollRect.Height), height = heightfull - SIZE;
-                if (height < min) height = min;
-                else if (height < SIZE) height = SIZE;
-                float y = val == 0 ? 0 : (val / (VrValue - ScrollRect.Height)) * (ScrollRect.Height - height);
-                ScrollSlider = new RectangleF(ScrollRect.X + gap, ScrollRect.Y + y + gap, SIZE_BAR, height - gap * 2);
-
-                if (heightfull < SIZE_MINIY) heightfull = SIZE_MINIY;
-                else if (heightfull < SIZE) heightfull = SIZE;
-                ScrollSliderFull = heightfull;
-
-                int alpha = ScrollHover ? 141 : 110;
-                using (var path = ScrollSlider.RoundPath(ScrollSlider.Width))
+                if (ScrollY.Show)
                 {
-                    g.Fill(Color.FromArgb(alpha, Colour.TextBase.Get(nameof(Input), ColorScheme)), path);
+                    ScrollY.Rect = new Rectangle(rect_read.Right - SIZE, rect_read.Y, SIZE, rect_read.Height);
+                    if (IsPaintScroll())
+                    {
+                        var color = Color.FromArgb(10, bg);
+                        if (joinMode == TJoinMode.Left || JoinRight) g.Fill(color, ScrollY.Rect);
+                        else if (joinMode == TJoinMode.Top)
+                        {
+                            using (var pathScroll = Helper.RoundPath(ScrollY.Rect, _radius, false, true, false, false))
+                            {
+                                g.Fill(color, pathScroll);
+                            }
+                        }
+                        else if (joinMode == TJoinMode.Bottom)
+                        {
+                            using (var pathScroll = Helper.RoundPath(ScrollY.Rect, _radius, false, false, true, false))
+                            {
+                                g.Fill(color, pathScroll);
+                            }
+                        }
+                        else
+                        {
+                            using (var pathScroll = Helper.RoundPath(ScrollY.Rect, _radius, false, true, true, false))
+                            {
+                                g.Fill(color, pathScroll);
+                            }
+                        }
+                    }
+                    float val = ScrollY.Value, VrValue = ScrollY.Max + ScrollY.Rect.Height, gap = (ScrollY.Rect.Width - SIZE_BAR) / 2F, gap2 = gap * 2, min = SIZE_MINIY + gap2;
+                    float heightfull = ((ScrollY.Rect.Height / VrValue) * ScrollY.Rect.Height), height = heightfull - SIZE;
+                    if (height < min) height = min;
+                    else if (height < SIZE) height = SIZE;
+                    float y = val == 0 ? 0 : (val / (VrValue - ScrollY.Rect.Height)) * (ScrollY.Rect.Height - height);
+                    ScrollY.Slider = new RectangleF(ScrollY.Rect.X + gap, ScrollY.Rect.Y + y + gap, SIZE_BAR, height - gap2);
+
+                    if (heightfull < SIZE_MINIY) heightfull = SIZE_MINIY;
+                    else if (heightfull < SIZE) heightfull = SIZE;
+                    ScrollY.SliderFull = heightfull;
+
+                    int alpha = ScrollY.Hover ? 141 : 110;
+                    using (var path = ScrollY.Slider.RoundPath(ScrollY.Slider.Width))
+                    {
+                        g.Fill(Color.FromArgb(alpha, bg), path);
+                    }
                 }
             }
         }
 
         bool IsPaintScroll()
         {
-            if (Config.ScrollBarHide) return ScrollHover;
+            if (Config.ScrollBarHide)
+            {
+                if (ScrollY.Show && ScrollX.Show) return ScrollY.Hover || ScrollX.Hover;
+                return ScrollY.Hover;
+            }
             else return true;
         }
 
@@ -170,25 +220,13 @@ namespace AntdUI
         void PaintIcon(Canvas g, Color _fore)
         {
             string? prefixText = PrefixText, suffixText = SuffixText;
-            if (prefixText != null)
-            {
-                using (var fore = new SolidBrush(prefixFore ?? _fore))
-                {
-                    g.String(prefixText, Font, fore, rect_l, sf_center);
-                }
-            }
-            else if (prefixSvg != null) g.GetImgExtend(prefixSvg, rect_l, prefixFore ?? fore ?? Colour.Text.Get(nameof(Input), ColorScheme));
+            if (prefixText != null) g.String(prefixText, Font, prefixFore ?? _fore, rect_l, PrefixFormat);
+            else if (prefixSvg != null) g.Svg(prefixSvg, rect_l, prefixFore ?? fore ?? Colour.Text.Get(ColorScheme, nameof(Input), Name));
             else if (prefix != null) g.Image(prefix, rect_l);
 
-            if (is_clear) g.GetImgExtend(SvgDb.IcoError, rect_r, hover_clear ? Colour.TextTertiary.Get(nameof(Input), ColorScheme) : Colour.TextQuaternary.Get(nameof(Input), ColorScheme));
-            else if (suffixText != null)
-            {
-                using (var fore = new SolidBrush(suffixFore ?? _fore))
-                {
-                    g.String(suffixText, Font, fore, rect_r, sf_center);
-                }
-            }
-            else if (suffixSvg != null) g.GetImgExtend(suffixSvg, rect_r, suffixFore ?? fore ?? Colour.Text.Get(nameof(Input), ColorScheme));
+            if (is_clear) g.Svg(SvgDb.IcoError, rect_r, hover_clear ? Colour.TextTertiary.Get(ColorScheme, nameof(Input), Name) : Colour.TextQuaternary.Get(ColorScheme, nameof(Input), Name));
+            else if (suffixText != null) g.String(suffixText, Font, suffixFore ?? _fore, rect_r, SuffixFormat);
+            else if (suffixSvg != null) g.Svg(suffixSvg, rect_r, suffixFore ?? fore ?? Colour.Text.Get(ColorScheme, nameof(Input), Name));
             else if (suffix != null) g.Image(suffix, rect_r);
             else PaintRIcon(g, rect_r);
         }
@@ -200,9 +238,9 @@ namespace AntdUI
             else if (RECTDIV.HasValue) g.SetClip(RECTDIV.Value);
             else g.SetClip(new Rectangle(rect_text.X, 0, rect_text.Width, Height));
             if (cache_font != null) PaintText(g, _fore, w, h, cache_font);
-            else if (PlaceholderText != null && ShowPlaceholder)
+            else if (ShowPlaceholder && PlaceholderText != null)
             {
-                using (var fore = placeholderColorExtend.BrushEx(rect_text, placeholderColor ?? Colour.TextQuaternary.Get(nameof(Input), ColorScheme)))
+                using (var fore = placeholderColorExtend.BrushEx(rect_text, placeholderColor ?? Colour.TextQuaternary.Get(ColorScheme, nameof(Input), Name)))
                 {
                     g.DrawText(PlaceholderText, Font, fore, rect_text, sf_placeholder);
                 }
@@ -214,7 +252,7 @@ namespace AntdUI
                 else if (RECTDIV.HasValue) g.SetClip(RECTDIV.Value);
                 else g.SetClip(new Rectangle(0, 0, w, Height));
 
-                g.TranslateTransform(-ScrollX, -ScrollY);
+                g.TranslateTransform(-ScrollX.Value, -ScrollY.Value);
                 using (var brush = new SolidBrush(CaretColor ?? _fore))
                 {
                     g.Fill(brush, CaretInfo.Rect);
@@ -222,10 +260,10 @@ namespace AntdUI
             }
             g.Restore(state);
         }
-        void PaintText(Canvas g, Color _fore, int w, int h, CacheFont[] cache_font)
+        void PaintText(Canvas g, Color _fore, int w, int h, List<CacheFont> cache_font)
         {
             var state = g.Save();
-            g.TranslateTransform(-ScrollX, -ScrollY);
+            g.TranslateTransform(-ScrollX.Value, -ScrollY.Value);
             var tmp = PCSText(g, _fore, w, h, cache_font);
             if (styles != null)
             {
@@ -238,26 +276,26 @@ namespace AntdUI
             PaintText(g, _fore, cache_font, tmp);
             g.Restore(state);
         }
-        List<CacheFont> PCSText(Canvas g, Color _fore, int w, int h, CacheFont[] cache_font)
+        List<CacheFont> PCSText(Canvas g, Color _fore, int w, int h, List<CacheFont> cache_font)
         {
-            var tmp = new List<CacheFont>(cache_font.Length);
+            var tmp = new List<CacheFont>(cache_font.Count);
             if (IsPassWord)
             {
-                if (ScrollYShow)
+                if (ScrollY.Show)
                 {
                     foreach (var it in cache_font)
                     {
                         if (it.ret) continue;
-                        bool show = it.rect.Y > ScrollY - it.rect.Height && it.rect.Bottom < ScrollY + h + it.rect.Height;
+                        bool show = it.rect.Y > ScrollY.Value - it.rect.Height && it.rect.Bottom < ScrollY.Value + h + it.rect.Height;
                         if (show) tmp.Add(it);
                     }
                 }
-                else if (ScrollXShow)
+                else if (ScrollX.Show)
                 {
                     foreach (var it in cache_font)
                     {
                         if (it.ret) continue;
-                        bool show = it.rect.X > ScrollX - it.rect.Width && it.rect.Right < ScrollX + w + it.rect.Width;
+                        bool show = it.rect.X > ScrollX.Value - it.rect.Width && it.rect.Right < ScrollX.Value + w + it.rect.Width;
                         if (show) tmp.Add(it);
                     }
                 }
@@ -272,21 +310,21 @@ namespace AntdUI
             }
             else
             {
-                if (ScrollYShow)
+                if (ScrollY.Show)
                 {
                     foreach (var it in cache_font)
                     {
                         if (it.hide) continue;
-                        bool show = it.rect.Y > ScrollY - it.rect.Height && it.rect.Bottom < ScrollY + h + it.rect.Height;
+                        bool show = it.rect.Y > ScrollY.Value - it.rect.Height && it.rect.Bottom < ScrollY.Value + h + it.rect.Height;
                         if (show) tmp.Add(it);
                     }
                 }
-                else if (ScrollXShow)
+                else if (ScrollX.Show)
                 {
                     foreach (var it in cache_font)
                     {
                         if (it.hide) continue;
-                        bool show = it.rect.X > ScrollX - it.rect.Width && it.rect.Right < ScrollX + w + it.rect.Width;
+                        bool show = it.rect.X > ScrollX.Value - it.rect.Width && it.rect.Right < ScrollX.Value + w + it.rect.Width;
                         if (show) tmp.Add(it);
                     }
                 }
@@ -301,23 +339,23 @@ namespace AntdUI
             }
             return tmp;
         }
-        void PaintText(Canvas g, Color _fore, CacheFont[] cache_font, List<CacheFont> tmp)
+        void PaintText(Canvas g, Color _fore, List<CacheFont> cache_font, List<CacheFont> tmp)
         {
             using (var fore = new SolidBrush(_fore))
             {
                 if (IsPassWord)
                 {
-                    foreach (var it in tmp) g.String(PassWordChar, it.font ?? Font, fore, it.rect);
+                    foreach (var it in tmp) g.String(PassWordChar, it.font ?? Font, fore, it.rect, sf_center);
                 }
                 else if (HasEmoji)
                 {
-                    using (var font = new Font(EmojiFont, Font.Size))
+                    using (var font = new Font(EmojiFont ?? Config.EmojiFont, Font.Size))
                     {
                         foreach (var it in tmp)
                         {
                             if (it.emoji)
                             {
-                                if (SvgDb.Emoji.TryGetValue(it.text, out var svg)) SvgExtend.GetImgExtend(g, svg, it.rect, fore.Color);
+                                if (SvgDb.Emoji.TryGetValue(it.text, out var svg)) g.Svg(svg, it.rect, fore.Color);
                                 else StringEmoji(g, it.text, font, it, fore);
                             }
                             else String(g, Font, it, fore);
@@ -330,14 +368,14 @@ namespace AntdUI
                 }
             }
         }
-        void PaintTextSelected(Canvas g, CacheFont[] cache_font)
+        void PaintTextSelected(Canvas g, List<CacheFont> cache_font)
         {
-            if (selectionLength > 0 && cache_font.Length > selectionStartTemp && !BanInput)
+            if (selectionLength > 0 && cache_font.Count > selectionStartTemp && !BanInput)
             {
                 try
                 {
                     int start = selectionStartTemp, end = start + selectionLength - 1;
-                    if (end > cache_font.Length - 1) end = cache_font.Length - 1;
+                    if (end > cache_font.Count - 1) end = cache_font.Count - 1;
                     var first = cache_font[start];
                     using (var brush = new SolidBrush(selection))
                     {
@@ -361,15 +399,14 @@ namespace AntdUI
 
         void String(Canvas g, Font font, CacheFont cache, Brush brush)
         {
-            if (cache.fore.HasValue) g.String(cache.text, cache.font ?? font, cache.fore.Value, cache.rect);
-            else g.String(cache.text, cache.font ?? font, brush, cache.rect);
+            if (cache.fore.HasValue) g.String(cache.text, cache.font ?? font, cache.fore.Value, cache.rect, sf_center);
+            else g.String(cache.text, cache.font ?? font, brush, cache.rect, sf_center);
         }
 
         void StringEmoji(Canvas g, string? text, Font font, CacheFont cache, Brush brush)
         {
-            var rect = new Rectangle(cache.rect.X - 20, cache.rect.Y - 20, cache.rect.Width + 40, cache.rect.Height + 40);
-            if (cache.fore.HasValue) g.String(text, cache.font ?? font, cache.fore.Value, rect);
-            else g.String(text, cache.font ?? font, brush, rect);
+            if (cache.fore.HasValue) g.String(text, cache.font ?? font, cache.fore.Value, cache.rect, sf_center);
+            else g.String(text, cache.font ?? font, brush, cache.rect, sf_center);
         }
 
         protected virtual void PaintRIcon(Canvas g, Rectangle rect) { }
@@ -384,7 +421,7 @@ namespace AntdUI
             {
                 if (AnimationFocusValue > 0)
                 {
-                    using (var path_click = Helper.RoundPath(rect, radius, round))
+                    using (var path_click = Helper.PathJoin(rect, radius, joinMode, JoinLeft, JoinRight))
                     {
                         path_click.AddPath(path, false);
                         g.Fill(Helper.ToColor(AnimationFocusValue, color), path_click);
@@ -393,7 +430,7 @@ namespace AntdUI
             }
             else if (ExtraMouseDown && WaveSize > 0)
             {
-                using (var path_click = Helper.RoundPath(rect, radius, round))
+                using (var path_click = Helper.PathJoin(rect, radius, joinMode, JoinLeft, JoinRight))
                 {
                     path_click.AddPath(path, false);
                     g.Fill(Color.FromArgb(30, color), path_click);
@@ -403,239 +440,11 @@ namespace AntdUI
 
         #endregion
 
-        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding).ReadRect((WaveSize + borderWidth / 2F) * Config.Dpi, joinMode, JoinLeft, JoinRight);
+        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding).ReadRect((WaveSize + borderWidth / 2F) * Dpi, joinMode, JoinLeft, JoinRight);
 
-        public override GraphicsPath RenderRegion
-        {
-            get
-            {
-                var rect_read = ReadRectangle;
-                float _radius = round ? rect_read.Height : radius * Config.Dpi;
-                return Path(rect_read, _radius);
-            }
-        }
-
-        internal GraphicsPath Path(RectangleF rect, float radius)
-        {
-            switch (joinMode)
-            {
-                case TJoinMode.Left:
-                    return rect.RoundPath(radius, true, false, false, true);
-                case TJoinMode.Right:
-                    return rect.RoundPath(radius, false, true, true, false);
-                case TJoinMode.LR:
-                case TJoinMode.TB:
-                    return rect.RoundPath(0);
-                case TJoinMode.Top:
-                    return rect.RoundPath(radius, true, true, false, false);
-                case TJoinMode.Bottom:
-                    return rect.RoundPath(radius, false, false, true, true);
-                case TJoinMode.None:
-                default:
-                    if (JoinLeft && JoinRight) return rect.RoundPath(0);
-                    else if (JoinLeft) return rect.RoundPath(radius, false, true, true, false);
-                    else if (JoinRight) return rect.RoundPath(radius, true, false, false, true);
-                    return rect.RoundPath(radius);
-            }
-        }
+        public override GraphicsPath RenderRegion => Helper.PathJoin(ReadRectangle, radius, Dpi, round, joinMode, JoinLeft, JoinRight);
 
         #endregion
-
-        #endregion
-
-        #region 滚动条
-
-        Rectangle ScrollRect;
-        RectangleF ScrollSlider;
-        /// <summary>
-        /// 滑块全高度（不算边距）
-        /// </summary>
-        float ScrollSliderFull;
-        bool scrollhover = false;
-        bool ScrollHover
-        {
-            get => scrollhover;
-            set
-            {
-                if (scrollhover == value) return;
-                scrollhover = value;
-                Invalidate();
-            }
-        }
-        int scrollx = 0, scrolly = 0, ScrollXMin = 0, ScrollXMax = 0, ScrollYMax = 0;
-        int ScrollX
-        {
-            get => scrollx;
-            set
-            {
-                if (value > ScrollXMax) value = ScrollXMax;
-                if (value < ScrollXMin) value = ScrollXMin;
-                if (scrollx == value) return;
-                scrollx = value;
-                Invalidate();
-                if (SyncScrollObj is Input input) input.ScrollX = scrollx;
-            }
-        }
-        int ScrollY
-        {
-            get => scrolly;
-            set
-            {
-                if (value > ScrollYMax) value = ScrollYMax;
-                if (value < 0) value = 0;
-                if (scrolly == value) return;
-                scrolly = value;
-                CaretInfo.flag = true;
-                Invalidate();
-                if (SyncScrollObj is Input input) input.ScrollY = scrolly;
-            }
-        }
-
-        bool ScrollXShow = false, ScrollYShow = false, ScrollYDown = false;
-
-        #region 滚动动画
-
-        string? oldtmp;
-        void ScrollIFTo(Rectangle r)
-        {
-            if (ScrollYShow)
-            {
-                string tmp = r.Y.ToString() + lineheight.ToString();
-                if (tmp == oldtmp) return;
-                oldtmp = tmp;
-                int caretY = CaretInfo.Y - ScrollY, threshold = (int)(rect_text.Height * 0.3f);
-                // 判断是否超出阈值，是则直接跳转
-                if (caretY < rect_text.Y - threshold || caretY + CaretInfo.Height > rect_text.Bottom + threshold)
-                {
-                    // 直接跳转逻辑
-                    if (caretY < rect_text.Y) ScrollY = r.Y - rect_text.Y;
-                    else if (caretY + CaretInfo.Height > rect_text.Bottom) ScrollY = r.Bottom - rect_text.Height + CaretInfo.Height;
-                    return;
-                }
-                // 未超出阈值，使用动画滚动
-                ITask.Run(() => ScrollToY(r));
-            }
-            else if (ScrollXShow)
-            {
-                string tmp = r.X.ToString() + cache_font?.Length.ToString();
-                if (tmp == oldtmp) return;
-                oldtmp = tmp;
-                int caretX = CaretInfo.X - ScrollX, threshold = (int)(rect_text.Width * 0.3f);
-                // 判断是否超出阈值，是则直接跳转
-                if (caretX < rect_text.X - threshold || caretX + CaretInfo.Width > rect_text.Right + threshold)
-                {
-                    if (caretX < rect_text.X) ScrollX = r.X - rect_text.X;
-                    else if (caretX + CaretInfo.Width > rect_text.Right) ScrollX = r.Right - rect_text.Width + CaretInfo.Width;
-                    return;
-                }
-                // 未超出阈值，使用动画滚动
-                ITask.Run(() => ScrollToX(r));
-            }
-            else
-            {
-                oldtmp = null;
-                ScrollX = ScrollY = 0;
-            }
-        }
-
-        void ScrollToY(Rectangle r)
-        {
-            int stepSize = CaretInfo.Height, count = 0;
-            int caretY = CaretInfo.Y - ScrollY;
-            if (caretY < rect_text.Y) ScrollToYUP(r, stepSize, ref count);
-            else if (caretY + CaretInfo.Height > rect_text.Bottom) ScrollToYDOWN(r, stepSize, ref count);
-            else return;
-        }
-        void ScrollToYUP(Rectangle r, int stepSize, ref int count)
-        {
-            while (true)
-            {
-                int caretY = CaretInfo.Y - ScrollY;
-                if (caretY < rect_text.Y)
-                {
-                    int targetY = ScrollY - stepSize;
-                    ScrollY = targetY;
-                    if (ScrollY == targetY) count++;
-                    else return;
-                    SleepGear(count);
-                }
-                else return;
-            }
-        }
-        void ScrollToYDOWN(Rectangle r, int stepSize, ref int count)
-        {
-            while (true)
-            {
-                int caretY = CaretInfo.Y - ScrollY;
-                if (caretY + CaretInfo.Height > rect_text.Bottom)
-                {
-                    int targetY = ScrollY + stepSize;
-                    ScrollY = targetY;
-                    if (ScrollY == targetY) count++;
-                    else return;
-                    SleepGear(count);
-                }
-                else return;
-            }
-        }
-
-        void ScrollToX(Rectangle r)
-        {
-            int stepSize = CaretInfo.Height, count = 0;
-            int caretX = CaretInfo.X - ScrollX;
-            if (caretX < rect_text.X) ScrollToXUP(r, stepSize, ref count);
-            else if (caretX + CaretInfo.Width > rect_text.Right) ScrollToXDOWN(r, stepSize, ref count);
-            else return;
-        }
-        void ScrollToXUP(Rectangle r, int stepSize, ref int count)
-        {
-            while (true)
-            {
-                int caretX = CaretInfo.X - ScrollX;
-                if (caretX < rect_text.X)
-                {
-                    int targetX = ScrollX - stepSize;
-                    ScrollX = targetX;
-                    if (ScrollX == targetX) count++;
-                    else return;
-                    SleepGear(count);
-                }
-                else return;
-            }
-        }
-        void ScrollToXDOWN(Rectangle r, int stepSize, ref int count)
-        {
-            while (true)
-            {
-                int caretX = CaretInfo.X - ScrollX;
-                if (caretX + CaretInfo.Width > rect_text.Right)
-                {
-                    int targetX = ScrollX + stepSize;
-                    ScrollX = targetX;
-                    if (ScrollX == targetX) count++;
-                    else return;
-                    SleepGear(count);
-                }
-                else return;
-            }
-        }
-
-        void SleepGear(int count)
-        {
-            if (count > 7) System.Threading.Thread.Sleep(1);
-            else if (count > 5) System.Threading.Thread.Sleep(10);
-            else if (count > 3) System.Threading.Thread.Sleep(30);
-            else System.Threading.Thread.Sleep(50);
-        }
-
-        #endregion
-
-        object? SyncScrollObj;
-        public Input SyncScroll(Input input)
-        {
-            SyncScrollObj = input;
-            return this;
-        }
 
         #endregion
     }

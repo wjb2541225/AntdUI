@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 namespace SVGView
 {
@@ -52,6 +39,25 @@ namespace SVGView
                 }
             }
         }
+        void ReIdVue(ref string svg)
+        {
+            var id = "data-v-";
+            if (svg.Contains(" " + id))
+            {
+                int i = svg.IndexOf(id);
+                while (i != -1)
+                {
+                    string first = svg.Substring(0, i), last = svg.Substring(i + id.Length + 2);
+                    int tmp = last.IndexOf("=\"\"");
+                    if (tmp == 6)
+                    {
+                        last = last.Substring(tmp + 3).Trim();
+                        svg = first + last;
+                        i = svg.IndexOf(id);
+                    }
+                }
+            }
+        }
 
         void ReNodeOne(ref string svg, string id)
         {
@@ -70,6 +76,11 @@ namespace SVGView
             {
                 var svg = input1.Text;
                 if (svg == null) return;
+                if (svg.Contains("viewBox=\\\"") && svg.Contains("\\\">"))
+                {
+                    input1.Text = svg.Replace("\\\"", "\"");
+                    return;
+                }
                 button1.IconSvg = svg;
                 int size = (int)Math.Floor((pictureBox1.Width > pictureBox1.Height ? pictureBox1.Height : pictureBox1.Width) * 0.8F);
                 pictureBox1.Image = AntdUI.SvgExtend.SvgToBmp(svg, size, size, Color.Black);
@@ -99,6 +110,7 @@ namespace SVGView
             svg = first + last;
             if (more) ReId(ref svg, "fill");
             ReId(ref svg, "p-id");
+            ReIdVue(ref svg);
             string _tmp = svg.Replace(" >", ">").Replace("\t", "").Replace("\r", "").Replace("\n", "").Replace("fill=\"white\"", "fill=\"#fff\"").Replace("fill=\"black\"", "fill=\"#000\"");
             while (_tmp.Contains("  ")) _tmp = _tmp.Replace("  ", " ");
             return _tmp.Replace("> <", "><").Trim();

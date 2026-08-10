@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -40,22 +27,22 @@ namespace AntdUI
             {
                 using (var column_font = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
                 {
-                    PaintTable(g, rows, e.Rect, e.Rect.PaddingRect(Padding, borderWidth), column_font);
+                    PaintTable(g, rows.List, e.Rect, e.Rect.PaddingRect(Padding, borderWidth), column_font);
                 }
             }
-            else PaintTable(g, rows, e.Rect, e.Rect.PaddingRect(Padding, borderWidth), columnfont);
-            if (emptyHeader && Empty && rows.Length == 1) PaintEmpty(g, e.Rect, rows[0].RECT.Height);
+            else PaintTable(g, rows.List, e.Rect, e.Rect.PaddingRect(Padding, borderWidth), columnfont);
+            if (emptyHeader && Empty && rows.Length == 1) PaintEmpty(g, e.Rect, rows.First.RECT.Height);
             ScrollBar.Paint(g, ColorScheme);
             base.OnDraw(e);
         }
 
         void PaintTable(Canvas g, RowTemplate[] rows, Rectangle rect, Rectangle rect_real, Font column_font)
         {
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
             int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
-            using (var brush_fore = new SolidBrush(fore ?? Colour.Text.Get(nameof(Table), ColorScheme)))
-            using (var brush_foreEnable = new SolidBrush(fore ?? Colour.TextQuaternary.Get(nameof(Table), ColorScheme)))
-            using (var brush_forecolumn = new SolidBrush(columnfore ?? fore ?? Colour.Text.Get(nameof(Table), ColorScheme)))
+            using (var brush_fore = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(Table), Name)))
+            using (var brush_foreEnable = new SolidBrush(fore ?? Colour.TextQuaternary.Get(ColorScheme, nameof(Table), Name)))
+            using (var brush_forecolumn = new SolidBrush(columnfore ?? fore ?? Colour.Text.Get(ColorScheme, nameof(Table), Name)))
             {
                 StyleRow[] shows, summarys;
                 GraphicsPath? clipath = null;
@@ -82,11 +69,12 @@ namespace AntdUI
                         g.TranslateTransform(0, -sy);
                         foreach (var it in shows) PaintBg(g, it.row);
 
-                        if (dividers.Length > 0) PaintBorder(g, dividers, 1);
-
-                        g.ResetTransform();
-                        g.TranslateTransform(-sx, -sy);
+                        g.TranslateTransform(-sx, 0);
                         foreach (var it in shows) PaintForeItem(g, it, brush_fore, brush_foreEnable);
+                        g.ResetTransform();
+
+                        g.TranslateTransform(0, -sy);
+                        if (dividers.Length > 0) PaintBorder(g, dividers, 1);
                         g.ResetTransform();
 
                         PaintTableBgHeader(g, rows[0], _radius, sx);
@@ -130,21 +118,26 @@ namespace AntdUI
                             else PaintBg(g, it.row);
                         }
 
-                        if (dividers.Length > 0) PaintBorder(g, dividers);
-
-                        g.ResetTransform();
-                        g.TranslateTransform(-sx, -sy);
+                        g.TranslateTransform(-sx, 0);
                         foreach (var it in shows)
                         {
                             if (it.row.IsColumn) PaintTableHeader(g, it.row, brush_forecolumn, column_font, _radius);
                             else PaintForeItem(g, it, brush_fore, brush_foreEnable);
                         }
-                        if (bordered)
-                        {
-                            g.ResetTransform();
-                            g.TranslateTransform(-sx, 0);
-                        }
+
+                        #region 边框
+
+                        g.ResetTransform();
+                        g.TranslateTransform(0, -sy);
+                        if (dividers.Length > 0) PaintBorder(g, dividers);
+
+                        g.ResetTransform();
+                        if (bordered) g.TranslateTransform(-sx, 0);
+                        else g.TranslateTransform(-sx, -sy);
+
                         if (dividerHs.Length > 0) PaintBorderH(g, dividerHs);
+
+                        #endregion
                     }
                 }
                 else
@@ -168,17 +161,21 @@ namespace AntdUI
                     g.TranslateTransform(0, -sy);
                     foreach (var it in shows) PaintBg(g, it.row);
 
+                    g.TranslateTransform(-sx, 0);
+                    foreach (var it in shows) PaintForeItem(g, it, brush_fore, brush_foreEnable);
+
+                    #region 边框
+
+                    g.ResetTransform();
+                    g.TranslateTransform(0, -sy);
                     if (dividers.Length > 0) PaintBorder(g, dividers);
 
                     g.ResetTransform();
-                    g.TranslateTransform(-sx, -sy);
-                    foreach (var it in shows) PaintForeItem(g, it, brush_fore, brush_foreEnable);
-                    if (bordered)
-                    {
-                        g.ResetTransform();
-                        g.TranslateTransform(-sx, 0);
-                    }
+                    if (bordered) g.TranslateTransform(-sx, 0);
+                    else g.TranslateTransform(0, -sy);
                     if (dividerHs.Length > 0) PaintBorderH(g, dividerHs);
+
+                    #endregion
                 }
 
                 g.ResetClip();
@@ -195,17 +192,18 @@ namespace AntdUI
                 }
                 else showFixedColumnL = showFixedColumnR = false;
 
-                if (summarys.Length > 0) PaintFixedSummary(g, rect, rect_read, summarys, brush_fore, brush_foreEnable, brush_forecolumn, column_font, sx, sy, _radius);
+                if (summarys.Length > 0) sFixedB = PaintFixedSummary(g, rect, rect_read, summarys, brush_fore, brush_foreEnable, brush_forecolumn, column_font, sx, sy, _radius);
+                else sFixedB = -1;
 
                 #endregion
 
                 if (bordered)
                 {
                     g.ResetClip();
-                    var color = borderColor ?? Colour.BorderColor.Get(nameof(Table), ColorScheme);
+                    var color = borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Table), Name);
                     var rectF = new RectangleF((float)rect_divider.X + 0.5f, (float)rect_divider.Y + 0.5f, (float)rect_divider.Width, (float)rect_divider.Height);
-                    if (clipath == null) g.Draw(color, borderWidth * Config.Dpi, rectF);
-                    else g.Draw(color, borderWidth * Config.Dpi, clipath);
+                    if (clipath == null) g.Draw(color, borderWidth * Dpi, rectF);
+                    else g.Draw(color, borderWidth * Dpi, clipath);
                 }
 
                 clipath?.Dispose();
@@ -223,14 +221,14 @@ namespace AntdUI
                 if (it.Type == RowType.Summary)
                 {
                     it.SHOW = true;
-                    var item = new StyleRow(it, OnSetRowStyle(it.RECORD, it.INDEX, showIndex));
+                    var item = new StyleRow(it, OnSetRowStyle(it.RECORD, it.Type, it.INDEX, showIndex));
                     shows.Add(item);
                     summarys.Add(item);
                 }
                 else
                 {
-                    it.SHOW = it.ShowExpand && it.Type == RowType.None && (it.RECT.Y >= sy && it.RECT.Y <= sy + rect_read.Height || it.RECT.Bottom >= sy && it.RECT.Bottom <= sy + rect_read.Height);
-                    if (it.SHOW) shows.Add(new StyleRow(it, OnSetRowStyle(it.RECORD, it.INDEX, showIndex)));
+                    it.SHOW = it.Type == RowType.None && rect_read.IsItemVisible(sy, it.RECT);
+                    if (it.SHOW) shows.Add(new StyleRow(it, OnSetRowStyle(it.RECORD, it.Type, it.INDEX, showIndex)));
                 }
                 showIndex++;
             }
@@ -246,14 +244,14 @@ namespace AntdUI
                 if (it.Type == RowType.Summary)
                 {
                     it.SHOW = true;
-                    var item = new StyleRow(it, OnSetRowStyle(it.RECORD, it.INDEX, showIndex));
+                    var item = new StyleRow(it, OnSetRowStyle(it.RECORD, it.Type, it.INDEX, showIndex));
                     shows.Add(item);
                     summarys.Add(item);
                 }
                 else
                 {
-                    it.SHOW = it.ShowExpand && (it.Type == RowType.None || it.Type == RowType.Column) && (it.RECT.Y >= sy && it.RECT.Y <= sy + rect_read.Height || it.RECT.Bottom >= sy && it.RECT.Bottom <= sy + rect_read.Height);
-                    if (it.SHOW) shows.Add(new StyleRow(it, OnSetRowStyle(it.RECORD, it.INDEX, showIndex)));
+                    it.SHOW = (it.Type == RowType.None || it.Type == RowType.Column) && rect_read.IsItemVisible(sy, it.RECT);
+                    if (it.SHOW) shows.Add(new StyleRow(it, OnSetRowStyle(it.RECORD, it.Type, it.INDEX, showIndex)));
                 }
                 showIndex++;
             }
@@ -271,14 +269,14 @@ namespace AntdUI
                 if (it.Type == RowType.Summary)
                 {
                     it.SHOW = true;
-                    var item = new StyleRow(it, OnSetRowStyle(it.RECORD, it.INDEX, showIndex));
+                    var item = new StyleRow(it, OnSetRowStyle(it.RECORD, it.Type, it.INDEX, showIndex));
                     shows.Add(item);
                     summarys.Add(item);
                 }
                 else
                 {
-                    it.SHOW = it.RECT.Y > sy - it.RECT.Height && it.RECT.Bottom < sy + rect_read.Height + it.RECT.Height;
-                    if (it.SHOW) shows.Add(new StyleRow(it, OnSetRowStyle(it.RECORD, it.INDEX, showIndex)));
+                    it.SHOW = rect_read.IsItemVisible(sy, it.RECT);
+                    if (it.SHOW) shows.Add(new StyleRow(it, OnSetRowStyle(it.RECORD, it.Type, it.INDEX, showIndex)));
                 }
                 showIndex++;
             }
@@ -293,7 +291,7 @@ namespace AntdUI
         void PaintTableBgHeader(Canvas g, RowTemplate row, float radius, int sx)
         {
             var save = g.Save();
-            using (var brush = new SolidBrush(columnback ?? Colour.TagDefaultBg.Get(nameof(Table), ColorScheme)))
+            using (var brush = new SolidBrush(columnback ?? Colour.TagDefaultBg.Get(ColorScheme, nameof(Table), Name)))
             {
                 if (radius > 0)
                 {
@@ -333,7 +331,7 @@ namespace AntdUI
                         int index = column.COLUMN.INDEX_REAL;
                         if (dragHeader.i == index)
                         {
-                            using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(Table), ColorScheme)))
+                            using (var brush = new SolidBrush(Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name)))
                             {
                                 if (radius > 0)
                                 {
@@ -358,9 +356,9 @@ namespace AntdUI
                         }
                         if (dragHeader.im == index)
                         {
-                            using (var brush_split = new SolidBrush(Colour.BorderColor.Get(nameof(Table), ColorScheme)))
+                            using (var brush_split = new SolidBrush(Colour.BorderColor.Get(ColorScheme, nameof(Table), Name)))
                             {
-                                int sp = (int)(2 * Config.Dpi);
+                                int sp = (int)(2 * Dpi);
                                 if (dragHeader.last) g.Fill(brush_split, new Rectangle(column.RECT.Right - sp, column.RECT.Y, sp * 2, column.RECT.Height));
                                 else g.Fill(brush_split, new Rectangle(column.RECT.X - sp, column.RECT.Y, sp * 2, column.RECT.Height));
                             }
@@ -374,7 +372,7 @@ namespace AntdUI
                 List<int> handkey = new List<int>(len), dskey = new List<int>(len);
                 var state = g.Save();
                 int rY = row.RECT.Y, rHeight = row.Height / len;
-                int i = 0, gap = (int)(_gap.Width * Config.Dpi), gap2 = gap * 2;
+                int i = 0, gap = (int)(_gap.Width * Dpi), gap2 = gap * 2;
                 foreach (var it in StackedHeaderRows)
                 {
                     foreach (var item in it.StackedColumns) PaintTableHeaderStacked(g, row, fore, column_font, ref handkey, ref dskey, rY, rHeight, item);
@@ -385,8 +383,20 @@ namespace AntdUI
                 {
                     if (dskey.Contains(i))
                     {
-                        dividerHs[i][1] = rY + gap;
-                        dividerHs[i][2] = rHeight - gap2;
+                        if (dividerHs[i].h)
+                        {
+                            dividerHs[i].h = false;
+                            if (bordered)
+                            {
+                                dividerHs[i].b = rY;
+                                dividerHs[i].c = rHeight;
+                            }
+                            else
+                            {
+                                dividerHs[i].b = rY + gap;
+                                dividerHs[i].c = rHeight - gap2;
+                            }
+                        }
                     }
                     if (handkey.Contains(column.INDEX))
                     {
@@ -407,7 +417,7 @@ namespace AntdUI
                         int index = column.COLUMN.INDEX_REAL;
                         if (dragHeader.i == index)
                         {
-                            using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(Table), ColorScheme)))
+                            using (var brush = new SolidBrush(Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name)))
                             {
                                 if (radius > 0)
                                 {
@@ -432,9 +442,9 @@ namespace AntdUI
                         }
                         if (dragHeader.im == index)
                         {
-                            using (var brush_split = new SolidBrush(Colour.BorderColor.Get(nameof(Table), ColorScheme)))
+                            using (var brush_split = new SolidBrush(Colour.BorderColor.Get(ColorScheme, nameof(Table), Name)))
                             {
-                                int sp = (int)(2 * Config.Dpi);
+                                int sp = (int)(2 * Dpi);
                                 if (dragHeader.last) g.Fill(brush_split, new Rectangle(column.RECT.Right - sp, column.RECT.Y, sp * 2, column.RECT.Height));
                                 else g.Fill(brush_split, new Rectangle(column.RECT.X - sp, column.RECT.Y, sp * 2, column.RECT.Height));
                             }
@@ -497,6 +507,8 @@ namespace AntdUI
         {
             var state = g.Save();
             var rect = new Rectangle(column.RECT_REAL.X, rY, column.RECT_REAL.Width, rHeight);
+            if (column is TCellColumn cellColumn) rect.Width += cellColumn.SFWidth;
+            if (bordered) PaintBorder(g, new DividerList(rect.Bottom, column.RECT.X, column.RECT.Width));
             if (item.ForeColor.HasValue) g.DrawText(item.HeaderText, column_font, item.ForeColor.Value, rect, StringFormat(column.COLUMN, true));
             else g.DrawText(item.HeaderText, column_font, fore, rect, StringFormat(column.COLUMN, true));
             g.Restore(state);
@@ -506,6 +518,7 @@ namespace AntdUI
         {
             var state = g.Save();
             var rect = new Rectangle(first.RECT.X, rY, last.RECT.Right - first.RECT.X, rHeight);
+            if (bordered) PaintBorder(g, new DividerList(rect.Bottom, rect.X, rect.Width));
             if (item.ForeColor.HasValue) g.DrawText(item.HeaderText, column_font, item.ForeColor.Value, rect, StringFormat(ColumnAlign.Center));
             else g.DrawText(item.HeaderText, column_font, fore, rect, StringFormat(ColumnAlign.Center));
             g.Restore(state);
@@ -523,10 +536,10 @@ namespace AntdUI
             if (row.style != null && row.style.BackColor.HasValue) g.Fill(row.style.BackColor.Value, row.row.RECT);
             if (row.row.Type == RowType.None)
             {
-                if (selectedIndex.Contains(row.row.INDEX) || selects.Contains(row.row.INDEX_REAL))
+                if (selectedIndex.Contains(row.row.INDEX) || (row.row.Select && ShowCheckBg))
                 {
-                    g.Fill(rowSelectedBg ?? Colour.PrimaryBg.Get(nameof(Table), ColorScheme), row.row.RECT);
-                    if (selectedIndex.Contains(row.row.INDEX) && selects.Contains(row.row.INDEX_REAL)) g.Fill(Color.FromArgb(40, Colour.PrimaryActive.Get(nameof(Table), ColorScheme)), row.row.RECT);
+                    g.Fill(rowSelectedBg ?? Colour.PrimaryBg.Get(ColorScheme, nameof(Table), Name), row.row.RECT);
+                    if (selectedIndex.Contains(row.row.INDEX) && row.row.Select) g.Fill(Color.FromArgb(40, Colour.PrimaryActive.Get(ColorScheme, nameof(Table), Name)), row.row.RECT);
                 }
             }
         }
@@ -536,26 +549,26 @@ namespace AntdUI
         /// </summary>
         void PaintBg(Canvas g, RowTemplate row)
         {
-            OnRowPaintBegin(g, row.RECT, row.RECORD, row.INDEX);
-            if (dragBody != null)
+            OnRowPaintBegin(g, row.RECT, row.RECORD, row.Type, row.INDEX);
+            if (dragBody == null)
             {
-                if (dragBody.i == row.INDEX) g.Fill(Colour.FillSecondary.Get(nameof(Table), ColorScheme), row.RECT);
+                if (row.AnimationHover) g.Fill(Helper.ToColorN(row.AnimationHoverValue, Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name)), row.RECT);
+                else if (row.Hover) g.Fill(rowHoverBg ?? Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), row.RECT);
+            }
+            else
+            {
+                if (dragBody.i == row.INDEX) g.Fill(Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), row.RECT);
                 else if (dragBody.im == row.INDEX)
                 {
-                    using (var brush_split = new SolidBrush(Colour.BorderColor.Get(nameof(Table), ColorScheme)))
+                    using (var brush_split = new SolidBrush(Colour.BorderColor.Get(ColorScheme, nameof(Table), Name)))
                     {
-                        int sp = (int)(2 * Config.Dpi);
+                        int sp = (int)(2 * Dpi);
                         if (dragBody.last) g.Fill(brush_split, new Rectangle(row.RECT.X, row.RECT.Bottom - sp, row.RECT.Width, sp * 2));
                         else g.Fill(brush_split, new Rectangle(row.RECT.X, row.RECT.Y - sp, row.RECT.Width, sp * 2));
                     }
                 }
             }
-            else
-            {
-                if (row.AnimationHover) g.Fill(Helper.ToColorN(row.AnimationHoverValue, Colour.FillSecondary.Get(nameof(Table), ColorScheme)), row.RECT);
-                else if (row.Hover) g.Fill(rowHoverBg ?? Colour.FillSecondary.Get(nameof(Table), ColorScheme), row.RECT);
-            }
-            OnRowPaint(g, row.RECT, row.RECORD, row.INDEX);
+            OnRowPaint(g, row.RECT, row.RECORD, row.Type, row.INDEX);
         }
 
         #region 单元格
@@ -660,32 +673,23 @@ namespace AntdUI
             var state = g.Save();
             try
             {
-                if (CellPaintBegin == null) PaintItemCore(g, columnIndex, it, enable, Font, fore);
-                else
+                if (OnCellPaintBegin(g, it.RECT, it.RECT_REAL, it.ROW.RECORD, it.ROW.Type, it.ROW.INDEX, columnIndex, it.COLUMN, out var CellFore, out var CellBack, out var CellFont))
                 {
-                    var arge = new TablePaintBeginEventArgs(g, it.RECT, it.RECT_REAL, it.ROW.RECORD, it.ROW.INDEX, columnIndex, it.COLUMN);
-                    CellPaintBegin(this, arge);
-                    if (arge.Handled)
+                    if (CellBack != null)
                     {
-                        if (it.ROW.CanExpand && it.ROW.KeyTreeINDEX == columnIndex) PaintItemArrow(g, it, enable, fore);
+                        using (CellBack)
+                        {
+                            g.Fill(CellBack, it.RECT);
+                        }
                     }
-                    else
+                    using (CellFont)
+                    using (CellFore)
                     {
-                        if (arge.CellBack != null)
-                        {
-                            using (arge.CellBack)
-                            {
-                                g.Fill(arge.CellBack, it.RECT);
-                            }
-                        }
-                        using (arge.CellFont)
-                        using (arge.CellFore)
-                        {
-                            PaintItemCore(g, columnIndex, it, enable, arge.CellFont ?? Font, arge.CellFore ?? fore);
-                        }
+                        PaintItemCore(g, columnIndex, it, enable, CellFont ?? Font, CellFore ?? fore);
                     }
                 }
-                OnCellPaint(g, it.RECT, it.RECT_REAL, it.ROW.RECORD, it.ROW.INDEX, columnIndex, it.COLUMN);
+                else if (it.ROW.CanExpand) PaintItemArrow(g, it, enable, fore);
+                OnCellPaint(g, it.RECT, it.RECT_REAL, it.ROW.RECORD, it.ROW.Type, it.ROW.INDEX, columnIndex, it.COLUMN);
             }
             catch { }
             g.Restore(state);
@@ -709,13 +713,13 @@ namespace AntdUI
                 g.SetClip(it.RECT, CombineMode.Intersect);
                 text.Print(g, ColorScheme, font, fore, enable);
             }
-            if (dragHeader != null && dragHeader.enable && dragHeader.i == it.COLUMN.INDEX_REAL) g.Fill(Colour.FillSecondary.Get(nameof(Table), ColorScheme), it.RECT);
-            if (it.ROW.CanExpand && it.ROW.KeyTreeINDEX == columnIndex) PaintItemArrow(g, it, enable, fore);
+            if (dragHeader != null && dragHeader.enable && dragHeader.i == it.COLUMN.INDEX_REAL) g.Fill(Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), it.RECT);
+            if (it.ROW.CanExpand) PaintItemArrow(g, it, enable, fore);
         }
         void PaintItemFocus(Canvas g, CELL it, bool enable)
         {
-            if (focusedCell == null) return;
-            if (it == focusedCell)
+            if (focusedxy == null) return;
+            if (it.INDEX == focusedxy[0] && it.ROW.INDEX == focusedxy[1])
             {
                 var style = CellFocusedStyle ?? Config.DefaultCellFocusedStyle;
                 if (style == TableCellFocusedStyle.None) return;
@@ -724,14 +728,14 @@ namespace AntdUI
                 switch (style)
                 {
                     case TableCellFocusedStyle.Solid:
-                        g.Fill(CellFocusedBg ?? Colour.BgBase.Get(nameof(Table), ColorScheme), it.RECT);
-                        using (var pen = PaintItemFocus(it, false, (int)(Config.Dpi * 2)))
+                        g.Fill(CellFocusedBg ?? Colour.BgBase.Get(ColorScheme, nameof(Table), Name), it.RECT);
+                        using (var pen = PaintItemFocus(it, false, (int)(Dpi * 2)))
                         {
                             g.Draw(pen, it.RECT);
                         }
                         break;
                     case TableCellFocusedStyle.Dash:
-                        using (var pen = PaintItemFocus(it, true, (int)(Config.Dpi)))
+                        using (var pen = PaintItemFocus(it, true, (int)(Dpi)))
                         {
                             g.Draw(pen, it.RECT);
                         }
@@ -742,7 +746,7 @@ namespace AntdUI
         }
         Pen PaintItemFocus(CELL it, bool dash, int bor)
         {
-            var pen = new Pen(CellFocusedBorder ?? Colour.PrimaryActive.Get(nameof(Table), ColorScheme), bor)
+            var pen = new Pen(CellFocusedBorder ?? Colour.PrimaryActive.Get(ColorScheme, nameof(Table), Name), bor)
             {
                 Alignment = PenAlignment.Inset
             };
@@ -756,8 +760,8 @@ namespace AntdUI
                 case TableTreeStyle.Button:
                     using (var path_check = Helper.RoundPath(it.ROW.RectExpand, check_radius))
                     {
-                        g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), path_check);
-                        g.Draw(Colour.BorderColor.Get(nameof(Table), ColorScheme), check_border, path_check);
+                        g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), path_check);
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Table), Name), check_border, path_check);
                         PaintArrow(g, it.ROW, fore, it.ROW.Expand ? 90 : 0);
                     }
                     break;
@@ -779,13 +783,13 @@ namespace AntdUI
             using (var pen = new Pen(color, check_border * 2))
             {
                 pen.StartCap = pen.EndCap = LineCap.Round;
-                g.DrawLines(pen, rect.TriangleLines(-1, .6F));
+                g.DrawLines(pen, rect.TriangleLinesVertical(-1, .6F));
             }
             g.Restore(state);
         }
         void PaintArrowFill(Canvas g, RowTemplate item, SolidBrush brush, float ArrowProg)
         {
-            g.FillPolygon(brush, PaintArrow(g, item, ArrowProg, out var state).TriangleLines(-1, 0.8F));
+            g.FillPolygon(brush, PaintArrow(g, item, ArrowProg, out var state).TriangleLinesVertical(-1, 0.8F));
             g.Restore(state);
         }
         Rectangle PaintArrow(Canvas g, RowTemplate item, float ArrowProg, out GraphicsState state)
@@ -799,7 +803,11 @@ namespace AntdUI
 
         #endregion
 
+        #endregion
+
         #region 浮动列
+
+        Rectangle? rect_fixed_L, rect_fixed_R, rect_fixed_B;
 
         void PaintFixedColumnL(Canvas g, Rectangle rect, Rectangle rect_read, RowTemplate[] rows, StyleRow[] shows, SolidBrush fore, SolidBrush foreEnable, SolidBrush forecolumn, Font column_font, int sx, int sy, float radius)
         {
@@ -808,16 +816,16 @@ namespace AntdUI
                 showFixedColumnL = true;
                 var last = shows[shows.Length - 1].row.cells[fixedColumnL[fixedColumnL.Count - 1]];
                 var rect_Fixed = new Rectangle(rect.X, rect_read.Y, last.RECT.Right, rect_read.Height);
-
+                rect_fixed_L = rect_Fixed;
                 GraphicsPath? clipath = null;
 
                 #region 绘制阴影
 
                 if (_gap.Width > 0)
                 {
-                    int gap = (int)(_gap.Width * Config.Dpi);
+                    int gap = (int)(_gap.Width * Dpi);
                     var rect_show = new Rectangle(last.RECT.Right - gap, rect_Fixed.Y, gap * 2, rect_Fixed.Height);
-                    using (var brush = new LinearGradientBrush(rect_show, Colour.FillSecondary.Get(nameof(Table), ColorScheme), Color.Transparent, 0F))
+                    using (var brush = new LinearGradientBrush(rect_show, Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), Color.Transparent, 0F))
                     {
                         g.Fill(brush, rect_show);
                     }
@@ -825,12 +833,12 @@ namespace AntdUI
                 if (radius > 0)
                 {
                     clipath = Helper.RoundPath(rect_Fixed, radius, true, false, false, !visibleHeader);
-                    g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), clipath);
+                    g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), clipath);
                     g.SetClip(clipath);
                 }
                 else
                 {
-                    g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), rect_Fixed);
+                    g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), rect_Fixed);
                     g.SetClip(rect_Fixed);
                 }
 
@@ -860,7 +868,7 @@ namespace AntdUI
                     }
                 }
 
-                if (fixedHeader)
+                if (visibleHeader && fixedHeader)
                 {
                     if (dividers.Length > 0) PaintBorder(g, dividers, 1);
                     g.ResetTransform();
@@ -883,8 +891,13 @@ namespace AntdUI
                 g.ResetClip();
                 clipath?.Dispose();
             }
-            else showFixedColumnL = false;
+            else
+            {
+                rect_fixed_L = null;
+                showFixedColumnL = false;
+            }
         }
+
         void PaintFixedColumnR(Canvas g, Rectangle rect, Rectangle rect_read, RowTemplate[] rows, StyleRow[] shows, SolidBrush fore, SolidBrush foreEnable, SolidBrush forecolumn, Font column_font, int sx, int sy, float radius)
         {
             if (fixedColumnR != null)
@@ -901,16 +914,16 @@ namespace AntdUI
                         int w = last.RECT.Right - first.RECT.Left + scrollBar;
 
                         var rect_Fixed = new Rectangle(rect_read.Right - w, rect_read.Y, w, rect_read.Height);
-
+                        rect_fixed_R = rect_Fixed;
                         GraphicsPath? clipath = null;
 
                         #region 绘制阴影
 
                         if (_gap.Width > 0)
                         {
-                            int gap = (int)(_gap.Width * Config.Dpi);
+                            int gap = (int)(_gap.Width * Dpi);
                             var rect_show = new Rectangle(rect_Fixed.X - gap, rect_Fixed.Y, gap * 2, rect_Fixed.Height);
-                            using (var brush = new LinearGradientBrush(rect_show, Color.Transparent, Colour.FillSecondary.Get(nameof(Table), ColorScheme), 0F))
+                            using (var brush = new LinearGradientBrush(rect_show, Color.Transparent, Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), 0F))
                             {
                                 g.Fill(brush, rect_show);
                             }
@@ -918,12 +931,12 @@ namespace AntdUI
                         if (radius > 0)
                         {
                             clipath = Helper.RoundPath(rect_Fixed, radius, false, true, !visibleHeader, false);
-                            g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), clipath);
+                            g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), clipath);
                             g.SetClip(clipath);
                         }
                         else
                         {
-                            g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), rect_Fixed);
+                            g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), rect_Fixed);
                             g.SetClip(rect_Fixed);
                         }
 
@@ -971,7 +984,7 @@ namespace AntdUI
                         g.ResetTransform();
                         g.TranslateTransform(0, -sy);
 
-                        if (fixedHeader)
+                        if (visibleHeader && fixedHeader)
                         {
                             if (dividers.Length > 0) PaintBorder(g, dividers, 1);
                             g.ResetTransform();
@@ -1001,10 +1014,15 @@ namespace AntdUI
                 }
                 catch { }
             }
-            else showFixedColumnR = false;
+            else
+            {
+                rect_fixed_R = null;
+                showFixedColumnR = false;
+            }
         }
 
-        void PaintFixedSummary(Canvas g, Rectangle rect, Rectangle rect_read, StyleRow[] shows, SolidBrush fore, SolidBrush foreEnable, SolidBrush forecolumn, Font column_font, int sx, int sy, float radius)
+        int sFixedB = -1;
+        int PaintFixedSummary(Canvas g, Rectangle rect, Rectangle rect_read, StyleRow[] shows, SolidBrush fore, SolidBrush foreEnable, SolidBrush forecolumn, Font column_font, int sx, int sy, float radius)
         {
             if (ScrollBar.ShowY)
             {
@@ -1013,19 +1031,20 @@ namespace AntdUI
                     var lastrow = shows[shows.Length - 1];
                     if (sy + rect_read.Height < lastrow.row.RECT.Bottom)
                     {
-                        int scrollBar = ScrollBar.ShowX ? ScrollBar.SIZE : 0, h = lastrow.row.RECT.Bottom - shows[0].row.RECT.Y, sFixedB = lastrow.row.RECT.Bottom - rect_read.Bottom + scrollBar;
+                        int scrollBar = ScrollBar.ShowX ? ScrollBar.SIZE : 0, h = lastrow.row.RECT.Bottom - shows[0].row.RECT.Y;
+                        int sFixedB = lastrow.row.RECT.Bottom - rect_read.Bottom + scrollBar;
 
                         var rect_Fixed = new Rectangle(rect_read.X, rect_read.Bottom - h - scrollBar, rect_read.Width, h + scrollBar);
-
+                        rect_fixed_B = rect_Fixed;
                         GraphicsPath? clipath = null;
 
                         #region 绘制阴影
 
                         if (_gap.Width > 0)
                         {
-                            int gap = (int)(_gap.Width * Config.Dpi);
+                            int gap = (int)(_gap.Width * Dpi);
                             var rect_show = new Rectangle(rect_Fixed.X, rect_Fixed.Y - gap, rect_Fixed.Width, gap * 2);
-                            using (var brush = new LinearGradientBrush(rect_show, Color.Transparent, Colour.FillSecondary.Get(nameof(Table), ColorScheme), 90F))
+                            using (var brush = new LinearGradientBrush(rect_show, Color.Transparent, Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), 90F))
                             {
                                 g.Fill(brush, rect_show);
                             }
@@ -1033,12 +1052,12 @@ namespace AntdUI
                         if (radius > 0 && !visibleHeader)
                         {
                             clipath = Helper.RoundPath(rect_Fixed, radius, false, false, true, true);
-                            g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), clipath);
+                            g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), clipath);
                             g.SetClip(clipath);
                         }
                         else
                         {
-                            g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), rect_Fixed);
+                            g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), rect_Fixed);
                             g.SetClip(rect_Fixed);
                         }
 
@@ -1072,10 +1091,14 @@ namespace AntdUI
                         }
                         g.ResetClip();
                         clipath?.Dispose();
+
+                        return sFixedB;
                     }
+                    else rect_fixed_B = null;
                 }
                 catch { }
             }
+            return -1;
         }
 
         void PaintFixedSummaryL(Canvas g, Rectangle rect, Rectangle rect_read, StyleRow[] shows, SolidBrush fore, SolidBrush foreEnable, SolidBrush forecolumn, Font column_font, int sx, int sy, float radius)
@@ -1094,9 +1117,9 @@ namespace AntdUI
 
                     if (_gap.Width > 0)
                     {
-                        int gap = (int)(_gap.Width * Config.Dpi);
+                        int gap = (int)(_gap.Width * Dpi);
                         var rect_show = new Rectangle(rect.X + last.RECT.Right - gap, rect_Fixed.Y, gap * 2, rect_Fixed.Height);
-                        using (var brush = new LinearGradientBrush(rect_show, Colour.FillSecondary.Get(nameof(Table), ColorScheme), Color.Transparent, 0F))
+                        using (var brush = new LinearGradientBrush(rect_show, Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), Color.Transparent, 0F))
                         {
                             g.Fill(brush, rect_show);
                         }
@@ -1105,12 +1128,12 @@ namespace AntdUI
                     {
                         clipath = Helper.RoundPath(rect_Fixed, radius, true, false, false, !visibleHeader);
                         g.SetClip(clipath, CombineMode.Intersect);
-                        g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), clipath);
+                        g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), clipath);
                     }
                     else
                     {
                         g.SetClip(rect_Fixed, CombineMode.Intersect);
-                        g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), rect_Fixed);
+                        g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), rect_Fixed);
                     }
 
                     #endregion
@@ -1155,9 +1178,9 @@ namespace AntdUI
 
                         if (_gap.Width > 0)
                         {
-                            int gap = (int)(_gap.Width * Config.Dpi);
+                            int gap = (int)(_gap.Width * Dpi);
                             var rect_show = new Rectangle(rect_Fixed.X - gap, rect_Fixed.Y, gap * 2, rect_Fixed.Height);
-                            using (var brush = new LinearGradientBrush(rect_show, Color.Transparent, Colour.FillSecondary.Get(nameof(Table), ColorScheme), 0F))
+                            using (var brush = new LinearGradientBrush(rect_show, Color.Transparent, Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), 0F))
                             {
                                 g.Fill(brush, rect_show);
                             }
@@ -1166,12 +1189,12 @@ namespace AntdUI
                         {
                             clipath = Helper.RoundPath(rect_Fixed, radius, false, true, !visibleHeader, false);
                             g.SetClip(clipath, CombineMode.Intersect);
-                            g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), clipath);
+                            g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), clipath);
                         }
                         else
                         {
                             g.SetClip(rect_Fixed, CombineMode.Intersect);
-                            g.Fill(Colour.BgBase.Get(nameof(Table), ColorScheme), rect_Fixed);
+                            g.Fill(Colour.BgBase.Get(ColorScheme, nameof(Table), Name), rect_Fixed);
                         }
 
                         #endregion
@@ -1206,8 +1229,6 @@ namespace AntdUI
 
         #endregion
 
-        #endregion
-
         #region 合并
 
         void PaintMergeCells(Canvas g, RowTemplate[] rows, int sx, int sy, SolidBrush fore, SolidBrush foreEnable)
@@ -1216,7 +1237,7 @@ namespace AntdUI
             var state = g.Save();
             if (visibleHeader && fixedHeader) g.SetClip(new Rectangle(rect_read.X, rect_read.Y + rows[0].Height, rect_read.Width, rect_read.Height));
             g.TranslateTransform(-sx, -sy);
-            using (var bg = new SolidBrush(Colour.BgBase.Get(nameof(Table), ColorScheme)))
+            using (var bg = new SolidBrush(Colour.BgBase.Get(ColorScheme, nameof(Table), Name)))
             {
                 foreach (var it in CellRanges) PaintMergeCells(g, rows, bg, fore, foreEnable, it);
             }
@@ -1264,16 +1285,27 @@ namespace AntdUI
             var state = g.Save();
             var rect = RectMergeCells(first, last, out bool fz);
             g.Fill(bg, rect);
-            if (first.ROW.AnimationHover) g.Fill(Helper.ToColorN(first.ROW.AnimationHoverValue, Colour.FillSecondary.Get(nameof(Table), ColorScheme)), rect);
-            else if (first.ROW.Hover) g.Fill(rowHoverBg ?? Colour.FillSecondary.Get(nameof(Table), ColorScheme), rect);
+            if (first.ROW.AnimationHover) g.Fill(Helper.ToColorN(first.ROW.AnimationHoverValue, Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name)), rect);
+            else if (first.ROW.Hover) g.Fill(rowHoverBg ?? Colour.FillSecondary.Get(ColorScheme, nameof(Table), Name), rect);
 
             PaintBorder(g, rect);
 
             #region 绘制内容
 
-            if (fz) g.TranslateTransform((rect.Width - first.RECT.Width) / 2, -(rect.Height - first.RECT.Height) / 2);
-            else g.TranslateTransform((rect.Width - first.RECT.Width) / 2, (rect.Height - first.RECT.Height) / 2);
-
+            if (first.mergeW != rect.Width)
+            {
+                first.mergeW = rect.Width;
+                int ox = 0;
+                if (first.COLUMN.EqualsKeyTree(TreeKey))
+                {
+                    int treesize = (int)(TreeButtonSize * Dpi), gapTree = (int)(_gapTree * Dpi);
+                    ox = gapTree * first.ROW.Depth + (gapTree + treesize);
+                }
+                var gap = new TableGaps(_gap, Dpi);
+                var font_size = g.MeasureString(Config.NullText, Font);
+                var text_size = first.GetSize(g, Font, font_size, rect.Width, gap);
+                first.SetSize(g, Font, text_size, rect, ox, gap);
+            }
             PaintItem(g, first, first.ROW.ENABLE, first.ROW.ENABLE ? fore : foreEnable);
 
             #endregion
@@ -1297,11 +1329,6 @@ namespace AntdUI
 
         #region 复选/选择框
 
-        internal static RectangleF PaintBlock(RectangleF rect)
-        {
-            float size = rect.Height * 0.2F, size2 = size * 2F;
-            return new RectangleF(rect.X + size, rect.Y + size, rect.Width - size2, rect.Height - size2);
-        }
         internal static PointF[] PaintArrow(RectangleF rect)
         {
             float size = rect.Height * 0.15F, size2 = rect.Height * 0.2F, size3 = rect.Height * 0.26F;
@@ -1316,11 +1343,11 @@ namespace AntdUI
 
         #region 边框
 
-        void PaintBorder(Canvas g, int[][] dividers) => PaintBorder(g, dividers, 0);
-        void PaintBorder(Canvas g, int[][] dividers, int s)
+        void PaintBorder(Canvas g, DividerList[] dividers) => PaintBorder(g, dividers, 0);
+        void PaintBorder(Canvas g, DividerList[] dividers, int s)
         {
-            var color = borderColor ?? Colour.BorderColor.Get(nameof(Table), ColorScheme);
-            float border = BorderCellWidth * Config.Dpi;
+            var color = borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Table), Name);
+            float border = BorderCellWidth * Dpi;
             switch (BorderRenderMode)
             {
                 case TableBorderMode.None:
@@ -1328,7 +1355,7 @@ namespace AntdUI
                     for (int i = s; i < dividers.Length; i++)
                     {
                         var divider = dividers[i];
-                        g.Fill(color, new Rectangle(divider[1], divider[0] - sp2, divider[2], sp));
+                        g.Fill(color, new Rectangle(divider.b, divider.a - sp2, divider.c, sp));
                     }
                     break;
                 case TableBorderMode.Pen:
@@ -1337,7 +1364,7 @@ namespace AntdUI
                         for (int i = s; i < dividers.Length; i++)
                         {
                             var divider = dividers[i];
-                            g.DrawLine(pen, divider[1], divider[0], divider[1] + divider[2], divider[0]);
+                            g.DrawLine(pen, divider.b, divider.a, divider.b + divider.c, divider.a);
                         }
                     }
                     break;
@@ -1346,65 +1373,62 @@ namespace AntdUI
                     for (int i = s; i < dividers.Length; i++)
                     {
                         var divider = dividers[i];
-                        g.Fill(color, new RectangleF(divider[1], divider[0] - half, divider[2], border));
+                        g.Fill(color, new RectangleF(divider.b, divider.a - half, divider.c, border));
                     }
                     break;
             }
         }
-        void PaintBorder(Canvas g, int[] it)
+        void PaintBorder(Canvas g, DividerList it)
         {
-            var color = borderColor ?? Colour.BorderColor.Get(nameof(Table), ColorScheme);
-            float border = BorderCellWidth * Config.Dpi;
+            var color = borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Table), Name);
+            float border = BorderCellWidth * Dpi;
             switch (BorderRenderMode)
             {
                 case TableBorderMode.None:
                     int sp = (int)border, sp2 = sp / 2;
-                    g.Fill(color, new Rectangle(it[1], it[0] - sp2, it[2], sp));
+                    g.Fill(color, new Rectangle(it.b, it.a - sp2, it.c, sp));
                     break;
                 case TableBorderMode.Pen:
                     using (var pen = new Pen(color, border))
                     {
-                        g.DrawLine(pen, it[1], it[0], it[1] + it[2], it[0]);
+                        g.DrawLine(pen, it.b, it.a, it.b + it.c, it.a);
                     }
                     break;
                 case TableBorderMode.High:
                     var half = border / 2F;
-                    g.Fill(color, new RectangleF(it[1], it[0] - half, it[2], border));
+                    g.Fill(color, new RectangleF(it.b, it.a - half, it.c, border));
                     break;
             }
         }
-        void PaintBorderH(Canvas g, int[][] dividers)
+        void PaintBorderH(Canvas g, DividerList[] dividers)
         {
-            var color = borderColor ?? Colour.BorderColor.Get(nameof(Table), ColorScheme);
-            float border = BorderCellWidth * Config.Dpi;
+            var color = borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Table), Name);
+            float border = BorderCellWidth * Dpi;
             switch (BorderRenderMode)
             {
                 case TableBorderMode.None:
                     int sp = (int)border, sp2 = sp / 2;
                     foreach (var it in dividers)
                     {
-                        g.Fill(color, new RectangleF(it[0] - sp2, it[1], sp, it[2]));
+                        g.Fill(color, new RectangleF(it.a - sp2, it.b, sp, it.c));
                     }
                     break;
                 case TableBorderMode.Pen:
                     using (var pen = new Pen(color, border))
                     {
-                        foreach (var it in dividers) g.DrawLine(pen, it[0], it[1], it[0], it[1] + it[2]);
+                        foreach (var it in dividers) g.DrawLine(pen, it.a, it.b, it.a, it.b + it.c);
                     }
                     break;
                 case TableBorderMode.High:
                     var half = border / 2F;
-                    foreach (var it in dividers)
-                    {
-                        g.Fill(color, new RectangleF(it[0] - half, it[1], border, it[2]));
-                    }
+                    foreach (var it in dividers) g.Fill(color, new RectangleF(it.a - half, it.b, border, it.c));
                     break;
             }
         }
         void PaintBorder(Canvas g, Rectangle rect)
         {
-            var color = borderColor ?? Colour.BorderColor.Get(nameof(Table), ColorScheme);
-            float border = BorderCellWidth * Config.Dpi;
+            var color = borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Table), Name);
+            float border = BorderCellWidth * Dpi;
             switch (BorderRenderMode)
             {
                 case TableBorderMode.None:
@@ -1432,7 +1456,7 @@ namespace AntdUI
 
         #endregion
 
-        void PaintEmpty(Canvas g, Rectangle rect, int offset) => g.PaintEmpty(rect, Font, fore ?? Colour.Text.Get(nameof(Table), "emptyFore", ColorScheme), EmptyText, EmptyImage, offset, StringFormat(ColumnAlign.Center));
+        void PaintEmpty(Canvas g, Rectangle rect, int offset) => g.PaintEmpty(rect, Font, fore ?? Colour.Text.GetSymbol(ColorScheme, "emptyFore", nameof(Table), Name), EmptyText, EmptyImage, offset, StringFormat(ColumnAlign.Center));
 
         public static FormatFlags StringFormat(Column column, bool isColumn) => isColumn ? StringFormat(column.ColAlign ?? column.Align, LineBreak: column.ColBreak) : StringFormat(column);
 
@@ -1508,8 +1532,8 @@ namespace AntdUI
                 }
                 if (radius > 0)
                 {
-                    if (visibleHeader) return Helper.RoundPath(rect_divider, radius * Config.Dpi, true, true, false, false);
-                    else return Helper.RoundPath(rect_divider, radius * Config.Dpi);
+                    if (visibleHeader) return Helper.RoundPath(rect_divider, radius * Dpi, true, true, false, false);
+                    else return Helper.RoundPath(rect_divider, radius * Dpi);
                 }
                 var path = new GraphicsPath();
                 path.AddRectangle(rect_divider);

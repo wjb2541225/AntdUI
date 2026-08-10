@@ -52,11 +52,6 @@ namespace AntdUI.Svg
         }
 
         /// <summary>
-        /// Gets or sets the Pixels Per Inch of the rendered image.
-        /// </summary>
-        public static int Ppi { get => (int)(Config.Dpi * 96); }
-
-        /// <summary>
         /// Retrieves the <see cref="SvgElement"/> with the specified ID.
         /// </summary>
         /// <param name="id">A <see cref="string"/> containing the ID of the element to find.</param>
@@ -102,8 +97,10 @@ namespace AntdUI.Svg
             if (string.IsNullOrEmpty(svg)) return null;
             using (var strReader = new System.IO.StringReader(svg))
             {
-                var reader = new SvgTextReader(strReader);
-                reader.WhitespaceHandling = WhitespaceHandling.None;
+                var reader = new SvgTextReader(strReader)
+                {
+                    WhitespaceHandling = WhitespaceHandling.None
+                };
                 return Open<T>(reader);
             }
         }
@@ -116,8 +113,10 @@ namespace AntdUI.Svg
         public static T? Open<T>(Stream stream) where T : SvgDocument, new()
         {
             // Don't close the stream via a dispose: that is the client's job.
-            var reader = new SvgTextReader(stream);
-            reader.WhitespaceHandling = WhitespaceHandling.None;
+            var reader = new SvgTextReader(stream)
+            {
+                WhitespaceHandling = WhitespaceHandling.None
+            };
             return Open<T>(reader);
         }
 

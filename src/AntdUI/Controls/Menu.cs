@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -34,21 +21,21 @@ namespace AntdUI
     [ToolboxItem(true)]
     [DefaultProperty("Items")]
     [DefaultEvent("SelectChanged")]
-    public class Menu : IControl, SubLayeredForm
+    public class Menu : IControl, SubLayeredForm, IEventListener
     {
         #region 属性
 
         /// <summary>
         /// 悬停背景颜色
         /// </summary>
-        [Description("悬停背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackHover { get; set; }
 
         /// <summary>
         /// 激活背景颜色
         /// </summary>
-        [Description("激活背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackActive { get; set; }
 
@@ -56,7 +43,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -73,7 +60,7 @@ namespace AntdUI
         /// <summary>
         /// 激活字体颜色
         /// </summary>
-        [Description("激活字体颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活字体颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ForeActive { get; set; }
 
@@ -81,7 +68,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -98,7 +85,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角样式
         /// </summary>
-        [Description("圆角样式"), Category("外观"), DefaultValue(false)]
+        [Description("圆角样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Round
         {
             get => round;
@@ -114,13 +101,38 @@ namespace AntdUI
         /// <summary>
         /// 焦点模式
         /// </summary>
-        [Description("焦点模式"), Category("外观"), DefaultValue(TFocusMode.None)]
+        [Description("焦点模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFocusMode.None)]
         public TFocusMode FocusMode { get; set; } = TFocusMode.None;
+
+        /// <summary>
+        /// 焦点模式颜色
+        /// </summary>
+        [Description("焦点模式颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? FocusModeColor { get; set; }
+
+        /// <summary>
+        /// 焦点模式大小
+        /// </summary>
+        [Description("焦点模式大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(2)]
+        public int FocusModeSize { get; set; } = 2;
+
+        /// <summary>
+        /// 焦点模式大小比例
+        /// </summary>
+        [Description("焦点模式大小比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public float? FocusModeSizeRatio { get; set; }
+
+        /// <summary>
+        /// 焦点模式方向
+        /// </summary>
+        [Description("焦点模式方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlignMini.None)]
+        public TAlignMini FocusModeAlign { get; set; } = TAlignMini.None;
 
         /// <summary>
         /// 色彩模式
         /// </summary>
-        [Obsolete("use ColorScheme"), Description("色彩模式"), Category("外观"), DefaultValue(TAMode.Auto)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete("use ColorScheme"), Description("色彩模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAMode.Auto)]
         public TAMode Theme
         {
             get => ColorScheme;
@@ -131,7 +143,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(null)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? Gap
         {
             get => _gap;
@@ -148,7 +160,7 @@ namespace AntdUI
         /// <summary>
         /// 图标与文字间距比例
         /// </summary>
-        [Description("图标与文字间距比例"), Category("外观"), DefaultValue(null)]
+        [Description("图标与文字间距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? IconGap
         {
             get => icongap;
@@ -165,7 +177,7 @@ namespace AntdUI
         /// <summary>
         /// 菜单项外间距
         /// </summary>
-        [Description("菜单项外间距"), Category("外观"), DefaultValue(null)]
+        [Description("菜单项外间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? itemMargin
         {
             get => _itemMargin;
@@ -182,7 +194,7 @@ namespace AntdUI
         /// <summary>
         /// 缩进宽度
         /// </summary>
-        [Description("缩进宽度"), Category("外观"), DefaultValue(null)]
+        [Description("缩进宽度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? InlineIndent
         {
             get => _inlineIndent;
@@ -199,7 +211,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(1.2F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(1.2F)]
         public float IconRatio
         {
             get => iconratio;
@@ -216,7 +228,7 @@ namespace AntdUI
         /// <summary>
         /// 箭头比例
         /// </summary>
-        [Description("箭头比例"), Category("外观"), DefaultValue(null)]
+        [Description("箭头比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public float? ArrowRatio
         {
             get => arrowRatio;
@@ -233,7 +245,7 @@ namespace AntdUI
         /// <summary>
         /// 菜单类型
         /// </summary>
-        [Description("菜单类型"), Category("外观"), DefaultValue(TMenuMode.Inline)]
+        [Description("菜单类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TMenuMode.Inline)]
         public TMenuMode Mode
         {
             get => mode;
@@ -247,19 +259,28 @@ namespace AntdUI
         }
 
         /// <summary>
+        /// 菜单类型是否需要弹出下拉
+        /// </summary>
+        public bool IsModeNeedDropDown => IsModeHorizontal || mode == TMenuMode.Vertical;
+        /// <summary>
+        /// 菜单类型是否横向
+        /// </summary>
+        public bool IsModeHorizontal => mode == TMenuMode.Horizontal || mode == TMenuMode.Horizontal_Arrow;
+
+        /// <summary>
         /// 触发下拉的行为
         /// </summary>
-        [Description("触发下拉的行为"), Category("行为"), DefaultValue(Trigger.Hover)]
+        [Description("触发下拉的行为"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(Trigger.Hover)]
         public Trigger Trigger { get; set; } = Trigger.Hover;
 
         bool indent = false;
         /// <summary>
         /// 常规缩进
         /// </summary>
-        [Description("常规缩进"), Category("外观"), DefaultValue(false)]
+        [Description("常规缩进"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Indent
         {
-            get { return indent; }
+            get => indent;
             set
             {
                 if (indent == value) return;
@@ -273,7 +294,7 @@ namespace AntdUI
         /// <summary>
         /// 只保持一个子菜单的展开
         /// </summary>
-        [Description("只保持一个子菜单的展开"), Category("外观"), DefaultValue(false)]
+        [Description("只保持一个子菜单的展开"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Unique
         {
             get => unique;
@@ -306,20 +327,20 @@ namespace AntdUI
         /// <summary>
         /// 显示子菜单背景
         /// </summary>
-        [Description("显示子菜单背景"), Category("外观"), DefaultValue(false)]
+        [Description("显示子菜单背景"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ShowSubBack { get; set; }
 
         /// <summary>
         /// 自动折叠
         /// </summary>
-        [Description("自动折叠"), Category("外观"), DefaultValue(false)]
+        [Description("自动折叠"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool AutoCollapse { get; set; }
 
         bool collapsed = false;
         /// <summary>
         /// 是否折叠
         /// </summary>
-        [Description("是否折叠"), Category("外观"), DefaultValue(false)]
+        [Description("是否折叠"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Collapsed
         {
             get => collapsed;
@@ -327,7 +348,6 @@ namespace AntdUI
             {
                 if (collapsed == value) return;
                 collapsed = value;
-                ChangeList(true);
                 OnPropertyChanged(nameof(Collapsed));
             }
         }
@@ -336,20 +356,20 @@ namespace AntdUI
         /// 超出文字提示配置
         /// </summary>
         [Browsable(false)]
-        [Description("超出文字提示配置"), Category("行为"), DefaultValue(null)]
+        [Description("超出文字提示配置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         public TooltipConfig? TooltipConfig { get; set; }
 
         /// <summary>
         /// 鼠标右键控制
         /// </summary>
-        [Description("鼠标右键控制"), Category("交互"), DefaultValue(true)]
+        [Description("鼠标右键控制"), Category(nameof(CategoryAttribute.Action)), DefaultValue(true)]
         public bool MouseRightCtrl { get; set; } = true;
 
         bool scrollBarBlock = false;
         /// <summary>
         /// 滚动条遮挡
         /// </summary>
-        [Description("滚动条遮挡"), Category("外观"), DefaultValue(false)]
+        [Description("滚动条遮挡"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ScrollBarBlock
         {
             get => scrollBarBlock;
@@ -367,20 +387,26 @@ namespace AntdUI
         /// <summary>
         /// 下拉边距
         /// </summary>
-        [Description("下拉边距"), Category("外观"), DefaultValue(typeof(Size), "12, 5")]
-        public Size DropDownPadding { get; set; } = new Size(12, 5);
+        [Description("下拉边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "16, 10")]
+        public Size DropDownPadding { get; set; } = new Size(16, 10);
 
         /// <summary>
         /// 下拉图标比例
         /// </summary>
-        [Description("下拉图标比例"), Category("外观"), DefaultValue(0.7F)]
+        [Description("下拉图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0.7F)]
         public float DropIconRatio { get; set; } = 0.7F;
 
         /// <summary>
         /// 下拉图标边距比例
         /// </summary>
-        [Description("下拉图标边距比例"), Category("外观"), DefaultValue(0.25F)]
+        [Description("下拉图标边距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0.25F)]
         public float DropIconGap { get; set; } = 0.25F;
+
+        /// <summary>
+        /// 下拉菜单偏移量（水平模式下子菜单相对主菜单的偏移）
+        /// </summary>
+        [Description("下拉菜单偏移量"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "0, 0")]
+        public Size DropDownOffset { get; set; } = new Size(0, 0);
 
         #endregion
 
@@ -476,7 +502,7 @@ namespace AntdUI
         /// 菜单集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("菜单集合"), Category("数据")]
+        [Description("菜单集合"), Category(nameof(CategoryAttribute.Data))]
         public MenuItemCollection Items
         {
             get
@@ -488,7 +514,7 @@ namespace AntdUI
         }
 
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -515,6 +541,7 @@ namespace AntdUI
         {
             base.OnHandleCreated(e);
             ChangeList();
+            this.AddListener();
             var item = GetSelectItem(out var sub);
             if (item != null)
             {
@@ -577,6 +604,16 @@ namespace AntdUI
             base.OnSizeChanged(e);
         }
 
+        public void HandleEvent(EventType id, object? tag)
+        {
+            switch (id)
+            {
+                case EventType.LANG:
+                    ChangeList();
+                    break;
+            }
+        }
+
         int collapseWidth = 0, collapsedWidth = 0;
         /// <summary>
         /// 展开之前宽度
@@ -608,15 +645,27 @@ namespace AntdUI
                 var _rect = ClientRectangle;
                 var rect = _rect.PaddingRect(Padding);
                 int x = 0, y = 0, icon_count = 0;
-                Helper.GDI(g =>
+                this.GDI(g =>
                 {
                     var size = g.MeasureString(Config.NullText, Font);
                     int icon_size = (int)(size.Height * iconratio);
-                    int gap = (_gap.HasValue ? (int)(_gap.Value * Config.Dpi) : (int)(size.Height * .8F)), gap2 = gap * 2, divider = (int)Config.Dpi, sp = (_itemMargin.HasValue ? (int)(_itemMargin.Value * Config.Dpi) : (int)(size.Height * .2F)), sp2 = sp * 2, height = size.Height + gap2;
-                    int inlineIndent = (_inlineIndent.HasValue ? (int)(_inlineIndent.Value * Config.Dpi) : (int)(size.Height * 1.2F)), iconsp = (icongap.HasValue ? (int)(icongap.Value * Config.Dpi) : size.Height / 2);
+                    int gap = (_gap.HasValue ? (int)(_gap.Value * Dpi) : (int)(size.Height * .8F)), gap2 = gap * 2, divider = (int)Dpi, sp = (_itemMargin.HasValue ? (int)(_itemMargin.Value * Dpi) : (int)(size.Height * .2F)), sp2 = sp * 2, height = size.Height + gap2;
+                    int inlineIndent = (_inlineIndent.HasValue ? (int)(_inlineIndent.Value * Dpi) : (int)(size.Height * 1.2F)), iconsp = (icongap.HasValue ? (int)(icongap.Value * Dpi) : size.Height / 2);
                     if (mode == TMenuMode.Horizontal)
                     {
                         ChangeListHorizontal(rect, g, items!, ref x, icon_size, gap, gap2, divider, sp, sp2, iconsp);
+                        scroll_show = x > rect.Width;
+                        if (scroll_show)
+                        {
+                            rect_r = new Rectangle(rect.Right - rect.Height, rect.Y, rect.Height, rect.Height);
+                            int ico_size = (int)(rect_r.Height * .6F), ico_xy = (rect_r.Height - ico_size) / 2;
+                            rect_r_ico = new Rectangle(rect_r.X + ico_xy, rect_r.Y + ico_xy, ico_size, ico_size);
+                        }
+                    }
+                    else if (mode == TMenuMode.Horizontal_Arrow)
+                    {
+                        int arrow_size = arrowRatio.HasValue ? (int)(size.Height * arrowRatio.Value) : icon_size;
+                        ChangeListHorizontalArrow(rect, g, items!, ref x, icon_size, arrow_size, gap, gap2, divider, sp, sp2, iconsp);
                         scroll_show = x > rect.Width;
                         if (scroll_show)
                         {
@@ -636,7 +685,6 @@ namespace AntdUI
                         }
                         else
                         {
-                            scrollBarBlock = true;
                             int arrow_size = arrowRatio.HasValue ? (int)(size.Height * arrowRatio.Value) : icon_size, scx;
                             if (ScrollBar.Show && scrollBarBlock)
                             {
@@ -659,10 +707,9 @@ namespace AntdUI
                         if (collapsed) ChangeUTitle(items!);
                     }
                 });
-                ScrollBar.SetVrSize(y + Padding.Vertical);
-                ScrollBar.SizeChange(_rect);
+                ScrollBar.SetVrSize(y + Padding.Vertical, _rect);
+                if (print) Invalidate();
             }
-            if (print) Invalidate();
         }
 
         int ChangeListY(Rectangle rect, MenuItemCollection items, ref int icon_count, int height, int sp)
@@ -689,7 +736,7 @@ namespace AntdUI
                 it.Index = i;
                 i++;
                 it.PARENT = this;
-                it.PARENTITEM = it.ParentItem = Parent;
+                it.ParentItem = Parent;
                 if (it is MenuDividerItem)
                 {
                     it.SetRectDivider(new Rectangle(rect.X, rect.Y + y, rect.Width, divider));
@@ -724,7 +771,8 @@ namespace AntdUI
                                 if ((it.Expand || it.ExpandThread) && it.ExpandProg > 0)
                                 {
                                     it.ExpandHeight = y - y_item;
-                                    y = y_item + (int)Math.Ceiling(it.ExpandHeight * it.ExpandProg);
+                                    it.ExpandRHeight = (int)(it.ExpandHeight * it.ExpandProg);
+                                    y = y_item + it.ExpandRHeight;
                                 }
                                 else if (!it.Expand) y = y_item;
                             }
@@ -742,7 +790,7 @@ namespace AntdUI
                 it.Index = i;
                 i++;
                 it.PARENT = this;
-                it.PARENTITEM = it.ParentItem = Parent;
+                it.ParentItem = Parent;
                 if (it is MenuDividerItem)
                 {
                     it.SetRectDivider(new Rectangle(rect.X, rect.Y + y, rect.Width, divider));
@@ -778,7 +826,8 @@ namespace AntdUI
                                 if ((it.Expand || it.ExpandThread) && it.ExpandProg > 0)
                                 {
                                     it.ExpandHeight = y - y_item;
-                                    y = y_item + (int)Math.Ceiling(it.ExpandHeight * it.ExpandProg);
+                                    it.ExpandRHeight = (int)(it.ExpandHeight * it.ExpandProg);
+                                    y = y_item + it.ExpandRHeight;
                                 }
                                 else if (!it.Expand) y = y_item;
                             }
@@ -822,6 +871,65 @@ namespace AntdUI
                         if (it.Visible) x += size + sp;
                     }
                 }
+                if (it.items?.Count > 0) it.SubY = rect.Height; // 子菜单从主菜单底部开始
+            }
+        }
+        void ChangeListHorizontalArrow(Rectangle rect, Canvas g, MenuItemCollection items, ref int x, int icon_size, int arrow_size, int gap, int gap2, int divider, int sp, int sp2, int iconsp)
+        {
+            int i = 0;
+            foreach (var it in items)
+            {
+                it.Index = i;
+                i++;
+                it.PARENT = this;
+                if (it is MenuDividerItem)
+                {
+                    it.SetRectDivider(new Rectangle(rect.X + x, rect.Y, divider, rect.Height));
+                    x += divider + sp;
+                }
+                else
+                {
+                    int width = g.MeasureText(it.Text, it.Font ?? Font).Width;
+                    if (it.HasIcon)
+                    {
+                        int tmp = icon_size + iconsp;
+                        int usew = gap2 + tmp, y = (rect.Height - icon_size) / 2;
+                        if (it.CanExpand)
+                        {
+                            int size = width + gap2 + tmp + sp + arrow_size / 2;
+                            var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
+                            it.ico_rect = new Rectangle(_rect.X + gap, _rect.Y + y, icon_size, icon_size);
+                            it.SetRect(_rect, new Rectangle(_rect.X + gap + tmp, _rect.Y, _rect.Width - usew, _rect.Height), arrow_size, sp);
+                            if (it.Visible) x += size + sp;
+                        }
+                        else
+                        {
+                            int size = width + gap2 + tmp;
+                            var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
+                            it.ico_rect = new Rectangle(_rect.X + gap, _rect.Y + y, icon_size, icon_size);
+                            it.SetRectNoArr(_rect, new Rectangle(_rect.X + gap + tmp, _rect.Y, _rect.Width - usew, _rect.Height));
+                            if (it.Visible) x += size + sp;
+                        }
+                    }
+                    else
+                    {
+                        if (it.CanExpand)
+                        {
+                            int size = width + gap2 + sp + arrow_size / 2;
+                            var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
+                            it.SetRect(_rect, new Rectangle(_rect.X + gap, _rect.Y, _rect.Width - gap2, _rect.Height), arrow_size, sp);
+                            if (it.Visible) x += size + sp;
+                        }
+                        else
+                        {
+                            int size = width + gap2;
+                            var _rect = new Rectangle(rect.X + x, rect.Y, size, rect.Height);
+                            it.SetRectNoArr(_rect, new Rectangle(_rect.X + gap, _rect.Y, _rect.Width - gap2, _rect.Height));
+                            if (it.Visible) x += size + sp;
+                        }
+                    }
+                }
+                if (it.items?.Count > 0) it.SubY = rect.Height; // 子菜单从主菜单底部开始
             }
         }
 
@@ -851,23 +959,23 @@ namespace AntdUI
             if (scroll_show) g.SetClip(new Rectangle(e.Rect.X, e.Rect.Y, rect_r.Right - rect_r.Height, e.Rect.Height));
             int sy = ScrollBar.Value;
             g.TranslateTransform(0, -sy);
-            Color color_fore, color_fore_active, fore_enabled = Colour.TextQuaternary.Get(nameof(Menu), "foreDisabled", ColorScheme), back_hover, back_active;
+            Color color_fore, color_fore_active, fore_enabled = Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Menu), Name), back_hover, back_active;
             if (Config.IsDark || ColorScheme == TAMode.Dark)
             {
-                color_fore = fore ?? Colour.Text.Get(nameof(Menu), ColorScheme);
-                back_hover = color_fore_active = ForeActive ?? Colour.TextBase.Get(nameof(Menu), ColorScheme);
-                back_active = BackActive ?? Colour.Primary.Get(nameof(Menu), ColorScheme);
+                color_fore = fore ?? Colour.Text.Get(ColorScheme, nameof(Menu), Name);
+                back_hover = color_fore_active = ForeActive ?? Colour.TextBase.Get(ColorScheme, nameof(Menu), Name);
+                back_active = BackActive ?? Colour.Primary.Get(ColorScheme, nameof(Menu), Name);
             }
             else
             {
-                color_fore = fore ?? Colour.TextBase.Get(nameof(Menu), ColorScheme);
-                color_fore_active = ForeActive ?? Colour.Primary.Get(nameof(Menu), ColorScheme);
-                back_hover = BackHover ?? Colour.FillSecondary.Get(nameof(Menu), ColorScheme);
-                back_active = BackActive ?? Colour.PrimaryBg.Get(nameof(Menu), ColorScheme);
+                color_fore = fore ?? Colour.TextBase.Get(ColorScheme, nameof(Menu), Name);
+                color_fore_active = ForeActive ?? Colour.Primary.Get(ColorScheme, nameof(Menu), Name);
+                back_hover = BackHover ?? Colour.FillSecondary.Get(ColorScheme, nameof(Menu), Name);
+                back_active = BackActive ?? Colour.PrimaryBg.Get(ColorScheme, nameof(Menu), Name);
             }
-            float _radius = radius * Config.Dpi;
-            using (var sub_bg = new SolidBrush(Colour.FillQuaternary.Get(nameof(Menu), ColorScheme)))
-            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(Menu), ColorScheme)))
+            float _radius = radius * Dpi;
+            using (var sub_bg = new SolidBrush(Colour.FillQuaternary.Get(ColorScheme, nameof(Menu), Name)))
+            using (var brush_split = new SolidBrush(Colour.Split.Get(ColorScheme, nameof(Menu), Name)))
             {
                 PaintItems(g, e.Rect, sy, items, color_fore, color_fore_active, fore_enabled, back_hover, back_active, _radius, sub_bg, brush_split);
             }
@@ -882,7 +990,7 @@ namespace AntdUI
                         g.Fill(back_hover, path);
                     }
                 }
-                SvgExtend.GetImgExtend(g, "EllipsisOutlined", rect_r_ico, color_fore);
+                g.Svg("EllipsisOutlined", rect_r_ico, color_fore);
             }
             ScrollBar.Paint(g);
             base.OnDraw(e);
@@ -892,18 +1000,18 @@ namespace AntdUI
         {
             foreach (var it in items)
             {
-                it.show = it.Show && it.Visible && it.rect.Y > sy - rect.Height - (it.Expand ? it.SubHeight : 0) && it.rect.Bottom < sy + rect.Height + it.rect.Height;
+                it.show = it.Show && it.Visible && rect.IsItemVisibleExpand(sy, it.rect, it.Expand, it.SubHeight);
                 if (it.show)
                 {
-                    if (it.Depth == -1) g.Fill(brush_split, it.Rect);
+                    if (it.Depth == -1) g.Fill(brush_split, it.rect);
                     else
                     {
                         PaintIt(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
                         if (!collapsed && (it.Expand || it.ExpandThread) && it.items != null && it.items.Count > 0)
                         {
-                            if (ShowSubBack) g.Fill(sub_bg, new RectangleF(rect.X, it.SubY, rect.Width, it.SubHeight));
                             var state = g.Save();
                             if (it.ExpandThread) g.SetClip(new RectangleF(rect.X, it.rect.Bottom, rect.Width, it.ExpandHeight * it.ExpandProg));
+                            if (ShowSubBack) g.Fill(sub_bg, new RectangleF(rect.X, it.SubY, rect.Width, it.SubHeight));
                             PaintItemExpand(g, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius, brush_split);
                             g.Restore(state);
                         }
@@ -911,27 +1019,33 @@ namespace AntdUI
                 }
             }
         }
-        void PaintItemExpand(Canvas g, Rectangle rect, float sy, MenuItemCollection items, Color fore, Color fore_active, Color fore_enabled, Color back_hover, Color back_active, float radius, SolidBrush brush_split)
+        void PaintItemExpand(Canvas g, Rectangle rect, int sy, MenuItemCollection items, Color fore, Color fore_active, Color fore_enabled, Color back_hover, Color back_active, float radius, SolidBrush brush_split)
         {
             foreach (var it in items)
             {
-                it.show = it.Show && it.Visible && it.rect.Y > sy - rect.Height - (it.Expand ? it.SubHeight : 0) && it.rect.Bottom < sy + rect.Height + it.rect.Height;
+                it.show = it.Show && it.Visible && rect.IsItemVisibleExpand(sy, it.rect, it.Expand, it.SubHeight);
                 if (it.show)
                 {
-                    if (it.Depth == -1) g.Fill(brush_split, it.Rect);
+                    if (it.Depth == -1) g.Fill(brush_split, it.rect);
                     else
                     {
                         PaintIt(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
-                        if (it.Expand && it.items != null && it.items.Count > 0)
+                        if ((it.Expand || it.ExpandThread) && it.items != null && it.items.Count > 0)
                         {
-                            PaintItemExpand(g, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius, brush_split);
                             if (it.ExpandThread)
                             {
-                                using (var brush = new SolidBrush(BackColor))
+                                if (it.ExpandTemp == null)
                                 {
-                                    g.Fill(brush, new RectangleF(rect.X, it.rect.Bottom + it.ExpandHeight * it.ExpandProg, rect.Width, it.ExpandHeight));
+                                    it.ExpandTemp = new Bitmap(rect.Width, it.ExpandHeight);
+                                    using (var g2 = Graphics.FromImage(it.ExpandTemp).HighLay(Dpi, true))
+                                    {
+                                        g2.TranslateTransform(0, -it.rect.Bottom);
+                                        PaintItemExpand(g2, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius, brush_split);
+                                    }
                                 }
+                                g.Image(it.ExpandTemp, new Rectangle(rect.X, it.rect.Bottom, it.ExpandTemp.Width, it.ExpandRHeight), it.ExpandTemp.Width, it.ExpandRHeight, it.ExpandProg);
                             }
+                            else PaintItemExpand(g, rect, sy, it.items, fore, fore_active, fore_enabled, back_hover, back_active, radius, brush_split);
                         }
                     }
                 }
@@ -942,7 +1056,7 @@ namespace AntdUI
         {
             if (collapsed) PaintItemMini(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
             else PaintItem(g, it, fore, fore_active, fore_enabled, back_hover, back_active, radius);
-            it.PaintBadge(Font, it.rect, g, ColorScheme);
+            it.PaintBadge(Font, it.rect, g, ColorScheme, Name);
         }
 
         void PaintItemMini(Canvas g, MenuItem it, Color fore, Color fore_active, Color fore_enabled, Color back_hover, Color back_active, float radius)
@@ -999,7 +1113,7 @@ namespace AntdUI
                     {
                         if (it.CanExpand)
                         {
-                            if (mode == TMenuMode.Horizontal || mode == TMenuMode.Vertical) PaintBack(g, back_active, it.rect, radius);
+                            if (IsModeNeedDropDown) PaintBack(g, back_active, it.rect, radius);
                             PaintTextIconExpand(g, it, fore_active);
                         }
                         else
@@ -1025,7 +1139,7 @@ namespace AntdUI
                     {
                         if (it.CanExpand)
                         {
-                            if (mode == TMenuMode.Horizontal || mode == TMenuMode.Vertical) PaintBack(g, back_active, it.rect, radius);
+                            if (IsModeNeedDropDown) PaintBack(g, back_active, it.rect, radius);
                             PaintTextIconExpand(g, it, fore_active);
                         }
                         else
@@ -1050,21 +1164,21 @@ namespace AntdUI
                 {
                     if (it.CanExpand)
                     {
-                        if (mode == TMenuMode.Horizontal || mode == TMenuMode.Vertical) PaintBack(g, back_active, it.rect, radius);
-                        using (var pen = new Pen(fore_active, Config.Dpi * 2))
+                        if (IsModeNeedDropDown) PaintBack(g, back_active, it.rect, radius);
+                        using (var pen = new Pen(fore_active, Dpi * 2))
                         {
                             pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                            g.DrawLines(pen, it.arr_rect.TriangleLines(it.GetArrowProg(), .4F));
+                            g.DrawLines(pen, it.arrow_rect.TriangleLinesVertical(it.GetArrowProg(), .4F));
                         }
                     }
                     else PaintBack(g, back_active, it.rect, radius);
                 }
                 else if (it.CanExpand)
                 {
-                    using (var pen = new Pen(fore_enabled, Config.Dpi * 2))
+                    using (var pen = new Pen(fore_enabled, Dpi * 2))
                     {
                         pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        g.DrawLines(pen, it.arr_rect.TriangleLines(it.GetArrowProg(), .4F));
+                        g.DrawLines(pen, it.arrow_rect.TriangleLinesVertical(it.GetArrowProg(), .4F));
                     }
                 }
                 PaintTextIcon(g, it, fore_enabled, radius);
@@ -1072,60 +1186,135 @@ namespace AntdUI
         }
 
         readonly FormatFlags SL = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
-        void PaintTextIcon(Canvas g, MenuItem it, Color fore, float radius)
+        void PaintTextIcon(Canvas g, MenuItem it, Color fore, float radius, bool focusMode = true)
         {
             using (var brush = new SolidBrush(fore))
             {
-                if (mode != TMenuMode.InlineNoText) g.DrawText(it.Text, it.Font ?? Font, brush, it.txt_rect, SL);
-                if (focusItem == null) PaintFocus(g, it, fore, radius);
+                if (mode != TMenuMode.InlineNoText)
+                {
+                    bool showSubText = it.SubText != null;
+                    if (showSubText)
+                    {
+                        Font fontSub = it.FontSub ?? Font;
+                        // 有SubText时，主文本往上移，SubText往下移
+                        int subHeight = fontSub.Height;
+                        Rectangle textRect = it.txt_rect;
+                        textRect.Height -= subHeight;
+                        g.DrawText(it.Text, it.Font ?? Font, brush, textRect, SL);
+                        using (var brush_sub = new SolidBrush(Colour.TextQuaternary.Get(ColorScheme, nameof(Menu), Name)))
+                        {
+                            // SubText下移
+                            Rectangle subRect = it.txt_rect;
+                            subRect.Height += subHeight;
+                            g.DrawText(it.SubText, fontSub, brush_sub, subRect, SL);
+                        }
+                    }
+                    else g.DrawText(it.Text, it.Font ?? Font, brush, it.txt_rect, SL);
+                }
+                if (focusMode && focusItem == null) PaintFocus(g, it, fore, radius);
             }
             PaintIcon(g, it, fore);
         }
+
+        #region 焦点
+
         void PaintFocus(Canvas g, MenuItem it, Color fore, float radius)
         {
             switch (FocusMode)
             {
                 case TFocusMode.Line:
-                    int fh = (int)(it.rect.Height * 0.6F), fw = (int)(fh * 0.12F);
-                    g.Fill(fore, new Rectangle(it.rect.X, it.rect.Y + (it.rect.Height - fh) / 2, fw, fh));
+                    PaintFocusLine(g, it, FocusModeColor ?? fore);
                     break;
                 case TFocusMode.Border:
-                    float wave = 2 * Config.Dpi, wave2 = wave * 2, r = radius + wave;
-                    var rect_focus = new RectangleF(it.rect.X - wave, it.rect.Y - wave, it.rect.Width + wave2, it.rect.Height + wave2);
-                    using (var path_focus = rect_focus.RoundPath(r))
-                    {
-                        g.Draw(Colour.PrimaryBorder.Get(nameof(Menu), ColorScheme), wave, path_focus);
-                    }
+                    PaintFocusBorder(g, it, FocusModeColor ?? Colour.PrimaryBorder.Get(ColorScheme, nameof(Menu), Name), radius);
                     break;
             }
         }
+        void PaintFocusLine(Canvas g, MenuItem it, Color fill)
+        {
+            int lsize = (int)(FocusModeSize * Dpi);
+            switch (FocusModeAlign)
+            {
+                case TAlignMini.None:
+                    if (IsModeHorizontal) PaintFocusLineBottom(g, it, fill, lsize);
+                    else PaintFocusLineLeft(g, it, fill, lsize);
+                    break;
+                case TAlignMini.Top:
+                    PaintFocusLineTop(g, it, fill, lsize);
+                    break;
+                case TAlignMini.Bottom:
+                    PaintFocusLineBottom(g, it, fill, lsize);
+                    break;
+                case TAlignMini.Left:
+                    PaintFocusLineLeft(g, it, fill, lsize);
+                    break;
+                case TAlignMini.Right:
+                    PaintFocusLineRight(g, it, fill, lsize);
+                    break;
+            }
+        }
+        void PaintFocusLineLeft(Canvas g, MenuItem it, Color fill, int lsize)
+        {
+            int fh = (int)(it.rect.Height * (FocusModeSizeRatio ?? 0.6F));
+            g.Fill(fill, new Rectangle(it.rect.X, it.rect.Y + (it.rect.Height - fh) / 2, lsize, fh));
+        }
+        void PaintFocusLineRight(Canvas g, MenuItem it, Color fill, int lsize)
+        {
+            int fh = (int)(it.rect.Height * (FocusModeSizeRatio ?? 0.6F));
+            g.Fill(fill, new Rectangle(it.rect.Right - lsize, it.rect.Y + (it.rect.Height - fh) / 2, lsize, fh));
+        }
+        void PaintFocusLineTop(Canvas g, MenuItem it, Color fill, int lsize)
+        {
+            int fw = (int)(it.rect.Width * (FocusModeSizeRatio ?? 0.8F));
+            g.Fill(fill, new Rectangle(it.rect.X + (it.rect.Width - fw) / 2, it.rect.Y, fw, lsize));
+        }
+        void PaintFocusLineBottom(Canvas g, MenuItem it, Color fill, int lsize)
+        {
+            int fw = (int)(it.rect.Width * (FocusModeSizeRatio ?? 0.8F));
+            g.Fill(fill, new Rectangle(it.rect.X + (it.rect.Width - fw) / 2, it.rect.Bottom - lsize, fw, lsize));
+        }
+        void PaintFocusBorder(Canvas g, MenuItem it, Color fill, float radius)
+        {
+            float wave = FocusModeSize * Dpi, wave2 = wave * 2, r = radius + wave;
+            var rect_focus = new RectangleF(it.rect.X - wave, it.rect.Y - wave, it.rect.Width + wave2, it.rect.Height + wave2);
+            using (var path_focus = rect_focus.RoundPath(r))
+            {
+                g.Draw(fill, wave, path_focus);
+            }
+        }
+
+        #endregion
+
         void PaintTextIconExpand(Canvas g, MenuItem it, Color fore)
         {
             if (it.CanExpand)
             {
                 if (mode == TMenuMode.Inline || mode == TMenuMode.InlineNoText)
                 {
-                    using (var pen = new Pen(fore, Config.Dpi * 2))
+                    using (var pen = new Pen(fore, Dpi * 2))
                     {
                         pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        g.DrawLines(pen, it.arr_rect.TriangleLines(it.GetArrowProg(), .4F));
+                        g.DrawLines(pen, it.arrow_rect.TriangleLinesVertical(it.GetArrowProg(), .4F));
                     }
                 }
                 else if (mode == TMenuMode.Vertical)
                 {
-                    using (var pen = new Pen(fore, Config.Dpi * 2))
+                    using (var pen = new Pen(fore, Dpi * 2))
                     {
                         pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        g.DrawLines(pen, TAlignMini.Right.TriangleLines(it.arr_rect, .4F));
+                        g.DrawLines(pen, TAlignMini.Right.TriangleLines(it.arrow_rect, .4F));
+                    }
+                }
+                else if (mode == TMenuMode.Horizontal_Arrow)
+                {
+                    using (var pen = new Pen(fore, Dpi * 2))
+                    {
+                        pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                        g.DrawLines(pen, it.arrow_rect.TriangleLinesVertical(-1, .4F));
                     }
                 }
             }
-            if (mode == TMenuMode.InlineNoText) PaintIcon(g, it, fore);
-            else
-            {
-                g.DrawText(it.Text, it.Font ?? Font, fore, it.txt_rect, SL);
-                PaintIcon(g, it, fore);
-            }
+            PaintTextIcon(g, it, fore, radius, false);
         }
         void PaintIcon(Canvas g, MenuItem it, Color fore)
         {
@@ -1138,14 +1327,12 @@ namespace AntdUI
                 }
                 if (it.IconActiveSvg != null)
                 {
-                    if (g.GetImgExtend(it.IconActiveSvg, it.ico_rect, fore)) count++;
+                    if (g.Svg(it.IconActiveSvg, it.ico_rect, fore)) count++;
                 }
                 if (count > 0) return;
             }
-
-
             if (it.Icon != null) g.Image(it.Icon, it.ico_rect);
-            if (it.IconSvg != null) g.GetImgExtend(it.IconSvg, it.ico_rect, fore);
+            if (it.IconSvg != null) g.Svg(it.IconSvg, it.ico_rect, fore);
         }
         void PaintCustomButton(Canvas g, MenuItem it, Color fore, Color fore_active)
         {
@@ -1159,13 +1346,13 @@ namespace AntdUI
                 }
                 else if (item.Hover) PaintCustomButtonIcon(g, item, fore_active);
                 else PaintCustomButtonIcon(g, item, fore);
-                item.PaintBadge(Font, item.rect, g, ColorScheme);
+                item.PaintBadge(Font, item.rect, g, ColorScheme, Name);
             }
         }
         void PaintCustomButtonIcon(Canvas g, MenuButton it, Color fore)
         {
             if (it.Icon != null) g.Image(it.Icon, it.rect);
-            if (it.IconSvg != null) g.GetImgExtend(it.IconSvg, it.rect, fore);
+            if (it.IconSvg != null) g.Svg(it.IconSvg, it.rect, fore);
         }
         void PaintBack(Canvas g, Color color, Rectangle rect, float radius)
         {
@@ -1183,7 +1370,7 @@ namespace AntdUI
 
         #region 鼠标
 
-        MenuItem? MDown;
+        MenuItem? mDown;
         int mClicks = 0;
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -1214,11 +1401,11 @@ namespace AntdUI
             if (e.Button == MouseButtons.Right && !MouseRightCtrl) return;
             if (ScrollBar.MouseUp() && OnTouchUp())
             {
-                if (items == null || items.Count == 0 || MDown == null) return;
+                if (items == null || items.Count == 0 || mDown == null) return;
                 foreach (var it in items)
                 {
                     var list = new List<MenuItem> { it };
-                    if (IMouseUp(items, it, list, e.X, e.Y, MDown, e)) return;
+                    if (IMouseUp(items, it, list, e.X, e.Y, mDown, e)) return;
                 }
             }
         }
@@ -1231,7 +1418,7 @@ namespace AntdUI
                 bool can = item.CanExpand;
                 if (item.Enabled && item.Contains(x, y, 0, ScrollBar.Value, out _))
                 {
-                    MDown = item;
+                    mDown = item;
                     return true;
                 }
                 if (can && item.Expand && !collapsed)
@@ -1260,7 +1447,7 @@ namespace AntdUI
                             {
                                 if (can)
                                 {
-                                    if ((mode == TMenuMode.Horizontal || mode == TMenuMode.Vertical) && Trigger == Trigger.Click && item.items != null && item.items.Count > 0)
+                                    if (IsModeNeedDropDown && Trigger == Trigger.Click && item.items != null && item.items.Count > 0)
                                     {
                                         if (subForm == null) OpenDropDown(item);
                                         else CloseDropDown();
@@ -1374,54 +1561,101 @@ namespace AntdUI
 
         protected override bool CanMouseMove { get; set; } = true;
 
+        MenuItem? tmpItem;
         protected override void OnMouseHover(int x, int y)
         {
-            CloseTip();
-            if (x == -1 || y == -1) return;
-            CloseDropDown();
-            if (items == null || items.Count == 0) return;
-            if (scroll_show)
+            if (items == null || items.Count == 0)
             {
-                if (rect_r.Contains(x, y))
+                CloseTip();
+                CloseDropDown();
+                return;
+            }
+            if (scroll_show && rect_r.Contains(x, y))
+            {
+                tmpItem = null;
+                CloseTip();
+                if (subForm == null)
                 {
                     var list = new List<MenuItem>(items.Count);
-                    foreach (var it in items)
+                    foreach (var item in items)
                     {
-                        if (it.rect.X > (rect_r.X - it.rect.Width)) list.Add(it);
+                        if (item.rect.X > (rect_r.X - item.rect.Width)) list.Add(item);
                     }
                     subForm = new LayeredFormMenuDown(this, radius, rect_r, list);
                     subForm.Show(this);
-                    return;
                 }
+                return;
             }
             int sy = ScrollBar.Value;
+            var it = GetItemMouseHover(items, x, y, sy, out int drop);
+            if (it == null)
+            {
+                tmpItem = null;
+                CloseTip();
+                CloseDropDown();
+            }
+            else
+            {
+                if (tmpItem == it) return;
+                CloseTip();
+                CloseDropDown();
+                tmpItem = it;
+                switch (drop)
+                {
+                    case 0:
+                        if (OpenDropDown(it)) OpenTip(it, it.Rect(0, ScrollBar.ValueY));
+                        break;
+                    case 1:
+                        OpenDropDown(it);
+                        break;
+                    case 2:
+                        OpenTip(it, new Rectangle(it.rect.X, it.rect.Y + (it.rect.Height / 2) - sy, it.rect.Width, rect_r.Height));
+                        break;
+                }
+            }
+        }
+
+        MenuItem? GetItemMouseHover(MenuItemCollection items, int x, int y, int sy, out int drop)
+        {
+            drop = 0;
             if (collapsed)
             {
                 foreach (var it in items)
                 {
-                    if (it.show && it.rect.Contains(x, y + sy))
-                    {
-                        if (OpenDropDown(it)) OpenTip(it, it.Rect);
-                        return;
-                    }
+                    if (it.show && it.rect.Contains(x, y + sy)) return it;
                 }
             }
-            else if (mode == TMenuMode.Inline) return;
+            else if (mode == TMenuMode.Inline) return null;
             else if (mode == TMenuMode.InlineNoText)
             {
-                foreach (var it in items) IMouseHover(it, x, y, sy);
+                drop = 2;
+                return GetItemMouseHover(items, x, y, sy);
             }
             else
             {
-                foreach (var it in items)
+                if (Trigger == Trigger.Hover)
                 {
-                    if (it.show && it.rect.Contains(x, y + sy))
+                    drop = 1;
+                    foreach (var it in items)
                     {
-                        if (Trigger == Trigger.Hover) OpenDropDown(it);
-                        return;
+                        if (it.show && it.rect.Contains(x, y + sy)) return it;
                     }
                 }
             }
+            return null;
+        }
+        MenuItem? GetItemMouseHover(MenuItemCollection items, int x, int y, int sy)
+        {
+            foreach (var it in items)
+            {
+                if (it.show && it.rect.Contains(x, y + sy)) return it;
+                if (it.items != null && it.items.Count > 0)
+                {
+                    var item = GetItemMouseHover(it.items, x, y, sy);
+                    if (item != null) return item;
+                }
+            }
+            return null;
         }
 
         void IMouseHover(MenuItem it, int x, int y, int sy)
@@ -1438,7 +1672,6 @@ namespace AntdUI
         #region Tip
 
         TooltipForm? toolTip;
-
         public void CloseTip()
         {
             toolTip?.IClose();
@@ -1472,6 +1705,7 @@ namespace AntdUI
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            tmpItem = null;
             if (RectangleToScreen(ClientRectangle).Contains(MousePosition)) return;
             CloseTip();
             ScrollBar.Leave();
@@ -1571,33 +1805,17 @@ namespace AntdUI
             switch (keyData)
             {
                 case Keys.Up:
-                    if (selectItem == null)
-                    {
-                        if (items != null)
-                        {
-                            Select(items[0]);
-                            return true;
-                        }
-                    }
-                    else if (FindUp(focusItem ?? selectItem)) return true;
-                    break;
+                    if (IsModeHorizontal) return FKeyLeft(r);
+                    else return FKeyUp(r);
                 case Keys.Down:
-                    if (selectItem == null)
-                    {
-                        if (items != null)
-                        {
-                            Select(items[items.Count - 1]);
-                            return true;
-                        }
-                    }
-                    else if (FindDown(focusItem ?? selectItem)) return true;
-                    break;
+                    if (IsModeHorizontal) return FKeyRight(r);
+                    else return FKeyDown(r);
                 case Keys.Left:
-                    if (selectItem != null && FindLeft(focusItem ?? selectItem)) return true;
-                    break;
+                    if (IsModeHorizontal) return FKeyUp(r);
+                    else return FKeyLeft(r);
                 case Keys.Right:
-                    if (selectItem != null && FindRight(focusItem ?? selectItem)) return true;
-                    break;
+                    if (IsModeHorizontal) return FKeyDown(r);
+                    else return FKeyRight(r);
                 case Keys.Enter:
                     if (selectItem != null)
                     {
@@ -1607,6 +1825,43 @@ namespace AntdUI
                     }
                     break;
             }
+            return r;
+        }
+
+        bool FKeyUp(bool r)
+        {
+            if (selectItem == null)
+            {
+                if (items != null)
+                {
+                    Select(items[0]);
+                    return true;
+                }
+            }
+            else if (FindUp(focusItem ?? selectItem)) return true;
+            return r;
+        }
+        bool FKeyDown(bool r)
+        {
+            if (selectItem == null)
+            {
+                if (items != null)
+                {
+                    Select(items[items.Count - 1]);
+                    return true;
+                }
+            }
+            else if (FindDown(focusItem ?? selectItem)) return true;
+            return r;
+        }
+        bool FKeyLeft(bool r)
+        {
+            if (selectItem != null && FindLeft(focusItem ?? selectItem)) return true;
+            return r;
+        }
+        bool FKeyRight(bool r)
+        {
+            if (selectItem != null && FindRight(focusItem ?? selectItem)) return true;
             return r;
         }
 
@@ -1700,12 +1955,23 @@ namespace AntdUI
 
         bool FindLeft(MenuItem item)
         {
-            if (item.CanExpand && item.Expand) item.Expand = false;
+            if (item.CanExpand)
+            {
+                if (IsModeNeedDropDown) CloseDropDown();
+                else item.Expand = false;
+            }
             return true;
         }
         bool FindRight(MenuItem item)
         {
-            if (item.CanExpand && !item.Expand) item.Expand = true;
+            if (item.CanExpand)
+            {
+                if (IsModeNeedDropDown)
+                {
+                    if (subForm == null) OpenDropDown(item);
+                }
+                else item.Expand = true;
+            }
             return true;
         }
         void SetFocusItem(MenuItem item)
@@ -1796,13 +2062,10 @@ namespace AntdUI
         /// 移除菜单
         /// </summary>
         /// <param name="item">项</param>
-        public void Remove(MenuItem item)
+        public void Remove(MenuItem item) => Remove(item, items);
+        void Remove(MenuItem item, MenuItemCollection? items)
         {
-            if (items == null || items.Count == 0) return;
-            Remove(item, items);
-        }
-        void Remove(MenuItem item, MenuItemCollection items)
-        {
+            if (items == null) return;
             foreach (var it in items)
             {
                 if (it == item)
@@ -1810,8 +2073,54 @@ namespace AntdUI
                     items.Remove(it);
                     return;
                 }
-                else if (it.items != null && it.items.Count > 0) Remove(item, it.items);
+                Remove(item, it.items);
             }
+        }
+
+        public void SetCollapsed(bool value)
+        {
+            if (collapsed == value) return;
+            collapsed = value;
+            ChangeList(true);
+            OnPropertyChanged(nameof(Collapsed));
+        }
+
+        #endregion
+
+        #region 查找
+
+        /// <summary>
+        /// 根据节点id查询节点
+        /// </summary>
+        public MenuItem? FindID(string id) => FindID(items, id);
+
+        MenuItem? FindID(MenuItemCollection? items, string id)
+        {
+            if (items == null) return null;
+            foreach (var sub in items)
+            {
+                if (sub.ID == id) return sub;
+                var preItem = FindID(sub.items, id);
+                if (preItem != null) return preItem;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 根据节点name查询节点
+        /// </summary>
+        public MenuItem? FindName(string id) => FindName(items, id);
+
+        MenuItem? FindName(MenuItemCollection? items, string id)
+        {
+            if (items == null) return null;
+            foreach (var sub in items)
+            {
+                if (sub.Name == id) return sub;
+                var preItem = FindName(sub.items, id);
+                if (preItem != null) return preItem;
+            }
+            return null;
         }
 
         #endregion
@@ -1821,25 +2130,25 @@ namespace AntdUI
         /// <summary>
         /// Select 属性值更改时发生
         /// </summary>
-        [Description("Select 属性值更改时发生"), Category("行为")]
+        [Description("Select 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event SelectEventHandler? SelectChanged;
 
         /// <summary>
         /// 点击项时发生
         /// </summary>
-        [Description("点击项时发生"), Category("行为")]
+        [Description("点击项时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event MenuItemEventHandler? ItemClick;
 
         /// <summary>
         /// Select 属性值更改前发生
         /// </summary>
-        [Description("Select 属性值更改前发生"), Category("行为")]
+        [Description("Select 属性值更改前发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event SelectBoolEventHandler? SelectChanging;
 
         /// <summary>
         /// 自定义按钮点击时发生
         /// </summary>
-        [Description("自定义按钮点击时发生"), Category("行为")]
+        [Description("自定义按钮点击时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event MenuCustomButtonEventHandler? CustomButtonClick;
 
         bool IsCanChang(MenuItem it)
@@ -1911,7 +2220,7 @@ namespace AntdUI
         {
             if (it.items == null || it.items.Count == 0) return true;
             select_x = 0;
-            subForm = new LayeredFormMenuDown(this, radius, it.Rect, it.items);
+            subForm = new LayeredFormMenuDown(this, radius, it.Rect(0, ScrollBar.ValueY), it.items);
             subForm.Show(this);
             return false;
         }
@@ -1955,6 +2264,10 @@ namespace AntdUI
             action = render =>
             {
                 if (it.PARENT == null) return;
+                if (it.items != null)
+                {
+                    foreach (var item in it.items) item.PARENT = it.PARENT;
+                }
                 if (render) it.PARENT.ChangeList(true);
                 else it.PARENT.Invalidate();
             };
@@ -1988,13 +2301,13 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         /// <summary>
         /// 名称
         /// </summary>
-        [Description("名称"), Category("数据"), DefaultValue(null)]
+        [Description("名称"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? Name { get; set; }
 
         #region 图标
@@ -2003,7 +2316,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -2019,7 +2332,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -2039,13 +2352,13 @@ namespace AntdUI
         /// <summary>
         /// 图标激活
         /// </summary>
-        [Description("图标激活"), Category("外观"), DefaultValue(null)]
+        [Description("图标激活"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? IconActive { get; set; }
 
         /// <summary>
         /// 图标激活SVG
         /// </summary>
-        [Description("图标激活SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标激活SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconActiveSvg { get; set; }
 
         #endregion
@@ -2054,7 +2367,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null), Localizable(true)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null), Localizable(true)]
         public string? Text
         {
             get => Localization.GetLangI(LocalizationText, text, new string?[] { "{id}", ID });
@@ -2069,17 +2382,42 @@ namespace AntdUI
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
+        string? textSub;
+        /// <summary>
+        /// 子文本
+        /// </summary>
+        [Description("子文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null), Localizable(true)]
+        public string? SubText
+        {
+            get => Localization.GetLangI(LocalizationSubText, textSub, new string?[] { "{id}", ID });
+            set
+            {
+                if (text == value) return;
+                textSub = value;
+                Invalidates();
+            }
+        }
+
+        [Description("子文本"), Category("国际化"), DefaultValue(null)]
+        public string? LocalizationSubText { get; set; }
+
         /// <summary>
         /// 自定义字体
         /// </summary>
-        [Description("自定义字体"), Category("外观"), DefaultValue(null)]
+        [Description("自定义字体"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Font? Font { get; set; }
+
+        /// <summary>
+        /// 自定义子文本字体
+        /// </summary>
+        [Description("自定义子文本字体"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Font? FontSub { get; set; }
 
         bool visible = true;
         /// <summary>
         /// 是否显示
         /// </summary>
-        [Description("是否显示"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Visible
         {
             get => visible;
@@ -2094,7 +2432,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         internal MenuItemCollection? items;
@@ -2102,7 +2440,7 @@ namespace AntdUI
         /// 获取列表中所有列表项的集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("子集合"), Category("外观")]
+        [Description("子集合"), Category(nameof(CategoryAttribute.Appearance))]
         public MenuItemCollection Sub
         {
             get
@@ -2119,7 +2457,7 @@ namespace AntdUI
         /// <summary>
         /// 禁用状态
         /// </summary>
-        [Description("禁用状态"), Category("行为"), DefaultValue(true)]
+        [Description("禁用状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Enabled
         {
             get => enabled;
@@ -2140,7 +2478,7 @@ namespace AntdUI
         /// <summary>
         /// 展开
         /// </summary>
-        [Description("展开"), Category("行为"), DefaultValue(true)]
+        [Description("展开"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Expand
         {
             get => expand;
@@ -2177,18 +2515,11 @@ namespace AntdUI
                             return;
                         }
                         ThreadExpand?.Dispose();
-                        float oldval = -1;
-                        if (ThreadExpand?.Tag is float oldv) oldval = oldv;
+                        ExpandTemp?.Dispose();
+                        ExpandTemp = null;
+                        var oldval = ThreadExpand?.Tag;
                         ExpandThread = true;
-                        int t;
-                        if (value)
-                        {
-                            int time = ExpandCount(this) * 10;
-                            if (time > 1000) time = 1000;
-                            t = Animation.TotalFrames(10, time);
-                        }
-                        else t = Animation.TotalFrames(10, 200);
-
+                        int t = Animation.TotalFrames(10, 200);
                         ThreadExpand = new AnimationTask(new AnimationFixed2Config((i, val, arrow) =>
                         {
                             ExpandProg = val;
@@ -2199,6 +2530,8 @@ namespace AntdUI
                             ExpandProg = 1F;
                             ArrowProg = value ? 1F : -1F;
                             ExpandThread = false;
+                            ExpandTemp?.Dispose();
+                            ExpandTemp = null;
                             Invalidates();
                         }));
                     }
@@ -2219,21 +2552,7 @@ namespace AntdUI
             }
         }
 
-        internal int ExpandCount(MenuItem it)
-        {
-            int count = 0;
-            if (it.Sub != null && it.Sub.Count > 0)
-            {
-                count += it.Sub.Count;
-                foreach (var item in it.Sub)
-                {
-                    if (item.Expand) count += ExpandCount(item);
-                }
-            }
-            return count;
-        }
-
-        [Description("是否可以展开"), Category("行为"), DefaultValue(false)]
+        [Description("是否可以展开"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool CanExpand => visible && items != null && items.Count > 0;
 
         #endregion
@@ -2241,6 +2560,9 @@ namespace AntdUI
         #region 徽标
 
         string? badge;
+        /// <summary>
+        /// 徽标内容
+        /// </summary>
         [Description("徽标内容"), Category("徽标"), DefaultValue(null), Localizable(true)]
         public string? Badge
         {
@@ -2254,6 +2576,9 @@ namespace AntdUI
         }
 
         string? badgeSvg;
+        /// <summary>
+        /// 徽标SVG
+        /// </summary>
         [Description("徽标SVG"), Category("徽标"), DefaultValue(null)]
         public string? BadgeSvg
         {
@@ -2267,6 +2592,9 @@ namespace AntdUI
         }
 
         TAlign badgeAlign = TAlign.Right;
+        /// <summary>
+        /// 徽标方向
+        /// </summary>
         [Description("徽标方向"), Category("徽标"), DefaultValue(TAlign.Right)]
         public TAlign BadgeAlign
         {
@@ -2280,6 +2608,9 @@ namespace AntdUI
         }
 
         float badgeSize = .6F;
+        /// <summary>
+        /// 徽标比例
+        /// </summary>
         [Description("徽标比例"), Category("徽标"), DefaultValue(.6F)]
         public float BadgeSize
         {
@@ -2293,6 +2624,9 @@ namespace AntdUI
         }
 
         bool badgeMode = false;
+        /// <summary>
+        /// 徽标模式（镂空）
+        /// </summary>
         [Description("徽标模式（镂空）"), Category("徽标"), DefaultValue(false)]
         public bool BadgeMode
         {
@@ -2305,7 +2639,26 @@ namespace AntdUI
             }
         }
 
+        Color? badgefore;
+        /// <summary>
+        /// 徽标前景颜色
+        /// </summary>
+        [Description("徽标前景颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeFore
+        {
+            get => badgefore;
+            set
+            {
+                if (badgefore == value) return;
+                badgefore = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
         Color? badgeback;
+        /// <summary>
+        /// 徽标背景颜色
+        /// </summary>
         [Description("徽标背景颜色"), Category("徽标"), DefaultValue(null)]
         public Color? BadgeBack
         {
@@ -2314,6 +2667,38 @@ namespace AntdUI
             {
                 if (badgeback == value) return;
                 badgeback = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
+        Color? badgeBorderColor;
+        /// <summary>
+        /// 徽标边框颜色
+        /// </summary>
+        [Description("徽标边框颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeBorderColor
+        {
+            get => badgeBorderColor;
+            set
+            {
+                if (badgeBorderColor == value) return;
+                badgeBorderColor = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
+        float? badgeBorderWidth;
+        /// <summary>
+        /// 徽标边框宽度
+        /// </summary>
+        [Description("徽标边框宽度"), Category("徽标"), DefaultValue(null)]
+        public float? BadgeBorderWidth
+        {
+            get => badgeBorderWidth;
+            set
+            {
+                if (badgeBorderWidth == value) return;
+                badgeBorderWidth = value;
                 if (badge != null || badgeSvg != null) Invalidate();
             }
         }
@@ -2398,7 +2783,7 @@ namespace AntdUI
         /// <summary>
         /// 是否选中
         /// </summary>
-        [Description("是否选中"), Category("外观"), DefaultValue(false)]
+        [Description("是否选中"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Select { get; set; }
 
         #region 自定义按钮
@@ -2408,15 +2793,11 @@ namespace AntdUI
         /// </summary>
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("自定义按钮的集合"), Category("外观")]
+        [Description("自定义按钮的集合"), Category(nameof(CategoryAttribute.Appearance))]
         public List<MenuButton>? Button { get; set; }
 
         #endregion
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Obsolete("use ParentItem")]
-        public MenuItem? PARENTITEM { get; set; }
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MenuItem? ParentItem { get; internal set; }
 
         #region 内部
@@ -2433,17 +2814,38 @@ namespace AntdUI
 
         #region 布局
 
-        /// <summary>
-        /// 菜单坐标位置
-        /// </summary>
-        public Rectangle Rect
+        public Rectangle Rect() => Rect("");
+        public Rectangle Rect(int x, int y) => Rect("", x, y);
+        public Rectangle Rect(string type, int x = 0, int y = 0)
         {
-            get
+            if (x > 0 || y > 0)
             {
-                if (PARENT == null) return rect;
-                int y = PARENT.ScrollBar.Value;
-                if (y != 0F) return new Rectangle(rect.X, rect.Y - y, rect.Width, rect.Height);
-                return rect;
+                switch (type)
+                {
+                    case "Text":
+                        return new Rectangle(txt_rect.X - x, txt_rect.Y - y, txt_rect.Width, txt_rect.Height);
+                    case "Sub":
+                        return new Rectangle(rect.X - x, rect.Y - y, rect.Width, rect.Height + (Expand ? SubHeight : 0));
+                    case "Icon":
+                        return new Rectangle(ico_rect.X - x, ico_rect.Y - y, ico_rect.Width, ico_rect.Height);
+                    case "Arrow":
+                        return new Rectangle(arrow_rect.X - x, arrow_rect.Y - y, arrow_rect.Width, arrow_rect.Height);
+                    default:
+                        return new Rectangle(rect.X - x, rect.Y - y, rect.Width, rect.Height);
+                }
+            }
+            switch (type)
+            {
+                case "Text":
+                    return txt_rect;
+                case "Sub":
+                    return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height + (Expand ? SubHeight : 0));
+                case "Icon":
+                    return ico_rect;
+                case "Arrow":
+                    return arrow_rect;
+                default:
+                    return rect;
             }
         }
 
@@ -2476,8 +2878,8 @@ namespace AntdUI
             }
             else txt_rect = new Rectangle(_rect.X + x, _rect.Y, _rect.Width - usew, _rect.Height);
 
-            int ur = _rect.Right - icon_size - gap - scx;
-            arr_rect = new Rectangle(ur, _rect.Y + y, icon_size, icon_size);
+            int ur = _rect.Right - arrow_size - gap - scx;
+            arrow_rect = new Rectangle(ur, _rect.Y + (_rect.Height - arrow_size) / 2, arrow_size, arrow_size);
 
             exr = 0;
             if (Button != null)
@@ -2511,9 +2913,19 @@ namespace AntdUI
                 txt_rect = new Rectangle(_rect.X + x, _rect.Y, _rect.Width - usew, _rect.Height);
             }
             else txt_rect = new Rectangle(_rect.X + x, _rect.Y, _rect.Width - usew, _rect.Height);
-            arr_rect = new Rectangle(_rect.Right - (arrow_size - sp), _rect.Y + (_rect.Height - arrow_size) / 2, arrow_size, arrow_size);
+            arrow_rect = new Rectangle(_rect.Right - (arrow_size - sp), _rect.Y + (_rect.Height - arrow_size) / 2, arrow_size, arrow_size);
             Show = true;
             return usew;
+        }
+        internal void SetRect(Rectangle _rect, Rectangle rect_text, int arrow_size, int sp)
+        {
+            Depth = 0;
+            rect = _rect;
+            txt_rect = rect_text;
+
+            arrow_rect = new Rectangle(_rect.Right - (arrow_size + sp), _rect.Y + (_rect.Height - arrow_size) / 2, arrow_size, arrow_size);
+
+            Show = true;
         }
         internal void SetRectNoArr(Rectangle _rect, Rectangle rect_text)
         {
@@ -2531,7 +2943,7 @@ namespace AntdUI
         }
 
         internal Rectangle rect { get; set; }
-        internal Rectangle arr_rect { get; set; }
+        internal Rectangle arrow_rect { get; set; }
 
         internal bool Contains(int x, int y, int sx, int sy, out MenuButton? btn)
         {
@@ -2602,12 +3014,14 @@ namespace AntdUI
 
         #endregion
 
-        internal float SubY { get; set; }
-        internal float SubHeight { get; set; }
+        internal int SubY { get; set; }
+        internal int SubHeight { get; set; }
 
         internal int ExpandHeight { get; set; }
+        internal int ExpandRHeight { get; set; }
         internal float ExpandProg { get; set; }
         internal bool ExpandThread { get; set; }
+        internal Bitmap? ExpandTemp { get; set; }
         internal bool show { get; set; }
         internal bool Show { get; set; }
         void Invalidate() => PARENT?.Invalidate();
@@ -2620,6 +3034,12 @@ namespace AntdUI
         public MenuItem SetFont(Font? value)
         {
             Font = value;
+            return this;
+        }
+
+        public MenuItem SetFontSub(Font? value)
+        {
+            FontSub = value;
             return this;
         }
 
@@ -2669,6 +3089,13 @@ namespace AntdUI
         {
             text = value;
             LocalizationText = localization;
+            return this;
+        }
+
+        public MenuItem SetSubText(string? value, string? localization = null)
+        {
+            textSub = value;
+            LocalizationSubText = localization;
             return this;
         }
 
@@ -2733,9 +3160,30 @@ namespace AntdUI
             BadgeSize = value;
             return this;
         }
+        public MenuItem SetBadgeFore(Color? value)
+        {
+            BadgeFore = value;
+            return this;
+        }
         public MenuItem SetBadgeBack(Color? value)
         {
             BadgeBack = value;
+            return this;
+        }
+        public MenuItem SetBadgeBorderColor(Color? value)
+        {
+            BadgeBorderColor = value;
+            return this;
+        }
+        public MenuItem SetBadgeBorderWidth(float? value)
+        {
+            BadgeBorderWidth = value;
+            return this;
+        }
+        public MenuItem SetBadgeBorder(float value, Color color)
+        {
+            BadgeBorderWidth = value;
+            BadgeBorderColor = color;
             return this;
         }
 
@@ -2767,13 +3215,13 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         /// <summary>
         /// 名称
         /// </summary>
-        [Description("名称"), Category("数据"), DefaultValue(null)]
+        [Description("名称"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? Name { get; set; }
 
         #region 图标
@@ -2782,7 +3230,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -2798,7 +3246,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -2818,13 +3266,13 @@ namespace AntdUI
         /// <summary>
         /// 图标激活
         /// </summary>
-        [Description("图标激活"), Category("外观"), DefaultValue(null)]
+        [Description("图标激活"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? IconActive { get; set; }
 
         /// <summary>
         /// 图标激活SVG
         /// </summary>
-        [Description("图标激活SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标激活SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconActiveSvg { get; set; }
 
         #endregion
@@ -2833,7 +3281,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示
         /// </summary>
-        [Description("是否显示"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Visible
         {
             get => visible;
@@ -2848,7 +3296,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 禁用
@@ -2857,7 +3305,7 @@ namespace AntdUI
         /// <summary>
         /// 禁用状态
         /// </summary>
-        [Description("禁用状态"), Category("行为"), DefaultValue(true)]
+        [Description("禁用状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Enabled
         {
             get => enabled;
@@ -2874,6 +3322,9 @@ namespace AntdUI
         #region 徽标
 
         string? badge;
+        /// <summary>
+        /// 徽标内容
+        /// </summary>
         [Description("徽标内容"), Category("徽标"), DefaultValue(null), Localizable(true)]
         public string? Badge
         {
@@ -2887,6 +3338,9 @@ namespace AntdUI
         }
 
         string? badgeSvg;
+        /// <summary>
+        /// 徽标SVG
+        /// </summary>
         [Description("徽标SVG"), Category("徽标"), DefaultValue(null)]
         public string? BadgeSvg
         {
@@ -2900,6 +3354,9 @@ namespace AntdUI
         }
 
         TAlign badgeAlign = TAlign.Right;
+        /// <summary>
+        /// 徽标方向
+        /// </summary>
         [Description("徽标方向"), Category("徽标"), DefaultValue(TAlign.Right)]
         public TAlign BadgeAlign
         {
@@ -2913,6 +3370,9 @@ namespace AntdUI
         }
 
         float badgeSize = .6F;
+        /// <summary>
+        /// 徽标比例
+        /// </summary>
         [Description("徽标比例"), Category("徽标"), DefaultValue(.6F)]
         public float BadgeSize
         {
@@ -2926,6 +3386,9 @@ namespace AntdUI
         }
 
         bool badgeMode = false;
+        /// <summary>
+        /// 徽标模式（镂空）
+        /// </summary>
         [Description("徽标模式（镂空）"), Category("徽标"), DefaultValue(false)]
         public bool BadgeMode
         {
@@ -2938,7 +3401,26 @@ namespace AntdUI
             }
         }
 
+        Color? badgefore;
+        /// <summary>
+        /// 徽标前景颜色
+        /// </summary>
+        [Description("徽标前景颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeFore
+        {
+            get => badgefore;
+            set
+            {
+                if (badgefore == value) return;
+                badgefore = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
         Color? badgeback;
+        /// <summary>
+        /// 徽标背景颜色
+        /// </summary>
         [Description("徽标背景颜色"), Category("徽标"), DefaultValue(null)]
         public Color? BadgeBack
         {
@@ -2947,6 +3429,38 @@ namespace AntdUI
             {
                 if (badgeback == value) return;
                 badgeback = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
+        Color? badgeBorderColor;
+        /// <summary>
+        /// 徽标边框颜色
+        /// </summary>
+        [Description("徽标边框颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeBorderColor
+        {
+            get => badgeBorderColor;
+            set
+            {
+                if (badgeBorderColor == value) return;
+                badgeBorderColor = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
+        float? badgeBorderWidth;
+        /// <summary>
+        /// 徽标边框宽度
+        /// </summary>
+        [Description("徽标边框宽度"), Category("徽标"), DefaultValue(null)]
+        public float? BadgeBorderWidth
+        {
+            get => badgeBorderWidth;
+            set
+            {
+                if (badgeBorderWidth == value) return;
+                badgeBorderWidth = value;
                 if (badge != null || badgeSvg != null) Invalidate();
             }
         }
@@ -3155,9 +3669,30 @@ namespace AntdUI
             BadgeSize = value;
             return this;
         }
+        public MenuButton SetBadgeFore(Color? value)
+        {
+            BadgeFore = value;
+            return this;
+        }
         public MenuButton SetBadgeBack(Color? value)
         {
             BadgeBack = value;
+            return this;
+        }
+        public MenuButton SetBadgeBorderColor(Color? value)
+        {
+            BadgeBorderColor = value;
+            return this;
+        }
+        public MenuButton SetBadgeBorderWidth(float? value)
+        {
+            BadgeBorderWidth = value;
+            return this;
+        }
+        public MenuButton SetBadgeBorder(float value, Color color)
+        {
+            BadgeBorderWidth = value;
+            BadgeBorderColor = color;
             return this;
         }
 

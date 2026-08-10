@@ -1,57 +1,36 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace AntdUI
 {
     partial class Table
     {
         /// <summary>
-        /// 焦点跳转配置字典 - 定义字段间的跳转顺序
-        /// </summary>
-        private Dictionary<string, string> _focusNavigationMap = new Dictionary<string, string>();
-        private string? _firstFieldKey;
-        private bool? _selectAll;
-        private bool? _lineBreak;
-
-        /// <summary>
         /// 是否启用焦点自动跳转
         /// </summary>
-        [Description("是否启用焦点自动跳转"), Category("行为"), DefaultValue(false)]
+        [Description("是否启用焦点自动跳转"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool EnableFocusNavigation { get; set; } = false;
 
         /// <summary>
         /// 焦点跳转时自动选中行（行背景色跟随）
         /// </summary>
-        [Description("焦点跳转时自动选中行"), Category("行为"), DefaultValue(true)]
+        [Description("焦点跳转时自动选中行"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool FocusNavigationAutoSelectRow { get; set; } = true;
 
         /// <summary>
         /// 焦点跳转时自动滚动到新行
         /// </summary>
-        [Description("焦点跳转时自动滚动到新行"), Category("行为"), DefaultValue(true)]
+        [Description("焦点跳转时自动滚动到新行"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool FocusNavigationAutoScroll { get; set; } = true;
 
+        NavigationConfig? navigationConfig;
         /// <summary>
         /// 配置焦点跳转顺序  
         /// </summary>
@@ -60,95 +39,32 @@ namespace AntdUI
         /// <param name="lineBreak">是否换行，不换行本行则回到第一个设置的字段</param>
         public void ConfigureFocusNavigation(string[] fieldSequence, bool selectAll = true, bool lineBreak = true)
         {
-            _focusNavigationMap.Clear();
-
-            for (int i = 0; i < fieldSequence.Length - 1; i++)
+            if (fieldSequence.Length > 0)
             {
-                _focusNavigationMap[fieldSequence[i]] = fieldSequence[i + 1];
+                navigationConfig = new NavigationConfig(fieldSequence, selectAll, lineBreak);
+                EnableFocusNavigation = true;
             }
-
-            // 记录第一个字段，用于跨行跳转
-            if (fieldSequence.Length > 0) _firstFieldKey = fieldSequence[0];
-
-            EnableFocusNavigation = _focusNavigationMap.Count > 0;
-            _selectAll = selectAll;
-            _lineBreak = lineBreak;
-        }
-
-        /// <summary>
-        /// 移动到下一个可编辑单元格
-        /// </summary>
-        /// <param name="rowIndex">行索引</param>
-        /// <param name="columnKey">列键名</param>
-        private void MoveToNextEditableCell(int rowIndex, string columnKey)
-        {
-            try
+            else
             {
-                if (!EnableFocusNavigation) return;
-
-                // 找到目标列
-                var targetColumn = Columns.FirstOrDefault(c => c.Key == columnKey);
-
-                if (targetColumn != null && targetColumn.Editable)
-                {
-                    BeginInvoke(new Action(() =>
-                    {
-                        // 更新选中行索引，使行背景色跟随焦点切换
-                        if (FocusNavigationAutoSelectRow && (selectedIndex.Length == 0 || selectedIndex[0] != rowIndex)) SelectedIndex = rowIndex;
-
-                        // 滚动到新行，确保行在可见范围内
-                        if (FocusNavigationAutoScroll) ScrollLine(rowIndex);
-
-                        // 获取列索引
-                        var columnIndex = Columns.IndexOf(targetColumn);
-
-                        if (columnIndex >= 0)
-                        {
-                            EnterEditMode(rowIndex, columnIndex);
-
-                            // 如果启用文本全选，延迟设置文本全选
-                            if (_selectAll == true)
-                            {
-                                BeginInvoke(new Action(() =>
-                                {
-                                    // 查找当前编辑的输入控件并设置全选
-                                    var editControls = Controls.OfType<Input>().Where(c => c.Visible && c.Focused).ToList();
-                                    foreach (var input in editControls)
-                                    {
-                                        input.SelectAll();
-                                        input.Focus();
-                                        break; // 只处理第一个找到的输入控件
-                                    }
-                                }));
-                            }
-                        }
-                    }));
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[MoveToNextEditableCell] 焦点跳转失败: {ex.Message}");
+                navigationConfig = null;
+                EnableFocusNavigation = false;
             }
         }
 
         /// <summary>
         /// 焦点跳转
         /// </summary>
-        /// <param name="columnKey">当前编辑的列键名</param>
-        /// <param name="rowIndex">行索引</param>
-        public void FocusNavigation(string columnKey, int rowIndex)
+        /// <param name="e">当前编辑的列</param>
+        public void FocusNavigation(TableCellEditEnterEventArgs e)
         {
-            // 检查是否启用焦点跳转、列键是否有效 
-            if (!EnableFocusNavigation || string.IsNullOrEmpty(columnKey)) return;
-
-            // 查找下一个字段
-            if (_focusNavigationMap.TryGetValue(columnKey, out var nextColumnKey)) BeginInvoke(() => MoveToNextEditableCell(rowIndex, nextColumnKey));
-            else
+            if (navigationConfig == null) return;
+            if (navigationConfig.Contains(e.Column.Key, out var nextColumnKey))
             {
-                if (!string.IsNullOrEmpty(_firstFieldKey))
+                // 查找下一个字段
+                if (nextColumnKey == null)
                 {
                     // 当前字段是最后一个字段
-                    if (_lineBreak == true)
+                    if (navigationConfig.LineBreak)
                     {
                         // 允许换行：尝试跳转到下一行的第一个字段
                         // 检查是否有下一行
@@ -161,29 +77,109 @@ namespace AntdUI
 
                         if (totalRows > 0)
                         {
-                            int nextRowIndex = rowIndex + 1;
-                            if (nextRowIndex < totalRows) BeginInvoke(() => MoveToNextEditableCell(nextRowIndex, _firstFieldKey!));
+                            int nextRowIndex = e.RowIndex + 1;
+                            if (nextRowIndex < totalRows) MoveToNextEditableCell(navigationConfig, nextRowIndex, navigationConfig.FirstFieldKey);
                         }
                     }
-                    else
-                    {
-                        // 不换行：回到本行的第一个字段
-                        BeginInvoke(() => MoveToNextEditableCell(rowIndex, _firstFieldKey!));
-                    }
+                    else MoveToNextEditableCell(navigationConfig, e.RowIndex, navigationConfig.FirstFieldKey);// 不换行：回到本行的第一个字段
                 }
+                else MoveToNextEditableCell(navigationConfig, e.RowIndex, nextColumnKey);
             }
         }
 
         /// <summary>
-        /// 单元格编辑模式下按下回车键事件处理
+        /// 移动到下一个可编辑单元格
         /// </summary>
-        public void Table_CellEditEnter(TableCellEditEnterEventArgs e)
+        /// <param name="rowIndex">行索引</param>
+        /// <param name="columnKey">列键名</param>
+        private void MoveToNextEditableCell(NavigationConfig navigationConfig, int rowIndex, string columnKey)
         {
-            if (EnableFocusNavigation)
+            if (rows == null) return;
+            foreach (var it in rows.First.cells)
             {
-                if (e.Column?.Key == null) return;
-                // 处理焦点跳转
-                FocusNavigation(e.Column.Key, e.RowIndex);
+                if (it.COLUMN.Key == columnKey)
+                {
+                    if (it.COLUMN.Editable)
+                    {
+                        if (MoveToNextEditableCell(rowIndex, it) && navigationConfig.SelectAll) BeginInvoke(MoveToNextEditableCellSelectAll);
+                    }
+                    return;
+                }
+            }
+        }
+        private bool MoveToNextEditableCell(int rowIndex, CELL cell)
+        {
+            try
+            {
+                // 更新选中行索引，使行背景色跟随焦点切换
+                if (FocusNavigationAutoSelectRow && (selectedIndex.Length == 0 || selectedIndex[0] != rowIndex)) SelectedIndex = rowIndex;
+
+                // 滚动到新行，确保行在可见范围内
+                if (FocusNavigationAutoScroll)
+                {
+                    ScrollLine(cell.ROW.RECORD);
+                    ScrollColumn(cell.COLUMN);
+                }
+                // 获取列索引
+                if (cell.INDEX >= 0)
+                {
+                    SetFocusedCell(cell);
+                    EnterEditMode(rowIndex, cell.INDEX);
+                    // 如果启用文本全选，延迟设置文本全选
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MoveToNextEditableCell] 焦点跳转失败: {ex.Message}");
+            }
+            return false;
+        }
+        private void MoveToNextEditableCellSelectAll()
+        {
+            try
+            {
+                foreach (var it in _editControls)
+                {
+                    it.Key.SelectAll();
+                    it.Key.Focus();
+                    return;
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public class NavigationConfig
+        {
+            public NavigationConfig(string[] fieldSequence, bool selectAll, bool lineBreak)
+            {
+                SelectAll = selectAll;
+                LineBreak = lineBreak;
+                int len = fieldSequence.Length - 1;
+                FirstFieldKey = fieldSequence[0];
+                LastFieldKey = fieldSequence[len];
+                Map = new Dictionary<string, string>(len);
+                for (int i = 0; i < len; i++) Map.Add(fieldSequence[i], fieldSequence[i + 1]);
+            }
+
+            /// <summary>
+            /// 焦点跳转配置字典 - 定义字段间的跳转顺序
+            /// </summary>
+            public Dictionary<string, string> Map { get; set; }
+
+            public string FirstFieldKey { get; set; }
+            public string LastFieldKey { get; set; }
+
+            public bool SelectAll { get; set; }
+            public bool LineBreak { get; set; }
+
+            public bool Contains(string key, out string? next)
+            {
+                if (Map.TryGetValue(key, out next)) return true;
+                next = null;
+                return FirstFieldKey == key || LastFieldKey == key;
             }
         }
     }

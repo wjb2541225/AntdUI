@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -40,7 +27,7 @@ namespace AntdUI
         /// <summary>
         /// 原装背景颜色
         /// </summary>
-        [Description("原装背景颜色"), Category("外观"), DefaultValue(typeof(Color), "Transparent")]
+        [Description("原装背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "Transparent")]
         public Color OriginalBackColor
         {
             get => base.BackColor;
@@ -51,7 +38,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -71,7 +58,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? BackColor
         {
@@ -89,7 +76,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片
         /// </summary>
-        [Description("背景图片"), Category("外观"), DefaultValue(null)]
+        [Description("背景图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public new Image? BackgroundImage
         {
             get => backImage;
@@ -106,7 +93,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片布局
         /// </summary>
-        [Description("背景图片布局"), Category("外观"), DefaultValue(TFit.Fill)]
+        [Description("背景图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Fill)]
         public new TFit BackgroundImageLayout
         {
             get => backFit;
@@ -146,7 +133,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -163,7 +150,7 @@ namespace AntdUI
         /// <summary>
         /// 类型
         /// </summary>
-        [Description("类型"), Category("外观"), DefaultValue(TTypeMini.Default)]
+        [Description("类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TTypeMini.Default)]
         public TTypeMini Type
         {
             get => type;
@@ -180,7 +167,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示关闭图标
         /// </summary>
-        [Description("是否显示关闭图标"), Category("行为"), DefaultValue(false)]
+        [Description("是否显示关闭图标"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool CloseIcon
         {
             get => closeIcon;
@@ -200,7 +187,7 @@ namespace AntdUI
         /// 文本
         /// </summary>
         [Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(UITypeEditor))]
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -225,7 +212,7 @@ namespace AntdUI
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("外观"), DefaultValue(ContentAlignment.MiddleCenter)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleCenter)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -243,7 +230,7 @@ namespace AntdUI
         /// <summary>
         /// 文本超出自动处理
         /// </summary>
-        [Description("文本超出自动处理"), Category("行为"), DefaultValue(false)]
+        [Description("文本超出自动处理"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool AutoEllipsis
         {
             get => autoEllipsis;
@@ -261,7 +248,7 @@ namespace AntdUI
         /// <summary>
         /// 是否多行
         /// </summary>
-        [Description("是否多行"), Category("行为"), DefaultValue(false)]
+        [Description("是否多行"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool TextMultiLine
         {
             get => textMultiLine;
@@ -284,7 +271,7 @@ namespace AntdUI
         /// <summary>
         /// 图像
         /// </summary>
-        [Description("图像"), Category("外观"), DefaultValue(null)]
+        [Description("图像"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Image
         {
             get => image;
@@ -298,7 +285,7 @@ namespace AntdUI
         }
 
         string? imageSvg;
-        [Description("图像SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图像SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? ImageSvg
         {
             get => imageSvg;
@@ -319,7 +306,7 @@ namespace AntdUI
         /// <summary>
         /// 图像大小
         /// </summary>
-        [Description("图像大小"), Category("外观"), DefaultValue(typeof(Size), "0, 0")]
+        [Description("图像大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "0, 0")]
         public Size ImageSize { get; set; }
 
         #endregion
@@ -331,7 +318,7 @@ namespace AntdUI
         /// <summary>
         /// Close时发生
         /// </summary>
-        [Description("Close时发生"), Category("行为")]
+        [Description("Close时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event RBoolEventHandler? CloseChanged;
 
         protected virtual bool OnCloseChanged() => CloseChanged?.Invoke(this, EventArgs.Empty) ?? true;
@@ -345,40 +332,40 @@ namespace AntdUI
             var g = e.Canvas;
             var rect_read = ReadRectangle;
             if (backImage != null) g.Image(rect_read, backImage, backFit, radius, false);
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
             Color _fore, _back, _bor;
             switch (type)
             {
                 case TTypeMini.Default:
-                    _back = Colour.TagDefaultBg.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _fore = Colour.TagDefaultColor.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _bor = Colour.DefaultBorder.Get(nameof(AntdUI.Tag), ColorScheme);
+                    _back = Colour.TagDefaultBg.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _fore = Colour.TagDefaultColor.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _bor = Colour.DefaultBorder.Get(ColorScheme, nameof(AntdUI.Tag), Name);
                     break;
                 case TTypeMini.Error:
-                    _back = Colour.ErrorBg.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _fore = Colour.Error.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _bor = Colour.ErrorBorder.Get(nameof(AntdUI.Tag), ColorScheme);
+                    _back = Colour.ErrorBg.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _fore = Colour.Error.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _bor = Colour.ErrorBorder.Get(ColorScheme, nameof(AntdUI.Tag), Name);
                     break;
                 case TTypeMini.Success:
-                    _back = Colour.SuccessBg.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _fore = Colour.Success.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _bor = Colour.SuccessBorder.Get(nameof(AntdUI.Tag), ColorScheme);
+                    _back = Colour.SuccessBg.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _fore = Colour.Success.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _bor = Colour.SuccessBorder.Get(ColorScheme, nameof(AntdUI.Tag), Name);
                     break;
                 case TTypeMini.Info:
-                    _back = Colour.InfoBg.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _fore = Colour.Info.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _bor = Colour.InfoBorder.Get(nameof(AntdUI.Tag), ColorScheme);
+                    _back = Colour.InfoBg.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _fore = Colour.Info.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _bor = Colour.InfoBorder.Get(ColorScheme, nameof(AntdUI.Tag), Name);
                     break;
                 case TTypeMini.Warn:
-                    _back = Colour.WarningBg.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _fore = Colour.Warning.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _bor = Colour.WarningBorder.Get(nameof(AntdUI.Tag), ColorScheme);
+                    _back = Colour.WarningBg.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _fore = Colour.Warning.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _bor = Colour.WarningBorder.Get(ColorScheme, nameof(AntdUI.Tag), Name);
                     break;
                 case TTypeMini.Primary:
                 default:
-                    _back = Colour.PrimaryBg.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _fore = Colour.Primary.Get(nameof(AntdUI.Tag), ColorScheme);
-                    _bor = Colour.Primary.Get(nameof(AntdUI.Tag), ColorScheme);
+                    _back = Colour.PrimaryBg.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _fore = Colour.Primary.Get(ColorScheme, nameof(AntdUI.Tag), Name);
+                    _bor = Colour.Primary.Get(ColorScheme, nameof(AntdUI.Tag), Name);
                     break;
             }
             if (fore.HasValue) _fore = fore.Value;
@@ -390,7 +377,7 @@ namespace AntdUI
 
                 g.Fill(_back, path);
 
-                if (borderWidth > 0) g.Draw(_bor, borderWidth * Config.Dpi, path);
+                if (borderWidth > 0) g.Draw(_bor, borderWidth * Dpi, path);
 
                 #endregion
 
@@ -413,9 +400,9 @@ namespace AntdUI
                         int size = (int)(rect_read.Height * .4F);
                         var rect_arrow = new Rectangle(rect_read.X + (rect_read.Width - size) / 2, rect_read.Y + (rect_read.Height - size) / 2, size, size);
                         rect_close = rect_arrow;
-                        if (hover_close.Animation) g.PaintIconClose(rect_arrow, Helper.ToColor(hover_close.Value + Colour.TextQuaternary.Get(nameof(AntdUI.Tag), ColorScheme).A, Colour.Text.Get(nameof(AntdUI.Tag), ColorScheme)));
-                        else if (hover_close.Switch) g.PaintIconClose(rect_arrow, Colour.Text.Get(nameof(AntdUI.Tag), ColorScheme));
-                        else g.PaintIconClose(rect_arrow, Colour.TextQuaternary.Get(nameof(AntdUI.Tag), ColorScheme));
+                        if (hover_close.Animation) g.Svg(SvgDb.IcoErrorGhost, rect_arrow, Helper.ToColor(hover_close.Value + Colour.TextQuaternary.Get(ColorScheme, nameof(AntdUI.Tag), Name).A, Colour.Text.Get(ColorScheme, nameof(AntdUI.Tag), Name)));
+                        else if (hover_close.Switch) g.Svg(SvgDb.IcoErrorGhost, rect_arrow, Colour.Text.Get(ColorScheme, nameof(AntdUI.Tag), Name));
+                        else g.Svg(SvgDb.IcoErrorGhost, rect_arrow, Colour.TextQuaternary.Get(ColorScheme, nameof(AntdUI.Tag), Name));
                     }
                 }
             }
@@ -426,9 +413,9 @@ namespace AntdUI
                 rect_close = rect.r;
                 if (closeIcon)
                 {
-                    if (hover_close.Animation) g.PaintIconClose(rect.r, Helper.ToColor(hover_close.Value + Colour.TextQuaternary.Get(nameof(AntdUI.Tag), ColorScheme).A, Colour.Text.Get(nameof(AntdUI.Tag), ColorScheme)), .8F);
-                    else if (hover_close.Switch) g.PaintIconClose(rect.r, Colour.Text.Get(nameof(AntdUI.Tag), ColorScheme), .8F);
-                    else g.PaintIconClose(rect.r, Colour.TextQuaternary.Get(nameof(AntdUI.Tag), ColorScheme), .8F);
+                    if (hover_close.Animation) g.PaintIconCore(rect.r, SvgDb.IcoErrorGhost, Helper.ToColor(hover_close.Value + Colour.TextQuaternary.Get(ColorScheme, nameof(AntdUI.Tag), Name).A, Colour.Text.Get(ColorScheme, nameof(AntdUI.Tag), Name)), .8F);
+                    else if (hover_close.Switch) g.PaintIconCore(rect.r, SvgDb.IcoErrorGhost, Colour.Text.Get(ColorScheme, nameof(AntdUI.Tag), Name), .8F);
+                    else g.PaintIconCore(rect.r, SvgDb.IcoErrorGhost, Colour.TextQuaternary.Get(ColorScheme, nameof(AntdUI.Tag), Name), .8F);
                 }
                 PaintImage(g, color, rect.l);
                 using (var brush = new SolidBrush(color))
@@ -449,7 +436,7 @@ namespace AntdUI
         {
             if (imageSvg != null)
             {
-                g.GetImgExtend(imageSvg, GetImageRectCenter(font_size, rect_read), color);
+                g.Svg(imageSvg, GetImageRectCenter(font_size, rect_read), color);
                 return false;
             }
             else if (image != null)
@@ -469,7 +456,7 @@ namespace AntdUI
         {
             if (ImageSize.Width > 0 && ImageSize.Height > 0)
             {
-                int w = (int)(ImageSize.Width * Config.Dpi), h = (int)(ImageSize.Height * Config.Dpi);
+                int w = (int)(ImageSize.Width * Dpi), h = (int)(ImageSize.Height * Dpi);
                 return new Rectangle(rect_read.X + (rect_read.Width - w) / 2, rect_read.Y + (rect_read.Height - h) / 2, w, h);
             }
             else
@@ -487,7 +474,7 @@ namespace AntdUI
         /// <param name="rectl">图标区域</param>
         void PaintImage(Canvas g, Color? color, Rectangle rectl)
         {
-            if (imageSvg != null) g.GetImgExtend(imageSvg, GetImageRect(rectl), color);
+            if (imageSvg != null) g.Svg(imageSvg, GetImageRect(rectl), color);
             else if (image != null) g.Image(image, GetImageRect(rectl));
         }
 
@@ -499,7 +486,7 @@ namespace AntdUI
         {
             if (ImageSize.Width > 0 && ImageSize.Height > 0)
             {
-                int w = (int)(ImageSize.Width * Config.Dpi), h = (int)(ImageSize.Height * Config.Dpi);
+                int w = (int)(ImageSize.Width * Dpi), h = (int)(ImageSize.Height * Dpi);
                 return new Rectangle(rectl.X + (rectl.Width - w) / 2, rectl.Y + (rectl.Height - h) / 2, w, h);
             }
             else return rectl;
@@ -507,14 +494,14 @@ namespace AntdUI
 
         #endregion
 
-        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding, borderWidth / 2F * Config.Dpi);
+        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding, borderWidth / 2F * Dpi);
 
         public override GraphicsPath RenderRegion
         {
             get
             {
                 var rect_read = ReadRectangle;
-                float _radius = radius * Config.Dpi;
+                float _radius = radius * Dpi;
                 return rect_read.RoundPath(_radius);
             }
         }
@@ -545,7 +532,7 @@ namespace AntdUI
         {
             if (closeIcon)
             {
-                hover_close.MaxValue = Colour.Text.Get(nameof(AntdUI.Tag), ColorScheme).A - Colour.TextQuaternary.Get(nameof(AntdUI.Tag), ColorScheme).A;
+                hover_close.MaxValue = Colour.Text.Get(ColorScheme, nameof(AntdUI.Tag), Name).A - Colour.TextQuaternary.Get(ColorScheme, nameof(AntdUI.Tag), Name).A;
                 hover_close.Switch = rect_close.Contains(e.X, e.Y);
                 SetCursor(hover_close.Switch);
             }
@@ -560,7 +547,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -581,7 +568,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("外观"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -608,17 +595,17 @@ namespace AntdUI
             return PSize;
         }
 
-        public Size PSize
+        public virtual Size PSize
         {
             get
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     var font_size = g.MeasureText(Text ?? Config.NullText, Font);
                     int count = 0;
                     if (HasImage) count++;
                     if (closeIcon) count++;
-                    return new Size(font_size.Width + (int)(14F * Config.Dpi) + (font_size.Height * count), font_size.Height + (int)(8F * Config.Dpi));
+                    return new Size(font_size.Width + (int)(14F * Dpi) + (font_size.Height * count), font_size.Height + (int)(8F * Dpi));
                 });
             }
         }

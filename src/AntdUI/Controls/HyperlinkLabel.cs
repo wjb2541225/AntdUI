@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -44,7 +31,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("Appearance"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -65,7 +52,7 @@ namespace AntdUI
         /// 文本
         /// </summary>
         [Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(UITypeEditor))]
-        [Description("文本"), Category("Appearance"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -75,9 +62,9 @@ namespace AntdUI
             {
                 if (text == value) return;
                 text = value;
+                ParseText();
                 if (BeforeAutoSize()) Invalidate();
                 OnTextChanged(EventArgs.Empty);
-                ParseText();
                 OnPropertyChanged(nameof(Text));
             }
         }
@@ -93,7 +80,7 @@ namespace AntdUI
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("Appearance"), DefaultValue(ContentAlignment.MiddleLeft)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -194,7 +181,7 @@ namespace AntdUI
         /// 常规状态下链接的样式
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [Description("常规状态下链接的样式"), Category("Appearance"), DefaultValue(null)]
+        [Description("常规状态下链接的样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public LinkAppearance? NormalStyle
         {
             get
@@ -220,7 +207,7 @@ namespace AntdUI
         /// 鼠标悬停时链接的样式
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        [Description("鼠标悬停时链接的样式"), Category("Appearance"), DefaultValue(null)]
+        [Description("鼠标悬停时链接的样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public LinkAppearance? HoverStyle
         {
             get
@@ -245,10 +232,10 @@ namespace AntdUI
         /// <summary>
         /// 链接与周围字符之间的距离
         /// </summary>
-        [Description("链接与周围字符之间的距离"), Category("Appearance"), DefaultValue(typeof(Padding), "2, 0, 2, 0")]
+        [Description("链接与周围字符之间的距离"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Padding), "2, 0, 2, 0")]
         public Padding LinkPadding
         {
-            get { return _linkPadding; }
+            get => _linkPadding;
             set
             {
                 _linkPadding = value;
@@ -259,7 +246,7 @@ namespace AntdUI
         /// <summary>
         /// 自动调用默认浏览器打开超链接
         /// </summary>
-        [Description("自动调用默认浏览器打开超链接"), Category("Behavior"), DefaultValue(typeof(bool), "False")]
+        [Description("自动调用默认浏览器打开超链接"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(typeof(bool), "False")]
         public bool LinkAutoNavigation { get; set; }
 
         #endregion
@@ -270,30 +257,16 @@ namespace AntdUI
         {
             base.OnDraw(e);
 
+            if (_linkParts.Length == 0) return;
+
             var g = e.Canvas;
             var rect = ReadRectangle;
 
-            Color _fore = fore ?? Style.Get(Colour.Text, nameof(HyperlinkLabel));
-            if (shadow > 0)
-            {
-                using (var bmp = new Bitmap(Width, Height))
-                {
-                    using (var g2 = Graphics.FromImage(bmp).HighLay())
-                    {
-                        PaintText(g2, Text, ShadowColor ?? _fore, rect);
-                    }
-                    Helper.Blur(bmp, shadow);
-                    g.Image(bmp, new Rectangle(shadowOffsetX, shadowOffsetY, bmp.Width, bmp.Height), shadowOpacity);
-                }
-            }
-            PaintText(g, Text, _fore, rect);
-        }
+            Color _fore = fore ?? Style.Get(Colour.Text, nameof(HyperlinkLabel), Name);
+            var linkPadding = Helper.SetPadding(Dpi, _linkPadding);
 
-        void PaintText(Canvas g, string? text, Color color, Rectangle rect)
-        {
             // 计算文本的总尺寸以支持对齐
-            var totalSize = CalculateTextSize(g, text);
-
+            var totalSize = CalculateTextSize(g, rect, linkPadding);
             // 根据 TextAlign 计算起始位置
             int startX = rect.X, startY = rect.Y;
 
@@ -337,91 +310,183 @@ namespace AntdUI
                     break;
             }
 
+            if (shadow > 0)
+            {
+                using (var bmp = new Bitmap(Width, Height))
+                {
+                    using (var g2 = Graphics.FromImage(bmp).HighLay(Dpi, true))
+                    {
+                        PaintText(g2, ShadowColor ?? _fore, rect, linkPadding, startX, startY);
+                    }
+                    Helper.Blur(bmp, shadow);
+                    g.Image(bmp, new Rectangle(shadowOffsetX, shadowOffsetY, bmp.Width, bmp.Height), shadowOpacity);
+                }
+            }
+            PaintText(g, _fore, rect, linkPadding, startX, startY);
+        }
+
+        void PaintText(Canvas g, Color color, Rectangle rect, Padding linkPadding, int startX, int startY)
+        {
+            // 计算文本的总尺寸以支持对齐
             int usex = startX, usey = startY;
 
             foreach (var part in _linkParts)
             {
-                if (part.Href == null)
-                {
-                    var size = g.MeasureText(part.Text, Font);
-                    if (usex + size.Width > rect.Right && usex > startX)
-                    {
-                        usex = startX;
-                        usey += size.Height;
-                    }
-                    part.Bounds = new Rectangle(usex, usey, size.Width, size.Height);
-                    g.DrawText(part.Text, Font, color, part.Bounds);
-                    usex += size.Width;
-                }
-                else if (part.Hover) PaintText(g, rect, part, startX, ref usex, ref usey, Colour.PrimaryActive, hoverStyle);
-                else PaintText(g, rect, part, startX, ref usex, ref usey, Colour.Primary, normalStyle);
-            }
-        }
-        void PaintText(Canvas g, Rectangle rect, LinkPart part, int startX, ref int usex, ref int usey, Colour colour, LinkAppearance? style)
-        {
-            if (style == null)
-            {
-                var size = g.MeasureText(part.Text, Font).DeflateSize(LinkPadding);
-                if (usex + size.Width > rect.Right && usex > startX)
+                if (usex + part.Width > rect.Right && usex > startX)
                 {
                     usex = startX;
-                    usey += size.Height;
+                    usey += part.Height;
                 }
-                part.Bounds = new Rectangle(usex, usey, size.Width, size.Height);
-                g.DrawText(part.Text, Font, Style.Get(colour, nameof(HyperlinkLabel)), part.Bounds);
-
-                usex += size.Width;
-            }
-            else
-            {
-                using (var font = new Font(Font, style.LinkStyle & ~FontStyle.Underline))
-                {
-                    var size = g.MeasureText(part.Text, Font).DeflateSize(LinkPadding);
-                    if (usex + size.Width > rect.Right && usex > startX)
-                    {
-                        usex = startX;
-                        usey += size.Height;
-                    }
-                    part.Bounds = new Rectangle(usex, usey, size.Width, size.Height);
-                    g.DrawText(part.Text, font, style.LinkColor ?? Style.Get(colour, nameof(HyperlinkLabel)), part.Bounds);
-
-                    PaintText(g, style, Style.Get(colour, nameof(HyperlinkLabel)), part.Bounds);
-
-                    usex += size.Width;
-                }
-            }
-        }
-
-        private Size CalculateTextSize(Canvas g, string? text)
-        {
-            if (string.IsNullOrEmpty(text) || _linkParts.Length == 0) return Size.Empty;
-
-            int totalWidth = 0, maxHeight = 0;
-
-            foreach (var part in _linkParts)
-            {
-                Size partSize;
-                if (part.Href == null || normalStyle == null) partSize = g.MeasureText(part.Text, Font);
+                part.Bounds = new Rectangle(usex, usey, part.Width, part.Height);
+                usex += part.Width;
+                if (part.Href == null) g.DrawText(part.Text, Font, color, part.Bounds);
                 else
                 {
-                    using (var font = new Font(Font, normalStyle.LinkStyle & ~FontStyle.Underline))
+                    if (part.Hover)
                     {
-                        partSize = g.MeasureText(part.Text, font).DeflateSize(LinkPadding);
+                        if (hoverStyle == null) g.DrawText(part.Text, Font, color, part.Bounds);
+                        else
+                        {
+                            var colorlink = hoverStyle.LinkColor ?? Style.Get(Colour.PrimaryActive, nameof(HyperlinkLabel), Name);
+                            using (var font = new Font(Font, hoverStyle.LinkStyle))
+                            {
+                                g.DrawText(part.Text, font, colorlink, part.Bounds);
+                            }
+                            PaintText(g, hoverStyle, colorlink, part.Bounds, linkPadding);
+                        }
+                    }
+                    else
+                    {
+                        if (normalStyle == null) g.DrawText(part.Text, Font, color, part.Bounds);
+                        else
+                        {
+                            var colorlink = normalStyle.LinkColor ?? Style.Get(Colour.Primary, nameof(HyperlinkLabel), Name);
+                            using (var font = new Font(Font, normalStyle.LinkStyle & ~FontStyle.Underline))
+                            {
+                                g.DrawText(part.Text, font, colorlink, part.Bounds);
+                            }
+                            PaintText(g, normalStyle, colorlink, part.Bounds, linkPadding);
+                        }
                     }
                 }
-                totalWidth += partSize.Width;
-                maxHeight = Math.Max(maxHeight, partSize.Height);
             }
-            return new Size(totalWidth, maxHeight);
         }
-        void PaintText(Canvas g, LinkAppearance style, Color color, Rectangle rect)
+        void PaintText(Canvas g, LinkAppearance style, Color color, Rectangle rect, Padding linkPadding)
         {
             if (style.UnderlineThickness > 0)
             {
-                using var pen = new Pen(style.UnderlineColor ?? color, style.UnderlineThickness * Config.Dpi);
+                using var pen = new Pen(style.UnderlineColor ?? color, style.UnderlineThickness * Dpi);
                 int y = rect.Bottom;
-                g.DrawLine(pen, rect.Left + LinkPadding.Left, y, rect.Right - LinkPadding.Right, y);
+                g.DrawLine(pen, rect.Left + linkPadding.Left, y, rect.Right - linkPadding.Right, y);
             }
+        }
+
+        Size CalculateTextSize(Canvas g, Rectangle rect, Padding linkPadding)
+        {
+            if (_linkParts.Length == 0) return Size.Empty;
+            int usex = 0, line = 0, height = 0;
+            bool bold = HasBoldFont();
+            foreach (var part in _linkParts)
+            {
+                Size size;
+                if (part.Href == null) size = g.MeasureText(part.Text, Font).DeflateSize(linkPadding);
+                else
+                {
+                    if (part.Hover)
+                    {
+                        if (hoverStyle == null) size = g.MeasureText(part.Text, Font).DeflateSize(linkPadding);
+                        else
+                        {
+                            var style = hoverStyle.LinkStyle & ~FontStyle.Underline;
+                            if (bold) style |= FontStyle.Bold;
+                            using (var font = new Font(Font, style))
+                            {
+                                size = g.MeasureText(part.Text, font).DeflateSize(linkPadding);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (normalStyle == null) size = g.MeasureText(part.Text, Font).DeflateSize(linkPadding);
+                        else
+                        {
+                            var style = normalStyle.LinkStyle & ~FontStyle.Underline;
+                            if (bold) style |= FontStyle.Bold;
+                            using (var font = new Font(Font, style))
+                            {
+                                size = g.MeasureText(part.Text, font).DeflateSize(linkPadding);
+                            }
+                        }
+                    }
+                }
+                part.Width = size.Width;
+                if (usex + size.Width > rect.Width)
+                {
+                    usex = 0;
+                    line++;
+                }
+                usex += size.Width;
+                height = Math.Max(height, size.Height);
+            }
+            foreach (var it in _linkParts) it.Height = height;
+            return new Size(usex, height * (line + 1));
+        }
+        Size CalculateTextSize(Canvas g, Padding linkPadding)
+        {
+            if (_linkParts.Length == 0) return Size.Empty;
+            int usex = 0, height = 0;
+            bool bold = HasBoldFont();
+            foreach (var part in _linkParts)
+            {
+                Size size;
+                if (part.Href == null) size = g.MeasureText(part.Text, Font).DeflateSize(linkPadding);
+                else
+                {
+                    if (part.Hover)
+                    {
+                        if (hoverStyle == null) size = g.MeasureText(part.Text, Font).DeflateSize(linkPadding);
+                        else
+                        {
+                            var style = hoverStyle.LinkStyle & ~FontStyle.Underline;
+                            if (bold) style |= FontStyle.Bold;
+                            using (var font = new Font(Font, style))
+                            {
+                                size = g.MeasureText(part.Text, font).DeflateSize(linkPadding);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (normalStyle == null) size = g.MeasureText(part.Text, Font).DeflateSize(linkPadding);
+                        else
+                        {
+                            var style = normalStyle.LinkStyle & ~FontStyle.Underline;
+                            if (bold) style |= FontStyle.Bold;
+                            using (var font = new Font(Font, style))
+                            {
+                                size = g.MeasureText(part.Text, font).DeflateSize(linkPadding);
+                            }
+                        }
+                    }
+                }
+                part.Width = size.Width;
+                usex += size.Width;
+                height = Math.Max(height, size.Height);
+            }
+            foreach (var it in _linkParts) it.Height = height;
+            return new Size(usex, height);
+        }
+        bool HasBoldFont()
+        {
+            if (hoverStyle != null)
+            {
+                if (hoverStyle.LinkStyle.HasFlag(FontStyle.Bold)) return true;
+            }
+            if (normalStyle != null)
+            {
+                if (normalStyle.LinkStyle.HasFlag(FontStyle.Bold)) return true;
+            }
+            return false;
         }
 
         public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding);
@@ -440,7 +505,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("Appearance"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -461,7 +526,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("Appearance"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -488,20 +553,16 @@ namespace AntdUI
             return PSize;
         }
 
-        public Size PSize
+        public virtual Size PSize
         {
             get
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
-                    var font_size = g.MeasureText(_plainText ?? Config.NullText, Font);
-                    if (string.IsNullOrWhiteSpace(Text)) font_size.Width = 0;
-
-                    // 应用链接内边距和控件边距
-                    int totalWidth = font_size.Width + (_linkParts.Length * LinkPadding.Horizontal) + Padding.Horizontal;
-                    int totalHeight = font_size.Height + LinkPadding.Vertical + Padding.Vertical;
-
-                    return new Size(totalWidth, totalHeight);
+                    var font_size = g.MeasureString(Config.NullText, Font);
+                    var linkPadding = Helper.SetPadding(Dpi, _linkPadding);
+                    if (string.IsNullOrWhiteSpace(Text)) return new Size(font_size.Height, font_size.Height);
+                    return CalculateTextSize(g, linkPadding);
                 });
             }
         }
@@ -541,7 +602,6 @@ namespace AntdUI
         #region 私有方法
 
         LinkPart[] _linkParts = new LinkPart[0];
-        string _plainText = string.Empty;
         private void ParseText()
         {
             if (text == null)
@@ -581,8 +641,6 @@ namespace AntdUI
                 linkParts.Add(new LinkPart(plainText, null));
                 plainTextBuilder.Append(plainText);
             }
-
-            _plainText = plainTextBuilder.ToString(); // 保存纯文本
             _linkParts = linkParts.ToArray();
         }
 
@@ -628,7 +686,7 @@ namespace AntdUI
             {
                 if (part.Href != null && part.Bounds.Contains(e.Location))
                 {
-                    OnLinkClicked(part.Href, part.Text);
+                    OnLinkClicked(part.Href, part.Text, part.Bounds);
                     return;
                 }
             }
@@ -650,22 +708,13 @@ namespace AntdUI
             if (count > 0) Invalidate();
         }
 
-        protected virtual void OnLinkClicked(string href, string text)
+        protected virtual void OnLinkClicked(string href, string text, Rectangle rect)
         {
             if (LinkAutoNavigation && Uri.TryCreate(href, UriKind.Absolute, out _))
             {
-                try
-                {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = href,
-                        UseShellExecute = true
-                    });
-                    return;
-                }
-                catch { }
+                if (href.ProcessShellOpen()) return;
             }
-            LinkClicked?.Invoke(this, new LinkClickedEventArgs(href, text));
+            LinkClicked?.Invoke(this, new LinkClickedEventArgs(href, text, rect));
         }
 
         #endregion
@@ -676,10 +725,12 @@ namespace AntdUI
         {
             public string Href { get; private set; }
             public string Text { get; private set; }
-            public LinkClickedEventArgs(string href, string text)
+            public Rectangle Rect { get; private set; }
+            public LinkClickedEventArgs(string href, string text, Rectangle rect)
             {
                 Href = href;
                 Text = text;
+                Rect = rect;
             }
         }
 
@@ -702,6 +753,9 @@ namespace AntdUI
 
             // 用于点击检测
             public Rectangle Bounds { get; set; }
+
+            public int Width { get; set; }
+            public int Height { get; set; }
         }
 
         [TypeConverter(typeof(ExpandableObjectConverter))]

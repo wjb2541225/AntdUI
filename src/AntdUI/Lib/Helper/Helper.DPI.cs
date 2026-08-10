@@ -1,22 +1,10 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -25,7 +13,7 @@ namespace AntdUI
 {
     partial class Helper
     {
-        internal static void DpiAuto(float dpi, Control control)
+        public static void DpiAuto(float dpi, Control control)
         {
             if (dpi == 1F)
             {
@@ -39,21 +27,56 @@ namespace AntdUI
             }
             if (Config.DpiMode == DpiMode.Compatible)
             {
-                control.Scale(new SizeF(dpi, dpi));
-                DpiLS(dpi, control.Controls);
+                DpiCompatible(dpi, control);
                 return;
             }
             if (control is Form form)
             {
-                if (form.WindowState == FormWindowState.Maximized)
+                switch (form.AutoScaleMode)
                 {
-                    form.Scale(new SizeF(dpi, dpi));
-                    return;
+                    case AutoScaleMode.Font:
+                    case AutoScaleMode.Dpi:
+                        break;
+                    default:
+                        if (form.WindowState == FormWindowState.Maximized)
+                        {
+                            DpiCompatible(dpi, control);
+                            return;
+                        }
+                        DpiLS(dpi, form, DpiInfo(form.Controls));
+                        break;
                 }
-                DpiLS(dpi, form, DpiInfo(form.Controls));
             }
             else DpiLS(dpi, DpiInfo(control));
         }
+        public static void DpiChangeAuto(float dpi, float dpiold, Control control)
+        {
+            if (dpi == dpiold) return;
+            var revert_dpi = 1F / dpiold;
+            if (Config.DpiMode == DpiMode.Compatible)
+            {
+                DpiCompatible(revert_dpi, control);
+                DpiCompatible(dpi, control);
+                return;
+            }
+            if (control is Form form)
+            {
+                switch (form.AutoScaleMode)
+                {
+                    case AutoScaleMode.Font:
+                    case AutoScaleMode.Dpi:
+                        break;
+                    default:
+                        DpiCompatible(revert_dpi, control);
+                        DpiCompatible(dpi, control);
+                        break;
+                }
+            }
+            else DpiLS(dpi, DpiInfo(control));
+        }
+
+        public static void DpiCompatible(float dpi, Control control) => control.Scale(new SizeF(dpi, dpi));
+
         static Dictionary<Control, AnchorDock> DpiInfo(Control control)
         {
             var dir = new Dictionary<Control, AnchorDock>(control.Controls.Count + 1) {
@@ -114,8 +137,7 @@ namespace AntdUI
                 if (!control.MinimumSize.IsEmpty) control.MinimumSize = new Size((int)(control.MinimumSize.Width * dpi), (int)(control.MinimumSize.Height * dpi));
                 control.Padding = SetPadding(dpi, control.Padding);
                 control.Margin = SetPadding(dpi, control.Margin);
-                control.Size = new Size((int)(item.Value.Rect.Width * dpi), (int)(item.Value.Rect.Height * dpi));
-                control.Location = new Point((int)(item.Value.Rect.X * dpi), (int)(item.Value.Rect.Y * dpi));
+                control.Bounds = new Rectangle((int)(item.Value.Rect.X * dpi), (int)(item.Value.Rect.Y * dpi), (int)(item.Value.Rect.Width * dpi), (int)(item.Value.Rect.Height * dpi));
                 if (control is TableLayoutPanel tableLayout)
                 {
                     foreach (ColumnStyle it in tableLayout.ColumnStyles)
@@ -134,25 +156,6 @@ namespace AntdUI
                     if (splitContainer.Panel1MinSize > 0) splitContainer.Panel1MinSize = (int)(splitContainer.Panel1MinSize * dpi);
                     if (splitContainer.Panel2MinSize > 0) splitContainer.Panel2MinSize = (int)(splitContainer.Panel2MinSize * dpi);
                 }
-                else if (control is Panel panel) panel.padding = SetPadding(dpi, panel.padding);
-                else if (control is HyperlinkLabel hyperlink) hyperlink.LinkPadding = SetPadding(dpi, hyperlink.LinkPadding);
-                else if (control is TabHeader tabHeader)
-                {
-                    if (tabHeader.RightGap > 0) tabHeader.RightGap = (int)(tabHeader.RightGap * dpi);
-                }
-            }
-        }
-        static void DpiLS(float dpi, Control.ControlCollection controls)
-        {
-            foreach (Control control in controls)
-            {
-                if (control is Panel panel) panel.padding = SetPadding(dpi, panel.padding);
-                else if (control is HyperlinkLabel hyperlink) hyperlink.LinkPadding = SetPadding(dpi, hyperlink.LinkPadding);
-                else if (control is TabHeader tabHeader)
-                {
-                    if (tabHeader.RightGap > 0) tabHeader.RightGap = (int)(tabHeader.RightGap * dpi);
-                }
-                if (controls.Count > 0) DpiLS(dpi, control.Controls);
             }
         }
 
@@ -201,5 +204,38 @@ namespace AntdUI
             else if (control is StackPanel stackpanel) stackpanel.IOnSizeChanged();
             foreach (Control it in control.Controls) ControlEvent(it);
         }
+
+        public static float GetScreenDpi(Control control)
+        {
+            var targetScreen = Screen.FromPoint(Control.MousePosition); // 根据坐标找到对应屏幕
+            var rawDpi = GetScreenDpiByApi(targetScreen);
+            if (rawDpi.HasValue) return rawDpi.Value;
+#if NET40 || NET46 || NET48
+            return Config.Dpi;
+#else
+            return control.DeviceDpi / 96F;
+#endif
+        }
+
+        /// <summary>
+        /// 通过API获取指定屏幕的DPI（无临时窗体，高效）
+        /// </summary>
+        /// <param name="targetScreen">目标屏幕</param>
+        /// <param name="dpiType">DPI类型（默认有效DPI）</param>
+        /// <returns>指定屏幕的DPI值（X/Y通常相等）</returns>
+        public static float? GetScreenDpiByApi(Screen targetScreen, Win32.User32.MonitorDpiType dpiType = Win32.User32.MonitorDpiType.MDT_Effective_DPI)
+        {
+            // Win8.1以下系统（Build < 9600）不支持该API，返回默认96DPI
+            if (OS.Version.Build < 9600) return null;
+            // 稳妥获取屏幕句柄hMonitor（避免依赖Screen.HashCode的内部实现）
+            Rectangle screenRect = targetScreen.Bounds;
+            var hMonitor = Win32.User32.MonitorFromRect(ref screenRect, Win32.User32.MONITOR_DEFAULTTONEAREST);
+            if (Win32.User32.GetDpiForMonitor(hMonitor, dpiType, out uint dpiX, out uint dpiY) == 0) return GetDpi(dpiX, dpiY);
+            return null;
+        }
+
+        public static float GetDpi(uint dpiX, uint dpiY) => Math.Max(dpiX, dpiY) / 96F;
+        public static float GetDpi(int dpiX, int dpiY) => Math.Max(dpiX, dpiY) / 96F;
+        public static float GetDpi(float dpiX, float dpiY) => Math.Max(dpiX, dpiY) / 96F;
     }
 }

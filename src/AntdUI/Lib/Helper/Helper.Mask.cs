@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Windows.Forms;
 
@@ -23,6 +10,62 @@ namespace AntdUI
 {
     partial class Helper
     {
+        /// <summary>
+        /// ShowDialog 叠加蒙版
+        /// </summary>
+        /// <param name="owner">父窗口</param>
+        /// <param name="form">操作对象</param>
+        /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
+        public static DialogResult ShowDialogMask(this Form owner, Form form, out ILayeredFormOpacity mask, bool MaskClosable = false)
+        {
+            mask = owner.FormMask(form, MaskClosable);
+            var dialog = form.ShowDialog(mask);
+            mask.IClose();
+            return dialog;
+        }
+
+        /// <summary>
+        /// 叠加蒙版
+        /// </summary>
+        /// <param name="owner">父控件</param>
+        /// <param name="form">操作对象</param>
+        /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
+        public static DialogResult ShowDialogMask(this Control owner, Form form, out ILayeredFormOpacity mask, bool MaskClosable = false)
+        {
+            mask = owner.FormMask(form, MaskClosable);
+            var dialog = form.ShowDialog(mask);
+            mask.IClose();
+            return dialog;
+        }
+
+        /// <summary>
+        /// ShowDialog 叠加蒙版
+        /// </summary>
+        /// <param name="owner">父窗口</param>
+        /// <param name="form">操作对象</param>
+        /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
+        public static DialogResult ShowDialogMask(this Form owner, Form form, bool MaskClosable = false)
+        {
+            var mask = owner.FormMask(form, MaskClosable);
+            var dialog = form.ShowDialog(mask);
+            mask.IClose();
+            return dialog;
+        }
+
+        /// <summary>
+        /// 叠加蒙版
+        /// </summary>
+        /// <param name="owner">父控件</param>
+        /// <param name="form">操作对象</param>
+        /// <param name="MaskClosable">点击蒙层是否允许关闭</param>
+        public static DialogResult ShowDialogMask(this Control owner, Form form, bool MaskClosable = false)
+        {
+            var mask = owner.FormMask(form, MaskClosable);
+            var dialog = form.ShowDialog(mask);
+            mask.IClose();
+            return dialog;
+        }
+
         /// <summary>
         /// 叠加蒙版
         /// </summary>
@@ -102,19 +145,29 @@ namespace AntdUI
                 {
                     if (borderless.UseDwm)
                     {
-                        if (OS.Win11) Radius = (int)System.Math.Round(8 * Config.Dpi); //Win11
+                        if (OS.Win11) Radius = (int)System.Math.Round(8 * borderless.Dpi); //Win11
                         return false;
                     }
-                    else Radius = (int)(borderless.Radius * Config.Dpi);
+                    else Radius = (int)(borderless.Radius * borderless.Dpi);
                     return false;
+                }
+                else if (form is BaseForm baseForm)
+                {
+                    if (form.FormBorderStyle == FormBorderStyle.None) return false;
+                    if (OS.Win11) Radius = (int)System.Math.Round(8 * baseForm.Dpi); //Win11
+                    if (form is Window || form is FormNoBar) return false;//无边框处理
+                    var rect = new Win32.RECT();
+                    Win32.User32.AdjustWindowRectEx(ref rect, Win32.User32.WindowStyles.WS_OVERLAPPEDWINDOW | Win32.User32.WindowStyles.WS_CLIPCHILDREN, false, Win32.User32.WindowStylesEx.WS_EX_CONTROLPARENT | Win32.User32.WindowStylesEx.WS_EX_APPWINDOW);
+                    Padd = rect.bottom;
+                    return true;
                 }
                 else
                 {
                     if (form.FormBorderStyle == FormBorderStyle.None) return false;
                     if (OS.Win11) Radius = (int)System.Math.Round(8 * Config.Dpi); //Win11
                     if (form is Window || form is FormNoBar) return false;//无边框处理
-                    var rect = new Vanara.PInvoke.RECT();
-                    Vanara.PInvoke.User32.AdjustWindowRectEx(ref rect, Vanara.PInvoke.User32.WindowStyles.WS_OVERLAPPEDWINDOW | Vanara.PInvoke.User32.WindowStyles.WS_CLIPCHILDREN, false, Vanara.PInvoke.User32.WindowStylesEx.WS_EX_CONTROLPARENT | Vanara.PInvoke.User32.WindowStylesEx.WS_EX_APPWINDOW);
+                    var rect = new Win32.RECT();
+                    Win32.User32.AdjustWindowRectEx(ref rect, Win32.User32.WindowStyles.WS_OVERLAPPEDWINDOW | Win32.User32.WindowStyles.WS_CLIPCHILDREN, false, Win32.User32.WindowStylesEx.WS_EX_CONTROLPARENT | Win32.User32.WindowStylesEx.WS_EX_APPWINDOW);
                     Padd = rect.bottom;
                     return true;
                 }

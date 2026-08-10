@@ -1,25 +1,11 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Concurrent;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -42,14 +28,15 @@ namespace AntdUI
                 try
                 {
                     var _row = rows[row];
-                    var item = RealCELL(_row.cells[column], rows, row, column, out var crect);
+                    if (_row == null) return false;
+                    var item = RealCELL(_row.cells[column], rows.List, row, column, out var crect);
                     EditModeClose();
                     if (CanEditMode(item))
                     {
-                        ScrollLine(row, rows);
-                        if (showFixedColumnL && fixedColumnL != null && fixedColumnL.Contains(column)) OnEditMode(_row, item, crect, row, column, item.COLUMN, 0, ScrollBar.ValueY);
-                        else if (showFixedColumnR && fixedColumnR != null && fixedColumnR.Contains(column)) OnEditMode(_row, item, crect, row, column, item.COLUMN, sFixedR, ScrollBar.ValueY);
-                        else OnEditMode(_row, item, crect, row, column, item.COLUMN, ScrollBar.ValueX, ScrollBar.ValueY);
+                        ScrollLine(crect, RealRegionRow(rows.List));
+                        if (showFixedColumnL && fixedColumnL != null && fixedColumnL.Contains(column)) OnEditMode(_row, item, crect, row, column, item.COLUMN, 0, ScrollBar.ValueY, false);
+                        else if (showFixedColumnR && fixedColumnR != null && fixedColumnR.Contains(column)) OnEditMode(_row, item, crect, row, column, item.COLUMN, sFixedR, ScrollBar.ValueY, false);
+                        else OnEditMode(_row, item, crect, row, column, item.COLUMN, ScrollBar.ValueX, ScrollBar.ValueY, true);
                         return true;
                     }
                 }
@@ -76,22 +63,14 @@ namespace AntdUI
                         {
                             select.SelectedValueChanged -= InputEdit_SelectedValueChanged;
                             select.ClosedItem -= InputEdit_SelectedValueChanged;
-                            if (obj[1] is Action<bool, object?> call)
-                            {
-                                obj[1] = null;
-                                call(obj[0] == select.SelectedValue, select.SelectedValue);
-                            }
+                            obj.call?.Invoke(obj.value == select.SelectedValue, select.SelectedValue);
                         }
-                        else id.KeyPress -= InputEdit_KeyPress;
-
-                        if (obj[1] != null)
+                        else
                         {
-                            if (obj[1] is Action<bool, string> call)
-                            {
-                                obj[1] = null;
-                                call(((string)obj[0]!) == id.Text, id.Text);
-                            }
+                            id.KeyPress -= InputEdit_KeyPress;
+                            obj.call?.Invoke(((string)obj.value!) == id.Text, id.Text);
                         }
+                        obj.call = null;
                         Focus();
                         id.Dispose();
                         Controls.Remove(id);
@@ -118,7 +97,7 @@ namespace AntdUI
             }
             return false;
         }
-        void OnEditMode(RowTemplate it, CELL cell, Rectangle rect, int i_row, int i_col, Column column, int sx, int sy)
+        void OnEditMode(RowTemplate it, CELL cell, Rectangle rect, int i_row, int i_col, Column column, int sx, int sy, bool region)
         {
             if (rows == null) return;
             if (it.AnimationHover)
@@ -128,9 +107,9 @@ namespace AntdUI
             }
 
             // 存储当前编辑的单元格信息
-            _currentEdit = new TableCellEditEnterEventArgs(it.RECORD!, i_row, i_col, column);
+            _currentEdit = new TableCellEditEnterEventArgs(it.RECORD, i_row, i_col, column);
 
-            bool multiline = cell.COLUMN.LineBreak;
+            bool multiline = column.LineBreak;
             if (column is ColumnSelect columnSelect)
             {
                 object? value = null, val = null;
@@ -145,28 +124,28 @@ namespace AntdUI
 
                 BeginInvoke(() =>
                 {
-                    for (int i = 0; i < rows.Length; i++) rows[i].hover = i == i_row;
+                    rows.SetHover(i_row);
                     var tmp_input = CreateInput(cell, sx, sy, multiline, val, rect);
-                    if (columnSelect.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
-                    else if (columnSelect.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
+                    tmp_input.Name = "edit_" + i_col + "_" + i_row;
+                    if (column.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
+                    else if (column.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
                     var arge = new TableBeginEditInputStyleEventArgs(value, it.RECORD, i_row, i_col, column, tmp_input);
                     OnCellBeginEditInputStyle(arge);
                     if (arge.Input is Select select)
                     {
-                        ShowSelect(select, (cf, _value) =>
+                        ShowSelect(select, region, column.INDEX_REAL, (echo, r_value) =>
                         {
-                            bool isok_end = OnCellEndValueEdit(_value, it.RECORD, i_row, i_col, column);
-                            if (isok_end && !cf)
+                            if (!echo && OnCellEndValueEdit(r_value, it.RECORD, i_row, i_col, column))
                             {
                                 if (cell is TCellSelect cellSelect)
                                 {
-                                    cellSelect!.value = cellSelect.COLUMN[_value];
-                                    SetValue(cell, _value);
+                                    cellSelect!.value = cellSelect.COLUMN[r_value];
+                                    SetValue(cell, r_value);
                                     if (multiline) LoadLayout();
                                 }
                                 else
                                 {
-                                    SetValue(cell, _value);
+                                    SetValue(cell, r_value);
                                     LoadLayout();
                                 }
                                 OnCellEditComplete(it.RECORD, i_row, i_col, column);
@@ -189,26 +168,37 @@ namespace AntdUI
 
                 BeginInvoke(() =>
                 {
-                    for (int i = 0; i < rows.Length; i++) rows[i].hover = i == i_row;
+                    rows.SetHover(i_row);
                     var tmp_input = CreateInput(cell, sx, sy, multiline, value, rect);
-                    if (cellText.COLUMN.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
-                    else if (cellText.COLUMN.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
+                    tmp_input.Name = "edit_" + i_col + "_" + i_row;
+                    if (column.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
+                    else if (column.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
                     var arge = new TableBeginEditInputStyleEventArgs(value, it.RECORD, i_row, i_col, column, tmp_input);
                     OnCellBeginEditInputStyle(arge);
-                    ShowInput(arge.Input, (cf, _value) =>
+                    ShowInput(arge.Input, region, column.INDEX_REAL, (echo, r_value) =>
                     {
-                        arge.Call?.Invoke(new TableEndEditEventArgs(_value, it.RECORD, i_row, i_col, column));
-                        bool isok_end = OnCellEndEdit(_value, it.RECORD, i_row, i_col, column);
-                        if (isok_end && !cf)
+                        if (r_value is string val_str)
                         {
-                            if (GetValue(value, _value, out var o))
+                            arge.Call?.Invoke(new TableEndEditEventArgs(val_str, it.RECORD, i_row, i_col, column));
+                            if (!echo && OnCellEndEdit(val_str, it.RECORD, i_row, i_col, column))
                             {
-                                cellText.value = _value;
-                                if (it.RECORD is DataRow datarow) cellText.VALUE = cellText.value = _value;
-                                SetValue(cell, o);
-                                if (multiline) LoadLayout();
+                                if (GetValue(value, val_str, cell.PROPERTY, out var o))
+                                {
+                                    cellText.SetValue(o);
+                                    SetValue(cell, o);
+                                    if (multiline) LoadLayout();
+                                }
+                                OnCellEditComplete(it.RECORD, i_row, i_col, column);
                             }
-                            OnCellEditComplete(it.RECORD, i_row, i_col, column);
+                        }
+                        else
+                        {
+                            if (!echo && OnCellEndValueEdit(r_value, it.RECORD, i_row, i_col, column))
+                            {
+                                SetValue(cell, r_value);
+                                LoadLayout();
+                                OnCellEditComplete(it.RECORD, i_row, i_col, column);
+                            }
                         }
                     });
                 });
@@ -229,29 +219,41 @@ namespace AntdUI
 
                         BeginInvoke(() =>
                         {
-                            for (int i = 0; i < rows.Length; i++) rows[i].hover = i == i_row;
+                            rows.SetHover(i_row);
                             var tmp_input = CreateInput(cell, sx, sy, multiline, value, rect);
-                            if (template.PARENT.COLUMN.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
-                            else if (template.PARENT.COLUMN.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
+                            tmp_input.Name = "edit_" + i_col + "_" + i_row;
+                            if (column.Align == ColumnAlign.Center) tmp_input.TextAlign = HorizontalAlignment.Center;
+                            else if (column.Align == ColumnAlign.Right) tmp_input.TextAlign = HorizontalAlignment.Right;
                             var arge = new TableBeginEditInputStyleEventArgs(value, it.RECORD, i_row, i_col, column, tmp_input);
                             OnCellBeginEditInputStyle(arge);
-                            ShowInput(arge.Input, (cf, _value) =>
+                            ShowInput(arge.Input, region, column.INDEX_REAL, (echo, r_value) =>
                             {
-                                arge.Call?.Invoke(new TableEndEditEventArgs(_value, it.RECORD, i_row, i_col, column));
-                                bool isok_end = OnCellEndEdit(_value, it.RECORD, i_row, i_col, column);
-                                if (isok_end && !cf)
+                                if (r_value is string val_str)
                                 {
-                                    if (value is CellText text2)
+                                    arge.Call?.Invoke(new TableEndEditEventArgs(val_str, it.RECORD, i_row, i_col, column));
+                                    if (!echo && OnCellEndEdit(val_str, it.RECORD, i_row, i_col, column))
                                     {
-                                        text2.Text = _value;
-                                        SetValue(cell, text2);
+                                        if (value is CellText text2)
+                                        {
+                                            text2.Text = val_str;
+                                            SetValue(cell, text2);
+                                        }
+                                        else
+                                        {
+                                            text.Text = val_str;
+                                            if (GetValue(value, val_str, cell.PROPERTY, out var o)) SetValue(cell, o);
+                                        }
+                                        OnCellEditComplete(it.RECORD, i_row, i_col, column);
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    if (!echo && OnCellEndValueEdit(r_value, it.RECORD, i_row, i_col, column))
                                     {
-                                        text.Text = _value;
-                                        if (GetValue(value, _value, out var o)) SetValue(cell, o);
+                                        SetValue(cell, r_value);
+                                        LoadLayout();
+                                        OnCellEditComplete(it.RECORD, i_row, i_col, column);
                                     }
-                                    OnCellEditComplete(it.RECORD, i_row, i_col, column);
                                 }
                             });
                         });
@@ -261,11 +263,130 @@ namespace AntdUI
             }
         }
 
-        bool GetValue(object? value, string _value, out object read)
+        bool GetValue(object? value, string _value, System.ComponentModel.PropertyDescriptor? Property, out object? read)
+        {
+            if (Property == null)
+            {
+                read = GetValue(value, _value);
+                return true;
+            }
+            else
+            {
+                try
+                {
+                    read = Property.Converter.ConvertFrom(_value);
+                    return true;
+                }
+                catch
+                {
+                    if (Property.PropertyType.IsGenericType && Property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        read = GetValue(value, _value);
+                        return true;
+                    }
+                    else return GetValue(value, _value, out read);
+                }
+            }
+        }
+        object? GetValue(object? value, string _value)
+        {
+            if (value is int?)
+            {
+                if (int.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is uint?)
+            {
+                if (uint.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is short?)
+            {
+                if (short.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is ushort?)
+            {
+                if (ushort.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is long?)
+            {
+                if (long.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is ulong?)
+            {
+                if (ulong.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is double?)
+            {
+                if (double.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is decimal?)
+            {
+                if (decimal.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is float?)
+            {
+                if (float.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else if (value is DateTime?)
+            {
+                if (DateTime.TryParse(_value, out var v)) return v;
+                return null;
+            }
+            else return _value;
+        }
+        bool GetValue(object? value, string _value, out object? read)
         {
             if (value is int)
             {
                 if (int.TryParse(_value, out var v))
+                {
+                    read = v;
+                    return true;
+                }
+            }
+            else if (value is uint)
+            {
+                if (uint.TryParse(_value, out var v))
+                {
+                    read = v;
+                    return true;
+                }
+            }
+            else if (value is short)
+            {
+                if (short.TryParse(_value, out var v))
+                {
+                    read = v;
+                    return true;
+                }
+            }
+            else if (value is ushort)
+            {
+                if (ushort.TryParse(_value, out var v))
+                {
+                    read = v;
+                    return true;
+                }
+            }
+            else if (value is long)
+            {
+                if (long.TryParse(_value, out var v))
+                {
+                    read = v;
+                    return true;
+                }
+            }
+            else if (value is ulong)
+            {
+                if (ulong.TryParse(_value, out var v))
                 {
                     read = v;
                     return true;
@@ -308,7 +429,7 @@ namespace AntdUI
                 read = _value;
                 return true;
             }
-            read = _value;
+            read = null;
             return false;
         }
 
@@ -334,10 +455,10 @@ namespace AntdUI
 
         Rectangle RectInput(CELL cell, Rectangle rect, int sx, int sy, float borwidth, int wavesize)
         {
-            int bor = (int)((wavesize + borwidth / 2F) * Config.Dpi), bor2 = bor * 2, ry = rect.Y, rh = rect.Height;
+            int bor = (int)((wavesize + borwidth / 2F) * Dpi), bor2 = bor * 2, ry = rect.Y, rh = rect.Height;
             if (EditAutoHeight)
             {
-                int texth = Helper.GDI(g => g.MeasureString(Config.NullText, Font).Height), sps = (int)(texth * .4F), sps2 = sps * 2, h = texth + sps2 + bor2;
+                int texth = this.GDI(g => g.MeasureString(Config.NullText, Font).Height), sps = (int)(texth * .4F), sps2 = sps * 2, h = texth + sps2 + bor2;
                 if (h > rect.Height)
                 {
                     rh = h - bor2;
@@ -349,10 +470,10 @@ namespace AntdUI
         }
         Rectangle RectInputDefault(CELL cell, Rectangle rect, int sx, int sy, float borwidth, int wavesize)
         {
-            int bor = (int)((wavesize + borwidth / 2F) * Config.Dpi), bor2 = bor * 2, ry = rect.Y, rh = rect.Height;
+            int bor = (int)((wavesize + borwidth / 2F) * Dpi), bor2 = bor * 2, ry = rect.Y, rh = rect.Height;
             if (EditAutoHeight)
             {
-                int texth = Helper.GDI(g => g.MeasureString(Config.NullText, Font).Height), sps = (int)(texth * .4F), sps2 = sps * 2, h = texth + sps2 + bor2;
+                int texth = this.GDI(g => g.MeasureString(Config.NullText, Font).Height), sps = (int)(texth * .4F), sps2 = sps * 2, h = texth + sps2 + bor2;
                 if (h > rect.Height)
                 {
                     rh = h;
@@ -367,15 +488,11 @@ namespace AntdUI
             Input input;
             if (column is ColumnSelect columnSelect)
             {
-                Select edit = new Select
-                {
-                    Multiline = multiline,
-                    Location = rect.Location,
-                    Size = rect.Size,
-                    List = true,
-                    IconRatio = 1f,
-                    ReadOnly = column.ReadOnly,
-                };
+                var edit = CreateInputBySelect(columnSelect);
+                edit.Multiline = multiline;
+                edit.IconRatio = 1f;
+                edit.ReadOnly = column.ReadOnly;
+                edit.Bounds = rect;
                 if (value is SelectItem select)
                 {
                     edit.Text = select.Text;
@@ -383,16 +500,15 @@ namespace AntdUI
                     edit.ShowIcon = select.Icon != null || select.IconSvg != null;
                 }
                 input = edit;
-                edit.Items.AddRange(columnSelect.Items.ToArray());
                 edit.SelectedValue = value;
             }
             else if (value is CellText text)
             {
                 input = new Input
                 {
+                    AcceptsEscape = true,
                     Multiline = multiline,
-                    Location = rect.Location,
-                    Size = rect.Size,
+                    Bounds = rect,
                     Text = text.Text ?? "",
                     ReadOnly = column.ReadOnly
                 };
@@ -401,9 +517,9 @@ namespace AntdUI
             {
                 input = new Input
                 {
+                    AcceptsEscape = true,
                     Multiline = multiline,
-                    Location = rect.Location,
-                    Size = rect.Size,
+                    Bounds = rect,
                     Text = column.GetDisplayText(value) ?? string.Empty,
                     ReadOnly = column.ReadOnly
                 };
@@ -423,20 +539,34 @@ namespace AntdUI
             }
             return input;
         }
-        void ShowInput(Input input, Action<bool, string> call)
+        internal Select CreateInputBySelect(ColumnSelect column)
         {
-            var old = input.Text;
-            if (AddEditInput(input, old, call))
+            var edit = new Select
+            {
+                AcceptsEscape = true,
+                List = true
+            };
+            if (column.MaxCount.HasValue) edit.MaxCount = column.MaxCount.Value;
+            edit.Items.AddRange(column.Items.ToArray());
+            return edit;
+        }
+        void ShowInput(Input input, bool region, int column, Action<bool, object?> call)
+        {
+            if (input is Select select)
+            {
+                ShowSelect(select, region, column, call);
+                return;
+            }
+            if (AddEditInput(input, input.Text, call, region, column))
             {
                 input.KeyPress += InputEdit_KeyPress;
                 input.Focus();
             }
         }
 
-        void ShowSelect(Select select, Action<bool, object?> call)
+        void ShowSelect(Select select, bool region, int column, Action<bool, object?> call)
         {
-            var old = select.SelectedValue;
-            if (AddEditInput(select, old, call))
+            if (AddEditInput(select, select.SelectedValue, call, region, column))
             {
                 select.SelectedValueChanged += InputEdit_SelectedValueChanged;
                 select.ClosedItem += InputEdit_SelectedValueChanged;
@@ -451,26 +581,34 @@ namespace AntdUI
                 if (e.KeyChar == 13)
                 {
                     e.Handled = true;
-
                     // 使用存储的单元格信息触发 CellEnter 事件
-                    if (_currentEdit != null)
-                    {
-                        FocusedCell = null;
-                        OnCellEditEnter(sender, _currentEdit);
-                    }
-
                     EditModeClose();
+                    if (_currentEdit == null) return;
+                    OnCellEditEnter(sender, _currentEdit);
                 }
             }
         }
         void InputEdit_SelectedValueChanged(object? sender, ObjectNEventArgs e) => EditModeClose();
-        void InputEdit_LostFocus(object? sender, EventArgs e) => EditModeClose();
+        void InputEdit_LostFocus(object? sender, EventArgs e)
+        {
+            if (EditLostFocus) EditModeClose();
+        }
 
         #endregion
 
         #region 集合处理
 
-        ConcurrentDictionary<Input, object?[]> _editControls = new ConcurrentDictionary<Input, object?[]>();
+        ConcurrentDictionary<Input, EditControlTag> _editControls = new ConcurrentDictionary<Input, EditControlTag>();
+        class EditControlTag
+        {
+            public EditControlTag(object? v, Action<bool, object?> c)
+            {
+                value = v;
+                call = c;
+            }
+            public object? value { get; set; }
+            public Action<bool, object?>? call { get; set; }
+        }
 
         // 存储当前编辑的单元格信息
         private TableCellEditEnterEventArgs? _currentEdit;
@@ -478,10 +616,11 @@ namespace AntdUI
         /// <summary>
         /// 添加空间到编辑
         /// </summary>
-        bool AddEditInput(Input input, object? txt, object? action)
+        bool AddEditInput(Input input, object? txt, Action<bool, object?> action, bool region, int column)
         {
-            if (_editControls.TryAdd(input, new object?[] { txt, action }))
+            if (_editControls.TryAdd(input, new EditControlTag(txt, action)))
             {
+                if (region) EditInputRegion(input, column);
                 Controls.Add(input);
                 if (OS.Win7OrLower) return true;
                 input.LostFocus += InputEdit_LostFocus;
@@ -489,6 +628,38 @@ namespace AntdUI
             }
             else input.Dispose();
             return false;
+        }
+        void EditInputRegion(Input input, int col)
+        {
+            if (showFixedColumnR && rect_fixed_R.HasValue && showFixedColumnL && rect_fixed_L.HasValue)
+            {
+                if (fixedColumnL!.Contains(col) || fixedColumnR!.Contains(col)) return;
+                input.Region = EditInputRegion(input.Bounds, rect_fixed_R.Value, rect_fixed_L.Value);
+            }
+            else if (showFixedColumnR && rect_fixed_R.HasValue)
+            {
+                if (fixedColumnR!.Contains(col)) return;
+                input.Region = EditInputRegion(input.Bounds, rect_fixed_R.Value);
+            }
+            else if (showFixedColumnL && rect_fixed_L.HasValue)
+            {
+                if (fixedColumnL!.Contains(col)) return;
+                input.Region = EditInputRegion(input.Bounds, rect_fixed_L.Value);
+            }
+        }
+        Region? EditInputRegion(Rectangle rect, params Rectangle[] rect_fixeds)
+        {
+            Region? newRegion = null;
+            foreach (var it in rect_fixeds)
+            {
+                if (rect.IntersectsWith(it))
+                {
+                    Rectangle intersect = Rectangle.Intersect(rect, it);
+                    newRegion ??= new Region(new Rectangle(0, 0, rect.Width, rect.Height));
+                    newRegion.Exclude(new Rectangle(intersect.X - rect.X, intersect.Y - rect.Y, intersect.Width, intersect.Height));
+                }
+            }
+            return newRegion;
         }
 
         #endregion

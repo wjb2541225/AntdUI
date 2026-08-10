@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -43,7 +30,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -61,7 +48,7 @@ namespace AntdUI
         /// <summary>
         /// 填充颜色
         /// </summary>
-        [Description("填充颜色"), Category("外观"), DefaultValue(null)]
+        [Description("填充颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -79,7 +66,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -98,12 +85,12 @@ namespace AntdUI
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
-        FormatFlags s_f = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
+        FormatFlags sf = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis | FormatFlags.HotkeyPrefixShow;
         ContentAlignment textAlign = ContentAlignment.MiddleLeft;
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("外观"), DefaultValue(ContentAlignment.MiddleLeft)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -111,11 +98,13 @@ namespace AntdUI
             {
                 if (textAlign == value) return;
                 textAlign = value;
-                s_f = textAlign.SetAlignment(s_f);
+                sf = textAlign.SetAlignment(sf);
                 Invalidate();
                 OnPropertyChanged(nameof(TextAlign));
             }
         }
+
+        #region 选中状态
 
         bool AnimationCheck = false;
         float AnimationCheckValue = 0;
@@ -123,7 +112,7 @@ namespace AntdUI
         /// <summary>
         /// 选中状态
         /// </summary>
-        [Description("选中状态"), Category("数据"), DefaultValue(false)]
+        [Description("选中状态"), Category(nameof(CategoryAttribute.Data)), DefaultValue(false)]
         public bool Checked
         {
             get => _checked;
@@ -131,8 +120,49 @@ namespace AntdUI
             {
                 if (_checked == value) return;
                 _checked = value;
-                ThreadCheck?.Dispose();
-                if (IsHandleCreated && Config.HasAnimation(nameof(Checkbox)))
+                OnCheck();
+                CheckState = value ? CheckState.Checked : CheckState.Unchecked;
+                OnCheckedChanged(value);
+                OnPropertyChanged(nameof(Checked));
+            }
+        }
+
+        internal CheckState checkStateOld = CheckState.Unchecked;
+        CheckState checkState = CheckState.Unchecked;
+        /// <summary>
+        /// 选中状态
+        /// </summary>
+        [Description("选中状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(CheckState.Unchecked)]
+        public CheckState CheckState
+        {
+            get => checkState;
+            set
+            {
+                if (checkState == value) return;
+                checkState = value;
+                bool __checked = value == CheckState.Checked;
+                if (_checked == __checked) Invalidate();
+                else
+                {
+                    _checked = __checked;
+                    OnCheck();
+                }
+                if (value != CheckState.Unchecked) checkStateOld = value;
+                OnPropertyChanged(nameof(CheckState));
+            }
+        }
+
+        void OnCheck()
+        {
+            ThreadCheck?.Dispose();
+            if (IsHandleCreated && Config.HasAnimation(nameof(Checkbox), Name))
+            {
+                if (!_checked && checkStateOld == CheckState.Checked && CheckState == CheckState.Indeterminate)
+                {
+                    AnimationCheckValue = 1F;
+                    Invalidate();
+                }
+                else
                 {
                     AnimationCheck = true;
                     ThreadCheck = new AnimationTask(new AnimationLinearFConfig(this, i =>
@@ -140,23 +170,26 @@ namespace AntdUI
                         AnimationCheckValue = i;
                         Invalidate();
                         return true;
-                    }, 20).SetValue(AnimationCheckValue, value, 0.2F).SetEnd(() => AnimationCheck = false));
+                    }, 20).SetValue(AnimationCheckValue, _checked, 0.2F).SetEnd(() => AnimationCheck = false));
                 }
-                else AnimationCheckValue = value ? 1F : 0F;
+            }
+            else
+            {
+                AnimationCheckValue = _checked ? 1F : 0F;
                 Invalidate();
-                OnCheckedChanged(value);
-                OnPropertyChanged(nameof(Checked));
             }
         }
+
+        #endregion
 
         /// <summary>
         /// 点击时自动改变选中状态
         /// </summary>
-        [Description("点击时自动改变选中状态"), Category("行为"), DefaultValue(true)]
+        [Description("点击时自动改变选中状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool AutoCheck { get; set; } = true;
 
         RightToLeft rightToLeft = RightToLeft.No;
-        [Description("反向"), Category("外观"), DefaultValue(RightToLeft.No)]
+        [Description("反向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(RightToLeft.No)]
         public override RightToLeft RightToLeft
         {
             get => rightToLeft;
@@ -166,18 +199,53 @@ namespace AntdUI
                 rightToLeft = value;
                 if (rightToLeft == RightToLeft.Yes)
                 {
-                    s_f &= ~FormatFlags.Left;
-                    s_f |= FormatFlags.Right;
+                    sf &= ~FormatFlags.Left;
+                    sf |= FormatFlags.Right;
                 }
                 else
                 {
-                    s_f &= ~FormatFlags.Right;
-                    s_f |= FormatFlags.Left;
+                    sf &= ~FormatFlags.Right;
+                    sf |= FormatFlags.Left;
                 }
                 Invalidate();
                 OnPropertyChanged(nameof(RightToLeft));
             }
         }
+
+        #region 助记键
+
+        bool useMnemonic = true;
+        /// <summary>
+        /// 助记键
+        /// </summary>
+        [Description("如果为 true，则前面有(&)号 的第一个字符将用作按钮的助记键"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool UseMnemonic
+        {
+            get => useMnemonic;
+            set
+            {
+                if (useMnemonic == value) return;
+                useMnemonic = value;
+                if (value) sf |= FormatFlags.HotkeyPrefixShow;
+                else sf &= ~FormatFlags.HotkeyPrefixShow;
+            }
+        }
+
+        protected override bool ProcessMnemonic(char charCode)
+        {
+            if (useMnemonic && CanProcessMnemonicBefore(charCode, text))
+            {
+                if (CanProcessMnemonicAfter())
+                {
+                    if (AutoCheck) Checked = !Checked;
+                    base.OnClick(EventArgs.Empty);
+                    return true;
+                }
+            }
+            return base.ProcessMnemonic(charCode);
+        }
+
+        #endregion
 
         #endregion
 
@@ -186,7 +254,7 @@ namespace AntdUI
         /// <summary>
         /// Checked 属性值更改时发生
         /// </summary>
-        [Description("Checked 属性值更改时发生"), Category("行为")]
+        [Description("Checked 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? CheckedChanged;
 
         protected virtual void OnCheckedChanged(bool e) => CheckedChanged?.Invoke(this, new BoolEventArgs(e));
@@ -215,9 +283,9 @@ namespace AntdUI
                 bool right = rightToLeft == RightToLeft.Yes;
                 PaintChecked(g, rect, enabled, icon_rect, right);
                 if (right) text_rect.X = rect.Width - text_rect.X - text_rect.Width;
-                using (var brush = fore.Brush(Colour.Text.Get(nameof(Checkbox), ColorScheme), Colour.TextQuaternary.Get(nameof(Checkbox), "foreDisabled", ColorScheme), enabled))
+                using (var brush = fore.Brush(Colour.Text.Get(ColorScheme, nameof(Checkbox), Name), Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Checkbox), Name), enabled))
                 {
-                    g.DrawText(Text, Font, brush, text_rect, s_f);
+                    g.DrawText(Text, Font, brush, text_rect, sf);
                 }
             }
             base.OnDraw(e);
@@ -225,14 +293,14 @@ namespace AntdUI
 
         #region 渲染帮助
 
-        void PaintChecked(Canvas g, Rectangle rect, bool enabled, Rectangle icon_rect, bool right)
+        internal void PaintChecked(Canvas g, Rectangle rect, bool enabled, Rectangle icon_rect, bool right)
         {
             float dot_size = icon_rect.Height;
             float radius = dot_size * .2F;
             if (right) icon_rect.X = rect.Width - icon_rect.X - icon_rect.Width;
             using (var path = icon_rect.RoundPath(radius))
             {
-                var bor2 = 2F * Config.Dpi;
+                var bor2 = 2F * Dpi;
                 if (enabled)
                 {
                     if ((hasFocus && Config.FocusBorderEnabled) && (rect.Height - icon_rect.Height) > bor2)
@@ -240,47 +308,67 @@ namespace AntdUI
                         float wave = bor2, wave2 = wave * 2;
                         using (var path_focus = new RectangleF(icon_rect.X - wave, icon_rect.Y - wave, icon_rect.Width + wave2, icon_rect.Height + wave2).RoundPath(radius + wave))
                         {
-                            g.Draw(Colour.PrimaryBorder.Get(nameof(Checkbox), ColorScheme), wave, path_focus);
+                            g.Draw(Colour.PrimaryBorder.Get(ColorScheme, nameof(Checkbox), Name), wave, path_focus);
                         }
                     }
-                    var color = fill ?? Colour.Primary.Get(nameof(Checkbox), ColorScheme);
+                    var color = fill ?? Colour.Primary.Get(ColorScheme, nameof(Checkbox), Name);
                     if (AnimationCheck)
                     {
-                        float dot = dot_size * 0.3F, alpha = 255 * AnimationCheckValue;
-                        g.Fill(Helper.ToColor(alpha, color), path);
-                        using (var pen = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Checkbox), ColorScheme)), 2.6F * Config.Dpi))
+                        var alpha = 255 * AnimationCheckValue;
+                        if (checkState == CheckState.Indeterminate || (checkStateOld == CheckState.Indeterminate && !_checked))
                         {
-                            g.DrawLines(pen, icon_rect.CheckArrow());
+                            g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), Name), bor2, path);
+                            g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(ColorScheme, nameof(Checkbox), Name)), PaintBlock(icon_rect));
                         }
-                        if (_checked)
+                        else
                         {
-                            float max = icon_rect.Height + ((rect.Height - icon_rect.Height) * AnimationCheckValue), alpha2 = 100 * (1F - AnimationCheckValue);
-                            using (var brush = new SolidBrush(Helper.ToColor(alpha2, color)))
+                            var dot = dot_size * 0.3F;
+                            g.Fill(Helper.ToColor(alpha, color), path);
+                            using (var pen = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Checkbox), Name)), 2.6F * Dpi))
                             {
-                                g.FillEllipse(brush, new RectangleF(icon_rect.X + (icon_rect.Width - max) / 2F, icon_rect.Y + (icon_rect.Height - max) / 2F, max, max));
+                                g.DrawLines(pen, icon_rect.CheckArrow());
                             }
+                            if (_checked)
+                            {
+                                float max = icon_rect.Height + ((rect.Height - icon_rect.Height) * AnimationCheckValue), alpha2 = 100 * (1F - AnimationCheckValue);
+                                using (var brush = new SolidBrush(Helper.ToColor(alpha2, color)))
+                                {
+                                    g.FillEllipse(brush, new RectangleF(icon_rect.X + (icon_rect.Width - max) / 2F, icon_rect.Y + (icon_rect.Height - max) / 2F, max, max));
+                                }
+                            }
+                            g.Draw(color, bor2, path);
                         }
-                        g.Draw(color, bor2, path);
+                    }
+                    else if (checkState == CheckState.Indeterminate)
+                    {
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), Name), bor2, path);
+                        g.Fill(Colour.Primary.Get(ColorScheme, nameof(Checkbox), Name), PaintBlock(icon_rect));
                     }
                     else if (_checked)
                     {
                         g.Fill(color, path);
-                        g.DrawLines(Colour.BgBase.Get(nameof(Checkbox), ColorScheme), 2.6F * Config.Dpi, icon_rect.CheckArrow());
+                        g.DrawLines(Colour.BgBase.Get(ColorScheme, nameof(Checkbox), Name), 2.6F * Dpi, icon_rect.CheckArrow());
                     }
                     else
                     {
-                        if (AnimationHover) g.Draw(Colour.BorderColor.Get(nameof(Checkbox), ColorScheme).BlendColors(AnimationHoverValue, color), bor2, path);
+                        if (AnimationHover) g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), Name).BlendColors(AnimationHoverValue, color), bor2, path);
                         else if (ExtraMouseHover) g.Draw(color, bor2, path);
-                        else g.Draw(Colour.BorderColor.Get(nameof(Checkbox), ColorScheme), bor2, path);
+                        else g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), Name), bor2, path);
                     }
                 }
                 else
                 {
-                    g.Fill(Colour.FillQuaternary.Get(nameof(Checkbox), "bgDisabled", ColorScheme), path);
-                    if (_checked) g.DrawLines(Colour.TextQuaternary.Get(nameof(Checkbox), "foreDisabled", ColorScheme), 2.6F * Config.Dpi, icon_rect.CheckArrow());
-                    g.Draw(Colour.BorderColorDisable.Get(nameof(Checkbox), "borderColorDisabled", ColorScheme), bor2, path);
+                    g.Fill(Colour.FillQuaternary.GetSymbol(ColorScheme, "bgDisabled", nameof(Checkbox), Name), path);
+                    if (_checked) g.DrawLines(Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Checkbox), Name), 2.6F * Dpi, icon_rect.CheckArrow());
+                    g.Draw(Colour.BorderColorDisable.GetSymbol(ColorScheme, "borderColorDisabled", nameof(Checkbox), Name), bor2, path);
                 }
             }
+        }
+
+        internal static RectangleF PaintBlock(RectangleF rect)
+        {
+            float size = rect.Height * 0.2F, size2 = size * 2F;
+            return new RectangleF(rect.X + size, rect.Y + size, rect.Width - size2, rect.Height - size2);
         }
 
         #endregion
@@ -326,7 +414,7 @@ namespace AntdUI
                 SetCursor(value && enabled);
                 if (enabled)
                 {
-                    if (Config.HasAnimation(nameof(Checkbox)))
+                    if (Config.HasAnimation(nameof(Checkbox), Name))
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
@@ -380,7 +468,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -401,7 +489,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("外观"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -428,11 +516,11 @@ namespace AntdUI
             return PSize;
         }
 
-        public Size PSize
+        public virtual Size PSize
         {
             get
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     var font_size = g.MeasureString(Config.NullText, Font);
                     int gap = (int)(font_size.Height * 1.02F);
@@ -448,7 +536,7 @@ namespace AntdUI
             base.OnResize(e);
         }
 
-        bool BeforeAutoSize()
+        internal bool BeforeAutoSize()
         {
             if (autoSize == TAutoSize.None) return true;
             if (InvokeRequired) return ITask.Invoke(this, BeforeAutoSize);
@@ -481,7 +569,7 @@ namespace AntdUI
         /// 是否存在焦点
         /// </summary>
         [Browsable(false)]
-        [Description("是否存在焦点"), Category("行为"), DefaultValue(false)]
+        [Description("是否存在焦点"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool HasFocus
         {
             get => hasFocus;

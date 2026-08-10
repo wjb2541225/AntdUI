@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -32,31 +19,31 @@ namespace AntdUI
         {
             var colorScheme = PARENT.PARENT.ColorScheme;
             bool enabled = Enabled;
-            var color = Colour.Primary.Get(nameof(Switch), colorScheme);
+            var color = Colour.Primary.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name);
             using (var path = Rect.RoundPath(Rect.Height))
             {
-                using (var brush = new SolidBrush(Colour.TextQuaternary.Get(nameof(Switch), colorScheme)))
+                using (var brush = new SolidBrush(Colour.TextQuaternary.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name)))
                 {
                     g.Fill(brush, path);
                     if (AnimationHover) g.Fill(Helper.ToColorN(AnimationHoverValue, brush.Color), path);
                     else if (ExtraMouseHover) g.Fill(brush, path);
                 }
-                int gap = (int)(2 * Config.Dpi), gap2 = gap * 2;
+                int gap = (int)(2 * g.Dpi), gap2 = gap * 2;
                 if (AnimationCheck)
                 {
                     var alpha = 255 * AnimationCheckValue;
                     g.Fill(Helper.ToColor(alpha, color), path);
                     var dot_rect = new RectangleF(Rect.X + gap + (Rect.Width - Rect.Height) * AnimationCheckValue, Rect.Y + gap, Rect.Height - gap2, Rect.Height - gap2);
-                    g.FillEllipse(enable ? Colour.BgBase.Get(nameof(Switch), colorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), colorScheme)), dot_rect);
+                    g.FillEllipse(enable ? Colour.BgBase.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name) : Color.FromArgb(200, Colour.BgBase.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name)), dot_rect);
                 }
                 else if (Checked)
                 {
-                    var colorhover = Colour.PrimaryHover.Get(nameof(Switch), colorScheme);
+                    var colorhover = Colour.PrimaryHover.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name);
                     g.Fill(color, path);
                     if (AnimationHover) g.Fill(Helper.ToColorN(AnimationHoverValue, colorhover), path);
                     else if (ExtraMouseHover) g.Fill(colorhover, path);
                     var dot_rect = new RectangleF(Rect.X + gap + Rect.Width - Rect.Height, Rect.Y + gap, Rect.Height - gap2, Rect.Height - gap2);
-                    g.FillEllipse(enable ? Colour.BgBase.Get(nameof(Switch), colorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), colorScheme)), dot_rect);
+                    g.FillEllipse(enable ? Colour.BgBase.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name) : Color.FromArgb(200, Colour.BgBase.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name)), dot_rect);
                     if (Loading)
                     {
                         var dot_rect2 = new RectangleF(dot_rect.X + gap, dot_rect.Y + gap, dot_rect.Height - gap2, dot_rect.Height - gap2);
@@ -71,7 +58,7 @@ namespace AntdUI
                 else
                 {
                     var dot_rect = new RectangleF(Rect.X + gap, Rect.Y + gap, Rect.Height - gap2, Rect.Height - gap2);
-                    g.FillEllipse(enable ? Colour.BgBase.Get(nameof(Switch), colorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), colorScheme)), dot_rect);
+                    g.FillEllipse(enable ? Colour.BgBase.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name) : Color.FromArgb(200, Colour.BgBase.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name)), dot_rect);
                     if (Loading)
                     {
                         var dot_rect2 = new RectangleF(dot_rect.X + gap, dot_rect.Y + gap, dot_rect.Height - gap2, dot_rect.Height - gap2);
@@ -88,7 +75,7 @@ namespace AntdUI
                 string? textToRender = Checked ? CheckedText : UnCheckedText;
                 if (textToRender != null)
                 {
-                    Color _fore_ = _fore ?? Colour.PrimaryColor.Get(nameof(Switch), colorScheme);
+                    Color _fore_ = _fore ?? Colour.PrimaryColor.Get(colorScheme, nameof(Switch), PARENT.PARENT.Name);
                     using (var brush = new SolidBrush(_fore_))
                     {
                         var textSize = g.MeasureString(textToRender, font);
@@ -114,15 +101,6 @@ namespace AntdUI
                 var font_size = g.MeasureString(checkedText.Length > uncheckedText.Length ? checkedText : uncheckedText, Font ?? font);
                 return new Size(font_size.Width + (int)(font_size.Height * 1.2F), font_size.Height);
             }
-            //nullText = string.IsNullOrWhiteSpace(Text);
-            //if (nullText)
-            //{
-            //}
-            //else
-            //{
-            //    var font_size = g.MeasureText(Text, Font ?? font);
-            //    return new Size(font_size.Width + font_size.Height + gap.x, font_size.Height + gap.x);
-            //}
         }
 
         public override void SetRect(Canvas g, Font font, Rectangle rect, Size size, int maxwidth, TableGaps gap)

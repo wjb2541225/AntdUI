@@ -1,27 +1,15 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -40,7 +28,7 @@ namespace AntdUI
 
         #region 属性
 
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -51,7 +39,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -69,7 +57,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -89,18 +77,32 @@ namespace AntdUI
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
-        [Description("加载指示符"), Category("外观"), DefaultValue(null)]
+        [Description("加载指示符"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Indicator
         {
             get => config.Indicator;
             set => config.Indicator = value;
         }
 
-        [Description("加载指示符SVG"), Category("外观"), DefaultValue(null)]
+        [Description("加载指示符SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IndicatorSvg
         {
             get => config.IndicatorSvg;
             set => config.IndicatorSvg = value;
+        }
+
+        [Description("加载圈大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public int? CirSize
+        {
+            get => config.CirSize;
+            set => config.CirSize = value;
+        }
+
+        [Description("加载圈粗细"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public int? CirWidth
+        {
+            get => config.CirWidth;
+            set => config.CirWidth = value;
         }
 
         #endregion
@@ -136,11 +138,34 @@ namespace AntdUI
             base.Dispose(disposing);
         }
 
+        #region 鼠标
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            spin_core.MouseMove(e.X, e.Y);
+        }
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+            if (spin_core.MouseClick(e.X, e.Y, config)) spin_core.Dispose();
+        }
+
+        #endregion
+
         /// <summary>
         /// 配置
         /// </summary>
         public class Config
         {
+            public Config()
+            { }
+
+            public Config(string text)
+            {
+                Text = text;
+            }
+
             /// <summary>
             /// 文本
             /// </summary>
@@ -191,6 +216,47 @@ namespace AntdUI
             /// 进度速率
             /// </summary>
             public float? Rate { get; set; }
+
+            /// <summary>
+            /// 大小
+            /// </summary>
+            public int? CirSize { get; set; }
+
+            /// <summary>
+            /// 粗细
+            /// </summary>
+            public int? CirWidth { get; set; }
+
+            #region 取消按钮
+
+            /// <summary>
+            /// 取消令牌
+            /// </summary>
+            public CancellationToken? CancelToken => CancelTokenSource?.Token;
+
+            public void ThrowIfCancellationRequested() => CancelTokenSource?.Token.ThrowIfCancellationRequested();
+            public bool IsCancellationRequested => CancelTokenSource?.Token.IsCancellationRequested ?? false;
+
+            /// <summary>
+            /// 取消令牌源
+            /// </summary>
+            public CancellationTokenSource? CancelTokenSource { get; set; }
+
+            string? canceltext = Localization.Get("Cancel", "取消");
+            /// <summary>
+            /// 取消按钮文字
+            /// </summary>
+            public string? CancelText
+            {
+                get => canceltext;
+                set
+                {
+                    if (canceltext == value) return;
+                    canceltext = value;
+                }
+            }
+
+            #endregion
 
             #region 设置
 
@@ -244,6 +310,31 @@ namespace AntdUI
                 Rate = value;
                 return this;
             }
+            public Config SetCirSize(int? value)
+            {
+                CirSize = value;
+                return this;
+            }
+            public Config SetCirWidth(int? value)
+            {
+                CirWidth = value;
+                return this;
+            }
+            public Config SetCancel(string? value)
+            {
+                CancelText = value;
+                return this;
+            }
+            public Config SetCancelToken(CancellationTokenSource? value)
+            {
+                CancelTokenSource = value;
+                return this;
+            }
+            public Config SetCancel(CancellationTokenSource? value)
+            {
+                CancelTokenSource = value;
+                return this;
+            }
 
             #endregion
         }
@@ -269,7 +360,29 @@ namespace AntdUI
         /// <param name="action">需要等待的委托</param>
         /// <param name="end">运行结束后的回调</param>
         /// <param name="error">发生错误时的回调</param>
-        public static Task open(Control control, string text, Action<Config> action, Action? end = null, Action<Exception>? error = null) => open(control, new Config { Text = text }, action, end, error);
+        public static Task open(Control control, string text, Action<Config> action, Action? end = null, Action<Exception>? error = null) => open(control, new Config(text), action, end, error);
+
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="control">控件主体</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        /// <param name="error">发生错误时的回调</param>
+        public static Task open(Control control, Action<Config> action, CancellationTokenSource? token, Action? end = null, Action<Exception>? error = null) => open(control, new Config().SetCancel(token), action, end, error);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="control">控件主体</param>
+        /// <param name="text">加载文本</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        /// <param name="error">发生错误时的回调</param>
+        public static Task open(Control control, string text, Action<Config> action, CancellationTokenSource? token, Action? end = null, Action<Exception>? error = null) => open(control, new Config(text).SetCancel(token), action, end, error);
 
         /// <summary>
         /// Spin 加载中
@@ -290,7 +403,9 @@ namespace AntdUI
                     model.LoadCompleted += () => Event.SetWait();
                     return ITask.Run(() =>
                     {
-                        if (Event.Wait(1000)) return;
+                        var r = Event.Wait(1000);
+                        Event.Dispose();
+                        if (r) return;
                         open_core(control, true, parent, config, action, end, error)?.Wait();
                     });
                 }
@@ -371,7 +486,28 @@ namespace AntdUI
         /// <param name="action">需要等待的委托</param>
         /// <param name="end">运行结束后的回调</param>
         /// <param name="error">发生错误时的回调</param>
-        public static Task open(Control control, string text, Func<Config, Task> action, Action? end = null, Action<Exception>? error = null) => open(control, new Config { Text = text }, action, end, error);
+        public static Task open(Control control, string text, Func<Config, Task> action, Action? end = null, Action<Exception>? error = null) => open(control, new Config(text), action, end, error);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="control">控件主体</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        /// <param name="error">发生错误时的回调</param>
+        public static Task open(Control control, Func<Config, Task> action, CancellationTokenSource? token, Action? end = null, Action<Exception>? error = null) => open(control, new Config().SetCancel(token), action, end, error);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="control">控件主体</param>
+        /// <param name="text">加载文本</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        /// <param name="error">发生错误时的回调</param>
+        public static Task open(Control control, string text, Func<Config, Task> action, CancellationTokenSource? token, Action? end = null, Action<Exception>? error = null) => open(control, new Config(text).SetCancel(token), action, end, error);
 
         /// <summary>
         /// Spin 加载中
@@ -392,7 +528,9 @@ namespace AntdUI
                     model.LoadCompleted += () => Event.SetWait();
                     return ITask.Run(() =>
                     {
-                        if (Event.Wait(1000)) return;
+                        var r = Event.Wait(1000);
+                        Event.Dispose();
+                        if (r) return;
                         open_core(control, true, parent, config, action, end, error)?.Wait();
                     });
                 }
@@ -456,7 +594,119 @@ namespace AntdUI
 
         float LineWidth = 6, LineAngle = 0;
         int prog_size = 0;
-        public void Clear() => prog_size = 0;
+
+        #region GIF
+
+        const int PropertyTagFrameDelay = 0x5100;
+
+        Image? gifImage;
+        FrameDimension? gifFrameDimension;
+        int gifFrameCount = 0;
+        int[]? gifFrameDelays;
+        int gifFrameIndex = 0;
+        int gifLastTick = 0;
+
+        void ResetGif()
+        {
+            gifImage = null;
+            gifFrameDimension = null;
+            gifFrameCount = 0;
+            gifFrameDelays = null;
+            gifFrameIndex = 0;
+            gifLastTick = 0;
+        }
+
+        bool UpdateGifFrame(Image image)
+        {
+            if (!ReferenceEquals(gifImage, image))
+            {
+                if (!InitGif(image)) return false;
+                return true;
+            }
+
+            if (gifFrameDimension == null || gifFrameDelays == null || gifFrameCount <= 1) return false;
+
+            var now = Environment.TickCount;
+            var elapsed = unchecked(now - gifLastTick);
+            var delay = gifFrameDelays[gifFrameIndex];
+
+            if (elapsed >= delay)
+            {
+                gifFrameIndex++;
+                if (gifFrameIndex >= gifFrameCount) gifFrameIndex = 0;
+
+                gifLastTick = now;
+                image.SelectActiveFrame(gifFrameDimension, gifFrameIndex);
+            }
+
+            return true;
+        }
+
+        bool InitGif(Image image)
+        {
+            ResetGif();
+
+            try
+            {
+                foreach (var item in image.FrameDimensionsList)
+                {
+                    var dimension = new FrameDimension(item);
+                    var count = image.GetFrameCount(dimension);
+
+                    if (count <= 1) continue;
+
+                    gifImage = image;
+                    gifFrameDimension = dimension;
+                    gifFrameCount = count;
+                    gifFrameDelays = GetGifDelays(image, count);
+                    gifFrameIndex = 0;
+                    gifLastTick = Environment.TickCount;
+
+                    image.SelectActiveFrame(gifFrameDimension, gifFrameIndex);
+                    return true;
+                }
+            }
+            catch
+            {
+                ResetGif();
+            }
+
+            return false;
+        }
+
+        int[] GetGifDelays(Image image, int count)
+        {
+            var delays = new int[count];
+            for (int i = 0; i < delays.Length; i++) delays[i] = 100;
+
+            try
+            {
+                if (Array.IndexOf(image.PropertyIdList, PropertyTagFrameDelay) < 0) return delays;
+
+                var item = image.GetPropertyItem(PropertyTagFrameDelay);
+                if (item?.Value == null) return delays;
+
+                for (int i = 0; i < count; i++)
+                {
+                    var offset = i * 4;
+                    if (offset + 4 > item.Value.Length) break;
+
+                    var delay = BitConverter.ToInt32(item.Value, offset) * 10;
+                    delays[i] = delay > 0 ? Math.Max(delay, 10) : 100;
+                }
+            }
+            catch { }
+
+            return delays;
+        }
+
+        #endregion
+
+        public void Clear()
+        {
+            prog_size = 0;
+            ResetGif();
+        }
 
         public void Start(IControl control)
         {
@@ -464,6 +714,7 @@ namespace AntdUI
             bool ProgState = false;
             thread = new AnimationTask(control, () =>
             {
+                if (GRun()) return true;
                 Animation(ref ProgState);
                 control.Invalidate();
                 return true;
@@ -475,11 +726,24 @@ namespace AntdUI
             bool ProgState = false;
             thread = new AnimationTask(control, () =>
             {
+                if (GRun()) return true;
                 Animation(ref ProgState);
                 control.Print();
                 return true;
             }, 10);
         }
+
+        bool GRun()
+        {
+            if (Count > 0)
+            {
+                Count--;
+                return true;
+            }
+            return false;
+        }
+
+        public int Count = 0;
 
         void Animation(ref bool ProgState)
         {
@@ -502,6 +766,8 @@ namespace AntdUI
                 case 1:
                     LineAngle = LineAngle.Calculate(2F);
                     break;
+                case 3:
+                    break;
                 case 2:
                 default:
                     LineAngle = LineAngle.Calculate(rate ?? 8F);
@@ -512,6 +778,7 @@ namespace AntdUI
 
         public void Stop()
         {
+            ResetGif();
             thread?.Dispose();
             thread = null;
         }
@@ -520,49 +787,89 @@ namespace AntdUI
 
         float? rate;
         int mode = 0;
+        Rectangle? rect_button;
+        bool hover_button = false;
         public void Paint(Canvas g, Rectangle rect, Spin.Config config, Control control)
         {
             var font = config.Font ?? control.Font;
             if (prog_size == 0) prog_size = g.MeasureText(config.Text ?? Config.NullText, font).Height;
-            int rprog_size = (int)(prog_size * 1.6F), size = (int)(prog_size * .2F), size2 = rprog_size / 2;
-            var rect_prog = new Rectangle(rect.X + (rect.Width - rprog_size) / 2, rect.Y + (rect.Height - rprog_size) / 2, rprog_size, rprog_size);
+            int cirSize = config.CirSize.HasValue ? (int)(config.CirSize.Value * g.Dpi) : (int)(prog_size * 1.6F),
+                cirWidth = config.CirWidth.HasValue ? (int)(config.CirWidth.Value * g.Dpi) : (int)(prog_size * .2F);
+            var cirContainer = new Rectangle(rect.X + (rect.Width - cirSize) / 2, rect.Y + (rect.Height - cirSize) / 2, cirSize, cirSize);
+            if (config.CancelToken != null && config.CancelText != null)
+            {
+                var canceltext = config.CancelText;
+                var size_btn = g.MeasureText(canceltext, font).Size(12, 6);
+                var y = cirContainer.Bottom;
+                cirContainer.Offset(0, -cirSize);
+                rect_button = new Rectangle(rect.X + (rect.Width - size_btn.Width) / 2, y, size_btn.Width, size_btn.Height);
+                using (var path = rect_button.Value.RoundPath(6 * g.Dpi))
+                {
+                    g.Fill(Colour.DefaultBg.Get(nameof(Spin)), path);
+                    if (hover_button) g.Fill(Colour.FillSecondary.Get(nameof(Spin)), path);
+                    g.Draw(Colour.DefaultBorder.Get(nameof(Spin)), g.Dpi, path);
+                    g.String(canceltext, font, Colour.Text.Get(nameof(Spin)), rect_button.Value, s_f);
+                }
+            }
             if (config.Text != null)
             {
-                var y = rect_prog.Bottom;
-                rect_prog.Offset(0, -size2);
+                var y = cirContainer.Bottom;
+                cirContainer.Offset(0, -cirSize / 2);
                 g.DrawText(config.Text, font, config.Fore ?? Colour.Primary.Get(nameof(Spin)), new Rectangle(rect.X, y, rect.Width, prog_size), s_f);
             }
             var color = config.Color ?? Colour.Primary.Get(nameof(Spin));
+            if (config.Indicator != null && UpdateGifFrame(config.Indicator))
+            {
+                mode = 3;
+                g.Image(config.Indicator, cirContainer);
+                return;
+            }
             if (config.Indicator != null || config.IndicatorSvg != null)
             {
                 rate = config.Rate;
                 mode = 2;
-                var size22 = rprog_size / 2F;
-                g.TranslateTransform(rect_prog.X + size22, rect_prog.Y + size22);
+                var cirSize2 = cirSize / 2F;
+                int cirSizeNum = (int)cirSize2;
+                g.TranslateTransform(cirContainer.X + cirSize2, cirContainer.Y + cirSize2);
                 g.RotateTransform(LineAngle);
-                var rect_center = new Rectangle(-size2, -size2, rprog_size, rprog_size);
+                var rect_center = new Rectangle(-cirSizeNum, -cirSizeNum, cirSize, cirSize);
                 if (config.Indicator != null) g.Image(config.Indicator, rect_center);
-                if (config.IndicatorSvg != null) g.GetImgExtend(config.IndicatorSvg, rect_center, color);
+                if (config.IndicatorSvg != null) g.Svg(config.IndicatorSvg, rect_center, color);
                 g.ResetTransform();
             }
             else
             {
-                g.DrawEllipse(Colour.Fill.Get(nameof(Spin)), size, rect_prog);
-                using (var brush = new Pen(color, size))
+                g.DrawEllipse(Colour.Fill.Get(nameof(Spin)), cirWidth, cirContainer);
+                using (var brush = new Pen(color, cirWidth))
                 {
                     brush.StartCap = brush.EndCap = LineCap.Round;
                     if (config.Value.HasValue)
                     {
                         mode = 1;
-                        g.DrawArc(brush, rect_prog, LineAngle, config.Value.Value * 360F);
+                        g.DrawArc(brush, cirContainer, LineAngle, config.Value.Value * 360F);
                     }
                     else
                     {
                         mode = 0;
-                        g.DrawArc(brush, rect_prog, LineAngle, LineWidth * 3.6F);
+                        g.DrawArc(brush, cirContainer, LineAngle, LineWidth * 3.6F);
                     }
                 }
             }
+        }
+
+        public void MouseMove(int x, int y)
+        {
+            if (rect_button.HasValue) hover_button = rect_button.Value.Contains(x, y);
+            else hover_button = false;
+        }
+        public bool MouseClick(int x, int y, Spin.Config config)
+        {
+            if (rect_button.HasValue && rect_button.Value.Contains(x, y))
+            {
+                config.CancelTokenSource?.Cancel();
+                return true;
+            }
+            return false;
         }
 
         public void Dispose() => Stop();
@@ -576,11 +883,12 @@ namespace AntdUI
         Spin.Config config;
         public SpinForm(Control _control, Form? _parent, Spin.Config _config)
         {
+            config = _config;
             control = _control;
             parent = _parent;
             Font = _control.Font;
-            config = _config;
-            _control.SetTopMost(Handle);
+            SetTopMost(_control, Handle);
+            SetDpi(_parent, _control);
             if (_control is Form form)
             {
                 SetSize(form.Size);
@@ -603,18 +911,30 @@ namespace AntdUI
         int Radius = 0, Bor = 0;
         bool HasBor = false;
 
+        Control[]? controls;
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
             control.VisibleChanged += Parent_VisibleChanged;
             control.LocationChanged += Parent_LocationChanged;
             control.SizeChanged += Parent_SizeChanged;
+            var list = control.FindPARENTs();
             if (control is TabPage page) page.ShowedChanged += Parent_VisibleChanged;
             if (parent != null)
             {
+                list.Remove(parent);
                 parent.VisibleChanged += Parent_VisibleChanged;
                 parent.LocationChanged += Parent_LocationChanged;
                 parent.SizeChanged += Parent_SizeChanged;
+            }
+            if (list.Count > 0)
+            {
+                foreach (var it in list)
+                {
+                    if (it is TabPage page2) page2.ShowedChanged += Parent_VisibleChanged;
+                    else it.VisibleChanged += Parent_VisibleChanged;
+                }
+                controls = list.ToArray();
             }
             LoadVisible();
         }
@@ -634,29 +954,47 @@ namespace AntdUI
         }
         bool GetVisible()
         {
-            if (control is TabPage page) return page.Showed && page.Visible;
+            if (!GetVisible(control)) return false;
+            if (controls == null) return true;
+            foreach (var it in controls)
+            {
+                if (!GetVisible(it)) return false;
+            }
+            return true;
+        }
+        bool GetVisible(Control control)
+        {
+            if (control is TabPage page) return page.Showed;
             return control.Visible;
         }
 
         private void Parent_VisibleChanged(object? sender, EventArgs e) => LoadVisible();
         private void Parent_LocationChanged(object? sender, EventArgs e)
         {
+            spin_core.Count++;
             LoadVisible();
-            if (control is Form form) SetLocation(form.Location);
-            else SetLocation(control.PointToScreen(Point.Empty));
+            if (visible)
+            {
+                if (control is Form form) SetLocation(form.Location);
+                else SetLocation(control.PointToScreen(Point.Empty));
+                PrintCache();
+            }
         }
         private void Parent_SizeChanged(object? sender, EventArgs e)
         {
             LoadVisible();
-            if (control is Form form)
+            if (visible)
             {
-                SetSize(form.Size);
-                SetLocation(form.Location);
-            }
-            else
-            {
-                SetLocation(control.PointToScreen(Point.Empty));
-                SetSize(control.Size);
+                if (control is Form form)
+                {
+                    SetSize(form.Size);
+                    SetLocation(form.Location);
+                }
+                else
+                {
+                    SetLocation(control.PointToScreen(Point.Empty));
+                    SetSize(control.Size);
+                }
             }
         }
 
@@ -669,7 +1007,7 @@ namespace AntdUI
             var rbmp = new Bitmap(rect_read.Width, rect_read.Height);
             if (visible)
             {
-                using (var g = Graphics.FromImage(rbmp).HighLay(true))
+                using (var g = Graphics.FromImage(rbmp).HighLay(Dpi))
                 {
                     using (var brush = new SolidBrush(config.Back ?? Style.rgba(Colour.BgBase.Get(nameof(Spin)), .8F)))
                     {
@@ -700,6 +1038,25 @@ namespace AntdUI
 
         #endregion
 
+        #region 鼠标
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            spin_core.MouseMove(e.X, e.Y);
+        }
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+            if (spin_core.MouseClick(e.X, e.Y, config))
+            {
+                spin_core.Dispose();
+                Close();
+            }
+        }
+
+        #endregion
+
         protected override void Dispose(bool disposing)
         {
             spin_core.Dispose();
@@ -712,6 +1069,14 @@ namespace AntdUI
                 parent.VisibleChanged -= Parent_VisibleChanged;
                 parent.LocationChanged -= Parent_LocationChanged;
                 parent.SizeChanged -= Parent_SizeChanged;
+            }
+            if (controls != null)
+            {
+                foreach (var it in controls)
+                {
+                    if (it is TabPage page2) page2.ShowedChanged -= Parent_VisibleChanged;
+                    else it.VisibleChanged -= Parent_VisibleChanged;
+                }
             }
             base.Dispose(disposing);
             if (control == null) return;

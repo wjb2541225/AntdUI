@@ -1,28 +1,14 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -61,7 +47,7 @@ namespace AntdUI
         /// 数据
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public VirtualCollection Items
         {
             get
@@ -78,7 +64,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -92,7 +78,7 @@ namespace AntdUI
         }
 
         TAlignRound radiusAlign = TAlignRound.ALL;
-        [Description("圆角方向"), Category("外观"), DefaultValue(TAlignRound.ALL)]
+        [Description("圆角方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlignRound.ALL)]
         public TAlignRound RadiusAlign
         {
             get => radiusAlign;
@@ -111,7 +97,7 @@ namespace AntdUI
         /// <summary>
         /// 阴影大小
         /// </summary>
-        [Description("阴影"), Category("外观"), DefaultValue(0)]
+        [Description("阴影"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Shadow
         {
             get => shadow;
@@ -259,7 +245,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(0)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Gap
         {
             get => gap;
@@ -277,11 +263,11 @@ namespace AntdUI
 
         bool isEmpty = false;
 
-        [Description("是否显示空样式"), Category("外观"), DefaultValue(false)]
+        [Description("是否显示空样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Empty { get; set; }
 
         string? emptyText;
-        [Description("数据为空显示文字"), Category("外观"), DefaultValue(null)]
+        [Description("数据为空显示文字"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? EmptyText
         {
@@ -295,7 +281,7 @@ namespace AntdUI
             }
         }
 
-        [Description("数据为空显示图片"), Category("外观"), DefaultValue(null)]
+        [Description("数据为空显示图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? EmptyImage { get; set; }
 
         #endregion
@@ -306,7 +292,7 @@ namespace AntdUI
         /// <summary>
         /// 换行
         /// </summary>
-        [Description("换行"), Category("布局"), DefaultValue(true)]
+        [Description("换行"), Category(nameof(CategoryAttribute.Layout)), DefaultValue(true)]
         public bool Wrap
         {
             get => wrap;
@@ -323,7 +309,7 @@ namespace AntdUI
         /// <summary>
         /// 瀑布流
         /// </summary>
-        [Description("瀑布流"), Category("布局"), DefaultValue(false)]
+        [Description("瀑布流"), Category(nameof(CategoryAttribute.Layout)), DefaultValue(false)]
         public bool Waterfall
         {
             get => waterfall;
@@ -340,7 +326,7 @@ namespace AntdUI
         /// <summary>
         /// 侧轴(纵轴)对齐方式
         /// </summary>
-        [Description("侧轴(纵轴)对齐方式"), Category("布局"), DefaultValue(TAlignItems.Start)]
+        [Description("侧轴(纵轴)对齐方式"), Category(nameof(CategoryAttribute.Layout)), DefaultValue(TAlignItems.Start)]
         public TAlignItems AlignItems
         {
             get => alignitems;
@@ -357,7 +343,7 @@ namespace AntdUI
         /// <summary>
         /// 主轴(横轴)对齐方式
         /// </summary>
-        [Description("主轴(横轴)对齐方式"), Category("布局"), DefaultValue(TJustifyContent.Start)]
+        [Description("主轴(横轴)对齐方式"), Category(nameof(CategoryAttribute.Layout)), DefaultValue(TJustifyContent.Start)]
         public TJustifyContent JustifyContent
         {
             get => justifycontent;
@@ -374,7 +360,7 @@ namespace AntdUI
         /// <summary>
         /// 没有占用交叉轴上所有可用的空间时对齐容器内的各项(垂直)
         /// </summary>
-        [Description("没有占用交叉轴上所有可用的空间时对齐容器内的各项(垂直)"), Category("布局"), DefaultValue(TAlignContent.Start)]
+        [Description("没有占用交叉轴上所有可用的空间时对齐容器内的各项(垂直)"), Category(nameof(CategoryAttribute.Layout)), DefaultValue(TAlignContent.Start)]
         public TAlignContent AlignContent
         {
             get => aligncontent;
@@ -390,7 +376,7 @@ namespace AntdUI
         #endregion
 
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -435,7 +421,7 @@ namespace AntdUI
                 }
                 if (pauseLayout) return;
                 var controls = new List<VirtualItem>(items.Count);
-                foreach (var it in items)
+                foreach (var it in items.Cast<VirtualItem>().OrderBy(x => x.SortIndex).ToList())
                 {
                     it.SHOW = false;
                     if (it.Visible) controls.Add(it);
@@ -456,10 +442,10 @@ namespace AntdUI
             var _rect = ClientRectangle;
             if (_rect.Width == 0 || _rect.Height == 0) return;
             var rect = _rect.PaddingRect(Padding);
-            var val = Helper.GDI(g =>
+            var val = this.GDI(g =>
             {
-                int gap = (int)Math.Round(Gap * Config.Dpi), use_x = rect.X, use_y = rect.Y + gap, last_len = 0, max_height = 0;
-                int shadow = (int)(Shadow * Config.Dpi), shadow2 = shadow * 2, r = (int)(radius * Config.Dpi);
+                int gap = (int)Math.Round(Gap * Dpi), use_x = rect.X, use_y = rect.Y + gap, last_len = 0, max_height = 0;
+                int shadow = (int)(Shadow * Dpi), shadow2 = shadow * 2, r = (int)(radius * Dpi);
                 var rows = new List<RItem>();
                 var tmps = new List<VirtualItem>(items.Count);
                 foreach (var it in items)
@@ -732,8 +718,7 @@ namespace AntdUI
 
                 return last_len + gap * 2;
             });
-            ScrollBar.SetVrSize(val);
-            ScrollBar.SizeChange(_rect);
+            ScrollBar.SetVrSize(val, _rect);
         }
 
         #region 瀑布流
@@ -948,20 +933,19 @@ namespace AntdUI
             var g = e.Canvas;
             if (items == null || items.Count == 0 || isEmpty)
             {
-                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, Colour.Text.Get(nameof(VirtualPanel), "emptyFore", ColorScheme), EmptyText, EmptyImage);
+                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, Colour.Text.GetSymbol(ColorScheme, "emptyFore", nameof(VirtualPanel), Name), EmptyText, EmptyImage);
             }
             else
             {
                 int sy = ScrollBar.Value;
                 var rect = e.Rect;
-                rect.Offset(0, sy);
                 g.TranslateTransform(0, -sy);
-                int r = (int)(radius * Config.Dpi);
+                int r = (int)(radius * Dpi);
                 foreach (var it in items)
                 {
                     if (it.SHOW)
                     {
-                        it.SHOW_RECT = rect.Contains(rect.X, it.RECT.Y) || rect.Contains(rect.X, it.RECT.Bottom);
+                        it.SHOW_RECT = rect.IsItemVisible(sy, it.RECT);
                         if (it.SHOW_RECT)
                         {
                             var state = g.Save();
@@ -975,7 +959,7 @@ namespace AntdUI
                 }
                 g.ResetTransform();
                 ScrollBar.Paint(g, ColorScheme);
-                if (Config.HasAnimation(nameof(VirtualPanel)) && BlurBar != null) _event.SetWait();
+                if (Config.HasAnimation(nameof(VirtualPanel), Name) && BlurBar != null) _event.SetWait();
             }
             base.OnDraw(e);
         }
@@ -1000,11 +984,11 @@ namespace AntdUI
                             sy -= BlurBarHeight;
                             var rect = ClientRectangle;
                             var bmp = new Bitmap(rect.Width, BlurBarHeight);
-                            using (var g = Graphics.FromImage(bmp).HighLay())
+                            using (var g = Graphics.FromImage(bmp).HighLay(Dpi))
                             {
                                 rect.Offset(0, sy);
                                 g.TranslateTransform(0, -sy);
-                                int r = (int)(radius * Config.Dpi);
+                                int r = (int)(radius * Dpi);
                                 foreach (var it in items)
                                 {
                                     if (it.SHOW && it.SHOW_RECT)
@@ -1048,7 +1032,18 @@ namespace AntdUI
         {
             BlurBar = null;
             _event?.WaitDispose();
+            if (shadow_dir_tmp.Count > 0)
+            {
+                lock (shadow_dir_tmp)
+                {
+                    foreach (var item in shadow_dir_tmp) item.Value.Dispose();
+                    shadow_dir_tmp.Clear();
+                }
+            }
             base.Dispose(disposing);
+            if (items == null || items.Count == 0) return;
+            foreach (var it in items) it.Dispose(this, true);
+            items.Dispose();
         }
 
         #endregion
@@ -1066,7 +1061,15 @@ namespace AntdUI
             switch (id)
             {
                 case EventType.THEME:
-                    if (Config.HasAnimation(nameof(VirtualPanel)) && BlurBar != null) _event.SetWait();
+                    if (Config.HasAnimation(nameof(VirtualPanel), Name) && BlurBar != null) _event.SetWait();
+                    break;
+                case EventType.LANG:
+                    CellCount = -1;
+                    if (items == null || items.Count == 0) return;
+                    foreach (var it in items) it.Dispose(this, false);
+                    LoadLayout();
+                    Invalidate();
+                    if (Config.HasAnimation(nameof(VirtualPanel), Name) && BlurBar != null) _event.SetWait();
                     break;
             }
         }
@@ -1086,23 +1089,19 @@ namespace AntdUI
                 {
                     if (!shadow_dir_tmp.ContainsKey(id))
                     {
-                        int shadow = (int)(Shadow * Config.Dpi);
+                        int shadow = (int)(Shadow * Dpi);
                         using (var path = new Rectangle(shadow, shadow, it.RECT.Width, it.RECT.Height).RoundPath(radius, shadowAlign, radiusAlign))
                         {
-                            shadow_dir_tmp.Add(id, path.PaintShadowO(it.RECT_S.Width, it.RECT_S.Height, shadowColor ?? Colour.TextBase.Get(nameof(VirtualPanel), ColorScheme), shadow));
+                            shadow_dir_tmp.Add(id, path.PaintShadowO(it.RECT_S.Width, it.RECT_S.Height, shadowColor ?? Colour.TextBase.Get(ColorScheme, nameof(VirtualPanel), Name), shadow));
                         }
                     }
                     if (shadow_dir_tmp.TryGetValue(id, out var shadow_temp))
                     {
-                        using (var attributes = new ImageAttributes())
-                        {
-                            var matrix = new ColorMatrix();
-                            if (it.AnimationHover) matrix.Matrix33 = it.AnimationHoverValue;
-                            else if (it.Hover) matrix.Matrix33 = shadowOpacityHover;
-                            else matrix.Matrix33 = shadowOpacity;
-                            attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                            g.Image(shadow_temp, new Rectangle(it.RECT_S.X + shadowOffsetX, it.RECT_S.Y + shadowOffsetY, it.RECT_S.Width, it.RECT_S.Height), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
-                        }
+                        float opacity;
+                        if (it.AnimationHover) opacity = it.AnimationHoverValue;
+                        else if (it.Hover) opacity = shadowOpacityHover;
+                        else opacity = shadowOpacity;
+                        g.Image(shadow_temp, new Rectangle(it.RECT_S.X + shadowOffsetX, it.RECT_S.Y + shadowOffsetY, it.RECT_S.Width, it.RECT_S.Height), opacity);
                     }
                 }
             }
@@ -1115,7 +1114,7 @@ namespace AntdUI
         /// <summary>
         /// 点击项时发生
         /// </summary>
-        [Description("点击项时发生"), Category("行为")]
+        [Description("点击项时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event VirtualItemEventHandler? ItemClick;
 
         protected virtual void OnItemClick(VirtualItem item, MouseEventArgs e) => ItemClick?.Invoke(this, new VirtualItemEventArgs(item, e));
@@ -1182,7 +1181,7 @@ namespace AntdUI
         {
             if (Enabled && ShadowOpacityAnimation && shadow > 0 && shadowOpacityHover > 0 && it is VirtualShadowItem virtualShadow && shadowOpacityHover > shadowOpacity)
             {
-                if (Config.HasAnimation(nameof(VirtualPanel)))
+                if (Config.HasAnimation(nameof(VirtualPanel), Name))
                 {
                     virtualShadow.ThreadHover?.Dispose();
                     virtualShadow.AnimationHover = true;
@@ -1314,6 +1313,7 @@ namespace AntdUI
         public bool Visible { get; set; } = true;
         public bool CanClick { get; set; } = true;
         public bool Hover { get; set; }
+        public int SortIndex { get; set; } = -1;
         public object? Tag { get; set; }
         public abstract Size Size(Canvas g, VirtualPanelArgs e);
         public abstract void Paint(Canvas g, VirtualPanelArgs e);
@@ -1321,8 +1321,16 @@ namespace AntdUI
         public virtual void MouseLeave(VirtualPanel sender, VirtualPanelMouseArgs e) { }
         public virtual void MouseClick(VirtualPanel sender, VirtualPanelMouseArgs e) { }
 
+        public virtual void Dispose(VirtualPanel sender, bool disposed) { }
+
         public void Invalidate() => invalidate?.Invoke(this, null);
         public void Invalidate(Rectangle rect) => invalidate?.Invoke(this, rect);
+
+        public void ResetVisible()
+        {
+            SortIndex = -1;
+            Visible = true;
+        }
 
         /// <summary>
         /// 是否显示

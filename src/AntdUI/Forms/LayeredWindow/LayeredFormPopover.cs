@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -29,36 +16,32 @@ namespace AntdUI
     internal class LayeredFormPopover : ILayeredShadowFormOpacity
     {
         Popover.Config config;
-        public override bool MessageEnable => true;
-        public override bool MessageCloseSub => true;
-
-        internal bool topMost = false;
         Form? form;
 
         int ArrowSize = 8;
         public LayeredFormPopover(Popover.Config _config)
         {
             config = _config;
-            topMost = config.Control.SetTopMost(Handle);
+            CloseMode = CloseMode.Click;
+            SetTopMost(config.Control, Handle);
+            SetDpi(config.Control);
             Font = config.Font ?? config.Control.Font;
 
-            Helper.GDI(g =>
+            this.GDI(g =>
             {
-                var dpi = Config.Dpi;
+                Radius = (int)(config.Radius * Dpi);
+                ArrowSize = (int)(config.ArrowSize * Dpi);
 
-                Radius = (int)(config.Radius * dpi);
-                ArrowSize = (int)(config.ArrowSize * dpi);
-
-                int sp = (int)Math.Round(config.Gap * dpi), paddingx = 10 + (int)(config.Padding.Width * dpi),
-                paddingy = 10 + (int)(config.Padding.Height * dpi), paddingx2 = paddingx * 2, paddingy2 = paddingy * 2;
+                int sp = (int)Math.Round(config.Gap * Dpi), paddingx = (int)(config.Padding.Width * Dpi),
+                paddingy = (int)(config.Padding.Height * Dpi), paddingx2 = paddingx * 2, paddingy2 = paddingy * 2;
                 Padding = new Padding(paddingx, paddingy, paddingx, paddingy);
                 if (config.Content is Control control)
                 {
                     control.Parent = this;
-                    control.BackColor = config.Back ?? Colour.BgElevated.Get(nameof(Popover), config.ColorScheme);
-                    control.ForeColor = config.Fore ?? Colour.Text.Get(nameof(Popover), config.ColorScheme);
+                    control.BackColor = config.Back ?? Colour.BgElevated.Get(config.ColorScheme, name);
+                    control.ForeColor = config.Fore ?? Colour.Text.Get(config.ColorScheme, name);
                     Win32.WindowTheme(control, config.ColorScheme);
-                    Helper.DpiAuto(config.Dpi ?? Config.Dpi, control);
+                    Helper.DpiAuto(config.Dpi ?? Dpi, control);
                     int w = control.Width;
                     int h;
                     if (_config.Title == null)
@@ -77,10 +60,9 @@ namespace AntdUI
                         }
                     }
                     rectContent.Offset(shadow, shadow);
-                    tempContent = new Bitmap(control.Width, control.Height);
-                    control.Size = new Size(tempContent.Width, tempContent.Height);
-                    control.DrawToBitmap(tempContent, new Rectangle(0, 0, tempContent.Width, tempContent.Height));
+                    control.Size = new Size(control.Width, control.Height);
                     SetSize(w + paddingx2, h + paddingy2);
+                    BeginInvoke(() => tempContent = control.CaptureControl());
                 }
                 else if (config.Content is IList<Popover.TextRow> list)
                 {
@@ -94,7 +76,7 @@ namespace AntdUI
                         {
                             if (txt.Call != null) hasmouse = true;
                             var sizeContent = g.MeasureString(txt.Text, txt.Font ?? Font);
-                            int txt_w = sizeContent.Width + (int)(txt.Gap * dpi);
+                            int txt_w = sizeContent.Width + (int)(txt.Gap * Dpi);
                             _texts.Add(new int[] { paddingx + has_x, paddingy, txt_w });
                             if (max_h < sizeContent.Height) max_h = sizeContent.Height;
                             has_x += txt_w;
@@ -121,7 +103,7 @@ namespace AntdUI
                             {
                                 if (txt.Call != null) hasmouse = true;
                                 var sizeContent = g.MeasureString(txt.Text, txt.Font ?? Font);
-                                int txt_w = sizeContent.Width + (int)(txt.Gap * dpi);
+                                int txt_w = sizeContent.Width + (int)(txt.Gap * Dpi);
                                 _texts.Add(new int[] { paddingx + has_x, paddingy + sizeTitle.Height + sp, txt_w });
                                 if (max_h < sizeContent.Height) max_h = sizeContent.Height;
                                 has_x += txt_w;
@@ -150,7 +132,7 @@ namespace AntdUI
 
                     if (_config.Title == null)
                     {
-                        var sizeContent = g.MeasureString(content, Font);
+                        var sizeContent = g.MeasureText(content, Font);
                         int w = sizeContent.Width, h = sizeContent.Height;
                         rectContent = new Rectangle(paddingx, paddingy, w, h);
                         SetSize(w + paddingx2, h + paddingy2);
@@ -159,7 +141,7 @@ namespace AntdUI
                     {
                         using (var fontTitle = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
                         {
-                            Size sizeTitle = g.MeasureString(config.Title, fontTitle), sizeContent = g.MeasureString(content, Font);
+                            Size sizeTitle = g.MeasureText(config.Title, fontTitle), sizeContent = g.MeasureText(content, Font);
                             int w = sizeContent.Width > sizeTitle.Width ? sizeContent.Width : sizeTitle.Width, h = sizeTitle.Height + sp + sizeContent.Height;
 
                             rectTitle = new Rectangle(paddingx, paddingy, w, sizeTitle.Height + sp);
@@ -172,14 +154,26 @@ namespace AntdUI
             });
             if (config.CustomPoint.HasValue)
             {
-                new CalculateCoordinate(config.CustomPoint.Value, TargetRect, Radius, ArrowSize, shadow, shadow2, config.Offset).Auto(config.ArrowAlign, true, out int x, out int y, out ArrowLine);
+                new CalculateCoordinate(this, config.CustomPoint.Value, TargetRect, Radius, ArrowSize, shadow, shadow2, config.Offset).Auto(config.ArrowAlign, true, out int x, out int y, out ArrowLine);
                 SetLocation(x, y);
             }
             else
             {
-                new CalculateCoordinate(config.Control, TargetRect, Radius, ArrowSize, shadow, shadow2, config.Offset).Auto(config.ArrowAlign, true, out int x, out int y, out ArrowLine);
+                new CalculateCoordinate(this, config.Control, TargetRect, Radius, ArrowSize, shadow, shadow2, config.Offset).Auto(config.ArrowAlign, true, out int x, out int y, out ArrowLine);
                 SetLocation(x, y);
             }
+        }
+
+        public void LoadOffset(Rectangle rect)
+        {
+            new CalculateCoordinate(this, config.Control, TargetRect, Radius, ArrowSize, shadow, shadow2, rect).Auto(config.ArrowAlign, true, out int x, out int y, out ArrowLine);
+            SetLocation(x, y);
+            PrintCache();
+            if (form == null) return;
+            var flocation = new Point(TargetRect.Location.X + rectContent.X, TargetRect.Location.Y + rectContent.Y);
+            var fsize = new Size(rectContent.Width, rectContent.Height);
+            form.Location = flocation;
+            form.MaximumSize = form.MinimumSize = form.Size = fsize;
         }
 
         public override string name => nameof(Popover);
@@ -210,15 +204,14 @@ namespace AntdUI
             var fsize = new Size(rectContent.Width, rectContent.Height);
             form = new DoubleBufferForm(this, control, config.Focus)
             {
+                StartPosition = FormStartPosition.Manual,
                 FormBorderStyle = FormBorderStyle.None,
-                Location = flocation,
+                Bounds = new Rectangle(flocation, fsize),
                 MaximumSize = fsize,
-                MinimumSize = fsize,
-                Size = fsize
+                MinimumSize = fsize
             };
             control.Disposed += Control_Disposed;
             form.Show(this);
-            form.Location = flocation;
             PARENT = form;
             parent = control.FindPARENT();
             config.OnControlLoad?.Invoke();
@@ -227,11 +220,14 @@ namespace AntdUI
             base.LoadOK();
             if (parent != null) parent.VisibleChanged += Parent_VisibleChanged;
         }
+
         private void Parent_VisibleChanged(object? sender, EventArgs e)
         {
             if (form == null) return;
             form.Visible = parent!.Visible;
         }
+
+        #region 关闭
 
         private void Control_Disposed(object? sender, EventArgs e) => IClose();
 
@@ -250,9 +246,8 @@ namespace AntdUI
                     base.OnFormClosing(e);
                     return;
                 }
-                tempContent = new Bitmap(control.Width, control.Height);
-                control.DrawToBitmap(tempContent, new Rectangle(0, 0, tempContent.Width, tempContent.Height));
-                if (form != null) form.Location = Helper.OffScreenArea(form.Width * 2, form.Height * 2);
+                tempContent = control.CaptureControl();
+                if (form != null) form.Location = Helper.OffScreenLocation(form.Width, form.Height);
             }
             base.OnFormClosing(e);
         }
@@ -274,6 +269,30 @@ namespace AntdUI
             base.Dispose(disposing);
         }
 
+        List<Form> forms = new List<Form>();
+        public void CloseLockedAdd(Form form)
+        {
+            lock (forms)
+            {
+                forms.Add(form);
+            }
+        }
+        public void CloseLockedDel(Form form)
+        {
+            lock (forms)
+            {
+                forms.Remove(form);
+            }
+        }
+        public override bool ICanClose()
+        {
+            if (config.Content is ControlPopup controlPopup && controlPopup.Locked) return false;
+            if (forms.Count > 0) return false;
+            return true;
+        }
+
+        #endregion
+
         Rectangle rectTitle, rectContent;
         InRect[]? rectsContent;
         bool rtext = false;
@@ -288,14 +307,15 @@ namespace AntdUI
         {
             if (config.Title != null || rtext)
             {
-                using (var brush = new SolidBrush(config.Fore ?? Colour.Text.Get(nameof(Popover), config.ColorScheme)))
+                using (var brush = new SolidBrush(config.Fore ?? Colour.Text.Get(config.ColorScheme, name)))
                 {
                     using (var fontTitle = new Font(Font.FontFamily, Font.Size, FontStyle.Bold))
                     {
-                        g.String(config.Title, fontTitle, brush, rectTitle, stringLeft);
+                        g.DrawText(config.Title, fontTitle, brush, rectTitle, stringLeft);
                     }
                     if (rtext)
                     {
+                        if (config.Content == null) return;
                         if (config.Content is IList<Popover.TextRow> list && rectsContent != null)
                         {
                             for (int i = 0; i < list.Count; i++)
@@ -311,7 +331,7 @@ namespace AntdUI
                                 else g.String(txt.Text, txt.Font ?? Font, brush, rectsContent[i].Rect, stringCenter);
                             }
                         }
-                        else g.String(config.Content.ToString(), Font, brush, rectContent, stringLeft);
+                        else g.DrawText(config.Content.ToString(), Font, brush, rectContent, stringLeft);
                     }
                 }
             }
@@ -319,9 +339,19 @@ namespace AntdUI
 
         public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
         {
-            using (var brush = new SolidBrush(config.Back ?? Colour.BgElevated.Get(nameof(Popover), config.ColorScheme)))
+            using (var brush = new SolidBrush(config.Back ?? Colour.BgElevated.Get(config.ColorScheme, name)))
             {
                 g.Fill(brush, path);
+                if (shadow == 0)
+                {
+                    int bor = (int)(Dpi), bor2 = bor * 2;
+                    using (var path2 = new Rectangle(rect.X + bor, rect.Y + bor, rect.Width - bor2, rect.Height - bor2).RoundPath(Radius))
+                    {
+                        g.Draw(Colour.BorderColor.Get(config.ColorScheme, name), bor, path2);
+                    }
+                    if (tempContent != null) g.Image(tempContent, rectContent);
+                    return;
+                }
                 if (ArrowLine != null) g.FillPolygon(brush, ArrowLine);
             }
             if (tempContent != null) g.Image(tempContent, rectContent);

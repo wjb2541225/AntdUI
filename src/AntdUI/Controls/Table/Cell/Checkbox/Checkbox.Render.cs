@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Drawing;
 
@@ -41,54 +28,69 @@ namespace AntdUI
         void PaintChecked(Canvas g, Rectangle rect, bool enabled, Rectangle icon_rect)
         {
             var ColorScheme = PARENT.PARENT.ColorScheme;
+            var Dpi = PARENT.PARENT.Dpi;
             float dot_size = icon_rect.Height;
             float radius = dot_size * .2F;
             using (var path = icon_rect.RoundPath(radius))
             {
-                var bor2 = 2F * Config.Dpi;
+                var bor2 = 2F * Dpi;
                 if (enabled)
                 {
-                    var color = fill ?? Colour.Primary.Get(nameof(Checkbox), ColorScheme);
+                    var color = fill ?? Colour.Primary.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name);
                     if (AnimationCheck)
                     {
-                        float dot = dot_size * 0.3F, alpha = 255 * AnimationCheckValue;
-                        g.Fill(Helper.ToColor(alpha, color), path);
-                        using (var pen = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Checkbox), ColorScheme)), 2.6F * Config.Dpi))
+                        var alpha = 255 * AnimationCheckValue;
+                        if (checkState == System.Windows.Forms.CheckState.Indeterminate || (checkStateOld == System.Windows.Forms.CheckState.Indeterminate && !_checked))
                         {
-                            g.DrawLines(pen, icon_rect.CheckArrow());
+                            g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), bor2, path);
+                            g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name)), Checkbox.PaintBlock(icon_rect));
                         }
-                        if (_checked)
+                        else
                         {
-                            float max = icon_rect.Height + ((rect.Height - icon_rect.Height) * AnimationCheckValue), alpha2 = 100 * (1F - AnimationCheckValue);
-                            using (var brush = new SolidBrush(Helper.ToColor(alpha2, color)))
+                            var dot = dot_size * 0.3F;
+                            g.Fill(Helper.ToColor(alpha, color), path);
+                            using (var pen = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name)), 2.6F * Dpi))
                             {
-                                g.FillEllipse(brush, new RectangleF(icon_rect.X + (icon_rect.Width - max) / 2F, icon_rect.Y + (icon_rect.Height - max) / 2F, max, max));
+                                g.DrawLines(pen, icon_rect.CheckArrow());
                             }
+                            if (_checked)
+                            {
+                                float max = icon_rect.Height + ((rect.Height - icon_rect.Height) * AnimationCheckValue), alpha2 = 100 * (1F - AnimationCheckValue);
+                                using (var brush = new SolidBrush(Helper.ToColor(alpha2, color)))
+                                {
+                                    g.FillEllipse(brush, new RectangleF(icon_rect.X + (icon_rect.Width - max) / 2F, icon_rect.Y + (icon_rect.Height - max) / 2F, max, max));
+                                }
+                            }
+                            g.Draw(color, bor2, path);
                         }
-                        g.Draw(color, bor2, path);
+                    }
+                    else if (checkState == System.Windows.Forms.CheckState.Indeterminate)
+                    {
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), bor2, path);
+                        g.Fill(Colour.Primary.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), Checkbox.PaintBlock(icon_rect));
                     }
                     else if (_checked)
                     {
                         g.Fill(color, path);
-                        g.DrawLines(Colour.BgBase.Get(nameof(Checkbox), ColorScheme), 2.6F * Config.Dpi, icon_rect.CheckArrow());
+                        g.DrawLines(Colour.BgBase.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), 2.6F * Dpi, icon_rect.CheckArrow());
                     }
                     else
                     {
-                        if (AnimationHover) g.Draw(Colour.BorderColor.Get(nameof(Checkbox), ColorScheme).BlendColors(AnimationHoverValue, color), bor2, path);
+                        if (AnimationHover) g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name).BlendColors(AnimationHoverValue, color), bor2, path);
                         else if (ExtraMouseHover) g.Draw(color, bor2, path);
-                        else g.Draw(Colour.BorderColor.Get(nameof(Checkbox), ColorScheme), bor2, path);
+                        else g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), bor2, path);
                     }
                 }
                 else
                 {
-                    g.Fill(Colour.FillQuaternary.Get(nameof(Checkbox), ColorScheme), path);
-                    if (_checked) g.DrawLines(Colour.TextQuaternary.Get(nameof(Checkbox), ColorScheme), 2.6F * Config.Dpi, icon_rect.CheckArrow());
-                    g.Draw(Colour.BorderColorDisable.Get(nameof(Checkbox), ColorScheme), bor2, path);
+                    g.Fill(Colour.FillQuaternary.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), path);
+                    if (_checked) g.DrawLines(Colour.TextQuaternary.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), 2.6F * Dpi, icon_rect.CheckArrow());
+                    g.Draw(Colour.BorderColorDisable.Get(ColorScheme, nameof(Checkbox), PARENT.PARENT.Name), bor2, path);
                 }
             }
         }
 
-        bool nullText = false;
+        public bool nullText = false;
         public override Size GetSize(Canvas g, Font font, TableGaps gap)
         {
             nullText = string.IsNullOrWhiteSpace(Text);
@@ -104,7 +106,7 @@ namespace AntdUI
             }
         }
 
-        Rectangle RectText, RectIcon;
+        public Rectangle RectText, RectIcon;
         public override void SetRect(Canvas g, Font font, Rectangle rect, Size size, int maxwidth, TableGaps gap)
         {
             int width = rect.Width;

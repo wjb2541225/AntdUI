@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -32,6 +19,7 @@ namespace AntdUI
 
         public void Change(bool dark)
         {
+            ChangeBefore(dark);
             form.Dark = dark;
             if (btn != null) btn.Toggle = dark;
             if (dark)
@@ -50,6 +38,50 @@ namespace AntdUI
             }
             oncall?.Invoke(dark);
         }
+        void ChangeBefore(bool dark)
+        {
+            ChangeBeforeFormBorderColor(dark);
+            oncallbefore?.Invoke(dark);
+        }
+        void ChangeBeforeFormBorderColor(bool dark)
+        {
+            if (formBorderColor == null) return;
+            if (form is Window window)
+            {
+                if (formBorderColor is Color[] colors) window.BorderColor = dark ? colors[1] : colors[0];
+                else if (formBorderColor is string code)
+                {
+                    switch (code)
+                    {
+                        case "border":
+                            window.BorderColor = Style.Get(Colour.BorderColor, dark ? TAMode.Dark : TAMode.Light, nameof(Window), window.Name);
+                            break;
+                        case "primary":
+                            window.BorderColor = Style.Get(Colour.Primary, dark ? TAMode.Dark : TAMode.Light, nameof(Window), window.Name);
+                            break;
+                    }
+                }
+            }
+            else if (form is BorderlessForm borderlessForm)
+            {
+                if (borderlessForm.UseDwm || borderlessForm.BorderWidth > 0)
+                {
+                    if (formBorderColor is Color[] colors) borderlessForm.BorderColor = dark ? colors[1] : colors[0];
+                    else if (formBorderColor is string code)
+                    {
+                        switch (code)
+                        {
+                            case "border":
+                                borderlessForm.BorderColor = Style.Get(Colour.BorderColor, dark ? TAMode.Dark : TAMode.Light, nameof(BorderlessForm), borderlessForm.Name);
+                                break;
+                            case "primary":
+                                borderlessForm.BorderColor = Style.Get(Colour.Primary, dark ? TAMode.Dark : TAMode.Light, nameof(BorderlessForm), borderlessForm.Name);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
 
         internal void HandleEvent(EventType id, object? tag)
         {
@@ -62,7 +94,7 @@ namespace AntdUI
         #region 回调
 
         internal Action? callLight, callDark;
-        internal Action<bool>? oncall;
+        internal Action<bool>? oncall, oncallbefore;
 
         /// <summary>
         /// 设置回调
@@ -70,6 +102,15 @@ namespace AntdUI
         public virtual IThemeConfig Call(Action<bool>? call)
         {
             oncall = call;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置回调(之前)
+        /// </summary>
+        public virtual IThemeConfig CallBefore(Action<bool>? call)
+        {
+            oncallbefore = call;
             return this;
         }
 
@@ -251,11 +292,56 @@ namespace AntdUI
 
         #endregion
 
+        #region 窗口
+
+        internal object? formBorderColor;
+        /// <summary>
+        /// 设置窗口边框颜色
+        /// </summary>
+        /// <param name="light">浅色模式颜色</param>
+        /// <param name="dark">深色模式颜色</param>
+        public IThemeConfig FormBorderColor(Color light, Color dark)
+        {
+            formBorderColor = new Color[] { light, dark };
+            return this;
+        }
+
+        /// <summary>
+        /// 设置窗口边框颜色（主题色风格）
+        /// </summary>
+        public IThemeConfig FormBorderColorPrimary()
+        {
+            formBorderColor = "primary";
+            return this;
+        }
+
+        /// <summary>
+        /// 设置窗口边框颜色
+        /// </summary>
+        public IThemeConfig FormBorderColor()
+        {
+            formBorderColor = "border";
+            return this;
+        }
+
+        /// <summary>
+        /// 清空窗口边框颜色
+        /// </summary>
+        /// <returns></returns>
+        public IThemeConfig ClearFormBorderColor()
+        {
+            formBorderColor = null;
+            return this;
+        }
+
+        #endregion
+
         public IThemeConfig SetConfig(IThemeConfig config)
         {
             callLight ??= config.callLight;
             callDark ??= config.callDark;
             oncall ??= config.oncall;
+            oncallbefore ??= config.oncallbefore;
 
             if (backLight == null) backLight = config.backLight;
             if (foreLight == null) foreLight = config.foreLight;
@@ -267,6 +353,7 @@ namespace AntdUI
             if (headerDark == null) headerDark = config.headerDark;
 
             btn ??= config.btn;
+            formBorderColor ??= config.formBorderColor;
 
             return this;
         }

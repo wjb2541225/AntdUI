@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -41,7 +28,7 @@ namespace AntdUI
         /// <summary>
         /// 支持清除
         /// </summary>
-        [Browsable(false), Description("支持清除"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("支持清除"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public new bool AllowClear
         {
             get => false;
@@ -49,7 +36,10 @@ namespace AntdUI
         }
 
         double? minimum, maximum;
-        [Description("最小值"), Category("数据"), DefaultValue(null)]
+        /// <summary>
+        /// 最小值
+        /// </summary>
+        [Description("最小值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public double? Minimum
         {
             get => minimum;
@@ -61,7 +51,10 @@ namespace AntdUI
             }
         }
 
-        [Description("最大值"), Category("数据"), DefaultValue(null)]
+        /// <summary>
+        /// 最大值
+        /// </summary>
+        [Description("最大值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public double? Maximum
         {
             get => maximum;
@@ -75,21 +68,25 @@ namespace AntdUI
 
         double? Constrain(double? value)
         {
-            if (value == null) return null;
             if (minimum.HasValue && value < minimum.Value) value = minimum.Value;
             if (maximum.HasValue && value > maximum.Value) value = maximum.Value;
             return value;
         }
 
-        double? currentValue = null;
-        [Description("当前值"), Category("数据"), DefaultValue(typeof(double?), null)]
-        public virtual double? Value
+        double? currentValue = 0;
+        /// <summary>
+        /// 当前值
+        /// </summary>
+        [Description("当前值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
+        public double? Value
         {
             get => currentValue;
             set
             {
                 if (currentValue == value) return;
-                currentValue = Constrain(value);
+                var tmp = Constrain(value);
+                if (currentValue == tmp) return;
+                currentValue = tmp;
                 Text = GetNumberText(currentValue);
                 OnValueChanged(currentValue);
                 OnPropertyChanged(nameof(Value));
@@ -100,7 +97,7 @@ namespace AntdUI
         /// <summary>
         /// 显示控制器
         /// </summary>
-        [Description("显示控制器"), Category("交互"), DefaultValue(true)]
+        [Description("显示控制器"), Category(nameof(CategoryAttribute.Action)), DefaultValue(true)]
         public bool ShowControl
         {
             get => showcontrol;
@@ -112,11 +109,17 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 始终显示控制器
+        /// </summary>
+        [Description("始终显示控制器"), Category(nameof(CategoryAttribute.Action)), DefaultValue(false)]
+        public bool AlwaysShowControl { get; set; }
+
         bool wheelModifyEnabled = true;
         /// <summary>
         /// 鼠标滚轮修改值
         /// </summary>
-        [Description("鼠标滚轮修改值"), Category("交互"), DefaultValue(true)]
+        [Description("鼠标滚轮修改值"), Category(nameof(CategoryAttribute.Action)), DefaultValue(true)]
         public bool WheelModifyEnabled
         {
             get => wheelModifyEnabled;
@@ -132,7 +135,7 @@ namespace AntdUI
         /// <summary>
         /// 显示的小数点位数
         /// </summary>
-        [Description("显示的小数点位数"), Category("数据"), DefaultValue(0)]
+        [Description("显示的小数点位数"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int DecimalPlaces
         {
             get => decimalPlaces;
@@ -148,7 +151,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示千分隔符
         /// </summary>
-        [Description("是否显示千分隔符"), Category("数据"), DefaultValue(false)]
+        [Description("是否显示千分隔符"), Category(nameof(CategoryAttribute.Data)), DefaultValue(false)]
         public bool ThousandsSeparator
         {
             get => thousandsSeparator;
@@ -164,7 +167,7 @@ namespace AntdUI
         /// <summary>
         /// 值是否应以十六进制显示
         /// </summary>
-        [Description("值是否应以十六进制显示"), Category("数据"), DefaultValue(false)]
+        [Description("值是否应以十六进制显示"), Category(nameof(CategoryAttribute.Data)), DefaultValue(false)]
         public bool Hexadecimal
         {
             get => hexadecimal;
@@ -179,29 +182,44 @@ namespace AntdUI
         /// <summary>
         /// 当按下箭头键时，是否持续增加/减少
         /// </summary>
-        [Description("当按下箭头键时，是否持续增加/减少"), Category("行为"), DefaultValue(true)]
+        [Description("当按下箭头键时，是否持续增加/减少"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool InterceptArrowKeys { get; set; } = true;
+
+        /// <summary>
+        /// 文本改变时是否更新Value值
+        /// </summary>
+        [Description("文本改变时是否更新Value值"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public bool EnabledValueTextChange { get; set; }
 
         string GetNumberText(double? num)
         {
+            if (ValueFormatter != null)
+            {
+                try
+                {
+                    return ValueFormatter(this, new InputNumberEventArgs(num));
+                }
+                catch { }
+            }
             if (num == null)
             {
                 return null;
             }
-            if (Hexadecimal) return ((long)num.Value).ToString("X", CultureInfo.InvariantCulture);
-            return num.Value.ToString(CultureInfo.CurrentCulture);
+            if (Hexadecimal) return ((long)num).ToString("X", CultureInfo.InvariantCulture);
+            return num.Value.ToString((thousandsSeparator ? "N" : "F") + DecimalPlaces.ToString(CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
         }
 
         /// <summary>
         /// 每次单击箭头键时增加/减少的数量
         /// </summary>
-        [Description("每次单击箭头键时增加/减少的数量"), Category("数据"), DefaultValue(typeof(double), "1")]
+        [Description("每次单击箭头键时增加/减少的数量"), Category(nameof(CategoryAttribute.Data)), DefaultValue(typeof(double), "1")]
         public double Increment { get; set; } = 1;
 
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
             Text = GetNumberText(Value);
+            if (AlwaysShowControl) ChangeMouseHover(false, false);
         }
 
         #endregion
@@ -211,7 +229,7 @@ namespace AntdUI
         /// <summary>
         /// Value 属性值更改时发生
         /// </summary>
-        [Description("Value 属性值更改时发生"), Category("行为")]
+        [Description("Value 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event DecimalEventHandler? ValueChanged;
 
         protected virtual void OnValueChanged(double? e) => ValueChanged?.Invoke(this, new DecimalEventArgs(e));
@@ -220,8 +238,40 @@ namespace AntdUI
         /// 格式化数值以供显示
         /// Gets or sets a custom function to format the numeric value for display
         /// </summary>
-        [Description("格式化数值以供显示"), Category("行为")]
+        [Description("格式化数值以供显示"), Category(nameof(CategoryAttribute.Behavior))]
         public event InputNumberRtEventHandler? ValueFormatter;
+
+        #endregion
+
+        #region 校验
+
+        static NumberFormatInfo numberFormatInfo = CultureInfo.CurrentCulture.NumberFormat;
+
+        protected override bool Verify(char key, out string? change)
+        {
+            change = null;
+            string keyInput = key.ToString();
+            if (char.IsDigit(key)) return true; // 数字可以
+            else if (keyInput.Equals(numberFormatInfo.NumberGroupSeparator) || keyInput.Equals(numberFormatInfo.NegativeSign)) return true;
+            else if (keyInput.Equals(numberFormatInfo.NumberDecimalSeparator)) return decimalPlaces > 0;
+            else if (key == '\b') return true;// Backspace键可以
+            else if (Hexadecimal && ((key >= 'a' && key <= 'f') || (key >= 'A' && key <= 'F'))) return true;// 十六进制数字可以
+            else if (key == '。')
+            {
+                if (decimalPlaces > 0)
+                {
+                    change = numberFormatInfo.NumberDecimalSeparator;
+                    return true;
+                }
+                return false;
+            }
+            else if (key == '，')
+            {
+                change = numberFormatInfo.NumberGroupSeparator;
+                return true;
+            }
+            return false;
+        }
 
         #endregion
 
@@ -237,34 +287,12 @@ namespace AntdUI
             hover_button_bottom = new ITaskOpacity(key, this);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            hover_button.Dispose();
-            hover_button_up.Dispose();
-            hover_button_bottom.Dispose();
-            base.Dispose(disposing);
-        }
-
-        static NumberFormatInfo numberFormatInfo = CultureInfo.CurrentCulture.NumberFormat;
-        static string decimalSeparator = numberFormatInfo.NumberDecimalSeparator, groupSeparator = numberFormatInfo.NumberGroupSeparator, negativeSign = numberFormatInfo.NegativeSign;
-
-        protected override bool Verify(char key, out string? change)
-        {
-            change = null;
-            string keyInput = key.ToString();
-            if (char.IsDigit(key)) return true; // 数字可以
-            else if (keyInput.Equals(decimalSeparator) || keyInput.Equals(groupSeparator) || keyInput.Equals(negativeSign)) return true;// 小数分隔符可以
-            else if (key == '\b') return true;// Backspace键可以
-            else if (Hexadecimal && ((key >= 'a' && key <= 'f') || (key >= 'A' && key <= 'F'))) return true;// 十六进制数字可以
-            return false;
-        }
-
         protected override void PaintOtherBor(Canvas g, Rectangle rect_read, float _radius, Color back, Color borColor, Color borderActive)
         {
             if (hover_button.Animation || hover_button.Switch)
             {
                 float radius = round ? rect_read.Height / 2F : _radius;
-                int width = (int)(22 * Config.Dpi);
+                int width = (int)(22 * Dpi);
                 rect_button = new Rectangle(rect_read.Right - width, rect_read.Y, width, rect_read.Height);
                 rect_button_up = new Rectangle(rect_button.X, rect_button.Y, rect_button.Width, rect_button.Height / 2);
                 rect_button_bottom = new Rectangle(rect_button.X, rect_button_up.Bottom, rect_button.Width, rect_button_up.Height);
@@ -277,7 +305,7 @@ namespace AntdUI
                 }
                 if (hover_button.Animation)
                 {
-                    using (var pen = new Pen(Helper.ToColor(hover_button.Value, borColor), Config.Dpi))
+                    using (var pen = new Pen(Helper.ToColor(hover_button.Value, borColor), Dpi))
                     {
                         using (var path = rect_button_up.RoundPath(radius, false, true, false, false))
                         {
@@ -291,7 +319,7 @@ namespace AntdUI
                 }
                 else if (hover_button.Switch)
                 {
-                    using (var pen = new Pen(borColor, Config.Dpi))
+                    using (var pen = new Pen(borColor, Dpi))
                     {
                         using (var path = rect_button_up.RoundPath(radius, false, true, false, false))
                         {
@@ -306,21 +334,21 @@ namespace AntdUI
 
                 if (hover_button_up.Animation)
                 {
-                    using (var pen = new Pen(borColor.BlendColors(hover_button_up.Value, borderActive), Config.Dpi))
+                    using (var pen = new Pen(borColor.BlendColors(hover_button_up.Value, borderActive), Dpi))
                     {
                         g.DrawLines(pen, TAlignMini.Top.TriangleLines(rect_button_up));
                     }
                 }
                 else if (hover_button_up.Switch)
                 {
-                    using (var pen = new Pen(borderActive, Config.Dpi))
+                    using (var pen = new Pen(borderActive, Dpi))
                     {
                         g.DrawLines(pen, TAlignMini.Top.TriangleLines(rect_button_up));
                     }
                 }
                 else
                 {
-                    using (var pen = new Pen(borColor, Config.Dpi))
+                    using (var pen = new Pen(borColor, Dpi))
                     {
                         g.DrawLines(pen, TAlignMini.Top.TriangleLines(rect_button_up));
                     }
@@ -328,27 +356,35 @@ namespace AntdUI
 
                 if (hover_button_bottom.Animation)
                 {
-                    using (var pen = new Pen(borColor.BlendColors(hover_button_bottom.Value, borderActive), Config.Dpi))
+                    using (var pen = new Pen(borColor.BlendColors(hover_button_bottom.Value, borderActive), Dpi))
                     {
                         g.DrawLines(pen, TAlignMini.Bottom.TriangleLines(rect_button_bottom));
                     }
                 }
                 else if (hover_button_bottom.Switch)
                 {
-                    using (var pen = new Pen(borderActive, Config.Dpi))
+                    using (var pen = new Pen(borderActive, Dpi))
                     {
                         g.DrawLines(pen, TAlignMini.Bottom.TriangleLines(rect_button_bottom));
                     }
                 }
                 else
                 {
-                    using (var pen = new Pen(borColor, Config.Dpi))
+                    using (var pen = new Pen(borColor, Dpi))
                     {
                         g.DrawLines(pen, TAlignMini.Bottom.TriangleLines(rect_button_bottom));
                     }
                 }
                 g.Restore(state);
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            hover_button.Dispose();
+            hover_button_up.Dispose();
+            hover_button_bottom.Dispose();
+            base.Dispose(disposing);
         }
 
         #endregion
@@ -360,12 +396,12 @@ namespace AntdUI
             if (showcontrol && !ReadOnly)
             {
                 bool old = hover_button.Switch;
-                hover_button.Switch = (Hover || Focus);
+                hover_button.Switch = AlwaysShowControl || Hover || Focus;
                 if (old == hover_button.Switch) return;
                 if (hover_button.Switch)
                 {
                     if (rect_button.Width > 0) UR = rect_button.Width;
-                    else UR = (int)(22 * Config.Dpi);
+                    else UR = (int)(22 * Dpi);
                 }
                 else UR = 0;
                 CalculateRect();
@@ -404,21 +440,10 @@ namespace AntdUI
             {
                 if (Text == null)
                 {
-                    Value = minimum ?? 0;
-                }
-                else
-                {
-                    if (hexadecimal)
-                    {
-                        Value = Convert.ToInt64(Text, 16);
-                    }
-                    else if (double.TryParse(Text, out var _d))
-                    {
-                        Value = _d;
-                    }
-
+                    Value = null;
                 }
 
+                if (double.TryParse(Text, out var _d)) Value = _d;
                 if (rect_button_up.Contains(e.X, e.Y))
                 {
                     Value = Value + Increment;
@@ -468,7 +493,6 @@ namespace AntdUI
                 {
                     Value = null;
                 }
-
                 if (double.TryParse(Text, out var _d)) Value = _d;
             }
             return base.ProcessCmdKey(ref msg, keyData);
@@ -484,23 +508,49 @@ namespace AntdUI
         {
             if (IsHandleCreated)
             {
-                if (IsTextEmpty)
+                if (Text == null)
                 {
+                    Value = null;
                     return;
                 }
-                if (hexadecimal)
+                if (IsTextEmpty)
                 {
-                    Value = Convert.ToInt64(Text, 16);
+                    Value = minimum ?? 0;
+                    return;
                 }
-                else
+                if (double.TryParse(Text, out var _d)) Value = _d;
+            }
+        }
+
+        int? setTextIndex;
+        protected override void OnSetText(string text, bool isempty)
+        {
+            setTextIndex = null;
+            if (EnabledValueTextChange && !isempty)
+            {
+                if (double.TryParse(text, out var _d))
                 {
-                    if (double.TryParse(Text, out var _d))
+                    Value = _d;
+                    if (thousandsSeparator)
                     {
-                        Value = _d;
+                        var text_tmp = Text;
+                        if (text_tmp == text) return;
+                        int vlen = text_tmp.Length - text.Length;
+                        if (vlen == 0) return;
+                        setTextIndex = vlen;
                     }
                 }
-
             }
+        }
+        protected override int OnSetSelectionStart(int value)
+        {
+            if (setTextIndex.HasValue)
+            {
+                int newValue = value + setTextIndex.Value;
+                setTextIndex = null;
+                return newValue;
+            }
+            return base.OnSetSelectionStart(value);
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)

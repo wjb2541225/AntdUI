@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.ComponentModel;
 using System.Drawing;
@@ -33,7 +20,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius
         {
             get => radius;
@@ -52,7 +39,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Back
         {
@@ -70,7 +57,7 @@ namespace AntdUI
         /// <summary>
         /// 背景渐变色
         /// </summary>
-        [Description("背景渐变色"), Category("外观"), DefaultValue(null)]
+        [Description("背景渐变色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? BackExtend
         {
             get => backExtend;
@@ -87,7 +74,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片
         /// </summary>
-        [Description("背景图片"), Category("外观"), DefaultValue(null)]
+        [Description("背景图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public new Image? BackgroundImage
         {
             get => backImage;
@@ -104,7 +91,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片布局
         /// </summary>
-        [Description("背景图片布局"), Category("外观"), DefaultValue(TFit.Fill)]
+        [Description("背景图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Fill)]
         public new TFit BackgroundImageLayout
         {
             get => backFit;
@@ -184,7 +171,7 @@ namespace AntdUI
             var rect = ReadRectangle;
             if (rect.Width > 0 && rect.Height > 0)
             {
-                float _radius = radius * Config.Dpi;
+                float _radius = radius * Dpi;
                 bool hasBack = back.HasValue || backExtend != null, hasBor = borderWidth > 0;
                 if (hasBack || hasBor)
                 {
@@ -192,13 +179,13 @@ namespace AntdUI
                     {
                         if (hasBack)
                         {
-                            using (var brush = backExtend.BrushEx(rect, back ?? Colour.BgContainer.Get(nameof(Panel), ColorScheme)))
+                            using (var brush = backExtend.BrushEx(rect, back ?? Colour.BgContainer.Get(ColorScheme, nameof(Panel), Name)))
                             {
                                 g.Fill(brush, path);
                             }
                         }
                         if (backImage != null) g.Image(rect, backImage, backFit, _radius, false);
-                        if (hasBor) g.Draw(borderColor ?? Colour.BorderColor.Get(nameof(Panel), ColorScheme), borderWidth * Config.Dpi, borderStyle, path);
+                        if (hasBor) g.Draw(borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Panel), Name), borderWidth * Dpi, borderStyle, path);
                     }
                 }
                 else if (backImage != null) g.Image(rect, backImage, backFit, _radius, false);
@@ -208,7 +195,7 @@ namespace AntdUI
                     if (hasBor) return true;
                     using (var path = rect.RoundPath(radius))
                     {
-                        g.Draw(borderColor ?? Colour.Text.Get(nameof(Panel), ColorScheme), Config.Dpi, DashStyle.Dash, path);
+                        g.Draw(borderColor ?? Colour.Text.Get(ColorScheme, nameof(Panel), Name), Dpi, DashStyle.Dash, path);
                     }
                     return true;
                 }

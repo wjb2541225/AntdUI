@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -67,7 +54,6 @@ namespace AntdUI
 
         Size MeasureText(string? text, Font font);
         Size MeasureText(string? text, Font font, int width);
-        [Obsolete("use FormatFlags")]
         Size MeasureText(string? text, Font font, int width, StringFormat format);
         Size MeasureText(string? text, Font font, int width, FormatFlags format = FormatFlags.Center);
         Region[] MeasureCharacterRanges(string? text, Font font, Rectangle rect, FormatFlags format = FormatFlags.Center);
@@ -106,6 +92,7 @@ namespace AntdUI
         #region 图片透明度
 
         bool Image(Image bmp, Rectangle rect, float opacity);
+        bool Image(Image bmp, Rectangle rect, int w, int h, float opacity);
         bool Image(Image bmp, Rectangle destRect, Rectangle srcRect, float opacity);
         bool Image(Image bmp, Rectangle destRect, Rectangle srcRect, float opacity, GraphicsUnit srcUnit);
         bool Image(Image bmp, RectangleF destRect, RectangleF srcRect, float opacity);
@@ -116,6 +103,13 @@ namespace AntdUI
         bool Image(RectangleF rect, Image image, TFit fit, float radius, bool round);
         bool Image(RectangleF rect, Image image, TFit fit, float radius, TShape shape);
         bool Image(RectangleF rect, Image image, TFit fit);
+
+        #endregion
+
+        #region SVG
+
+        bool Svg(string svg, Rectangle rect, float opacity, Color? color = null);
+        bool Svg(string svg, Rectangle rect, Color? color = null);
 
         #endregion
 
@@ -238,6 +232,12 @@ namespace AntdUI
         RectangleF RegionBounds(Region region);
         CompositingMode CompositingMode { get; set; }
         SmoothingMode SmoothingMode { get; set; }
+
+        #endregion
+
+        #region DPI
+
+        float Dpi { get; }
 
         #endregion
     }

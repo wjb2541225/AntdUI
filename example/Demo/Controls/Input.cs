@@ -1,31 +1,19 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Demo.Controls
 {
     public partial class Input : UserControl
     {
-        Form form;
-        public Input(Form _form)
+        AntdUI.BaseForm form;
+        public Input(AntdUI.BaseForm _form)
         {
             form = _form;
             InitializeComponent();
@@ -44,6 +32,34 @@ namespace Demo.Controls
             }
         }
 
+        #region 验证码逻辑
+
+        private void CodeGotFocus(object sender, EventArgs e)
+        {
+            if (sender is AntdUI.Input input)
+            {
+                var input_next = FindNullInput(input);
+                if (input_next == null) return;
+                BeginInvoke(input_next.Focus);
+            }
+        }
+
+        AntdUI.Input FindNullInput(AntdUI.Input input)
+        {
+            int index = input.TabIndex - 1;
+            AntdUI.Input tmp = null;
+            while (true)
+            {
+                var find = tableLayoutPanel1.Controls.Find("ic" + index, false);
+                if (find.Length == 1 && find[0] is AntdUI.Input next)
+                {
+                    index--;
+                    if (string.IsNullOrWhiteSpace(next.Text)) tmp = next;
+                }
+                else return tmp;
+            }
+        }
+
         private void CodeTextChanged(object sender, EventArgs e)
         {
             if (sender is AntdUI.Input input)
@@ -56,9 +72,27 @@ namespace Demo.Controls
                         input_next.Text = "";
                         input_next.Focus();
                     }
-                }
-                else
-                {
+                    else
+                    {
+                        input10.Focus();
+                        tableLayoutPanel1.Enabled = false;
+                        AntdUI.Spin.open(tableLayoutPanel1, async config =>
+                        {
+                            await Task.Delay(1000);
+                            ic1.Clear();
+                            ic2.Clear();
+                            ic3.Clear();
+                            ic4.Clear();
+                        }, () =>
+                        {
+                            BeginInvoke(() =>
+                            {
+                                tableLayoutPanel1.Enabled = true;
+                                ic1.Focus();
+                            });
+                        });
+                        AntdUI.Message.info(form, AntdUI.Localization.Get("Input.Code2", "验证码：") + ic1.Text + " " + ic2.Text + " " + ic3.Text + " " + ic4.Text);
+                    }
                 }
             }
         }
@@ -98,9 +132,11 @@ namespace Demo.Controls
 
         private void CodeKeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == 8 && sender is AntdUI.Input input && input.Text.Length == 0)
+            if (e.KeyChar == 8 && sender is AntdUI.Input input)
             {
                 //Back
+                input.Clear();
+                input.ClearUndo();
                 var find = tableLayoutPanel1.Controls.Find("ic" + (input.TabIndex - 1), false);
                 if (find.Length == 1 && find[0] is AntdUI.Input input_next)
                 {
@@ -109,5 +145,7 @@ namespace Demo.Controls
                 }
             }
         }
+
+        #endregion
     }
 }

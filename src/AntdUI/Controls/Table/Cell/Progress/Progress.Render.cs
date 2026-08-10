@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -28,10 +15,10 @@ namespace AntdUI
 
         public override void Paint(Canvas g, Font font, bool enable, SolidBrush fore)
         {
-            Color _color = Fill ?? Colour.Primary.Get(nameof(Progress), PARENT.PARENT.ColorScheme), _back = Back ?? Colour.FillSecondary.Get(nameof(Progress), PARENT.PARENT.ColorScheme);
+            Color _color = Fill ?? Colour.Primary.Get(PARENT.PARENT.ColorScheme, nameof(Progress), PARENT.PARENT.Name), _back = Back ?? Colour.FillSecondary.Get(PARENT.PARENT.ColorScheme, nameof(Progress), PARENT.PARENT.Name);
             if (Shape == TShape.Circle)
             {
-                float w = Radius * Config.Dpi;
+                float w = Radius * g.Dpi;
                 g.DrawEllipse(_back, w, Rect);
                 if (Value > 0)
                 {
@@ -45,7 +32,7 @@ namespace AntdUI
             }
             else
             {
-                float radius = Radius * Config.Dpi;
+                float radius = Radius * g.Dpi;
                 if (Shape == TShape.Round) radius = Rect.Height;
 
                 using (var path = Rect.RoundPath(radius))
@@ -65,7 +52,7 @@ namespace AntdUI
                         {
                             using (var bmp = new Bitmap(Rect.Width, Rect.Height))
                             {
-                                using (var g2 = Graphics.FromImage(bmp).High())
+                                using (var g2 = Graphics.FromImage(bmp).High(g.Dpi))
                                 {
                                     using (var brush = new SolidBrush(_color))
                                     {
@@ -86,7 +73,7 @@ namespace AntdUI
 
         public override Size GetSize(Canvas g, Font font, TableGaps gap)
         {
-            if (Size.HasValue) return new Size((int)(Size.Value.Width * Config.Dpi), (int)(Size.Value.Height * Config.Dpi));
+            if (Size.HasValue) return new Size((int)(Size.Value.Width * g.Dpi), (int)(Size.Value.Height * g.Dpi));
             int height = g.MeasureString(Config.NullText, font).Height;
             if (Shape == TShape.Circle)
             {

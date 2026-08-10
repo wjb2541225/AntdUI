@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -34,7 +21,7 @@ namespace AntdUI
     [ToolboxItem(true)]
     [DefaultProperty("Items")]
     [DefaultEvent("ItemClick")]
-    public class Timeline : IControl
+    public class Timeline : IControl, IEventListener
     {
         #region 属性
 
@@ -42,7 +29,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -55,13 +42,13 @@ namespace AntdUI
             }
         }
 
-        [Description("描述字体"), Category("外观"), DefaultValue(null)]
+        [Description("描述字体"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Font? FontDescription { get; set; }
 
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(null)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? Gap { get; set; }
 
         TimelineItemCollection? items;
@@ -69,7 +56,7 @@ namespace AntdUI
         /// 集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public TimelineItemCollection Items
         {
             get
@@ -90,11 +77,22 @@ namespace AntdUI
         {
             base.OnHandleCreated(e);
             ChangeList();
+            this.AddListener();
+        }
+
+        public void HandleEvent(EventType id, object? tag)
+        {
+            switch (id)
+            {
+                case EventType.LANG:
+                    ChangeList();
+                    break;
+            }
         }
 
 
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -129,12 +127,12 @@ namespace AntdUI
             {
                 var rect = ClientRectangle.DeflateRect(Padding);
                 int y = rect.Y;
-                Helper.GDI(g =>
+                this.GDI(g =>
                 {
                     var size_def = g.MeasureString(Config.NullText, Font);
                     int text_size = size_def.Height;
                     float pen_w = text_size * 0.136F, split = pen_w * 0.666F, split_gap = split * 2F;
-                    int gap = (int)Math.Round(8 * Config.Dpi), gap_x = (int)Math.Round(text_size * 1.1D), gap_x_icon = (int)Math.Round(text_size * .846D), gap_y = (int)Math.Round((Gap * Config.Dpi) ?? (text_size * .91D)), ico_size = (int)Math.Round(text_size * .636D);
+                    int gap = (int)Math.Round(8 * Dpi), gap_x = (int)Math.Round(text_size * 1.1D), gap_x_icon = (int)Math.Round(text_size * .846D), gap_y = (int)Math.Round((Gap * Dpi) ?? (text_size * .91D)), ico_size = (int)Math.Round(text_size * .636D);
 
                     int max_w = rect.Width - ico_size - gap_x_icon - (gap_x * 2);
                     y += gap_x;
@@ -174,10 +172,9 @@ namespace AntdUI
                     splits = _splits.ToArray();
                     y = y - gap_y + gap_x;
                 });
-                ScrollBar.SetVrSize(y);
-                ScrollBar.SizeChange(rect);
+                ScrollBar.SetVrSize(y, rect);
+                if (print) Invalidate();
             }
-            if (print) Invalidate();
         }
 
         RectangleF[] splits = new RectangleF[0];
@@ -204,15 +201,15 @@ namespace AntdUI
             }
             var g = e.Canvas;
             g.TranslateTransform(0, -ScrollBar.Value);
-            Color color_fore = fore ?? Colour.Text.Get(nameof(Timeline), ColorScheme);
-            using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(Timeline), ColorScheme)))
+            Color color_fore = fore ?? Colour.Text.Get(ColorScheme, nameof(Timeline), Name);
+            using (var brush_split = new SolidBrush(Colour.Split.Get(ColorScheme, nameof(Timeline), Name)))
             {
                 foreach (var it in splits) g.Fill(brush_split, it);
             }
             var font_Description = FontDescription ?? Font;
             using (var brush_fore = new SolidBrush(color_fore))
-            using (var brush_fore2 = new SolidBrush(Colour.TextTertiary.Get(nameof(Timeline), ColorScheme)))
-            using (var brush_dotback = new SolidBrush(Colour.BgBase.Get(nameof(Timeline), ColorScheme)))
+            using (var brush_fore2 = new SolidBrush(Colour.TextTertiary.Get(ColorScheme, nameof(Timeline), Name)))
+            using (var brush_dotback = new SolidBrush(Colour.BgBase.Get(ColorScheme, nameof(Timeline), Name)))
             {
                 foreach (var it in items)
                 {
@@ -229,23 +226,23 @@ namespace AntdUI
                                 switch (it.Type)
                                 {
                                     case TTypeMini.Error:
-                                        fill = Colour.Error.Get(nameof(Timeline), ColorScheme);
+                                        fill = Colour.Error.Get(ColorScheme, nameof(Timeline), Name);
                                         break;
                                     case TTypeMini.Success:
-                                        fill = Colour.Success.Get(nameof(Timeline), ColorScheme);
+                                        fill = Colour.Success.Get(ColorScheme, nameof(Timeline), Name);
                                         break;
                                     case TTypeMini.Info:
-                                        fill = Colour.Info.Get(nameof(Timeline), ColorScheme);
+                                        fill = Colour.Info.Get(ColorScheme, nameof(Timeline), Name);
                                         break;
                                     case TTypeMini.Warn:
-                                        fill = Colour.Warning.Get(nameof(Timeline), ColorScheme);
+                                        fill = Colour.Warning.Get(ColorScheme, nameof(Timeline), Name);
                                         break;
                                     case TTypeMini.Default:
-                                        fill = Colour.TextQuaternary.Get(nameof(Timeline), ColorScheme);
+                                        fill = Colour.TextQuaternary.Get(ColorScheme, nameof(Timeline), Name);
                                         break;
                                     case TTypeMini.Primary:
                                     default:
-                                        fill = Colour.Primary.Get(nameof(Timeline), ColorScheme);
+                                        fill = Colour.Primary.Get(ColorScheme, nameof(Timeline), Name);
                                         break;
                                 }
                             }
@@ -265,7 +262,7 @@ namespace AntdUI
         {
             int count = 0;
             if (it.Icon != null) { g.Image(it.Icon, it.ico_rect); count++; }
-            if (it.IconSvg != null && g.GetImgExtend(it.IconSvg, it.ico_rect, fore)) count++;
+            if (it.IconSvg != null && g.Svg(it.IconSvg, it.ico_rect, fore)) count++;
             return count == 0;
         }
 
@@ -330,7 +327,7 @@ namespace AntdUI
         /// <summary>
         /// 点击项时发生
         /// </summary>
-        [Description("点击项时发生"), Category("行为")]
+        [Description("点击项时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event TimelineEventHandler? ItemClick;
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -405,32 +402,32 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon { get; set; }
 
         /// <summary>
         /// 图标SVG
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg { get; set; }
 
         /// <summary>
         /// 名称
         /// </summary>
-        [Description("名称"), Category("数据"), DefaultValue(null)]
+        [Description("名称"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? Name { get; set; }
 
         string? text;
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(UITypeEditor))]
         public string? Text
         {
@@ -450,7 +447,7 @@ namespace AntdUI
         /// <summary>
         /// 描述，可选
         /// </summary>
-        [Description("描述，可选"), Category("外观"), DefaultValue(null)]
+        [Description("描述，可选"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(UITypeEditor))]
         public string? Description
         {
@@ -466,10 +463,10 @@ namespace AntdUI
         [Description("详情描述"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationDescription { get; set; }
 
-        [Description("颜色类型"), Category("外观"), DefaultValue(TTypeMini.Primary)]
+        [Description("颜色类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TTypeMini.Primary)]
         public TTypeMini Type { get; set; } = TTypeMini.Primary;
 
-        [Description("填充颜色"), Category("外观"), DefaultValue(null)]
+        [Description("填充颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill { get; set; }
 
@@ -477,7 +474,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示
         /// </summary>
-        [Description("是否显示"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Visible
         {
             get => visible;
@@ -492,7 +489,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 内部

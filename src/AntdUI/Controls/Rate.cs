@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -39,7 +26,7 @@ namespace AntdUI
         #region 属性
 
         Color fill = Color.FromArgb(250, 219, 20);
-        [Description("颜色"), Category("外观"), DefaultValue(typeof(Color), "250, 219, 20")]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "250, 219, 20")]
         public Color Fill
         {
             get => fill;
@@ -56,20 +43,20 @@ namespace AntdUI
         /// <summary>
         /// 支持清除
         /// </summary>
-        [Description("支持清除"), Category("行为"), DefaultValue(false)]
+        [Description("支持清除"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool AllowClear { get; set; }
 
         /// <summary>
         /// 是否允许半选
         /// </summary>
-        [Description("是否允许半选"), Category("行为"), DefaultValue(false)]
+        [Description("是否允许半选"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool AllowHalf { get; set; }
 
         int count = 5;
         /// <summary>
         /// Star 总数
         /// </summary>
-        [Description("Star 总数"), Category("外观"), DefaultValue(5)]
+        [Description("Star 总数"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(5)]
         public int Count
         {
             get => count;
@@ -86,7 +73,7 @@ namespace AntdUI
         /// <summary>
         /// 当前值
         /// </summary>
-        [Description("当前值"), Category("数据"), DefaultValue(0F)]
+        [Description("当前值"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0F)]
         public float Value
         {
             get => _value;
@@ -112,7 +99,7 @@ namespace AntdUI
         /// <summary>
         /// Value 属性值更改时发生
         /// </summary>
-        [Description("Value 属性值更改时发生"), Category("行为")]
+        [Description("Value 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event FloatEventHandler? ValueChanged;
 
         protected virtual void OnValueChanged(float e) => ValueChanged?.Invoke(this, new FloatEventArgs(e));
@@ -120,14 +107,14 @@ namespace AntdUI
         /// <summary>
         /// 自定义每项的提示信息
         /// </summary>
-        [Description("自定义每项的提示信息"), Category("数据"), DefaultValue(null)]
+        [Description("自定义每项的提示信息"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string[]? Tooltips { get; set; }
 
         string? character;
         /// <summary>
         /// 自定义字符
         /// </summary>
-        [Description("自定义字符"), Category("外观"), DefaultValue(null)]
+        [Description("自定义字符"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? Character
         {
@@ -150,7 +137,7 @@ namespace AntdUI
         /// 超出文字提示配置
         /// </summary>
         [Browsable(false)]
-        [Description("超出文字提示配置"), Category("行为"), DefaultValue(null)]
+        [Description("超出文字提示配置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         public TooltipConfig? TooltipConfig { get; set; }
 
         #endregion
@@ -176,7 +163,7 @@ namespace AntdUI
             if (icon == null || icon.Width != size)
             {
                 icon?.Dispose();
-                icon = SvgExtend.SvgToBmp(character ?? SvgDb.IcoStar, size, size, Colour.FillSecondary.Get(nameof(Rate), ColorScheme));
+                icon = SvgExtend.SvgToBmp(character ?? SvgDb.IcoStar, size, size, Colour.FillSecondary.Get(ColorScheme, nameof(Rate), Name));
 
             }
             if (icon_active == null || icon_active.Width != size)
@@ -197,25 +184,25 @@ namespace AntdUI
                     using (var bmp_diy_active = new Bitmap(bmp_size, bmp_size))
                     {
                         Rectangle rect_diy = new Rectangle(0, 0, bmp_size, bmp_size), rect_icon = new Rectangle(0, 0, size, size);
-                        using (var g2 = Graphics.FromImage(bmp_diy).HighLay(true))
+                        using (var g2 = Graphics.FromImage(bmp_diy).HighLay(Dpi, true))
                         {
-                            using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(Rate), ColorScheme)))
+                            using (var brush = new SolidBrush(Colour.FillSecondary.Get(ColorScheme, nameof(Rate), Name)))
                             {
                                 g2.String(character, font, brush, rect_diy);
                             }
                         }
-                        using (var g2 = Graphics.FromImage(bmp_diy_active).HighLay(true))
+                        using (var g2 = Graphics.FromImage(bmp_diy_active).HighLay(Dpi, true))
                         {
                             using (var brush = new SolidBrush(fill))
                             {
                                 g2.String(character, font, brush, rect_diy);
                             }
                         }
-                        using (var g2 = Graphics.FromImage(icon).High())
+                        using (var g2 = Graphics.FromImage(icon).High(Dpi))
                         {
                             g2.Image(bmp_diy, rect_icon);
                         }
-                        using (var g2 = Graphics.FromImage(icon_active).High())
+                        using (var g2 = Graphics.FromImage(icon_active).High(Dpi))
                         {
                             g2.Image(bmp_diy_active, rect_icon);
                         }
@@ -276,7 +263,7 @@ namespace AntdUI
             var rect = ClientRectangle.PaddingRect(Padding);
             if (rect.Width == 0 || rect.Height == 0 || count < 1) return;
 
-            int size = rect.Height, msize = size - (int)(size * 0.8F), msize2 = msize / 2, gap = (int)(8F * Config.Dpi), t_size = size + gap;
+            int size = rect.Height, msize = size - (int)(size * 0.8F), msize2 = msize / 2, gap = (int)(8F * Dpi), t_size = size + gap;
             var list = new List<RectStar>(count);
             int _value_ = (int)_value;
             for (int i = 0; i < count; i++)
@@ -443,7 +430,7 @@ namespace AntdUI
 
         bool autoSize = false;
         [Browsable(true)]
-        [Description("自动宽度"), Category("外观"), DefaultValue(false)]
+        [Description("自动宽度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => autoSize;
@@ -489,6 +476,7 @@ namespace AntdUI
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
+            tmp = null;
             _Leave();
         }
 
@@ -549,20 +537,26 @@ namespace AntdUI
         protected override bool CanMouseMove { get; set; } = true;
         protected override void OnMouseHover(int x, int y)
         {
+            var i = GetItemMouseHover(x, y);
+            if (tmp == i) return;
+            tmp = i;
             CloseTip();
-            if (x == -1 || y == -1) return;
+            if (i.HasValue)
+            {
+                if (Tooltips != null && Tooltips.Length > i) OpenTip(rect_stars[i.Value].rect, Tooltips[i.Value]);
+            }
+            else _Leave();
+        }
+
+        int? tmp;
+        int? GetItemMouseHover(int x, int y)
+        {
             for (int i = 0; i < rect_stars.Length; i++)
             {
                 var it = rect_stars[i];
-                if (it.rect_mouse.Contains(x, y))
-                {
-                    if (Tooltips != null && Tooltips.Length > i) OpenTip(it.rect, Tooltips[i]);
-                    else CloseTip();
-                    return;
-                }
+                if (it.rect_mouse.Contains(x, y)) return i;
             }
-            //全部都没激活
-            _Leave();
+            return null;
         }
 
         #region Tip

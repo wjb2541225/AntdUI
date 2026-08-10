@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -42,20 +29,20 @@ namespace AntdUI
         /// <summary>
         /// 手势滑动
         /// </summary>
-        [Description("手势滑动"), Category("行为"), DefaultValue(true)]
+        [Description("手势滑动"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Touch { get; set; } = true;
 
         /// <summary>
         /// 滑动到外面
         /// </summary>
-        [Description("滑动到外面"), Category("行为"), DefaultValue(false)]
+        [Description("滑动到外面"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool TouchOut { get; set; }
 
         bool autoplay = false;
         /// <summary>
         /// 自动切换
         /// </summary>
-        [Description("自动切换"), Category("行为"), DefaultValue(false)]
+        [Description("自动切换"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool Autoplay
         {
             get => autoplay;
@@ -70,7 +57,7 @@ namespace AntdUI
         /// <summary>
         /// 自动切换延迟(s)
         /// </summary>
-        [Description("自动切换延迟(s)"), Category("行为"), DefaultValue(4)]
+        [Description("自动切换延迟(s)"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(4)]
         public int Autodelay { get; set; } = 4;
 
         /// <summary>
@@ -108,7 +95,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius
         {
             get => radius;
@@ -124,7 +111,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角样式
         /// </summary>
-        [Description("圆角样式"), Category("外观"), DefaultValue(false)]
+        [Description("圆角样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Round
         {
             get => round;
@@ -136,12 +123,18 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 焦点面板指示点
+        /// </summary>
+        [Description("焦点面板指示点颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? DotFocusedColor { get; set; }
+
         CarouselItemCollection? items;
         /// <summary>
         /// 图片集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("图片集合"), Category("数据")]
+        [Description("图片集合"), Category(nameof(CategoryAttribute.Data))]
         public CarouselItemCollection Image
         {
             get
@@ -156,7 +149,7 @@ namespace AntdUI
         /// <summary>
         /// 图片布局
         /// </summary>
-        [Description("图片布局"), Category("外观"), DefaultValue(TFit.Cover)]
+        [Description("图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Cover)]
         public TFit ImageFit
         {
             get => imageFit;
@@ -172,7 +165,7 @@ namespace AntdUI
         /// <summary>
         /// 选择序号
         /// </summary>
-        [Description("选择序号"), Category("数据"), DefaultValue(0)]
+        [Description("选择序号"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int SelectIndex
         {
             get => selectIndex;
@@ -196,7 +189,7 @@ namespace AntdUI
         /// <summary>
         /// SelectIndex 属性值更改时发生
         /// </summary>
-        [Description("SelectIndex 属性值更改时发生"), Category("行为")]
+        [Description("SelectIndex 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event IntEventHandler? SelectIndexChanged;
 
         protected virtual void OnSelectIndexChanged(int e) => SelectIndexChanged?.Invoke(this, new IntEventArgs(e));
@@ -211,7 +204,7 @@ namespace AntdUI
         void SetSelectIndexVertical(int value, bool auto = false)
         {
             int height = ClientRectangle.Height - Padding.Vertical;
-            if (items != null && IsHandleCreated && Config.HasAnimation(nameof(Carousel)))
+            if (items != null && IsHandleCreated && Config.HasAnimation(nameof(Carousel), Name))
             {
                 ThreadChange?.Dispose();
                 AnimationChangeAuto = false;
@@ -270,7 +263,7 @@ namespace AntdUI
         void SetSelectIndexHorizontal(int value, bool auto = false)
         {
             int width = ClientRectangle.Width - Padding.Horizontal;
-            if (items != null && IsHandleCreated && Config.HasAnimation(nameof(Carousel)))
+            if (items != null && IsHandleCreated && Config.HasAnimation(nameof(Carousel), Name))
             {
                 ThreadChange?.Dispose();
                 AnimationChangeAuto = false;
@@ -441,10 +434,13 @@ namespace AntdUI
             var rect = _rect.PaddingRect(Padding);
             int len = items.Count;
             var list = new List<CarouselDotItem>(len);
+            int dotMargin = (int)(DotMargin * Dpi), dotMargin_2 = dotMargin / 2;
+            int sp = (int)(2 * Dpi), sp2 = sp * 2, sp4 = sp2 * 2;
+            int dotW = (int)(DotSize.Width * Dpi), dotH = (int)(DotSize.Height * Dpi);
             if (DotPosition == TAlignMini.Top || DotPosition == TAlignMini.Bottom)
             {
-                int dot_size = DotSize.Width * len, y = DotPosition == TAlignMini.Bottom ? rect.Y + rect.Height - (DotMargin + DotSize.Height) : rect.Y + DotMargin,
-                     y2 = DotPosition == TAlignMini.Bottom ? rect.Y + rect.Height - (DotMargin + DotSize.Height) - DotMargin / 2 : rect.Y + DotMargin / 2;
+                int dot_size = dotW * len, y = DotPosition == TAlignMini.Bottom ? rect.Y + rect.Height - (dotMargin + dotH) : rect.Y + dotMargin,
+                     y2 = DotPosition == TAlignMini.Bottom ? rect.Y + rect.Height - (dotMargin + dotH) - dotMargin_2 : rect.Y + dotMargin_2;
                 int temp_x = rect.X + (rect.Width - dot_size) / 2;
 
                 for (int i = 0; i < len; i++)
@@ -452,28 +448,28 @@ namespace AntdUI
                     list.Add(new CarouselDotItem
                     {
                         i = i,
-                        rect_fill = new Rectangle(temp_x, y2, DotSize.Width, DotMargin),
-                        rect_action = new Rectangle(temp_x + 2, y, DotSize.Width - 4, DotSize.Height),
-                        rect = new Rectangle(temp_x + 4, y, DotSize.Width - 8, DotSize.Height)
+                        rect_fill = new Rectangle(temp_x, y2, dotW, dotH),
+                        rect_action = new Rectangle(temp_x + sp, y, dotW - sp2, dotH),
+                        rect = new Rectangle(temp_x + sp2, y, dotW - sp4, dotH)
                     });
-                    temp_x += DotSize.Width;
+                    temp_x += dotW;
                 }
             }
             else
             {
-                int dot_size = DotSize.Width * len, x = DotPosition == TAlignMini.Right ? rect.X + rect.Width - (DotMargin + DotSize.Height) : rect.X + DotMargin,
-                     x2 = DotPosition == TAlignMini.Right ? rect.X + rect.Width - (DotMargin + DotSize.Height) - DotMargin / 2 : rect.X + DotMargin / 2;
+                int dot_size = dotW * len, x = DotPosition == TAlignMini.Right ? rect.X + rect.Width - (dotMargin + dotH) : rect.X + dotMargin,
+                     x2 = DotPosition == TAlignMini.Right ? rect.X + rect.Width - (dotMargin + dotH) - dotMargin_2 : rect.X + dotMargin_2;
                 int temp_y = rect.Y + (rect.Height - dot_size) / 2;
                 for (int i = 0; i < len; i++)
                 {
                     list.Add(new CarouselDotItem
                     {
                         i = i,
-                        rect_fill = new Rectangle(x2, temp_y, DotMargin, DotSize.Width),
-                        rect_action = new Rectangle(x, temp_y + 2, DotSize.Height, DotSize.Width - 4),
-                        rect = new Rectangle(x, temp_y + 4, DotSize.Height, DotSize.Width - 8)
+                        rect_fill = new Rectangle(x2, temp_y, dotH, dotW),
+                        rect_action = new Rectangle(x, temp_y + sp, dotH, dotW - sp2),
+                        rect = new Rectangle(x, temp_y + sp2, dotH, dotW - sp4)
                     });
-                    temp_y += DotSize.Width;
+                    temp_y += dotW;
                 }
             }
             dot_list = list.ToArray();
@@ -496,7 +492,7 @@ namespace AntdUI
             var g = e.Canvas;
             int len = items.Count;
             var image = items[selectIndex].Img;
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
             if (image != null)
             {
                 if (AnimationChange)
@@ -528,7 +524,7 @@ namespace AntdUI
             }
             if (dot_list.Length > 0)
             {
-                using (var brush = new SolidBrush(Colour.BgBase.Get(nameof(Carousel), ColorScheme)))
+                using (var brush = new SolidBrush(DotFocusedColor ?? Colour.BgBase.Get(ColorScheme, nameof(Carousel), Name)))
                 using (var brush2 = new SolidBrush(Color.FromArgb(77, brush.Color)))
                 {
                     if (round || radius > 0)
@@ -537,12 +533,12 @@ namespace AntdUI
                         {
                             if (it.i == selectIndex)
                             {
-                                using (var path = it.rect_action.RoundPath(DotSize.Height))
+                                using (var path = it.rect_action.RoundPath(0, true))
                                     g.Fill(brush, path);
                             }
                             else
                             {
-                                using (var path = it.rect.RoundPath(DotSize.Height))
+                                using (var path = it.rect.RoundPath(0, true))
                                     g.Fill(brush2, path);
                             }
                         }
@@ -566,7 +562,7 @@ namespace AntdUI
             if (AnimationChangeAuto)
             {
                 bmp = new Bitmap(rect.Width, AnimationChangeMax + rect.Height);
-                using (var g2 = Graphics.FromImage(bmp).High())
+                using (var g2 = Graphics.FromImage(bmp).High(Dpi))
                 {
                     PaintBmp(items, select_range, g2, radius);
                     var bmo = items[0].Img;
@@ -576,7 +572,7 @@ namespace AntdUI
             else
             {
                 bmp = new Bitmap(rect.Width, AnimationChangeMax);
-                using (var g2 = Graphics.FromImage(bmp).High())
+                using (var g2 = Graphics.FromImage(bmp).High(Dpi))
                 {
                     PaintBmp(items, select_range, g2, radius);
                 }
@@ -591,7 +587,7 @@ namespace AntdUI
             if (AnimationChangeAuto)
             {
                 bmp = new Bitmap(AnimationChangeMax + rect.Width, rect.Height);
-                using (var g2 = Graphics.FromImage(bmp).High())
+                using (var g2 = Graphics.FromImage(bmp).High(Dpi))
                 {
                     PaintBmp(items, select_range, g2, radius);
                     var bmo = items[0].Img;
@@ -601,7 +597,7 @@ namespace AntdUI
             else
             {
                 bmp = new Bitmap(AnimationChangeMax, rect.Height);
-                using (var g2 = Graphics.FromImage(bmp).High())
+                using (var g2 = Graphics.FromImage(bmp).High(Dpi))
                 {
                     PaintBmp(items, select_range, g2, radius);
                 }
@@ -863,7 +859,11 @@ namespace AntdUI
         {
             if (down)
             {
-                if (items == null) { down = false; return; }
+                if (items == null)
+                {
+                    down = false;
+                    return;
+                }
                 int len = items.Count;
                 var rect = ClientRectangle;
                 AnimationChange = false;
@@ -931,14 +931,14 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         Image? img;
         /// <summary>
         /// 图片
         /// </summary>
-        [Description("图片"), Category("外观"), DefaultValue(null)]
+        [Description("图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Img
         {
             get => img;
@@ -955,7 +955,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 设置

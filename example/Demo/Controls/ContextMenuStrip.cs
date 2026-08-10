@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Diagnostics;
@@ -26,8 +13,8 @@ namespace Demo.Controls
 {
     public partial class ContextMenuStrip : UserControl
     {
-        Form form;
-        public ContextMenuStrip(Form _form)
+        AntdUI.BaseForm form;
+        public ContextMenuStrip(AntdUI.BaseForm _form)
         {
             form = _form;
             InitializeComponent();
@@ -36,6 +23,12 @@ namespace Demo.Controls
 
             menulist = new AntdUI.IContextMenuStripItem[]
             {
+                new AntdUI.ContextMenuStripItemButtons(
+                    new AntdUI.ContextMenuStripItemButton().SetIcon("LikeOutlined").SetText("喜欢"),
+                    new AntdUI.ContextMenuStripItemButton().SetIcon("DislikeOutlined").SetText("差评"),
+                    new AntdUI.ContextMenuStripItemButton().SetIcon("ShareAltOutlined").SetText("分享"),
+                    new AntdUI.ContextMenuStripItemButton().SetIcon("BellOutlined").SetText("提醒")),
+                new AntdUI.ContextMenuStripItemDivider(),
                 new AntdUI.ContextMenuStripItem("返回", "Alt+向左键").SetIcon(svg_back),
                 new AntdUI.ContextMenuStripItem("刷新", "Ctrl+R").SetIcon(svg_refresh),
                 new AntdUI.ContextMenuStripItemDivider(),
@@ -86,13 +79,15 @@ namespace Demo.Controls
         {
             if (e.Button == MouseButtons.Right)
             {
-                AntdUI.ContextMenuStrip.Config config = new AntdUI.ContextMenuStrip.Config(this, RightKey, menulist);
-                config.Font = new Font("Microsoft YaHei UI", 10f, FontStyle.Bold);
+                var config = new AntdUI.ContextMenuStrip.Config(this, RightKey, menulist)
+                {
+                    Font = new Font("Microsoft YaHei UI", 10f, FontStyle.Bold)
+                };
                 AntdUI.ContextMenuStrip.open(config);
             }
         }
 
-        private void RightKey(AntdUI.ContextMenuStripItem it)
+        private void RightKey(AntdUI.IContextMenuStrip it)
         {
             if (it.Text.Equals("新增"))
             {

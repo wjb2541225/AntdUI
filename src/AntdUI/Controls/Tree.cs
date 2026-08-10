@@ -42,14 +42,14 @@ namespace AntdUI
         /// <summary>
         /// 悬停背景颜色
         /// </summary>
-        [Description("悬停背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackHover { get; set; }
 
         /// <summary>
         /// 激活背景颜色
         /// </summary>
-        [Description("激活背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackActive { get; set; }
 
@@ -57,7 +57,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -73,7 +73,7 @@ namespace AntdUI
         /// <summary>
         /// 激活字体颜色
         /// </summary>
-        [Description("激活字体颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活字体颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ForeActive { get; set; }
 
@@ -81,7 +81,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(1F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(1F)]
         public float IconRatio
         {
             get => iconratio;
@@ -97,7 +97,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -113,7 +113,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(8)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(8)]
         public int Gap
         {
             get => _gap;
@@ -128,14 +128,14 @@ namespace AntdUI
         /// <summary>
         /// 间距缩进
         /// </summary>
-        [Description("间距缩进"), Category("外观"), DefaultValue(null)]
+        [Description("间距缩进"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? GapIndent { get; set; }
 
         bool round = false;
         /// <summary>
         /// 圆角样式
         /// </summary>
-        [Description("圆角样式"), Category("外观"), DefaultValue(false)]
+        [Description("圆角样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Round
         {
             get => round;
@@ -151,7 +151,7 @@ namespace AntdUI
         /// <summary>
         /// 节点前添加 Checkbox 复选框
         /// </summary>
-        [Description("节点前添加 Checkbox 复选框"), Category("外观"), DefaultValue(false)]
+        [Description("节点前添加 Checkbox 复选框"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Checkable
         {
             get => checkable;
@@ -173,7 +173,7 @@ namespace AntdUI
         /// <summary>
         /// 节点占据一行
         /// </summary>
-        [Description("节点占据一行"), Category("外观"), DefaultValue(false)]
+        [Description("节点占据一行"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool BlockNode
         {
             get => blockNode;
@@ -245,7 +245,7 @@ namespace AntdUI
         public ScrollBar ScrollBar;
 
         bool empty = true;
-        [Description("是否显示空样式"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示空样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Empty
         {
             get => empty;
@@ -259,7 +259,7 @@ namespace AntdUI
         }
 
         string? emptyText;
-        [Description("数据为空显示文字"), Category("外观"), DefaultValue(null)]
+        [Description("数据为空显示文字"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? EmptyText
         {
@@ -273,15 +273,15 @@ namespace AntdUI
             }
         }
 
-        [Description("数据为空显示图片"), Category("外观"), DefaultValue(null)]
+        [Description("数据为空显示图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? EmptyImage { get; set; }
 
-        [Description("选中时的复选框图片"), Category("外观"), DefaultValue(null)]
+        [Description("选中时的复选框图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image CheckedIamge { get; set; }
-        [Description("未选中时的复选框图片"), Category("外观"), DefaultValue(null)]
+        [Description("未选中时的复选框图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
 
         public Image UnCheckImage { get; set; }
-        [Description("半选中时的复选框图片"), Category("外观"), DefaultValue(null)]
+        [Description("半选中时的复选框图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image IndeterminateImage { get; set; }
 
         #endregion
@@ -512,7 +512,7 @@ namespace AntdUI
         {
             if (items == null || items.Count == 0)
             {
-                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, fore ?? Colour.Text.Get(nameof(Tree), "emptyFore", ColorScheme), EmptyText, EmptyImage, 0);
+                if (Empty) e.Canvas.PaintEmpty(e.Rect, Font, fore ?? Colour.Text.GetSymbol(ColorScheme, "emptyFore", nameof(Tree), Name), EmptyText, EmptyImage, 0);
                 base.OnDraw(e);
                 return;
             }
@@ -520,11 +520,11 @@ namespace AntdUI
             int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
             g.TranslateTransform(-sx, -sy);
             float _radius = radius * Config.Dpi;
-            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get(nameof(Tree), ColorScheme)))
-            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get(nameof(Tree), ColorScheme)))
-            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get(nameof(Tree), ColorScheme)))
-            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(nameof(Tree), ColorScheme)))
-            using (var brush_TextTertiary = new SolidBrush(Colour.TextTertiary.Get(nameof(Tree), "subFore", ColorScheme)))
+            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get(ColorScheme, nameof(Tree), Name)))
+            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get(ColorScheme, nameof(Tree), Name))) 
+            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get(ColorScheme, nameof(Tree), Name)))
+            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(ColorScheme, nameof(Tree), Name)))
+            using (var brush_TextTertiary = new SolidBrush(Colour.TextTertiary.GetSymbol(ColorScheme, "subFore", nameof(Tree), Name)))
             {
                 PaintItem(g, e.Rect, sx, sy, items, brush_fore, brush_fore_active, brush_hover, brush_active, brush_TextTertiary, _radius);
             }
@@ -602,7 +602,7 @@ namespace AntdUI
                 if (item.Enabled) PaintItemText(g, item, fore, brushTextTertiary);
                 else
                 {
-                    using (var brush = new SolidBrush(Colour.TextQuaternary.Get(nameof(Tree), ColorScheme)))
+                    using (var brush = new SolidBrush(Colour.TextQuaternary.Get(ColorScheme, nameof(Tree), Name)))
                     {
                         PaintItemText(g, item, brush, brushTextTertiary);
                     }
@@ -621,33 +621,33 @@ namespace AntdUI
 
                             if (item.CheckState == CheckState.Indeterminate || (item.checkStateOld == CheckState.Indeterminate && !item.Checked))
                             {
-                                g.Draw(Colour.BorderColor.Get(nameof(Tree), ColorScheme), bor2, path_check);
-                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(nameof(Tree), ColorScheme)), PaintBlock(item.check_rect));
+                                g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Tree), Name), bor2, path_check);
+                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(ColorScheme, nameof(Tree), Name)), PaintBlock(item.check_rect));
                             }
                             else
                             {
                                 float dot = item.check_rect.Width * 0.3F;
 
-                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(nameof(Tree), ColorScheme)), path_check);
-                                g.DrawLines(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Tree), ColorScheme)), 3F * Config.Dpi, PaintArrow(item.check_rect));
+                                g.Fill(Helper.ToColor(alpha, Colour.Primary.Get(ColorScheme, nameof(Tree), Name)), path_check);
+                                g.DrawLines(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Tree), Name)), 3F * Config.Dpi, PaintArrow(item.check_rect));
 
                                 if (item.Checked)
                                 {
                                     float max = item.check_rect.Height + item.check_rect.Height * item.AnimationCheckValue, alpha2 = 100 * (1F - item.AnimationCheckValue);
-                                    using (var brush = new SolidBrush(Helper.ToColor(alpha2, Colour.Primary.Get(nameof(Tree), ColorScheme))))
+                                    using (var brush = new SolidBrush(Helper.ToColor(alpha2, Colour.Primary.Get(ColorScheme, nameof(Tree), Name))))
                                     {
                                         g.FillEllipse(brush, new RectangleF(item.check_rect.X + (item.check_rect.Width - max) / 2F, item.check_rect.Y + (item.check_rect.Height - max) / 2F, max, max));
                                     }
                                 }
-                                g.Draw(Colour.Primary.Get(nameof(Tree), ColorScheme), 2F * Config.Dpi, path_check);
+                                g.Draw(Colour.Primary.Get(ColorScheme, nameof(Tree), Name), 2F * Config.Dpi, path_check);
                             }
                         }
                         else if (item.CheckState == CheckState.Indeterminate)
                         {
                             if (IndeterminateImage == null)
                             {
-                                g.Draw(Colour.BorderColor.Get("Tree", ColorScheme), bor2, path_check);
-                                g.Fill(Colour.Primary.Get("Tree", ColorScheme), PaintBlock(item.check_rect));
+                                g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Tree), Name), bor2, path_check);
+                                g.Fill(Colour.Primary.Get(ColorScheme, nameof(Tree), Name), PaintBlock(item.check_rect));
                             }
                             else
                             {
@@ -660,8 +660,8 @@ namespace AntdUI
                         {
                             if (CheckedIamge == null)
                             {
-                                g.Fill(Colour.Primary.Get("Tree", ColorScheme), path_check);
-                                g.DrawLines(Colour.BgBase.Get("Tree", ColorScheme), bor2, PaintArrow(item.check_rect));
+                                g.Fill(Colour.Primary.Get(ColorScheme, nameof(Tree), Name), path_check);
+                                g.DrawLines(Colour.BgBase.Get(ColorScheme, nameof(Tree), Name), bor2, PaintArrow(item.check_rect));
                             }
                             else
                             {
@@ -672,7 +672,7 @@ namespace AntdUI
                         {
                             if (UnCheckImage == null)
                             {
-                                g.Draw(Colour.BorderColor.Get("Tree", ColorScheme), bor2, path_check);
+                                g.Draw(Colour.BorderColor.Get(ColorScheme, nameof(Tree), Name), bor2, path_check);
                             }
                             else
                             {
@@ -683,10 +683,10 @@ namespace AntdUI
                     }
                     else
                     {
-                        g.Fill(Colour.FillQuaternary.Get(nameof(Tree), "bgDisabled", ColorScheme), path_check);
-                        if (item.CheckState == CheckState.Indeterminate) g.Fill(Colour.TextQuaternary.Get(nameof(Tree), "foreDisabled", ColorScheme), PaintBlock(item.check_rect));
-                        else if (item.Checked) g.DrawLines(Colour.TextQuaternary.Get(nameof(Tree), "foreDisabled", ColorScheme), bor2, PaintArrow(item.check_rect));
-                        g.Draw(Colour.BorderColorDisable.Get(nameof(Tree), "borderColorDisabled", ColorScheme), bor2, path_check);
+                        g.Fill(Colour.FillQuaternary.GetSymbol(ColorScheme, "bgDisabled", nameof(Tree), Name), path_check);
+                        if (item.CheckState == CheckState.Indeterminate) g.Fill(Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Tree), Name), PaintBlock(item.check_rect));
+                        else if (item.Checked) g.DrawLines(Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Tree), Name), bor2, PaintArrow(item.check_rect));
+                        g.Draw(Colour.BorderColorDisable.GetSymbol(ColorScheme, "borderColorDisabled", nameof(Tree), Name), bor2, path_check);
                     }
                 }
             }
@@ -748,7 +748,7 @@ namespace AntdUI
                 pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
 
                 if (item.ExpandThread) PaintArrow(g, item, pen, sx, sy, -90F + (90F * item.ExpandProg));
-                else if (item.Expand) g.DrawLines(pen, item.arrow_rect.TriangleLines(-1, .4F));
+                else if (item.Expand) g.DrawLines(pen, item.arrow_rect.TriangleLinesVertical(-1, .4F));
                 else PaintArrow(g, item, pen, sx, sy, -90F);
             }
         }
@@ -758,7 +758,7 @@ namespace AntdUI
             int size_arrow = item.arrow_rect.Width / 2;
             g.TranslateTransform(item.arrow_rect.X + size_arrow, item.arrow_rect.Y + size_arrow);
             g.RotateTransform(rotate);
-            g.DrawLines(pen, new Rectangle(-size_arrow, -size_arrow, item.arrow_rect.Width, item.arrow_rect.Height).TriangleLines(-1, .4F));
+            g.DrawLines(pen, new Rectangle(-size_arrow, -size_arrow, item.arrow_rect.Width, item.arrow_rect.Height).TriangleLinesVertical(-1, .4F));
             g.ResetTransform();
             g.TranslateTransform(-sx, -sy);
         }
@@ -1630,7 +1630,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -1646,7 +1646,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -1667,7 +1667,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? Text
         {
             get => Localization.GetLangI(LocalizationText, text, new string?[] { "{id}", ID });
@@ -1686,7 +1686,7 @@ namespace AntdUI
         /// <summary>
         /// 子标题
         /// </summary>
-        [Description("子标题"), Category("外观"), DefaultValue(null)]
+        [Description("子标题"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? SubTitle
         {
             get => Localization.GetLangI(LocalizationSubTitle, subTitle, new string?[] { "{id}", ID });
@@ -1706,7 +1706,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示
         /// </summary>
-        [Description("是否显示"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Visible
         {
             get => visible;
@@ -1727,7 +1727,7 @@ namespace AntdUI
         /// <summary>
         /// 加载状态
         /// </summary>
-        [Description("加载状态"), Category("外观"), DefaultValue(false)]
+        [Description("加载状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading
         {
             get => loading;
@@ -1767,7 +1767,7 @@ namespace AntdUI
         /// 获取列表中所有列表项的集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("子集合"), Category("外观")]
+        [Description("子集合"), Category(nameof(CategoryAttribute.Appearance))]
         public TreeItemCollection Sub
         {
             get
@@ -1966,7 +1966,7 @@ namespace AntdUI
         /// <summary>
         /// 文本颜色
         /// </summary>
-        [Description("文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? Fore
         {
             get => fore;
@@ -1982,7 +1982,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? Back
         {
             get => back;

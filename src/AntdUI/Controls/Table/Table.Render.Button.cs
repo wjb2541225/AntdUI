@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -25,22 +12,22 @@ namespace AntdUI
 {
     partial class Table
     {
-        internal static void PaintButton(Canvas g, Font font, Size gap, Rectangle rect_read, CellButton btn, bool enable, TAMode colorScheme)
+        internal static void PaintButton(Canvas g, Font font, Size gap, Rectangle rect_read, CellButton btn, bool enable, TAMode colorScheme, string cname)
         {
-            float _radius = (btn.Shape == TShape.Round || btn.Shape == TShape.Circle) ? rect_read.Height : btn.Radius * Config.Dpi;
+            float _radius = (btn.Shape == TShape.Round || btn.Shape == TShape.Circle) ? rect_read.Height : btn.Radius * g.Dpi;
 
             if (btn.Type == TTypeMini.Default)
             {
-                Color _fore = Colour.DefaultColor.Get(nameof(Button), colorScheme), _color = Colour.Primary.Get(nameof(Button), colorScheme), _back_hover, _back_active;
+                Color _fore = Colour.DefaultColor.Get(colorScheme, nameof(Button), cname), _color = Colour.Primary.Get(colorScheme, nameof(Button), cname), _back_hover, _back_active;
                 if (btn.BorderWidth > 0)
                 {
-                    _back_hover = Colour.PrimaryHover.Get(nameof(Button), colorScheme);
-                    _back_active = Colour.PrimaryActive.Get(nameof(Button), colorScheme);
+                    _back_hover = Colour.PrimaryHover.Get(colorScheme, nameof(Button), cname);
+                    _back_active = Colour.PrimaryActive.Get(colorScheme, nameof(Button), cname);
                 }
                 else
                 {
-                    _back_hover = Colour.FillSecondary.Get(nameof(Button), colorScheme);
-                    _back_active = Colour.Fill.Get(nameof(Button), colorScheme);
+                    _back_hover = Colour.FillSecondary.Get(colorScheme, nameof(Button), cname);
+                    _back_active = Colour.Fill.Get(colorScheme, nameof(Button), cname);
                 }
                 if (btn.Fore.HasValue) _fore = btn.Fore.Value;
                 if (btn.BackHover.HasValue) _back_hover = btn.BackHover.Value;
@@ -52,7 +39,7 @@ namespace AntdUI
 
                     if (btn.AnimationClick)
                     {
-                        int sp = (int)(Math.Max(gap.Height, gap.Width) * Config.Dpi);
+                        int sp = (int)(Math.Max(gap.Height, gap.Width) * g.Dpi);
                         float maxw = rect_read.Width + (sp * btn.AnimationClickValue), maxh = rect_read.Height + (sp * btn.AnimationClickValue),
                             alpha = 100 * (1F - btn.AnimationClickValue);
                         using (var path_click = new RectangleF(rect_read.X + (rect_read.Width - maxw) / 2F, rect_read.Y + (rect_read.Height - maxh) / 2F, maxw, maxh).RoundPath(_radius, btn.Shape))
@@ -73,16 +60,16 @@ namespace AntdUI
                             using (var path_shadow = new RectangleF(rect_read.X, rect_read.Y + 3, rect_read.Width, rect_read.Height).RoundPath(_radius))
                             {
                                 path_shadow.AddPath(path, false);
-                                g.Fill(Colour.FillQuaternary.Get(nameof(Button), colorScheme), path_shadow);
+                                g.Fill(Colour.FillQuaternary.Get(colorScheme, nameof(Button), cname), path_shadow);
                             }
 
                             #endregion
 
-                            g.Fill(btn.DefaultBack ?? Colour.DefaultBg.Get(nameof(Button), colorScheme), path);
+                            g.Fill(btn.DefaultBack ?? Colour.DefaultBg.Get(colorScheme, nameof(Button), cname), path);
                         }
                         if (btn.BorderWidth > 0)
                         {
-                            float border = btn.BorderWidth * Config.Dpi;
+                            float border = btn.BorderWidth * g.Dpi;
                             if (btn.ExtraMouseDown)
                             {
                                 g.Draw(_back_active, border, path);
@@ -91,7 +78,7 @@ namespace AntdUI
                             else if (btn.AnimationHover)
                             {
                                 var colorHover = Helper.ToColor(btn.AnimationHoverValue, _back_hover);
-                                g.Draw(Colour.DefaultBorder.Get(nameof(Button), colorScheme).BlendColors(colorHover), border, path);
+                                g.Draw(Colour.DefaultBorder.Get(colorScheme, nameof(Button), cname).BlendColors(colorHover), border, path);
                                 PaintButton(g, font, btn, _fore.BlendColors(colorHover), rect_read);
                             }
                             else if (btn.ExtraMouseHover)
@@ -101,7 +88,7 @@ namespace AntdUI
                             }
                             else
                             {
-                                g.Draw(btn.DefaultBorderColor ?? Colour.DefaultBorder.Get(nameof(Button), colorScheme), border, path);
+                                g.Draw(btn.DefaultBorderColor ?? Colour.DefaultBorder.Get(colorScheme, nameof(Button), cname), border, path);
                                 PaintButton(g, font, btn, _fore, rect_read);
                             }
                         }
@@ -115,8 +102,8 @@ namespace AntdUI
                     }
                     else
                     {
-                        if (btn.BorderWidth > 0) g.Fill(Colour.FillTertiary.Get(nameof(Button), colorScheme), path);
-                        PaintButton(g, font, btn, Colour.TextQuaternary.Get(nameof(Button), colorScheme), rect_read);
+                        if (btn.BorderWidth > 0) g.Fill(Colour.FillTertiary.Get(colorScheme, nameof(Button), cname), path);
+                        PaintButton(g, font, btn, Colour.TextQuaternary.Get(colorScheme, nameof(Button), cname), rect_read);
                     }
                 }
             }
@@ -126,35 +113,35 @@ namespace AntdUI
                 switch (btn.Type)
                 {
                     case TTypeMini.Error:
-                        _back = Colour.Error.Get(nameof(Button), colorScheme);
-                        _fore = Colour.ErrorColor.Get(nameof(Button), colorScheme);
-                        _back_hover = Colour.ErrorHover.Get(nameof(Button), colorScheme);
-                        _back_active = Colour.ErrorActive.Get(nameof(Button), colorScheme);
+                        _back = Colour.Error.Get(colorScheme, nameof(Button), cname);
+                        _fore = Colour.ErrorColor.Get(colorScheme, nameof(Button), cname);
+                        _back_hover = Colour.ErrorHover.Get(colorScheme, nameof(Button), cname);
+                        _back_active = Colour.ErrorActive.Get(colorScheme, nameof(Button), cname);
                         break;
                     case TTypeMini.Success:
-                        _back = Colour.Success.Get(nameof(Button), colorScheme);
-                        _fore = Colour.SuccessColor.Get(nameof(Button), colorScheme);
-                        _back_hover = Colour.SuccessHover.Get(nameof(Button), colorScheme);
-                        _back_active = Colour.SuccessActive.Get(nameof(Button), colorScheme);
+                        _back = Colour.Success.Get(colorScheme, nameof(Button), cname);
+                        _fore = Colour.SuccessColor.Get(colorScheme, nameof(Button), cname);
+                        _back_hover = Colour.SuccessHover.Get(colorScheme, nameof(Button), cname);
+                        _back_active = Colour.SuccessActive.Get(colorScheme, nameof(Button), cname);
                         break;
                     case TTypeMini.Info:
-                        _back = Colour.Info.Get(nameof(Button), colorScheme);
-                        _fore = Colour.InfoColor.Get(nameof(Button), colorScheme);
-                        _back_hover = Colour.InfoHover.Get(nameof(Button), colorScheme);
-                        _back_active = Colour.InfoActive.Get(nameof(Button), colorScheme);
+                        _back = Colour.Info.Get(colorScheme, nameof(Button), cname);
+                        _fore = Colour.InfoColor.Get(colorScheme, nameof(Button), cname);
+                        _back_hover = Colour.InfoHover.Get(colorScheme, nameof(Button), cname);
+                        _back_active = Colour.InfoActive.Get(colorScheme, nameof(Button), cname);
                         break;
                     case TTypeMini.Warn:
-                        _back = Colour.Warning.Get(nameof(Button), colorScheme);
-                        _fore = Colour.WarningColor.Get(nameof(Button), colorScheme);
-                        _back_hover = Colour.WarningHover.Get(nameof(Button), colorScheme);
-                        _back_active = Colour.WarningActive.Get(nameof(Button), colorScheme);
+                        _back = Colour.Warning.Get(colorScheme, nameof(Button), cname);
+                        _fore = Colour.WarningColor.Get(colorScheme, nameof(Button), cname);
+                        _back_hover = Colour.WarningHover.Get(colorScheme, nameof(Button), cname);
+                        _back_active = Colour.WarningActive.Get(colorScheme, nameof(Button), cname);
                         break;
                     case TTypeMini.Primary:
                     default:
-                        _back = Colour.Primary.Get(nameof(Button), colorScheme);
-                        _fore = Colour.PrimaryColor.Get(nameof(Button), colorScheme);
-                        _back_hover = Colour.PrimaryHover.Get(nameof(Button), colorScheme);
-                        _back_active = Colour.PrimaryActive.Get(nameof(Button), colorScheme);
+                        _back = Colour.Primary.Get(colorScheme, nameof(Button), cname);
+                        _fore = Colour.PrimaryColor.Get(colorScheme, nameof(Button), cname);
+                        _back_hover = Colour.PrimaryHover.Get(colorScheme, nameof(Button), cname);
+                        _back_active = Colour.PrimaryActive.Get(colorScheme, nameof(Button), cname);
                         break;
                 }
 
@@ -169,7 +156,7 @@ namespace AntdUI
 
                     if (btn.AnimationClick)
                     {
-                        int sp = (int)(Math.Max(gap.Height, gap.Width) * Config.Dpi);
+                        int sp = (int)(Math.Max(gap.Height, gap.Width) * g.Dpi);
                         float maxw = rect_read.Width + (sp * btn.AnimationClickValue), maxh = rect_read.Height + (sp * btn.AnimationClickValue),
                             alpha = 100 * (1F - btn.AnimationClickValue);
                         using (var path_click = new RectangleF(rect_read.X + (rect_read.Width - maxw) / 2F, rect_read.Y + (rect_read.Height - maxh) / 2F, maxw, maxh).RoundPath(_radius, btn.Shape))
@@ -187,7 +174,7 @@ namespace AntdUI
 
                         if (btn.BorderWidth > 0)
                         {
-                            float border = btn.BorderWidth * Config.Dpi;
+                            float border = btn.BorderWidth * g.Dpi;
                             if (btn.ExtraMouseDown)
                             {
                                 g.Draw(_back_active, border, path);
@@ -196,7 +183,7 @@ namespace AntdUI
                             else if (btn.AnimationHover)
                             {
                                 var colorHover = Helper.ToColor(btn.AnimationHoverValue, _back_hover);
-                                g.Draw(((enable && btn.Enabled) ? _back : Colour.FillTertiary.Get(nameof(Button), colorScheme)).BlendColors(colorHover), border, path);
+                                g.Draw(((enable && btn.Enabled) ? _back : Colour.FillTertiary.Get(colorScheme, nameof(Button), cname)).BlendColors(colorHover), border, path);
                                 PaintButton(g, font, btn, _back.BlendColors(colorHover), rect_read);
                             }
                             else if (btn.ExtraMouseHover)
@@ -213,11 +200,11 @@ namespace AntdUI
                                         g.Draw(brushback, border, path);
                                     }
                                 }
-                                else g.Draw(Colour.FillTertiary.Get(nameof(Button), colorScheme), border, path);
-                                PaintButton(g, font, btn, (enable && btn.Enabled) ? _back : Colour.TextQuaternary.Get(nameof(Button), colorScheme), rect_read);
+                                else g.Draw(Colour.FillTertiary.Get(colorScheme, nameof(Button), cname), border, path);
+                                PaintButton(g, font, btn, (enable && btn.Enabled) ? _back : Colour.TextQuaternary.Get(colorScheme, nameof(Button), cname), rect_read);
                             }
                         }
-                        else PaintButton(g, font, btn, (enable && btn.Enabled) ? _back : Colour.TextQuaternary.Get(nameof(Button), colorScheme), rect_read);
+                        else PaintButton(g, font, btn, (enable && btn.Enabled) ? _back : Colour.TextQuaternary.Get(colorScheme, nameof(Button), cname), rect_read);
 
                         #endregion
                     }
@@ -245,7 +232,7 @@ namespace AntdUI
                                 g.Fill(brush, path);
                             }
                         }
-                        else g.Fill(Colour.FillTertiary.Get(nameof(Button), colorScheme), path);
+                        else g.Fill(Colour.FillTertiary.Get(colorScheme, nameof(Button), cname), path);
 
                         if (btn.ExtraMouseDown) g.Fill(_back_active, path);
                         else if (btn.AnimationHover) g.Fill(Helper.ToColor(btn.AnimationHoverValue, _back_hover), path);
@@ -253,7 +240,7 @@ namespace AntdUI
 
                         #endregion
 
-                        PaintButton(g, font, btn, (enable && btn.Enabled) ? _fore : Colour.TextQuaternary.Get(nameof(Button), colorScheme), rect_read);
+                        PaintButton(g, font, btn, (enable && btn.Enabled) ? _fore : Colour.TextQuaternary.Get(colorScheme, nameof(Button), cname), rect_read);
                     }
                 }
             }
@@ -372,20 +359,11 @@ namespace AntdUI
         }
         static void PaintButtonTextArrow(Canvas g, CellButton btn, Rectangle rect, Color color)
         {
-            using (var pen = new Pen(color, 2F * Config.Dpi))
+            using (var pen = new Pen(color, 2F * g.Dpi))
             {
                 pen.StartCap = pen.EndCap = LineCap.Round;
-                if (btn.IsLink)
-                {
-                    var state = g.Save();
-                    float size_arrow = rect.Width / 2F;
-                    g.TranslateTransform(rect.X + size_arrow, rect.Y + size_arrow);
-                    g.RotateTransform(-90F);
-                    g.DrawLines(pen, new RectangleF(-size_arrow, -size_arrow, rect.Width, rect.Height).TriangleLines(btn.ArrowProg));
-                    g.ResetTransform();
-                    g.Restore(state);
-                }
-                else g.DrawLines(pen, rect.TriangleLines(btn.ArrowProg));
+                if (btn.IsLink) g.DrawLines(pen, rect.TriangleLinesHorizontal(btn.ArrowProg));
+                else g.DrawLines(pen, rect.TriangleLinesVertical(btn.ArrowProg));
             }
         }
 
@@ -442,14 +420,7 @@ namespace AntdUI
             }
             if (btn.IconSvg != null)
             {
-                using (var _bmp = SvgExtend.GetImgExtend(btn.IconSvg, rect, color))
-                {
-                    if (_bmp != null)
-                    {
-                        g.Image(_bmp, rect, opacity);
-                        count++;
-                    }
-                }
+                if (g.Svg(btn.IconSvg, rect, opacity, color)) count++;
             }
             return count > 0;
         }
@@ -464,14 +435,7 @@ namespace AntdUI
             }
             if (btn.IconHoverSvg != null)
             {
-                using (var _bmp = SvgExtend.GetImgExtend(btn.IconHoverSvg, rect, color))
-                {
-                    if (_bmp != null)
-                    {
-                        g.Image(_bmp, rect, opacity);
-                        count++;
-                    }
-                }
+                if (g.Svg(btn.IconHoverSvg, rect, opacity, color)) count++;
             }
             return count > 0;
         }
@@ -508,12 +472,12 @@ namespace AntdUI
 
         #endregion
 
-        internal static void PaintLink(Canvas g, Font font, Rectangle rect_read, CellLink link, bool enable, TAMode colorScheme)
+        internal static void PaintLink(Canvas g, Font font, Rectangle rect_read, CellLink link, bool enable, TAMode colorScheme, string cname)
         {
-            if (link.ExtraMouseDown) g.DrawText(link.Text, font, Colour.PrimaryActive.Get(nameof(Button), colorScheme), rect_read, link.s_f);
-            else if (link.AnimationHover) g.DrawText(link.Text, font, Colour.Primary.Get(nameof(Button), colorScheme).BlendColors(link.AnimationHoverValue, Colour.PrimaryHover.Get(nameof(Button), colorScheme)), rect_read, link.s_f);
-            else if (link.ExtraMouseHover) g.DrawText(link.Text, font, Colour.PrimaryHover.Get(nameof(Button), colorScheme), rect_read, link.s_f);
-            else g.DrawText(link.Text, font, ((enable && link.Enabled) ? Colour.Primary.Get(nameof(Button), colorScheme) : Colour.TextQuaternary.Get(nameof(Button), colorScheme)), rect_read, link.s_f);
+            if (link.ExtraMouseDown) g.DrawText(link.Text, font, Colour.PrimaryActive.Get(colorScheme, nameof(Button), cname), rect_read, link.s_f);
+            else if (link.AnimationHover) g.DrawText(link.Text, font, Colour.Primary.Get(colorScheme, nameof(Button), cname).BlendColors(link.AnimationHoverValue, Colour.PrimaryHover.Get(colorScheme, nameof(Button), cname)), rect_read, link.s_f);
+            else if (link.ExtraMouseHover) g.DrawText(link.Text, font, Colour.PrimaryHover.Get(colorScheme, nameof(Button), cname), rect_read, link.s_f);
+            else g.DrawText(link.Text, font, ((enable && link.Enabled) ? Colour.Primary.Get(colorScheme, nameof(Button), cname) : Colour.TextQuaternary.Get(colorScheme, nameof(Button), cname)), rect_read, link.s_f);
         }
     }
 }

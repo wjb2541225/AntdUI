@@ -1,4 +1,4 @@
-﻿// THIS FILE IS PART OF SVG PROJECT
+// THIS FILE IS PART OF SVG PROJECT
 // THE SVG PROJECT IS AN OPENSOURCE LIBRARY LICENSED UNDER THE MS-PL License.
 // COPYRIGHT (C) svg-net. ALL RIGHTS RESERVED.
 // GITHUB: https://github.com/svg-net/SVG
@@ -34,10 +34,9 @@ namespace AntdUI.Svg
             return _boundables.Pop();
         }
 
-        public float DpiY
-        {
-            get { return _innerGraphics.DpiY; }
-        }
+        public float Dpi => _innerGraphics.Dpi;
+
+        public float DpiY => _innerGraphics.DpiY;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ISvgRenderer"/> class.

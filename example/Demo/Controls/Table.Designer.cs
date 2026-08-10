@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -50,11 +31,13 @@ namespace Demo.Controls
             pagination1 = new AntdUI.Pagination();
             table1 = new AntdUI.Table();
             panel1 = new System.Windows.Forms.Panel();
+            checkboxSummaryCustomize = new AntdUI.Checkbox();
             checkboxFocusNavigation = new AntdUI.Checkbox();
             selectFocusedStyle = new AntdUI.Select();
             selectEditStyle = new AntdUI.Select();
             selectEditMode = new AntdUI.Select();
             checkScrollBarAvoidHeader = new AntdUI.Checkbox();
+            checkTree = new AntdUI.Checkbox();
             checkFilter = new AntdUI.Checkbox();
             checkAddressLineBreak = new AntdUI.Checkbox();
             checkVisibleHeader = new AntdUI.Checkbox();
@@ -74,7 +57,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Table.Description";
-            header1.LocalizationText = "Table.Text";
+            header1.LocalizationText = "Table";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -101,6 +84,7 @@ namespace Demo.Controls
             table1.AutoSizeColumnsMode = AntdUI.ColumnsMode.Fill;
             table1.CellImpactHeight = false;
             table1.Dock = DockStyle.Fill;
+            table1.EmptyHeader = true;
             table1.Gap = 12;
             table1.Location = new Point(0, 132);
             table1.Name = "table1";
@@ -111,17 +95,20 @@ namespace Demo.Controls
             table1.CellButtonClick += table1_CellButtonClick;
             table1.CellBeginEdit += table1_CellBeginEdit;
             table1.RowPaint += table1_RowPaint;
+            table1.SortRowsTree += table1_SortRowsTree;
             table1.FilterPopupEnd += table1_FilterPopupEnd;
             table1.FilterDataChanged += table1_FilterDataChanged;
             // 
             // panel1
             // 
             panel1.AutoScroll = true;
+            panel1.Controls.Add(checkboxSummaryCustomize);
             panel1.Controls.Add(checkboxFocusNavigation);
             panel1.Controls.Add(selectFocusedStyle);
             panel1.Controls.Add(selectEditStyle);
             panel1.Controls.Add(selectEditMode);
             panel1.Controls.Add(checkScrollBarAvoidHeader);
+            panel1.Controls.Add(checkTree);
             panel1.Controls.Add(checkFilter);
             panel1.Controls.Add(checkAddressLineBreak);
             panel1.Controls.Add(checkVisibleHeader);
@@ -139,16 +126,28 @@ namespace Demo.Controls
             panel1.Size = new Size(1300, 58);
             panel1.TabIndex = 1;
             // 
+            // checkboxSummaryCustomize
+            // 
+            checkboxSummaryCustomize.AutoSizeMode = AntdUI.TAutoSize.Width;
+            checkboxSummaryCustomize.Dock = DockStyle.Left;
+            checkboxSummaryCustomize.LocalizationText = "Table.{id}";
+            checkboxSummaryCustomize.Location = new Point(1605, 0);
+            checkboxSummaryCustomize.Name = "checkboxSummaryCustomize";
+            checkboxSummaryCustomize.Size = new Size(101, 41);
+            checkboxSummaryCustomize.TabIndex = 16;
+            checkboxSummaryCustomize.Text = "自定义汇总";
+            checkboxSummaryCustomize.CheckedChanged += checkboxSummaryCustomize_CheckedChanged;
+            // 
             // checkboxFocusNavigation
             // 
             checkboxFocusNavigation.AutoSizeMode = AntdUI.TAutoSize.Width;
             checkboxFocusNavigation.Checked = true;
             checkboxFocusNavigation.Dock = DockStyle.Left;
             checkboxFocusNavigation.LocalizationText = "Table.{id}";
-            checkboxFocusNavigation.Location = new Point(1417, 0);
+            checkboxFocusNavigation.Location = new Point(1491, 0);
             checkboxFocusNavigation.Name = "checkboxFocusNavigation";
             checkboxFocusNavigation.Size = new Size(114, 41);
-            checkboxFocusNavigation.TabIndex = 9;
+            checkboxFocusNavigation.TabIndex = 15;
             checkboxFocusNavigation.Text = "单元焦点导航";
             checkboxFocusNavigation.CheckedChanged += checkboxFocusNavigation_CheckedChanged;
             // 
@@ -159,11 +158,11 @@ namespace Demo.Controls
             selectFocusedStyle.List = true;
             selectFocusedStyle.ListAutoWidth = true;
             selectFocusedStyle.LocalizationPlaceholderText = "Table.{id}";
-            selectFocusedStyle.Location = new Point(1303, 0);
+            selectFocusedStyle.Location = new Point(1377, 0);
             selectFocusedStyle.Name = "selectFocusedStyle";
             selectFocusedStyle.PlaceholderText = "焦点列样式";
             selectFocusedStyle.Size = new Size(114, 41);
-            selectFocusedStyle.TabIndex = 12;
+            selectFocusedStyle.TabIndex = 14;
             selectFocusedStyle.SelectedValueChanged += selectFocusedStyle_SelectedValueChanged;
             // 
             // selectEditStyle
@@ -174,11 +173,11 @@ namespace Demo.Controls
             selectEditStyle.List = true;
             selectEditStyle.ListAutoWidth = true;
             selectEditStyle.LocalizationPlaceholderText = "Table.{id}";
-            selectEditStyle.Location = new Point(1203, 0);
+            selectEditStyle.Location = new Point(1277, 0);
             selectEditStyle.Name = "selectEditStyle";
             selectEditStyle.PlaceholderText = "编辑风格";
             selectEditStyle.Size = new Size(100, 41);
-            selectEditStyle.TabIndex = 11;
+            selectEditStyle.TabIndex = 13;
             selectEditStyle.SelectedValueChanged += selectEditStyle_SelectedValueChanged;
             // 
             // selectEditMode
@@ -188,11 +187,11 @@ namespace Demo.Controls
             selectEditMode.List = true;
             selectEditMode.ListAutoWidth = true;
             selectEditMode.LocalizationPlaceholderText = "Table.{id}";
-            selectEditMode.Location = new Point(1099, 0);
+            selectEditMode.Location = new Point(1173, 0);
             selectEditMode.Name = "selectEditMode";
             selectEditMode.PlaceholderText = "编辑模式";
             selectEditMode.Size = new Size(104, 41);
-            selectEditMode.TabIndex = 10;
+            selectEditMode.TabIndex = 12;
             selectEditMode.SelectedValueChanged += selectEditMode_SelectedValueChanged;
             // 
             // checkScrollBarAvoidHeader
@@ -200,12 +199,24 @@ namespace Demo.Controls
             checkScrollBarAvoidHeader.AutoSizeMode = AntdUI.TAutoSize.Width;
             checkScrollBarAvoidHeader.Dock = DockStyle.Left;
             checkScrollBarAvoidHeader.LocalizationText = "Table.{id}";
-            checkScrollBarAvoidHeader.Location = new Point(958, 0);
+            checkScrollBarAvoidHeader.Location = new Point(1032, 0);
             checkScrollBarAvoidHeader.Name = "checkScrollBarAvoidHeader";
             checkScrollBarAvoidHeader.Size = new Size(141, 41);
-            checkScrollBarAvoidHeader.TabIndex = 12;
+            checkScrollBarAvoidHeader.TabIndex = 11;
             checkScrollBarAvoidHeader.Text = "滚动条在表头显示";
             checkScrollBarAvoidHeader.CheckedChanged += checkScrollBarAvoidHeader_CheckedChanged;
+            // 
+            // checkTree
+            // 
+            checkTree.AutoSizeMode = AntdUI.TAutoSize.Width;
+            checkTree.Dock = DockStyle.Left;
+            checkTree.LocalizationText = "Table.{id}";
+            checkTree.Location = new Point(958, 0);
+            checkTree.Name = "checkTree";
+            checkTree.Size = new Size(74, 41);
+            checkTree.TabIndex = 10;
+            checkTree.Text = "树表格";
+            checkTree.CheckedChanged += checkTree_CheckedChanged;
             // 
             // checkFilter
             // 
@@ -359,10 +370,12 @@ namespace Demo.Controls
         private AntdUI.Checkbox checkVisibleHeader;
         private AntdUI.Checkbox checkAddressLineBreak;
         private AntdUI.Checkbox checkFilter;
+        private AntdUI.Checkbox checkTree;
         private AntdUI.Checkbox checkScrollBarAvoidHeader;
         private AntdUI.Select selectEditMode;
         private AntdUI.Select selectEditStyle;
         private AntdUI.Select selectFocusedStyle;
         private AntdUI.Checkbox checkboxFocusNavigation;
+        private AntdUI.Checkbox checkboxSummaryCustomize;
     }
 }

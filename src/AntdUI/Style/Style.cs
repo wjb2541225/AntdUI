@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -30,49 +17,37 @@ namespace AntdUI
         public static Theme.IColor Db;
         static Style() { Db = new Theme.IColor(); }
 
-        /// <summary>
-        /// 取色
-        /// </summary>
-        /// <param name="id">色卡</param>
-        /// <param name="control">控件名称</param>
-        public static Color Get(this Colour id, string control)
-        {
-            string key = id.ToString() + control;
-            if (colors.TryGetValue(key, out var color)) return color;
-            return Get(id);
-        }
-
-        /// <summary>
-        /// 取色
-        /// </summary>
-        /// <param name="id">色卡</param>
-        /// <param name="control">控件名称</param>
-        /// <param name="mode">色彩模式</param>
-        public static Color Get(this Colour id, string control, TAMode mode)
-        {
-            string key = id.ToString() + control;
-            if (colors.TryGetValue(key, out var color)) return color;
-            return Get(id, mode);
-        }
-
-        /// <summary>
-        /// 取色
-        /// </summary>
-        /// <param name="id">色卡</param>
-        /// <param name="control">控件名称</param>
-        /// <param name="symbol">颜色代号</param>
-        /// <param name="mode">色彩模式</param>
-        public static Color Get(this Colour id, string control, string symbol, TAMode mode)
-        {
-            string key = symbol + control;
-            if (colors.TryGetValue(key, out var color)) return color;
-            return Get(id, control, mode);
-        }
-
         public static Color Get(this Colour id)
         {
-            string key = id.ToString();
-            if (colors.TryGetValue(key, out var color)) return color;
+            if (colors.TryGetValue(id.ToString(), out var color)) return color;
+            return GetSystem(id, Config.Mode);
+        }
+
+        /// <summary>
+        /// 取色
+        /// </summary>
+        /// <param name="id">色卡</param>
+        /// <param name="name">控件名称</param>
+        public static Color Get(this Colour id, string name)
+        {
+            var _id = id.ToString();
+            if (colors.TryGetValue(_id + name, out var color_name)) return color_name;
+            if (colors.TryGetValue(_id, out var color)) return color;
+            return GetSystem(id, Config.Mode);
+        }
+
+        /// <summary>
+        /// 取色
+        /// </summary>
+        /// <param name="id">色卡</param>
+        /// <param name="name">控件名称</param>
+        /// <param name="cname">控件ID</param>
+        public static Color Get(this Colour id, string name, string cname)
+        {
+            var _id = id.ToString();
+            if (colors.TryGetValue(_id + cname, out var color_cname)) return color_cname;
+            if (colors.TryGetValue(_id + name, out var color_name)) return color_name;
+            if (colors.TryGetValue(_id, out var color)) return color;
             return GetSystem(id, Config.Mode);
         }
 
@@ -81,17 +56,78 @@ namespace AntdUI
         /// </summary>
         /// <param name="id">色卡</param>
         /// <param name="mode">色彩模式</param>
-        public static Color Get(this Colour id, TAMode mode)
+        /// <param name="name">控件名称</param>
+        public static Color Get(this Colour id, TAMode mode, string name)
         {
-            string key = id.ToString();
-            if (colors.TryGetValue(key, out var color)) return color;
+            var _id = id.ToString();
+            if (colors.TryGetValue(_id + name, out var color_name)) return color_name;
+            if (colors.TryGetValue(_id, out var color)) return color;
+            return GetSystem(id, mode);
+        }
+
+        /// <summary>
+        /// 取色
+        /// </summary>
+        /// <param name="id">色卡</param>
+        /// <param name="mode">色彩模式</param>
+        /// <param name="symbol">颜色代号</param>
+        /// <param name="name">控件名称</param>
+        public static Color GetSymbol(this Colour id, TAMode mode, string symbol, string name)
+        {
+            var _id = id.ToString();
+            if (colors.TryGetValue(_id + name, out var color_name)) return color_name;
+            if (colors.TryGetValue(symbol + name, out var color_symbol)) return color_symbol;
+            if (colors.TryGetValue(_id, out var color)) return color;
+            return GetSystem(id, mode);
+        }
+
+        /// <summary>
+        /// 取色
+        /// </summary>
+        /// <param name="id">色卡</param>
+        /// <param name="mode">色彩模式</param>
+        /// <param name="symbol">颜色代号</param>
+        /// <param name="name">控件名称</param>
+        /// <param name="cname">控件ID</param>
+        public static Color GetSymbol(this Colour id, TAMode mode, string symbol, string name, string cname)
+        {
+            var _id = id.ToString();
+            if (colors.TryGetValue(_id + cname, out var color_cname)) return color_cname;
+            if (colors.TryGetValue(_id + name, out var color_name)) return color_name;
+            if (colors.TryGetValue(symbol + name, out var color_symbol)) return color_symbol;
+            if (colors.TryGetValue(_id, out var color)) return color;
+            return GetSystem(id, mode);
+        }
+
+        /// <summary>
+        /// 取色
+        /// </summary>
+        /// <param name="id">色卡</param>
+        /// <param name="mode">色彩模式</param>
+        /// <param name="name">控件名称</param>
+        /// <param name="cname">控件ID</param>
+        public static Color Get(this Colour id, TAMode mode, string name, string cname)
+        {
+            var _id = id.ToString();
+            if (colors.TryGetValue(_id + cname, out var color_cname)) return color_cname;
+            if (colors.TryGetValue(_id + name, out var color_name)) return color_name;
+            if (colors.TryGetValue(_id, out var color)) return color;
+            return GetSystem(id, mode);
+        }
+
+        /// <summary>
+        /// 取色（系统）
+        /// </summary>
+        /// <param name="id">色卡</param>
+        /// <param name="mode">色彩模式</param>
+        public static Color GetSystem(this Colour id, TAMode mode)
+        {
             switch (mode)
             {
-                case TAMode.Light: return GetSystem(id, TMode.Light);
-                case TAMode.Dark: return GetSystem(id, TMode.Dark);
-                case TAMode.Auto:
-                default:
-                    return GetSystem(id, Config.Mode);
+                case TAMode.Auto: return GetSystem(id, Config.Mode);
+                case TAMode.Light: return GetSystem(id, false);
+                case TAMode.Dark: return GetSystem(id, true);
+                default: return GetSystem(id, Config.Mode);
             }
         }
 
@@ -104,159 +140,176 @@ namespace AntdUI
         {
             switch (mode)
             {
-                case TMode.Light:
-                    switch (id)
-                    {
-                        case Colour.Primary: return "#1677FF".ToColor();
-                        case Colour.PrimaryHover: return "#4096FF".ToColor();
-                        case Colour.PrimaryColor: return Color.White;
-                        case Colour.PrimaryActive: return "#0958D9".ToColor();
-                        case Colour.PrimaryBg: return "#E6F4FF".ToColor();
-                        case Colour.PrimaryBgHover: return "#BAE0FF".ToColor();
-                        case Colour.PrimaryBorder: return "#91CAFF".ToColor();
-                        case Colour.PrimaryBorderHover: return "#69B1FF".ToColor();
-
-                        case Colour.Success: return "#52C41A".ToColor();
-                        case Colour.SuccessColor: return Color.White;
-                        case Colour.SuccessBg: return "#F6FFED".ToColor();
-                        case Colour.SuccessBorder: return "#B7EB8F".ToColor();
-                        case Colour.SuccessHover: return "#95DE64".ToColor();
-                        case Colour.SuccessActive: return "#389E0D".ToColor();
-
-                        case Colour.Warning: return "#FAAD14".ToColor();
-                        case Colour.WarningColor: return Color.White;
-                        case Colour.WarningBg: return "#FFFBE6".ToColor();
-                        case Colour.WarningBorder: return "#FFE58F".ToColor();
-                        case Colour.WarningHover: return "#FFD666".ToColor();
-                        case Colour.WarningActive: return "#D48806".ToColor();
-
-                        case Colour.Error: return "#FF4D4F".ToColor();
-                        case Colour.ErrorColor: return Color.White;
-                        case Colour.ErrorBg: return "#FFF2F0".ToColor();
-                        case Colour.ErrorBorder: return "#FFCCC7".ToColor();
-                        case Colour.ErrorHover: return "#FF7875".ToColor();
-                        case Colour.ErrorActive: return "#D9363E".ToColor();
-
-                        case Colour.Info: return "#1677FF".ToColor();
-                        case Colour.InfoColor: return Color.White;
-                        case Colour.InfoBg: return "#E6F4FF".ToColor();
-                        case Colour.InfoBorder: return "#91CAFF".ToColor();
-                        case Colour.InfoHover: return "#69B1FF".ToColor();
-                        case Colour.InfoActive: return "#0958D9".ToColor();
-
-                        case Colour.DefaultBg: return Color.White;
-                        case Colour.DefaultColor: return rgba(0, 0, 0, 0.88F);
-                        case Colour.DefaultBorder: return "#D9D9D9".ToColor();
-
-                        case Colour.TagDefaultBg: return "#FAFAFA".ToColor();
-                        case Colour.TagDefaultColor: return rgba(0, 0, 0, 0.88F);
-
-                        case Colour.TextBase: return Color.Black;
-                        case Colour.Text: return rgba(0, 0, 0, 0.88F);//224.4
-                        case Colour.TextSecondary: return rgba(0, 0, 0, 0.65F);//165.75
-                        case Colour.TextTertiary: return rgba(0, 0, 0, 0.45F);//114.75
-                        case Colour.TextQuaternary: return rgba(0, 0, 0, 0.25F);//63.75
-
-                        case Colour.BgBase: return Color.White;
-                        case Colour.BgContainer: return Color.White;
-                        case Colour.BgElevated: return Color.White;
-                        case Colour.BgLayout: return "#F5F5F5".ToColor();
-
-                        case Colour.Fill: return rgba(0, 0, 0, 0.18F);//45.9
-                        case Colour.FillSecondary: return rgba(0, 0, 0, 0.06F);//15.3
-                        case Colour.FillTertiary: return rgba(0, 0, 0, 0.04F);//10.2
-                        case Colour.FillQuaternary: return rgba(0, 0, 0, 0.02F);//5.1
-
-                        case Colour.BorderColor: return "#D9D9D9".ToColor();
-                        case Colour.BorderSecondary: return "#F0F0F0".ToColor();
-
-                        case Colour.BorderColorDisable: return Color.FromArgb(217, 217, 217);
-
-                        case Colour.Split: return rgba(5, 5, 5, 0.06F);//15.3
-
-                        case Colour.HoverBg: return rgba(0, 0, 0, 0.06F);
-                        case Colour.HoverColor: return rgba(0, 0, 0, 0.88F);
-
-                        case Colour.SliderHandleColorDisabled: return "#BFBFBF".ToColor();
-                    }
-                    break;
+                case TMode.Light: return GetSystem(id, false);
                 case TMode.Dark:
-                default:
-                    switch (id)
-                    {
-                        case Colour.Primary: return "#1668DC".ToColor();
-                        case Colour.PrimaryHover: return "#3C89E8".ToColor();
-                        case Colour.PrimaryColor: return Color.White;
-                        case Colour.PrimaryActive: return "#1554AD".ToColor();
-                        case Colour.PrimaryBg: return "#111A2C".ToColor();
-                        case Colour.PrimaryBgHover: return "#112545".ToColor();
-                        case Colour.PrimaryBorder: return "#15325B".ToColor();
-                        case Colour.PrimaryBorderHover: return "#15417E".ToColor();
+                default: return GetSystem(id, true);
+            }
+        }
 
-                        case Colour.Success: return "#49AA19".ToColor();
-                        case Colour.SuccessColor: return Color.White;
-                        case Colour.SuccessBg: return "#162312".ToColor();
-                        case Colour.SuccessBorder: return "#274916".ToColor();
-                        case Colour.SuccessHover: return "#306317".ToColor();
-                        case Colour.SuccessActive: return "#3C8618".ToColor();
+        /// <summary>
+        /// 取色（系统）
+        /// </summary>
+        /// <param name="id">色卡</param>
+        /// <param name="dark">是否深色模式</param>
+        public static Color GetSystem(this Colour id, bool dark)
+        {
+            if (dark)
+            {
+                switch (id)
+                {
+                    case Colour.Primary: return "#1668DC".ToColor();
+                    case Colour.PrimaryHover: return "#3C89E8".ToColor();
+                    case Colour.PrimaryColor: return Color.White;
+                    case Colour.PrimaryActive: return "#1554AD".ToColor();
+                    case Colour.PrimaryBg: return "#111A2C".ToColor();
+                    case Colour.PrimaryBgHover: return "#112545".ToColor();
+                    case Colour.PrimaryBorder: return "#15325B".ToColor();
+                    case Colour.PrimaryBorderHover: return "#15417E".ToColor();
 
-                        case Colour.Warning: return "#D89614".ToColor();
-                        case Colour.WarningColor: return Color.White;
-                        case Colour.WarningBg: return "#2B2111".ToColor();
-                        case Colour.WarningBorder: return "#594214".ToColor();
-                        case Colour.WarningHover: return "#7C5914".ToColor();
-                        case Colour.WarningActive: return "#AA7714".ToColor();
+                    case Colour.Success: return "#49AA19".ToColor();
+                    case Colour.SuccessColor: return Color.White;
+                    case Colour.SuccessBg: return "#162312".ToColor();
+                    case Colour.SuccessBorder: return "#274916".ToColor();
+                    case Colour.SuccessHover: return "#306317".ToColor();
+                    case Colour.SuccessActive: return "#3C8618".ToColor();
 
-                        case Colour.Error: return "#DC4446".ToColor();
-                        case Colour.ErrorColor: return Color.White;
-                        case Colour.ErrorBg: return "#2C1618".ToColor();
-                        case Colour.ErrorBorder: return "#5B2526".ToColor();
-                        case Colour.ErrorHover: return "#E86E6B".ToColor();
-                        case Colour.ErrorActive: return "#AD393A".ToColor();
+                    case Colour.Warning: return "#D89614".ToColor();
+                    case Colour.WarningColor: return Color.White;
+                    case Colour.WarningBg: return "#2B2111".ToColor();
+                    case Colour.WarningBorder: return "#594214".ToColor();
+                    case Colour.WarningHover: return "#7C5914".ToColor();
+                    case Colour.WarningActive: return "#AA7714".ToColor();
 
-                        case Colour.Info: return "#1668DC".ToColor();
-                        case Colour.InfoColor: return Color.White;
-                        case Colour.InfoBg: return "#111A2C".ToColor();
-                        case Colour.InfoBorder: return "#15325B".ToColor();
-                        case Colour.InfoHover: return "#15417E".ToColor();
-                        case Colour.InfoActive: return "#1554AD".ToColor();
+                    case Colour.Error: return "#DC4446".ToColor();
+                    case Colour.ErrorColor: return Color.White;
+                    case Colour.ErrorBg: return "#2C1618".ToColor();
+                    case Colour.ErrorBorder: return "#5B2526".ToColor();
+                    case Colour.ErrorHover: return "#E86E6B".ToColor();
+                    case Colour.ErrorActive: return "#AD393A".ToColor();
 
-                        case Colour.DefaultBg: return "#141414".ToColor();
-                        case Colour.DefaultColor: return rgba(255, 255, 255, 0.85F);
-                        case Colour.DefaultBorder: return "#424242".ToColor();
+                    case Colour.Info: return "#1668DC".ToColor();
+                    case Colour.InfoColor: return Color.White;
+                    case Colour.InfoBg: return "#111A2C".ToColor();
+                    case Colour.InfoBorder: return "#15325B".ToColor();
+                    case Colour.InfoHover: return "#15417E".ToColor();
+                    case Colour.InfoActive: return "#1554AD".ToColor();
 
-                        case Colour.TagDefaultBg: return "#1D1D1D".ToColor();
-                        case Colour.TagDefaultColor: return rgba(255, 255, 255, 0.85F);
+                    case Colour.DefaultBg: return "#141414".ToColor();
+                    case Colour.DefaultColor: return rgba(255, 255, 255, 0.85F);
+                    case Colour.DefaultBorder: return "#424242".ToColor();
 
-                        case Colour.TextBase: return Color.White;
-                        case Colour.Text: return rgba(255, 255, 255, 0.85F);//216.75
-                        case Colour.TextSecondary: return rgba(255, 255, 255, 0.65F);//165.75
-                        case Colour.TextTertiary: return rgba(255, 255, 255, 0.45F);//114.75
-                        case Colour.TextQuaternary: return rgba(255, 255, 255, 0.25F);//63.75
+                    case Colour.TagDefaultBg: return "#1D1D1D".ToColor();
+                    case Colour.TagDefaultColor: return rgba(255, 255, 255, 0.85F);
 
-                        case Colour.BgBase: return Color.Black;
-                        case Colour.BgContainer: return "#141414".ToColor();
-                        case Colour.BgElevated: return "#1F1F1F".ToColor();
-                        case Colour.BgLayout: return Color.Black;
+                    case Colour.TextBase: return Color.White;
+                    case Colour.Text: return rgba(255, 255, 255, 0.85F);//216.75
+                    case Colour.TextSecondary: return rgba(255, 255, 255, 0.65F);//165.75
+                    case Colour.TextTertiary: return rgba(255, 255, 255, 0.45F);//114.75
+                    case Colour.TextQuaternary: return rgba(255, 255, 255, 0.25F);//63.75
 
-                        case Colour.Fill: return rgba(255, 255, 255, 0.15F);//38.25
-                        case Colour.FillSecondary: return rgba(255, 255, 255, 0.12F);//30.6
-                        case Colour.FillTertiary: return rgba(255, 255, 255, 0.08F);//20.4
-                        case Colour.FillQuaternary: return rgba(255, 255, 255, 0.04F);//10.2
+                    case Colour.BgBase: return Color.Black;
+                    case Colour.BgContainer: return "#141414".ToColor();
+                    case Colour.BgElevated: return "#1F1F1F".ToColor();
+                    case Colour.BgLayout: return Color.Black;
 
-                        case Colour.BorderColor: return "#424242".ToColor();
-                        case Colour.BorderSecondary: return "#303030".ToColor();
+                    case Colour.Fill: return rgba(255, 255, 255, 0.15F);//38.25
+                    case Colour.FillSecondary: return rgba(255, 255, 255, 0.12F);//30.6
+                    case Colour.FillTertiary: return rgba(255, 255, 255, 0.08F);//20.4
+                    case Colour.FillQuaternary: return rgba(255, 255, 255, 0.04F);//10.2
 
-                        case Colour.BorderColorDisable: return Color.FromArgb(66, 66, 66);
+                    case Colour.BorderColor: return "#424242".ToColor();
+                    case Colour.BorderSecondary: return "#303030".ToColor();
 
-                        case Colour.Split: return rgba(253, 253, 253, 0.12F);//30.6
+                    case Colour.BorderColorDisable: return Color.FromArgb(66, 66, 66);
 
-                        case Colour.HoverBg: return rgba(255, 255, 255, 0.06F);
-                        case Colour.HoverColor: return rgba(255, 255, 255, 0.88F);
+                    case Colour.Split: return rgba(253, 253, 253, 0.12F);//30.6
 
-                        case Colour.SliderHandleColorDisabled: return "#4F4F4F".ToColor();
-                    }
-                    break;
+                    case Colour.HoverBg: return rgba(255, 255, 255, 0.06F);
+                    case Colour.HoverColor: return rgba(255, 255, 255, 0.88F);
+
+                    case Colour.SliderHandleColorDisabled: return "#4F4F4F".ToColor();
+                    case Colour.TextSpotlight: return Color.White;
+                    case Colour.BgSpotlight: return "#424242".ToColor();
+                }
+            }
+            else
+            {
+                switch (id)
+                {
+                    case Colour.Primary: return "#1677FF".ToColor();
+                    case Colour.PrimaryHover: return "#4096FF".ToColor();
+                    case Colour.PrimaryColor: return Color.White;
+                    case Colour.PrimaryActive: return "#0958D9".ToColor();
+                    case Colour.PrimaryBg: return "#E6F4FF".ToColor();
+                    case Colour.PrimaryBgHover: return "#BAE0FF".ToColor();
+                    case Colour.PrimaryBorder: return "#91CAFF".ToColor();
+                    case Colour.PrimaryBorderHover: return "#69B1FF".ToColor();
+
+                    case Colour.Success: return "#52C41A".ToColor();
+                    case Colour.SuccessColor: return Color.White;
+                    case Colour.SuccessBg: return "#F6FFED".ToColor();
+                    case Colour.SuccessBorder: return "#B7EB8F".ToColor();
+                    case Colour.SuccessHover: return "#95DE64".ToColor();
+                    case Colour.SuccessActive: return "#389E0D".ToColor();
+
+                    case Colour.Warning: return "#FAAD14".ToColor();
+                    case Colour.WarningColor: return Color.White;
+                    case Colour.WarningBg: return "#FFFBE6".ToColor();
+                    case Colour.WarningBorder: return "#FFE58F".ToColor();
+                    case Colour.WarningHover: return "#FFD666".ToColor();
+                    case Colour.WarningActive: return "#D48806".ToColor();
+
+                    case Colour.Error: return "#FF4D4F".ToColor();
+                    case Colour.ErrorColor: return Color.White;
+                    case Colour.ErrorBg: return "#FFF2F0".ToColor();
+                    case Colour.ErrorBorder: return "#FFCCC7".ToColor();
+                    case Colour.ErrorHover: return "#FF7875".ToColor();
+                    case Colour.ErrorActive: return "#D9363E".ToColor();
+
+                    case Colour.Info: return "#1677FF".ToColor();
+                    case Colour.InfoColor: return Color.White;
+                    case Colour.InfoBg: return "#E6F4FF".ToColor();
+                    case Colour.InfoBorder: return "#91CAFF".ToColor();
+                    case Colour.InfoHover: return "#69B1FF".ToColor();
+                    case Colour.InfoActive: return "#0958D9".ToColor();
+
+                    case Colour.DefaultBg: return Color.White;
+                    case Colour.DefaultColor: return rgba(0, 0, 0, 0.88F);
+                    case Colour.DefaultBorder: return "#D9D9D9".ToColor();
+
+                    case Colour.TagDefaultBg: return "#FAFAFA".ToColor();
+                    case Colour.TagDefaultColor: return rgba(0, 0, 0, 0.88F);
+
+                    case Colour.TextBase: return Color.Black;
+                    case Colour.Text: return rgba(0, 0, 0, 0.88F);//224.4
+                    case Colour.TextSecondary: return rgba(0, 0, 0, 0.65F);//165.75
+                    case Colour.TextTertiary: return rgba(0, 0, 0, 0.45F);//114.75
+                    case Colour.TextQuaternary: return rgba(0, 0, 0, 0.25F);//63.75
+
+                    case Colour.BgBase: return Color.White;
+                    case Colour.BgContainer: return Color.White;
+                    case Colour.BgElevated: return Color.White;
+                    case Colour.BgLayout: return "#F5F5F5".ToColor();
+
+                    case Colour.Fill: return rgba(0, 0, 0, 0.18F);//45.9
+                    case Colour.FillSecondary: return rgba(0, 0, 0, 0.06F);//15.3
+                    case Colour.FillTertiary: return rgba(0, 0, 0, 0.04F);//10.2
+                    case Colour.FillQuaternary: return rgba(0, 0, 0, 0.02F);//5.1
+
+                    case Colour.BorderColor: return "#D9D9D9".ToColor();
+                    case Colour.BorderSecondary: return "#F0F0F0".ToColor();
+
+                    case Colour.BorderColorDisable: return Color.FromArgb(217, 217, 217);
+
+                    case Colour.Split: return rgba(5, 5, 5, 0.06F);//15.3
+
+                    case Colour.HoverBg: return rgba(0, 0, 0, 0.06F);
+                    case Colour.HoverColor: return rgba(0, 0, 0, 0.88F);
+
+                    case Colour.SliderHandleColorDisabled: return "#BFBFBF".ToColor();
+                    case Colour.TextSpotlight: return Color.White;
+                    case Colour.BgSpotlight: return rgba(0, 0, 0, 0.85F);
+                }
             }
             return Color.Transparent;
         }
@@ -301,7 +354,40 @@ namespace AntdUI
             else colors.Add(key, value);
         }
 
+        internal static Color? tmp_primary;
         public static void SetPrimary(Color primary)
+        {
+            tmp_primary = primary;
+            SetPrimaryCore(primary);
+        }
+        internal static Color? tmp_success;
+        public static void SetSuccess(Color success)
+        {
+            tmp_success = success;
+            SetSuccessCore(success);
+        }
+        internal static Color? tmp_warning;
+        public static void SetWarning(Color warning)
+        {
+            tmp_warning = warning;
+            SetWarningCore(warning);
+        }
+        internal static Color? tmp_error;
+        public static void SetError(Color error)
+        {
+            tmp_error = error;
+            SetErrorCore(error);
+        }
+        internal static Color? tmp_info;
+        public static void SetInfo(Color info)
+        {
+            tmp_info = info;
+            SetInfoCore(info);
+        }
+
+        #region 设置主题
+
+        internal static void SetPrimaryCore(Color primary)
         {
             var colors = primary.GenerateColors();
             Colour.Primary.Set(colors[5]);
@@ -319,9 +405,11 @@ namespace AntdUI
                 Colour.PrimaryHover.Set(colors[6]);
                 Colour.PrimaryActive.Set(colors[4]);
             }
+            var mode = colors[5].ColorMode();
+            Colour.PrimaryColor.Set(mode ? Color.Black : Color.White);
             EventHub.Dispatch(EventType.THEME_PRIMARY);
         }
-        public static void SetSuccess(Color success)
+        internal static void SetSuccessCore(Color success)
         {
             var colors = success.GenerateColors();
             Colour.Success.Set(colors[5]);
@@ -331,8 +419,10 @@ namespace AntdUI
             Colour.SuccessActive.Set(colors[6]);
             if (Config.Mode == TMode.Light) Colour.SuccessActive.Set(colors[6]);
             else Colour.SuccessActive.Set(colors[4]);
+            var mode = colors[5].ColorMode();
+            Colour.SuccessColor.Set(mode ? Color.Black : Color.White);
         }
-        public static void SetWarning(Color warning)
+        internal static void SetWarningCore(Color warning)
         {
             var colors = warning.GenerateColors();
             Colour.Warning.Set(colors[5]);
@@ -342,8 +432,10 @@ namespace AntdUI
             Colour.WarningActive.Set(colors[6]);
             if (Config.Mode == TMode.Light) Colour.WarningActive.Set(colors[6]);
             else Colour.WarningActive.Set(colors[4]);
+            var mode = colors[5].ColorMode();
+            Colour.WarningColor.Set(mode ? Color.Black : Color.White);
         }
-        public static void SetError(Color error)
+        internal static void SetErrorCore(Color error)
         {
             var colors = error.GenerateColors();
             Colour.Error.Set(colors[5]);
@@ -359,8 +451,10 @@ namespace AntdUI
                 Colour.ErrorHover.Set(colors[6]);
                 Colour.ErrorActive.Set(colors[4]);
             }
+            var mode = colors[5].ColorMode();
+            Colour.ErrorColor.Set(mode ? Color.Black : Color.White);
         }
-        public static void SetInfo(Color info)
+        internal static void SetInfoCore(Color info)
         {
             var colors = info.GenerateColors();
             Colour.Info.Set(colors[5]);
@@ -370,7 +464,11 @@ namespace AntdUI
             Colour.InfoActive.Set(colors[6]);
             if (Config.Mode == TMode.Light) Colour.InfoActive.Set(colors[6]);
             else Colour.InfoActive.Set(colors[4]);
+            var mode = colors[5].ColorMode();
+            Colour.InfoColor.Set(mode ? Color.Black : Color.White);
         }
+
+        #endregion
 
         /// <summary>
         /// 加载自定义主题
@@ -409,7 +507,21 @@ namespace AntdUI
         /// 色彩模式（浅色、暗色）
         /// </summary>
         /// <returns>true Light;false Dark</returns>
-        public static bool ColorMode(this Color color) => ((color.R * 299 + color.G * 587 + color.B * 114) / 1000) > 128;
+        public static bool ColorMode(this Color color)
+        {
+            // 将RGB值转换为0-1的浮点数
+            double r = color.R / 255.0, g = color.G / 255.0, b = color.B / 255.0;
+
+            // WCAG标准的伽马校正（修正人眼对暗色调的感知）
+            r = r <= 0.03928 ? r / 12.92 : Math.Pow((r + 0.055) / 1.055, 2.4);
+            g = g <= 0.03928 ? g / 12.92 : Math.Pow((g + 0.055) / 1.055, 2.4);
+            b = b <= 0.03928 ? b / 12.92 : Math.Pow((b + 0.055) / 1.055, 2.4);
+
+            // 计算相对亮度（WCAG标准公式）
+            double relativeLuminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            // 阈值越低，越难判定为浅色（需背景更亮才会显示浅色前景）
+            return relativeLuminance > 0.5;
+        }
 
         #region 生成色卡
 
@@ -1014,7 +1126,17 @@ namespace AntdUI
         /// </summary>
         HoverColor,
 
-        SliderHandleColorDisabled
+        SliderHandleColorDisabled,
+
+        /// <summary>
+        /// Tooltip 的前景色
+        /// </summary>
+        TextSpotlight,
+
+        /// <summary>
+        /// Tooltip 的背景色
+        /// </summary>
+        BgSpotlight
     }
 
     public class HSL

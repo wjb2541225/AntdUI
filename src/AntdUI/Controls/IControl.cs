@@ -1,27 +1,15 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -36,7 +24,7 @@ namespace AntdUI
 
         }
         public IControl(ControlType ctype)
-        {
+        { 
             switch (ctype)
             {
                 case ControlType.Default:
@@ -44,7 +32,6 @@ namespace AntdUI
                        ControlStyles.AllPaintingInWmPaint |
                        ControlStyles.OptimizedDoubleBuffer |
                        ControlStyles.ResizeRedraw |
-                       ControlStyles.DoubleBuffer |
                        ControlStyles.SupportsTransparentBackColor |
                        ControlStyles.UserPaint, true);
                     SetStyle(ControlStyles.Selectable, false);
@@ -54,7 +41,6 @@ namespace AntdUI
                        ControlStyles.AllPaintingInWmPaint |
                        ControlStyles.OptimizedDoubleBuffer |
                        ControlStyles.ResizeRedraw |
-                       ControlStyles.DoubleBuffer |
                        ControlStyles.SupportsTransparentBackColor |
                        ControlStyles.UserPaint, true);
                     break;
@@ -63,7 +49,6 @@ namespace AntdUI
                        ControlStyles.AllPaintingInWmPaint |
                        ControlStyles.OptimizedDoubleBuffer |
                        ControlStyles.ResizeRedraw |
-                       ControlStyles.DoubleBuffer |
                        ControlStyles.SupportsTransparentBackColor |
                        ControlStyles.UserPaint, true);
                     SetStyle(ControlStyles.StandardClick | ControlStyles.StandardDoubleClick, false);
@@ -77,7 +62,7 @@ namespace AntdUI
         /// <summary>
         /// 确定该控件是可见的还是隐藏的
         /// </summary>
-        [Description("确定该控件是可见的还是隐藏的"), Category("行为"), DefaultValue(true)]
+        [Description("确定该控件是可见的还是隐藏的"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public new bool Visible
         {
             get => base.Visible;
@@ -91,7 +76,7 @@ namespace AntdUI
         /// <summary>
         /// 指示是否已启用该控件
         /// </summary>
-        [Description("指示是否已启用该控件"), Category("行为"), DefaultValue(true)]
+        [Description("指示是否已启用该控件"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public new bool Enabled
         {
             get => base.Enabled;
@@ -108,7 +93,7 @@ namespace AntdUI
         /// <summary>
         /// 色彩模式
         /// </summary>
-        [Description("色彩模式"), Category("外观"), DefaultValue(TAMode.Auto)]
+        [Description("色彩模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAMode.Auto)]
         public TAMode ColorScheme
         {
             get => colorScheme;
@@ -130,6 +115,9 @@ namespace AntdUI
         #region 徽标
 
         string? badge;
+        /// <summary>
+        /// 徽标内容
+        /// </summary>
         [Description("徽标内容"), Category("徽标"), DefaultValue(null), Localizable(true)]
         public string? Badge
         {
@@ -143,6 +131,9 @@ namespace AntdUI
         }
 
         string? badgeSvg;
+        /// <summary>
+        /// 徽标SVG
+        /// </summary>
         [Description("徽标SVG"), Category("徽标"), DefaultValue(null)]
         public string? BadgeSvg
         {
@@ -156,6 +147,9 @@ namespace AntdUI
         }
 
         TAlign badgeAlign = TAlign.TR;
+        /// <summary>
+        /// 徽标方向
+        /// </summary>
         [Description("徽标方向"), Category("徽标"), DefaultValue(TAlign.TR)]
         public TAlign BadgeAlign
         {
@@ -169,6 +163,9 @@ namespace AntdUI
         }
 
         float badgeSize = .6F;
+        /// <summary>
+        /// 徽标比例
+        /// </summary>
         [Description("徽标比例"), Category("徽标"), DefaultValue(.6F)]
         public float BadgeSize
         {
@@ -182,6 +179,9 @@ namespace AntdUI
         }
 
         bool badgeMode = false;
+        /// <summary>
+        /// 徽标模式（镂空）
+        /// </summary>
         [Description("徽标模式（镂空）"), Category("徽标"), DefaultValue(false)]
         public bool BadgeMode
         {
@@ -194,7 +194,26 @@ namespace AntdUI
             }
         }
 
+        Color? badgefore;
+        /// <summary>
+        /// 徽标前景颜色
+        /// </summary>
+        [Description("徽标前景颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeFore
+        {
+            get => badgefore;
+            set
+            {
+                if (badgefore == value) return;
+                badgefore = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
         Color? badgeback;
+        /// <summary>
+        /// 徽标背景颜色
+        /// </summary>
         [Description("徽标背景颜色"), Category("徽标"), DefaultValue(null)]
         public Color? BadgeBack
         {
@@ -203,6 +222,38 @@ namespace AntdUI
             {
                 if (badgeback == value) return;
                 badgeback = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
+        Color? badgeBorderColor;
+        /// <summary>
+        /// 徽标边框颜色
+        /// </summary>
+        [Description("徽标边框颜色"), Category("徽标"), DefaultValue(null)]
+        public Color? BadgeBorderColor
+        {
+            get => badgeBorderColor;
+            set
+            {
+                if (badgeBorderColor == value) return;
+                badgeBorderColor = value;
+                if (badge != null || badgeSvg != null) Invalidate();
+            }
+        }
+
+        float? badgeBorderWidth;
+        /// <summary>
+        /// 徽标边框宽度
+        /// </summary>
+        [Description("徽标边框宽度"), Category("徽标"), DefaultValue(null)]
+        public float? BadgeBorderWidth
+        {
+            get => badgeBorderWidth;
+            set
+            {
+                if (badgeBorderWidth == value) return;
+                badgeBorderWidth = value;
                 if (badge != null || badgeSvg != null) Invalidate();
             }
         }
@@ -240,6 +291,47 @@ namespace AntdUI
 
         #endregion
 
+        #region DPI
+
+        float? dpi;
+        public float Dpi
+        {
+            get
+            {
+                if (Config._dpi_custom.HasValue) return Config._dpi_custom.Value;
+                if (dpi.HasValue) return dpi.Value;
+                var form = this.FindPARENT();
+                if (form is BaseForm baseForm)
+                {
+                    var _dpi = baseForm.Dpi;
+                    dpi = _dpi;
+                    return _dpi;
+                }
+                else if (form is ILayeredForm layeredForm)
+                {
+                    var _dpi = layeredForm.Dpi;
+                    dpi = _dpi;
+                    return _dpi;
+                }
+                else
+                {
+                    var _dpi = Helper.GetScreenDpi(this);
+                    dpi = _dpi;
+                    return _dpi;
+                }
+            }
+        }
+
+#if !NET40 && !NET46
+        protected override void OnDpiChangedBeforeParent(EventArgs e)
+        {
+            base.OnDpiChangedBeforeParent(e);
+            dpi = null;
+        }
+#endif
+
+        #endregion
+
         #endregion
 
         #region Spin 加载
@@ -259,7 +351,24 @@ namespace AntdUI
         /// <param name="text">加载文本</param>
         /// <param name="action">需要等待的委托</param>
         /// <param name="end">运行结束后的回调</param>
-        public Task Spin(string text, Action<Spin.Config> action, Action? end = null) => Spin(new Spin.Config { Text = text }, action, end);
+        public Task Spin(string text, Action<Spin.Config> action, Action? end = null) => Spin(new Spin.Config(text), action, end);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        public Task Spin(Action<Spin.Config> action, CancellationTokenSource? token, Action? end = null) => Spin(new Spin.Config().SetCancel(token), action, end);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="text">加载文本</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        public Task Spin(string text, Action<Spin.Config> action, CancellationTokenSource? token, Action? end = null) => Spin(new Spin.Config(text).SetCancel(token), action, end);
 
         /// <summary>
         /// Spin 加载中
@@ -286,7 +395,24 @@ namespace AntdUI
         /// <param name="text">加载文本</param>
         /// <param name="action">需要等待的委托</param>
         /// <param name="end">运行结束后的回调</param>
-        public Task Spin(string text, Func<Spin.Config, Task> action, Action? end = null) => Spin(new Spin.Config { Text = text }, action, end);
+        public Task Spin(string text, Func<Spin.Config, Task> action, Action? end = null) => Spin(new Spin.Config(text), action, end);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        public Task Spin(Func<Spin.Config, Task> action, CancellationTokenSource? token, Action? end = null) => Spin(new Spin.Config().SetCancel(token), action, end);
+
+        /// <summary>
+        /// Spin 加载中
+        /// </summary>
+        /// <param name="text">加载文本</param>
+        /// <param name="action">需要等待的委托</param>
+        /// <param name="token">取消令牌</param>
+        /// <param name="end">运行结束后的回调</param>
+        public Task Spin(string text, Func<Spin.Config, Task> action, CancellationTokenSource? token, Action? end = null) => Spin(new Spin.Config(text).SetCancel(token), action, end);
 
         /// <summary>
         /// Spin 加载中
@@ -327,6 +453,15 @@ namespace AntdUI
                 return;
             }
             OnSizeChanged(EventArgs.Empty);
+        }
+        internal void IOnLayout(LayoutEventArgs levent)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(() => IOnLayout(levent));
+                return;
+            }
+            OnLayout(levent);
         }
 
         static bool disableDataBinding = false;
@@ -419,6 +554,24 @@ namespace AntdUI
 
         #endregion
 
+        internal bool CanProcessMnemonicBefore(char charCode, string? text)
+        {
+            if (Enabled && Visible && IsMnemonic(charCode, text)) return true;
+            return false;
+        }
+        internal bool CanProcessMnemonicAfter()
+        {
+            var form = FindForm();
+            if (form == null) return true;
+            return CanProcessMnemonicActiveControl(form.ActiveControl);
+        }
+        internal bool CanProcessMnemonicActiveControl(Control? control)
+        {
+            if (control is Input input) return input.hasAlt;
+            else if (control is UserControl userControl) return CanProcessMnemonicActiveControl(userControl.ActiveControl);
+            return true;
+        }
+
         #endregion
 
         #region 触屏
@@ -444,7 +597,7 @@ namespace AntdUI
         {
             if (mdown)
             {
-                int moveX = oldX - x, moveY = oldY - y, moveXa = Math.Abs(moveX), moveYa = Math.Abs(moveY), threshold = (int)(Config.TouchThreshold * Config.Dpi);
+                int moveX = oldX - x, moveY = oldY - y, moveXa = Math.Abs(moveX), moveYa = Math.Abs(moveY), threshold = (int)(Config.TouchThreshold * Dpi);
                 if (mdownd > 0 || (moveXa > threshold || moveYa > threshold))
                 {
                     oldMY = moveY;
@@ -479,8 +632,8 @@ namespace AntdUI
             {
                 if (mdownd == 1)
                 {
-                    int moveY = oldMY, moveYa = Math.Abs(moveY);
-                    if (moveYa > 10)
+                    int moveY = oldMY, moveYa = Math.Abs(moveY), threshold = (int)(Config.TouchThreshold * Dpi);
+                    if (moveYa > threshold)
                     {
                         // 缓冲动画
                         int duration = (int)Math.Ceiling(moveYa * .1F), incremental = moveYa / 2, sleep = 20;
@@ -545,10 +698,10 @@ namespace AntdUI
                 switch (m.Msg)
                 {
                     case WM_POINTERDOWN:
-                        Vanara.PInvoke.User32.PostMessage(m.HWnd, WM_LBUTTONDOWN, m.WParam, m.LParam);
+                        Win32.User32.PostMessage(m.HWnd, WM_LBUTTONDOWN, m.WParam, m.LParam);
                         break;
                     case WM_POINTERUP:
-                        Vanara.PInvoke.User32.PostMessage(m.HWnd, WM_LBUTTONUP, m.WParam, m.LParam);
+                        Win32.User32.PostMessage(m.HWnd, WM_LBUTTONUP, m.WParam, m.LParam);
                         break;
                     default:
                         base.WndProc(ref m);
@@ -580,7 +733,6 @@ namespace AntdUI
                 timeHover = hoverStopwatch.Elapsed + TimeSpan.FromMilliseconds(Config.MouseHoverDelay);
                 if (taskHover == null)
                 {
-                    OnMouseHover(-1, -1);
                     taskHover = new AnimationTask(new AnimationLoopConfig(this, () =>
                     {
                         if (hoverStopwatch.Elapsed < timeHover) return true;
@@ -612,7 +764,7 @@ namespace AntdUI
         /// <summary>
         /// 拖拽文件夹处理
         /// </summary>
-        [Description("拖拽文件夹处理"), Category("行为"), DefaultValue(true)]
+        [Description("拖拽文件夹处理"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool HandDragFolder { get; set; } = true;
 
         protected virtual void OnDragEnter()
@@ -620,19 +772,15 @@ namespace AntdUI
         protected virtual void OnDragLeave()
         { }
 
-        FileDropHandler? fileDrop;
+        internal FileDropHandler? fileDrop;
         /// <summary>
         /// 使用管理员权限拖拽上传
         /// </summary>
-        public void UseAdmin()
-        {
-            fileDrop ??= new FileDropHandler(this);
-        }
+        public void UseAdmin() => fileDrop ??= new FileDropHandler(this);
 
         protected override void OnDragEnter(DragEventArgs e)
         {
             base.OnDragEnter(e);
-            if (DragChanged == null) return;
             if (AllowDrop)
             {
                 OnDragEnter();
@@ -651,14 +799,13 @@ namespace AntdUI
         protected override void OnDragDrop(DragEventArgs e)
         {
             base.OnDragDrop(e);
-            if (DragChanged == null) return;
             if (DragData(e.Data, out var files))
             {
-                if (ONDRAG == null) DragChanged(this, new StringsEventArgs(files));
+                if (ONDRAG == null) OnDragChanged(files);
                 else
                 {
                     var r = ONDRAG(files);
-                    if (r != null) DragChanged(this, new StringsEventArgs(r));
+                    if (r != null) OnDragChanged(r);
                 }
             }
             OnDragLeave();
@@ -729,7 +876,7 @@ namespace AntdUI
         /// <summary>
         /// 文件拖拽后时发生
         /// </summary>
-        [Description("文件拖拽后时发生"), Category("行为")]
+        [Description("文件拖拽后时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event DragEventHandler? DragChanged;
 
         protected virtual void OnDragChanged(string[] files) => DragChanged?.Invoke(this, new StringsEventArgs(files));
@@ -750,13 +897,13 @@ namespace AntdUI
         /// <summary>
         /// 渲染 时发生
         /// </summary>
-        [Description("渲染 时发生"), Category("行为")]
+        [Description("渲染 时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event DrawEventHandler? Draw;
 
         /// <summary>
         /// 渲染背景 时发生
         /// </summary>
-        [Description("渲染背景 时发生"), Category("行为")]
+        [Description("渲染背景 时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event DrawEventHandler? DrawBg;
 
         protected virtual void OnDrawBg(DrawEventArgs e) => DrawBg?.Invoke(this, e);
@@ -768,7 +915,7 @@ namespace AntdUI
             var rect = ClientRectangle;
             if (rect.Width == 0 || rect.Height == 0) return;
             base.OnPaint(e);
-            var g = e.Graphics.High();
+            var g = e.Graphics.High(Dpi);
             try
             {
                 var args = new DrawEventArgs(g, rect);
@@ -784,7 +931,7 @@ namespace AntdUI
             var rect = ClientRectangle;
             if (rect.Width == 0 || rect.Height == 0) return null;
             var bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(bmp).High())
+            using (var g = Graphics.FromImage(bmp).High(Dpi))
             {
                 try
                 {
@@ -847,9 +994,24 @@ namespace AntdUI
         bool BadgeMode { get; set; }
 
         /// <summary>
+        /// 徽标前景颜色
+        /// </summary>
+        Color? BadgeFore { get; set; }
+
+        /// <summary>
         /// 徽标背景颜色
         /// </summary>
         Color? BadgeBack { get; set; }
+
+        /// <summary>
+        /// 徽标边框颜色
+        /// </summary>
+        Color? BadgeBorderColor { get; set; }
+
+        /// <summary>
+        /// 徽标边框宽度
+        /// </summary>
+        float? BadgeBorderWidth { get; set; }
 
         /// <summary>
         /// 徽标偏移X

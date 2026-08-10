@@ -1,0 +1,26 @@
+git remote -v
+
+//upstream是自己创建的需要合并的分支
+//如果还未创建则先执行 git remote add upstream https://github.com/OriginalRepo/OriginalProject.git
+git fetch upstream
+
+//先检出自己的主分支，如果已检出，则跳过
+git checkout master
+
+//合并
+git merge upstream/master
+
+//或者
+git merge upstream/master --allow-unrelated-histories
+
+
+//git 查看配置
+git config --global -l
+
+//git设置代理
+git config --global http.proxy 127.0.0.1:10809
+git config --global https.proxy 127.0.0.1:10809
+
+//git 取消代理
+git config --global --unset http.proxy
+git config --global --unset https.proxy

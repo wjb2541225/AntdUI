@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -51,7 +38,7 @@ namespace AntdUI.Captcha
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -70,7 +57,7 @@ namespace AntdUI.Captcha
         /// <summary>
         /// 背景图片
         /// </summary>
-        [Description("背景图片"), Category("外观"), DefaultValue(null)]
+        [Description("背景图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Image
         {
             get => image;
@@ -88,7 +75,7 @@ namespace AntdUI.Captcha
         /// <summary>
         /// 拼图块大小
         /// </summary>
-        [Description("拼图块大小"), Category("外观"), DefaultValue(50)]
+        [Description("拼图块大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(50)]
         public int PuzzleSize
         {
             get => puzzleSize;
@@ -107,7 +94,7 @@ namespace AntdUI.Captcha
         /// <summary>
         /// 验证状态
         /// </summary>
-        [Description("验证状态"), Category("行为"), DefaultValue(PuzzleCaptchaState.Default)]
+        [Description("验证状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(PuzzleCaptchaState.Default)]
         public PuzzleCaptchaState State
         {
             get => state;
@@ -116,8 +103,8 @@ namespace AntdUI.Captcha
                 if (state == value) return;
                 state = value;
                 Invalidate();
-                OnPropertyChanged(nameof(State));
                 OnStateChanged(EventArgs.Empty);
+                OnPropertyChanged(nameof(State));
             }
         }
 
@@ -140,13 +127,13 @@ namespace AntdUI.Captcha
         /// <summary>
         /// 状态改变事件
         /// </summary>
-        [Description("状态改变事件"), Category("行为")]
+        [Description("状态改变事件"), Category(nameof(CategoryAttribute.Behavior))]
         public event EventHandler? StateChanged;
 
         /// <summary>
         /// 验证完成事件
         /// </summary>
-        [Description("验证完成事件"), Category("行为")]
+        [Description("验证完成事件"), Category(nameof(CategoryAttribute.Behavior))]
         public event EventHandler<PuzzleCaptchaEventArgs>? VerificationCompleted;
 
         protected virtual void OnStateChanged(EventArgs e)
@@ -173,7 +160,7 @@ namespace AntdUI.Captcha
         private void GeneratePuzzle(Rectangle crect, int puzzleSize)
         {
             Random rand = new Random();
-            int maxX = crect.Width - puzzleSize, maxY = crect.Height - puzzleSize, gap = (int)(10 * Config.Dpi);
+            int maxX = crect.Width - puzzleSize, maxY = crect.Height - puzzleSize, gap = (int)(10 * Dpi);
 
             puzzlePosition = new Point(
                crect.X + rand.Next(puzzleSize * 2, maxX),
@@ -215,7 +202,7 @@ namespace AntdUI.Captcha
                 int newPosition = sliderPosition + deltaX;
 
                 // 计算滑块最大位置（考虑滑块自身宽度）
-                int maxSliderPosition = sliderRect.Width - (int)(SliderThumbWidth * Config.Dpi);
+                int maxSliderPosition = sliderRect.Width - (int)(SliderThumbWidth * Dpi);
                 // 限制滑块位置在有效范围内
                 newPosition = newPosition < 0 ? 0 : (newPosition > maxSliderPosition ? maxSliderPosition : newPosition);
                 sliderPosition = newPosition;
@@ -284,7 +271,7 @@ namespace AntdUI.Captcha
             // 检查拼图块是否接近正确位置
             int deltaX = Math.Abs(currentPuzzlePosition.X - puzzlePosition.X);
 
-            if (deltaX <= (int)(TolerancePixels * Config.Dpi))
+            if (deltaX <= (int)(TolerancePixels * Dpi))
             {
                 // 验证成功
                 currentPuzzlePosition = puzzlePosition;
@@ -335,7 +322,7 @@ namespace AntdUI.Captcha
 
             var rh = g.MeasureString(Config.NullText, Font).Height;
 
-            int sliderHeight = rh * 2, gap = (int)(rh * 0.32F), gap2 = gap * 2, psize = (int)(puzzleSize * Config.Dpi);
+            int sliderHeight = rh * 2, gap = (int)(rh * 0.32F), gap2 = gap * 2, psize = (int)(puzzleSize * Dpi);
 
             var rect_img = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height - sliderHeight - gap2);
 
@@ -376,7 +363,7 @@ namespace AntdUI.Captcha
         Bitmap DrawDefaultImage(Rectangle rect)
         {
             var bmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(bmp).HighLay())
+            using (var g = Graphics.FromImage(bmp).HighLay(Dpi))
             {
                 // 绘制一个简单的风景图作为示例
                 using (var brush = new LinearGradientBrush(rect, Style.Db.PrimaryBg, Style.Db.PrimaryColor, 90f))
@@ -398,7 +385,7 @@ namespace AntdUI.Captcha
                     g.FillClosedCurve(mountainBrush, mountains);
                 }
 
-                int size = (int)(40 * Config.Dpi), gap = (int)(12 * Config.Dpi);
+                int size = (int)(40 * Dpi), gap = (int)(12 * Dpi);
                 // 绘制太阳
                 var sunRect = new Rectangle(rect.Right - size - gap, rect.Y + gap, size, size);
                 using (var sunBrush = new SolidBrush(Style.Db.Warning))
@@ -416,7 +403,7 @@ namespace AntdUI.Captcha
         private void DrawPuzzlePiece(Canvas g, Rectangle rect_img, Image image, int size)
         {
             if (state == PuzzleCaptchaState.Success) return;
-            float bor = 2 * Config.Dpi;
+            float bor = 2 * Dpi;
             Rectangle holeRect = new Rectangle(puzzlePosition.X, puzzlePosition.Y, size, size), puzzleRect = new Rectangle(currentPuzzlePosition.X, currentPuzzlePosition.Y, size, size);
 
             using (var holePath = CreatePuzzlePath(holeRect))
@@ -522,7 +509,7 @@ namespace AntdUI.Captcha
                 g.String(sliderText, Font, brush, sliderRect);
             }
 
-            int sliderThumbWidth = (int)(SliderThumbWidth * Config.Dpi), ico_size = (int)(sliderRect.Height * 0.4F);
+            int sliderThumbWidth = (int)(SliderThumbWidth * Dpi), ico_size = (int)(sliderRect.Height * 0.4F);
 
             // 绘制进度
             if (sliderPosition > 0)
@@ -547,7 +534,7 @@ namespace AntdUI.Captcha
             };
 
             using (var brush = new SolidBrush(thumbColor))
-            using (var pen = new Pen(Style.Db.PrimaryBorder, Config.Dpi))
+            using (var pen = new Pen(Style.Db.PrimaryBorder, Dpi))
             {
                 g.Fill(brush, thumbRect);
                 g.Draw(pen, thumbRect);
@@ -557,13 +544,13 @@ namespace AntdUI.Captcha
             switch (state)
             {
                 case PuzzleCaptchaState.Success:
-                    g.GetImgExtend("CheckOutlined", icoRect, Style.Db.SuccessColor);
+                    g.Svg("CheckOutlined", icoRect, Style.Db.SuccessColor);
                     break;
                 case PuzzleCaptchaState.Failed:
-                    g.GetImgExtend("CloseOutlined", icoRect, Style.Db.ErrorColor);
+                    g.Svg("CloseOutlined", icoRect, Style.Db.ErrorColor);
                     break;
                 default:
-                    g.GetImgExtend("ArrowRightOutlined", icoRect, Style.Db.Text);
+                    g.Svg("ArrowRightOutlined", icoRect, Style.Db.Text);
                     break;
             }
         }
@@ -572,7 +559,7 @@ namespace AntdUI.Captcha
 
         #region 辅助方法
 
-        private Rectangle GetSliderThumbRect() => new Rectangle(sliderRect.X + sliderPosition, sliderRect.Y, (int)(SliderThumbWidth * Config.Dpi), sliderRect.Height);
+        private Rectangle GetSliderThumbRect() => new Rectangle(sliderRect.X + sliderPosition, sliderRect.Y, (int)(SliderThumbWidth * Dpi), sliderRect.Height);
 
         #endregion
     }

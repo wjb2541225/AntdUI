@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -305,7 +292,8 @@ namespace AntdUI
             }
             else
             {
-                config.Target.SetTopMost(Handle);
+                SetTopMost(config.Target, Handle);
+                SetDpi(config.Target);
                 if (config.Target is Form form)
                 {
                     SetSize(form.Size);
@@ -331,17 +319,17 @@ namespace AntdUI
         {
             var rect = TargetRectXY;
             Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            if (config.Enabled)
+            if (visible && config.Enabled)
             {
-                using (var g = Graphics.FromImage(rbmp).HighLay())
+                using (var g = Graphics.FromImage(rbmp).HighLay(Dpi))
                 using (var brush = new SolidBrush(config.ForeColor ?? Colour.FillSecondary.Get(nameof(Watermark))))
                 {
                     // 计算水印间距
-                    int gapX = (int)(config.Gap[0] * Config.Dpi), gapY = (int)(config.Gap[1] * Config.Dpi);
-                    int width = (int)(config.Width * Config.Dpi), height = (int)(config.Height * Config.Dpi), patternWidth = width + gapX, patternHeight = height + gapY;
+                    int gapX = (int)(config.Gap[0] * Dpi), gapY = (int)(config.Gap[1] * Dpi);
+                    int width = (int)(config.Width * Dpi), height = (int)(config.Height * Dpi), patternWidth = width + gapX, patternHeight = height + gapY;
 
                     // 计算起始偏移
-                    int startX = (int)(config.Offset[0] * Config.Dpi) % patternWidth, startY = (int)(config.Offset[1] * Config.Dpi) % patternHeight;
+                    int startX = (int)(config.Offset[0] * Dpi) % patternWidth, startY = (int)(config.Offset[1] * Dpi) % patternHeight;
 
                     #region 移除非客户区域
 
@@ -439,8 +427,8 @@ namespace AntdUI
             }
             else
             {
-                int contentHeight = h, subContentHeight = 0, spacing = (int)(4 * Config.Dpi); // 主内容和副内容之间的间距
-                                                                                              // 如果有副内容，计算实际需要的空间
+                int contentHeight = h, subContentHeight = 0, spacing = (int)(4 * Dpi); // 主内容和副内容之间的间距
+                                                                                       // 如果有副内容，计算实际需要的空间
                 using (var subFont = new Font(Font.FontFamily, Font.Size * config.SubFontSize, Font.Style))
                 {
                     Size mainSize = g.MeasureText(config.Content, font, w, config.TextAlign), subSize = g.MeasureText(config.SubContent, subFont, w, config.TextAlign);
@@ -479,46 +467,92 @@ namespace AntdUI
 
         #region 坐标
 
+        Control[]? controls;
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            if (config.IsScreen) Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+            if (config.IsScreen)
+            {
+                visible = true;
+                Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+            }
             else
             {
-                config.Target.VisibleChanged += Target_VisibleChanged;
-                var parent = config.Target.FindPARENT();
-                if (parent == null) return;
-                tmp = parent;
-                parent.LocationChanged += Parent_LSChanged;
-                parent.SizeChanged += Parent_LSChanged;
+                config.Target.VisibleChanged += Parent_VisibleChanged;
+                config.Target.LocationChanged += Parent_LSChanged;
+                config.Target.SizeChanged += Parent_LSChanged;
+                var list = config.Target.FindPARENTs();
+                if (config.Target is TabPage page) page.ShowedChanged += Parent_VisibleChanged;
+                if (list.Count > 0)
+                {
+                    foreach (var it in list)
+                    {
+                        if (it is TabPage page2) page2.ShowedChanged += Parent_VisibleChanged;
+                        else it.VisibleChanged += Parent_VisibleChanged;
+                        it.LocationChanged += Parent_LSChanged;
+                        it.SizeChanged += Parent_LSChanged;
+                    }
+                    controls = list.ToArray();
+                }
+                LoadVisible();
             }
         }
 
+        bool visible = false;
+        void LoadVisible()
+        {
+            var tmp = GetVisible();
+            if (visible == tmp) return;
+            visible = tmp;
+            Print();
+        }
+        bool GetVisible()
+        {
+            if (!GetVisible(config.Target)) return false;
+            if (controls == null) return true;
+            foreach (var it in controls)
+            {
+                if (!GetVisible(it)) return false;
+            }
+            return true;
+        }
+        bool GetVisible(Control control)
+        {
+            if (control is TabPage page) return page.Showed;
+            return control.Visible;
+        }
+
+        private void Parent_VisibleChanged(object? sender, EventArgs e) => LoadVisible();
+
         private void Parent_LSChanged(object? sender, EventArgs e)
         {
-            var rect = TargetRect;
-            bool isPoint = true, isSize = true;
-            if (config.Target is Form form)
+            LoadVisible();
+            if (visible)
             {
-                var point = form.Location;
-                var size = form.Size;
-                SetLocation(point);
-                SetSize(size);
-                isPoint = rect.X == point.X && rect.Y == point.Y;
-                isSize = rect.Width == size.Width && rect.Height == size.Height;
+                var rect = TargetRect;
+                bool isPoint = true, isSize = true;
+                if (config.Target is Form form)
+                {
+                    var point = form.Location;
+                    var size = form.Size;
+                    SetLocation(point);
+                    SetSize(size);
+                    isPoint = rect.X == point.X && rect.Y == point.Y;
+                    isSize = rect.Width == size.Width && rect.Height == size.Height;
+                }
+                else
+                {
+                    var point = config.Target.PointToScreen(Point.Empty);
+                    var size = config.Target.Size;
+                    SetLocation(point);
+                    SetSize(size);
+                    isPoint = rect.X == point.X && rect.Y == point.Y;
+                    isSize = rect.Width == size.Width && rect.Height == size.Height;
+                }
+                if (isPoint && isSize) return;
+                else if (isSize) PrintCache();
+                else Print();
             }
-            else
-            {
-                var point = config.Target.PointToScreen(Point.Empty);
-                var size = config.Target.Size;
-                SetLocation(point);
-                SetSize(size);
-                isPoint = rect.X == point.X && rect.Y == point.Y;
-                isSize = rect.Width == size.Width && rect.Height == size.Height;
-            }
-            if (isPoint && isSize) return;
-            else if (isSize) PrintCache();
-            else Print();
         }
 
         private void Target_VisibleChanged(object? sender, EventArgs e)
@@ -537,18 +571,27 @@ namespace AntdUI
 
         #endregion
 
-        Form? tmp;
         protected override void Dispose(bool disposing)
         {
             // 移除事件监听
             if (config.IsScreen) Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
             else
             {
+                config.Target.VisibleChanged -= Parent_VisibleChanged;
+                config.Target.LocationChanged -= Parent_LSChanged;
+                config.Target.SizeChanged -= Parent_LSChanged;
+                if (config.Target is TabPage page) page.ShowedChanged -= Parent_VisibleChanged;
+                if (controls != null)
+                {
+                    foreach (var it in controls)
+                    {
+                        if (it is TabPage page2) page2.ShowedChanged -= Parent_VisibleChanged;
+                        else it.VisibleChanged -= Parent_VisibleChanged;
+                        it.LocationChanged -= Parent_LSChanged;
+                        it.SizeChanged -= Parent_LSChanged;
+                    }
+                }
                 config.Target.VisibleChanged -= Target_VisibleChanged;
-                // 移除父容器的事件监听
-                if (tmp == null) return;
-                tmp.LocationChanged -= Parent_LSChanged;
-                tmp.SizeChanged -= Parent_LSChanged;
             }
             base.Dispose(disposing);
         }

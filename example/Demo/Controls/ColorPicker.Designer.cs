@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -60,7 +41,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "ColorPicker.Description";
-            header1.LocalizationText = "ColorPicker.Text";
+            header1.LocalizationText = "ColorPicker";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -88,7 +69,6 @@ namespace Demo.Controls
             colorPicker3.Name = "colorPicker3";
             colorPicker3.Size = new Size(46, 46);
             colorPicker3.TabIndex = 26;
-            colorPicker3.Value = Color.FromArgb(22, 119, 255);
             // 
             // colorPicker1
             // 
@@ -98,7 +78,6 @@ namespace Demo.Controls
             colorPicker1.ShowText = true;
             colorPicker1.Size = new Size(125, 46);
             colorPicker1.TabIndex = 26;
-            colorPicker1.Value = Color.FromArgb(22, 119, 255);
             // 
             // colorPicker2
             // 
@@ -113,7 +92,6 @@ namespace Demo.Controls
             colorPicker2.Size = new Size(46, 46);
             colorPicker2.TabIndex = 26;
             colorPicker2.Text = "C";
-            colorPicker2.Value = Color.FromArgb(22, 119, 255);
             // 
             // ColorPicker
             // 

@@ -22,7 +22,9 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
+using System.Reflection.Emit;
 using System.Runtime.ConstrainedExecution;
+using System.Windows.Forms;
 
 namespace AntdUI
 {
@@ -41,7 +43,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -59,7 +61,7 @@ namespace AntdUI
         /// <summary>
         /// 文字渐变色
         /// </summary>
-        [Description("文字渐变色"), Category("外观"), DefaultValue(null)]
+        [Description("文字渐变色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? ColorExtend
         {
             get => colorExtend;
@@ -79,7 +81,7 @@ namespace AntdUI
         /// 文本
         /// </summary>
         [Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(UITypeEditor))]
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -104,7 +106,7 @@ namespace AntdUI
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("外观"), DefaultValue(ContentAlignment.MiddleLeft)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -122,7 +124,7 @@ namespace AntdUI
         /// <summary>
         /// 文本超出自动处理
         /// </summary>
-        [Description("文本超出自动处理"), Category("行为"), DefaultValue(false)]
+        [Description("文本超出自动处理"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool AutoEllipsis
         {
             get => autoEllipsis;
@@ -141,7 +143,7 @@ namespace AntdUI
         /// <summary>
         /// 是否多行
         /// </summary>
-        [Description("是否多行"), Category("行为"), DefaultValue(true)]
+        [Description("是否多行"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool TextMultiLine
         {
             get => textMultiLine;
@@ -160,7 +162,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(.7F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.7F)]
         public float IconRatio
         {
             get => iconratio;
@@ -178,7 +180,7 @@ namespace AntdUI
         /// <summary>
         /// 图标与文本间隔
         /// </summary>
-        [Description("图标与文本间隔"), Category("外观"), DefaultValue(0)]
+        [Description("图标与文本间隔"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int IconGap
         {
             get => iconGap;
@@ -195,7 +197,7 @@ namespace AntdUI
 
         private Image? _prefixImage;
 
-        [Description("前缀图片"), Category("外观"), DefaultValue(null)]
+        [Description("前缀图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? PrefixImage
         {
             get
@@ -215,7 +217,7 @@ namespace AntdUI
         }
 
         private Size? _prefixImageSize;
-        [Description("前缀图片大小"), Category("外观"), DefaultValue(null)]
+        [Description("前缀图片大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Size? PrefixImageSize
         {
             get
@@ -236,7 +238,7 @@ namespace AntdUI
 
         private Image? _suffixImage;
 
-        [Description("后缀图片"), Category("外观"), DefaultValue(null)]
+        [Description("后缀图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? SuffixImage
         {
             get
@@ -256,7 +258,7 @@ namespace AntdUI
         }
 
         private Size? _suffixImageSize;
-        [Description("后缀图片大小"), Category("外观"), DefaultValue(null)]
+        [Description("后缀图片大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Size? SuffixImageSize
         {
             get
@@ -279,7 +281,7 @@ namespace AntdUI
         /// <summary>
         /// 前缀
         /// </summary>
-        [Description("前缀"), Category("外观"), DefaultValue(null)]
+        [Description("前缀"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? Prefix
         {
@@ -301,7 +303,7 @@ namespace AntdUI
         /// <summary>
         /// 前缀SVG
         /// </summary>
-        [Description("前缀SVG"), Category("外观"), DefaultValue(null)]
+        [Description("前缀SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? PrefixSvg
         {
             get => prefixSvg;
@@ -318,7 +320,7 @@ namespace AntdUI
         /// <summary>
         /// 前缀颜色
         /// </summary>
-        [Description("前缀颜色"), Category("外观"), DefaultValue(null)]
+        [Description("前缀颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? PrefixColor { get; set; }
 
@@ -331,7 +333,7 @@ namespace AntdUI
         /// <summary>
         /// 后缀
         /// </summary>
-        [Description("后缀"), Category("外观"), DefaultValue(null)]
+        [Description("后缀"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? Suffix
         {
@@ -353,7 +355,7 @@ namespace AntdUI
         /// <summary>
         /// 后缀SVG
         /// </summary>
-        [Description("后缀SVG"), Category("外观"), DefaultValue(null)]
+        [Description("后缀SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? SuffixSvg
         {
             get => suffixSvg;
@@ -370,14 +372,14 @@ namespace AntdUI
         /// <summary>
         /// 后缀颜色
         /// </summary>
-        [Description("后缀颜色"), Category("外观"), DefaultValue(null)]
+        [Description("后缀颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? SuffixColor { get; set; }
 
         /// <summary>
         /// 缀标完全展示
         /// </summary>
-        [Description("缀标完全展示"), Category("外观"), DefaultValue(true)]
+        [Description("缀标完全展示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Highlight { get; set; } = true;
 
         /// <summary>
@@ -388,21 +390,21 @@ namespace AntdUI
         /// <summary>
         /// 超出文字显示 Tooltip
         /// </summary>
-        [Description("超出文字显示 Tooltip"), Category("外观"), DefaultValue(true)]
+        [Description("超出文字显示 Tooltip"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowTooltip { get; set; } = true;
 
         /// <summary>
         /// 超出文字提示配置
         /// </summary>
         [Browsable(false)]
-        [Description("超出文字提示配置"), Category("行为"), DefaultValue(null)]
+        [Description("超出文字提示配置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         public TooltipConfig? TooltipConfig { get; set; }
 
         TRotate rotate = TRotate.None;
         /// <summary>
         /// 旋转
         /// </summary>
-        [Description("旋转"), Category("外观"), DefaultValue(TRotate.None)]
+        [Description("旋转"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TRotate.None)]
         public TRotate Rotate
         {
             get => rotate;
@@ -524,7 +526,7 @@ namespace AntdUI
                 }
             }
 
-            Color _fore = Colour.DefaultColor.Get(nameof(Label), ColorScheme);
+            Color _fore = Colour.DefaultColor.Get(ColorScheme, nameof(Label), Name);
             if (fore.HasValue) _fore = fore.Value;
             if (shadow > 0)
             {
@@ -551,6 +553,12 @@ namespace AntdUI
             {
                 Rectangle rec;
                 var font_size = g.MeasureText(text, Font);
+                if (autoEllipsis)
+                {
+                    //*0.9的原因是测量出来比实际绘制的要大，可能被误判为需要截断
+                    var tmp = g.MeasureText(text, Font, (int)(ClientSize.Width / 0.95), new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
+                    font_size = new Size((int)(tmp.Width * 0.95), (int)(tmp.Height * 0.9));
+                }
                 bool has_prefixText = Prefix != null, has_suffixText = Suffix != null, has_prefix = prefixSvg != null, has_suffix = suffixSvg != null;
                 if (has_prefixText || has_suffixText || has_prefix || has_suffix || _prefixImage != null || _suffixImage != null)
                 {
@@ -581,13 +589,10 @@ namespace AntdUI
                         {
                             bool wrap = sf.HasFlag(FormatFlags.NoWrap);
                             if (wrap) ellipsis = rec.Height < font_size.Width;
-                            else if (rec.Height < font_size.Width)
+                            else
                             {
-                                var line = (int)Math.Ceiling(font_size.Width * 1F / rec.Height);
-                                int height = font_size.Height * line;
-                                ellipsis = rec.Width < height;
+                                ellipsis = rec.Height < font_size.Width || rec.Width < font_size.Height;
                             }
-                            else ellipsis = false;
                         }
                         else ellipsis = false;
                         int off = (rec.Width - rec.Height) / 2, tmp = rec.Width, tmpx = rec.X;
@@ -600,14 +605,15 @@ namespace AntdUI
                         if (autoEllipsis)
                         {
                             bool wrap = sf.HasFlag(FormatFlags.NoWrap);
-                            if (wrap) ellipsis = rec.Width < font_size.Width;
-                            else if (rec.Width < font_size.Width)
+                            if (wrap)
                             {
-                                var line = (int)Math.Ceiling(font_size.Width * 1F / rec.Width);
-                                int height = font_size.Height * line;
-                                ellipsis = rec.Height < height;
+                                ellipsis = rec.Width < font_size.Width;
                             }
-                            else ellipsis = false;
+                            else
+                            {
+                                ellipsis = rec.Width < font_size.Width || rec.Height < font_size.Height;
+
+                            }
                         }
                         else ellipsis = false;
                         break;
@@ -1275,7 +1281,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -1296,7 +1302,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("外观"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -1312,7 +1318,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小填充边距（仅 MiddleCenter）
         /// </summary>
-        [Description("自动大小填充边距（仅 MiddleCenter）"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小填充边距（仅 MiddleCenter）"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool AutoSizePadding { get; set; }
 
         public void ShowToolTip()

@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -358,6 +345,24 @@ namespace AntdUI
             /// </summary>
             public bool EnableSound { get; set; }
 
+            /// <summary>
+            /// 最大宽度
+            /// </summary>
+            public int? MaxWidth { get; set; }
+
+            #region 样式
+
+            /// <summary>
+            /// 自定义背景色
+            /// </summary>
+            public Color? Back { get; set; }
+            /// <summary>
+            /// 自定义前景色
+            /// </summary>
+            public Color? Fore { get; set; }
+
+            #endregion
+
             public void OK(string text)
             {
                 Icon = TType.Success;
@@ -398,6 +403,17 @@ namespace AntdUI
             {
                 text = value;
                 LocalizationText = localization;
+                return this;
+            }
+
+            public Config SetBack(Color? value)
+            {
+                Back = value;
+                return this;
+            }
+            public Config SetFore(Color? value)
+            {
+                Fore = value;
                 return this;
             }
 
@@ -507,6 +523,12 @@ namespace AntdUI
                 return this;
             }
 
+            public Config SetMaxWidth(int? value)
+            {
+                MaxWidth = value;
+                return this;
+            }
+
             #endregion
         }
     }
@@ -584,18 +606,18 @@ namespace AntdUI
     internal class MessageFrm : ILayeredFormAnimate
     {
         internal Message.Config config;
-        int shadow_size = 10;
+        int shadow_size = 0;
         public MessageFrm(Message.Config _config, string? id)
         {
             config = _config;
             Tag = id;
-            if (config.TopMost) Helper.SetTopMost(Handle);
-            else config.Target.SetTopMost(Handle);
-            shadow_size = (int)(shadow_size * Config.Dpi);
+            SetTopMost(config.Target, Handle, config.TopMost);
+            SetDpi(config.Target);
+            if (Config.ShadowEnabled) shadow_size = (int)(Config.ShadowSize * Dpi);
             loading = _config.Call != null;
             config.Target.SetFontConfig(config.Font, this);
             config.Target.SetIcon(this);
-            Helper.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
+            this.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
         }
 
         public override string name => nameof(Message);
@@ -667,6 +689,7 @@ namespace AntdUI
 
         public override void RunLoading()
         {
+            base.RunLoading();
             if (loading)
             {
                 if (loadingend) return;
@@ -690,7 +713,7 @@ namespace AntdUI
             if (IsHandleCreated)
             {
                 DisposeAnimation();
-                Helper.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
+                this.GDI(g => SetSize(RenderMeasure(g, shadow_size)));
                 SetPositionCenter(oldw);
                 return false;
             }
@@ -705,25 +728,33 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly FormatFlags s_f_left = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
+        readonly FormatFlags s_f_left = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.EllipsisCharacter;
         public override Bitmap? PrintBit()
         {
             var rect = TargetRectXY;
             var rect_read = rect.PaddingRect(Padding, shadow_size);
             Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(rbmp).High())
+            using (var g = Graphics.FromImage(rbmp).High(Dpi))
             {
-                using (var path = DrawShadow(g, rect, rect_read))
+                using (var path = DrawShadow(g, rect, rect_read, out int radius))
                 {
-                    g.Fill(Colour.BgElevated.Get(nameof(Message)), path);
+                    g.Fill(config.Back ?? Colour.BgElevated.Get(name), path);
+                    if (radius > -1)
+                    {
+                        int bor = (int)(Dpi), bor2 = bor * 2;
+                        using (var path2 = new Rectangle(rect_read.X + bor, rect_read.Y + bor, rect_read.Width - bor2, rect_read.Height - bor2).RoundPath(radius))
+                        {
+                            g.Draw(Colour.BorderColor.Get(name), bor, path2);
+                        }
+                    }
                 }
                 if (loading)
                 {
-                    var bor3 = 3F * Config.Dpi;
-                    g.DrawEllipse(Colour.Fill.Get(nameof(Message)), bor3, rect_loading);
+                    var bor3 = 3F * Dpi;
+                    g.DrawEllipse(Colour.Fill.Get(name), bor3, rect_loading);
                     if (AnimationLoadingValue > -1)
                     {
-                        using (var pen = new Pen(Colour.Primary.Get(nameof(Message)), bor3))
+                        using (var pen = new Pen(Colour.Primary.Get(name), bor3))
                         {
                             pen.StartCap = pen.EndCap = LineCap.Round;
                             g.DrawArc(pen, rect_loading, AnimationLoadingValue, 100);
@@ -732,7 +763,7 @@ namespace AntdUI
                 }
                 else if (config.IconCustom != null) g.PaintIcons(config.IconCustom, rect_icon);
                 else if (config.Icon != TType.None) g.PaintIcons(config.Icon, rect_icon, "Message", TAMode.Auto);
-                using (var brush = new SolidBrush(Colour.TextBase.Get(nameof(Message))))
+                using (var brush = new SolidBrush(config.Fore ?? Colour.TextBase.Get(name)))
                 {
                     g.DrawText(config.Text, Font, brush, rect_txt, s_f_left);
                 }
@@ -747,27 +778,36 @@ namespace AntdUI
         /// <param name="g">GDI</param>
         /// <param name="rect_client">客户区域</param>
         /// <param name="rect_read">真实区域</param>
-        GraphicsPath DrawShadow(Canvas g, Rectangle rect_client, Rectangle rect_read)
+        GraphicsPath DrawShadow(Canvas g, Rectangle rect_client, Rectangle rect_read, out int r)
         {
-            var path = rect_read.RoundPath((int)(config.Radius * Config.Dpi));
-            if (Config.ShadowEnabled)
+            r = -1;
+            var radius = (int)(config.Radius * Dpi);
+            var path = rect_read.RoundPath(radius);
+            if (shadow_size > 0)
             {
                 if (shadow_temp == null || (shadow_temp.Width != rect_client.Width || shadow_temp.Height != rect_client.Height))
                 {
                     shadow_temp?.Dispose();
                     shadow_temp = path.PaintShadow(rect_client.Width, rect_client.Height);
                 }
-                g.Image(shadow_temp.Bitmap, rect_client, .2F);
+                g.Image(shadow_temp.Bitmap, rect_client, Config.ShadowOpacity);
             }
+            else r = radius;
             return path;
         }
+
+        #endregion
+
+        #region 布局
 
         Rectangle rect_icon, rect_loading, rect_txt;
         Size RenderMeasure(Canvas g, int shadow)
         {
             int shadow2 = shadow * 2;
-            float dpi = Config.Dpi;
-            var size = g.MeasureText(config.Text, Font, 10000, s_f_left);
+            float dpi = Dpi;
+            int maxWidth = 0;
+            if (config.MaxWidth.HasValue) maxWidth = (int)(config.MaxWidth.Value * dpi);
+            var size = g.MeasureText(config.Text, Font, maxWidth, s_f_left);
             int paddingx = (int)(config.Padding.Width * dpi), paddingy = (int)(config.Padding.Height * dpi), sp = (int)(8 * dpi), height = size.Height + paddingy * 2;
             if (loading)
             {

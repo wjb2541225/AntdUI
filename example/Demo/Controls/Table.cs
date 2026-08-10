@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -27,8 +14,8 @@ namespace Demo.Controls
 {
     public partial class Table : UserControl
     {
-        Form form;
-        public Table(Form _form)
+        AntdUI.BaseForm form;
+        public Table(AntdUI.BaseForm _form)
         {
             form = _form;
             InitializeComponent();
@@ -37,7 +24,7 @@ namespace Demo.Controls
 
             table1.Columns = new AntdUI.ColumnCollection {
                 new AntdUI.ColumnCheck("check").SetFixed(),
-                new AntdUI.Column("name", "姓名").SetFixed().SetTree("Sub").SetLocalizationTitleID("Table.Column."),
+                new AntdUI.Column("name", "姓名").SetFixed().SetLocalizationTitleID("Table.Column."),
                 new AntdUI.ColumnCheck("checkTitle", "不全选标题").SetColAlign().SetLocalizationTitleID("Table.Column."),
                 new AntdUI.ColumnRadio("radio", "单选").SetLocalizationTitleID("Table.Column."),
                 new AntdUI.Column("online", "状态", AntdUI.ColumnAlign.Center).SetLocalizationTitleID("Table.Column."),
@@ -49,10 +36,10 @@ namespace Demo.Controls
                         return value;
                     }
                 },
-                new AntdUI.ColumnSelect("hobby", "爱好") { Items=new List<AntdUI.SelectItem>(){ new AntdUI.SelectItem(EHobbies.读书.ToString(), (int)EHobbies.读书) {IconSvg= "BookOutlined" }, new AntdUI.SelectItem(EHobbies.旅游.ToString(), (int)EHobbies.旅游) { IconSvg = "GlobalOutlined" }, new AntdUI.SelectItem(EHobbies.社交.ToString(), (int)EHobbies.社交) { IconSvg = "CommentOutlined" }, new AntdUI.SelectItem(EHobbies.运动.ToString(), (int)EHobbies.运动) { IconSvg = "DribbbleOutlined" } } }.SetAlign().SetLocalizationTitleID("Table.Column."),
-                new AntdUI.Column("age", "年龄").SetAlign().SetLocalizationTitleID("Table.Column."),
+                new AntdUI.ColumnSelect("hobby", "爱好").SetItems(GetEHobbies()).SetAlign().SetLocalizationTitleID("Table.Column."),
+                new AntdUI.Column("age", "年龄").SetAlign().SetLocalizationTitleID("Table.Column.").SetSummaryItem(AntdUI.TSummaryType.AVG),
                 new AntdUI.Column("address", "住址").SetLocalizationTitleID("Table.Column."),
-                new AntdUI.Column("date", "日期").SetLocalizationTitleID("Table.Column."),
+                new AntdUI.Column("date", "日期").SetLocalizationTitleID("Table.Column.").SetDisplayFormat("yyyy-MM-dd").SetSummaryItem(AntdUI.TSummaryType.Custom,"20后 {0:0} 位"),
                 new AntdUI.Column("tag", "Tag"),
                 new AntdUI.Column("imgs", "图片").SetLocalizationTitleID("Table.Column."),
                 new AntdUI.Column("btns", "操作").SetFixed().SetWidth("auto").SetLocalizationTitleID("Table.Column."),
@@ -62,10 +49,11 @@ namespace Demo.Controls
             pagination1.PageSizeOptions = new int[] { 10, 20, 30, 50, 100 };
 
             // 配置焦点跳转顺序 
-            table1.ConfigureFocusNavigation(["age", "address", "date",], selectAll: true, lineBreak: true);
+            table1.ConfigureFocusNavigation(["age", "address", "date"], selectAll: true, lineBreak: true);
 
             //设置总结栏
             SummarySet();
+            table1.CustomSummaryCalculate += table1_CustomSummaryCalculate;
 
             #endregion
 
@@ -75,6 +63,7 @@ namespace Demo.Controls
 
             selectFocusedStyle.Items.AddRange(EnumList(typeof(AntdUI.TableCellFocusedStyle)));
         }
+
 
         AntdUI.SelectItem[] EnumList(Type data)
         {
@@ -205,6 +194,27 @@ namespace Demo.Controls
             }
         }
 
+        void checkTree_CheckedChanged(object sender, AntdUI.BoolEventArgs e)
+        {
+            if (e.Value)
+            {
+                foreach (var it in table1.Columns)
+                {
+                    switch (it.Key)
+                    {
+                        case "name":
+                            it.SetTree("Sub");
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var it in table1.Columns) it.KeyTree = null;
+            }
+            table1.Refresh();
+        }
+
         void selectEditMode_SelectedValueChanged(object sender, AntdUI.ObjectNEventArgs e)
         {
             if (e.Value is AntdUI.TEditMode v)
@@ -225,7 +235,7 @@ namespace Demo.Controls
             else table1.EditInputStyle = AntdUI.TEditInputStyle.Default;
         }
 
-        private void selectFocusedStyle_SelectedValueChanged(object sender, AntdUI.ObjectNEventArgs e)
+        void selectFocusedStyle_SelectedValueChanged(object sender, AntdUI.ObjectNEventArgs e)
         {
             if (e.Value is AntdUI.TableCellFocusedStyle v) table1.CellFocusedStyle = v;
             else table1.CellFocusedStyle = AntdUI.TableCellFocusedStyle.None;
@@ -237,6 +247,42 @@ namespace Demo.Controls
             if (e.Column.Key == "tag" || e.Column.Key == "btns" || e.Column.Key == "imgs") return false;
             return true;
         }
+
+        void checkboxFocusNavigation_CheckedChanged(object sender, AntdUI.BoolEventArgs e)
+        {
+            table1.EnableFocusNavigation = checkboxFocusNavigation.Checked;
+        }
+        void checkboxSummaryCustomize_CheckedChanged(object sender, AntdUI.BoolEventArgs e)
+        {
+            table1.MultipleRows = e.Value;
+            table1.SummaryCustomize = e.Value;
+            SummarySet();
+        }
+        void table1_CustomSummaryCalculate(object sender, AntdUI.TableCustomSummaryEventArgs e)
+        {
+            if (!e.Finalize)
+            {
+                TestClass item = e.Record as TestClass;
+                if (item.date.Year > 1999) e.TotalValue = 1;
+            }
+        }
+        void SummarySet()
+        {
+            if (table1.SummaryCustomize)
+            {
+                table1.OnUpdateSummaries();
+                return;
+            }
+            var dataList = (IEnumerable<TestClass>)table1.DataSource;
+            table1.Summary = new Dictionary<string, object>
+            {
+                { "age", dataList.Any() ?(int)dataList.Average(x => x.age) : 0},
+                { "address", FormatSummaryStr(dataList.Sum(x =>string.IsNullOrEmpty(x.address) ? 0 : x.address.Split('\n').Length),"address","地址")} ,
+                { "hobby", FormatSummaryStr(dataList.Select(x => x.hobby).Distinct().Count(),"hobby","爱好") }
+            };
+        }
+
+        string FormatSummaryStr(int count, string id, string text) => string.Format(AntdUI.Localization.Get("Table.Data.FormatSummary", "共{0}种{1}"), count, AntdUI.Localization.Get("Table.Column." + id, text));
 
         #endregion
 
@@ -347,6 +393,17 @@ namespace Demo.Controls
                 return;
             }
             table1.Summary = GetPageSummaryData(e.Records);
+        }
+
+        void table1_SortRowsTree(object sender, AntdUI.TableSortTreeEventArgs e)
+        {
+            if (e.Record is TestClass data)
+            {
+                var temp = data.Sub[e.From];
+                data.Sub[e.From] = data.Sub[e.To];
+                data.Sub[e.To] = temp;
+                e.SetHandled();
+            }
         }
 
         #endregion
@@ -524,6 +581,7 @@ namespace Demo.Controls
         {
             public TestClass(int index, int start, string name, int age)
             {
+                var random = new Random();
                 id = (index + 1);
                 if (start == 1) _online = new AntdUI.CellBadge(AntdUI.TState.Success, AntdUI.Localization.Get("Table.Data.Online", "在线"));
                 else if (start == 2) _online = new AntdUI.CellBadge(AntdUI.TState.Processing, AntdUI.Localization.Get("Table.Data.Online.Processing", "处置"));
@@ -533,10 +591,10 @@ namespace Demo.Controls
                 _name = name;
                 _age = age;
                 _date = DateTime.Now.Date.AddYears(-age);
-                _hobby = new Random().Next(0, 3);
+                _hobby = random.Next(0, 3);
                 _address = AntdUI.Localization.GetLangI("Table.Data.Address" + id, null);
                 if (_address == null) _address = AntdUI.Localization.GetLangI("Table.Data.AddressNum", null);
-                if (_address == null) _address = (new Random().Next(DateTime.Now.Second) > 5 ? "东湖" : "西湖") + "区湖底公园" + id + "号";
+                if (_address == null) _address = (random.Next(DateTime.Now.Second) > 5 ? "东湖" : "西湖") + "区湖底公园" + id + "号";
                 else _address += id;
 
                 _enable = start % 2 == 0;
@@ -759,26 +817,13 @@ namespace Demo.Controls
             }
         }
 
-        private void checkboxFocusNavigation_CheckedChanged(object sender, AntdUI.BoolEventArgs e)
+        public static List<AntdUI.SelectItem> GetEHobbies()
         {
-            if (checkboxFocusNavigation.Checked)
-            {
-                table1.EnableFocusNavigation = true;
-            }
-            else
-            {
-                table1.EnableFocusNavigation = false;
-            }
-        }
-
-        private void SummarySet()
-        {
-            var dataList = (IEnumerable<TestClass>)table1.DataSource;
-            table1.Summary = new Dictionary<string, object>
-            {
-                { "age", dataList.Any() ?(int)dataList.Average(x => x.age) : 0},
-                { "address", $"共{dataList.Sum(x =>string.IsNullOrEmpty(x.address) ? 0 : x.address.Split('\n').Length)}地址"} ,
-                { "hobby", $"共{dataList.Select(x => x.hobby).Distinct().Count()}种爱好" }
+            return new List<AntdUI.SelectItem> {
+              new AntdUI.SelectItem((int)EHobbies.读书).SetIcon("BookOutlined").SetText("读书","Table.Data.Books"),
+              new AntdUI.SelectItem((int)EHobbies.旅游).SetIcon("GlobalOutlined").SetText("旅游","Table.Data.Travel"),
+              new AntdUI.SelectItem((int)EHobbies.社交).SetIcon("CommentOutlined").SetText("社交","Table.Data.Social"),
+              new AntdUI.SelectItem((int)EHobbies.运动).SetIcon("DribbbleOutlined").SetText("运动","Table.Data.Sports")
             };
         }
     }

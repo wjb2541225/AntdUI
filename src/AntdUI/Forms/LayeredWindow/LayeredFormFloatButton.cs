@@ -1,26 +1,12 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace AntdUI
@@ -38,17 +24,17 @@ namespace AntdUI
             if (tmp == null) throw new Exception("FloatButton need a parent Form");
             form = tmp;
             TopMost = config.TopMost;
-            if (!config.TopMost) config.Target.SetTopMost(Handle);
+            if (!config.TopMost) SetTopMost(config.Target, Handle);
+            SetDpi(config.Target);
             config.Target.SetFont(config.Font, this);
 
-            Helper.GDI(g =>
+            this.GDI(g =>
             {
-                var dpi = Config.Dpi;
-                BadgeSize = (int)Math.Round(BadgeSize * dpi);
-                _config.MarginX = (int)Math.Round(_config.MarginX * dpi);
-                _config.MarginY = (int)Math.Round(_config.MarginY * dpi);
-                _config.Size = (int)Math.Round(_config.Size * dpi);
-                _config.Gap = (int)Math.Round(_config.Gap * dpi);
+                BadgeSize = (int)Math.Round(BadgeSize * Dpi);
+                _config.MarginX = (int)Math.Round(_config.MarginX * Dpi);
+                _config.MarginY = (int)Math.Round(_config.MarginY * Dpi);
+                _config.Size = (int)Math.Round(_config.Size * Dpi);
+                _config.Gap = (int)Math.Round(_config.Gap * Dpi);
                 ShadowXY = _config.Gap / 2;
                 int size = _config.Size, t_size = size + _config.Gap, icon_size = (int)(size * 0.45F), xy = (size - icon_size) / 2;
                 int hasx = 0, hasy = 0;
@@ -59,7 +45,7 @@ namespace AntdUI
                         it.PropertyChanged += Notify_PropertyChanged;
                         it.rect = new Rectangle(hasx, hasy, t_size, t_size);
                         it.rect_read = new Rectangle(hasx + ShadowXY, hasy + ShadowXY, size, size);
-                        SetIconSize(it, size, xy, icon_size, dpi);
+                        SetIconSize(it, size, xy, icon_size, Dpi);
                         hasy += t_size;
                     }
                     SetSize(size + _config.Gap, hasy);
@@ -71,7 +57,7 @@ namespace AntdUI
                         it.PropertyChanged += Notify_PropertyChanged;
                         it.rect = new Rectangle(hasx, hasy, t_size, t_size);
                         it.rect_read = new Rectangle(hasx + ShadowXY, hasy + ShadowXY, size, size);
-                        SetIconSize(it, size, xy, icon_size, dpi);
+                        SetIconSize(it, size, xy, icon_size, Dpi);
                         hasx += t_size;
                     }
                     SetSize(hasx, size + _config.Gap);
@@ -102,7 +88,7 @@ namespace AntdUI
                         }
                         Print();
                         return Loading;
-                    }, 10, 360, 6).SetEnd(() => Print()));
+                    }, 10, 360, 6).SetEnd(PrintNo));
                 }
                 else
                 {
@@ -215,15 +201,13 @@ namespace AntdUI
 
         #region 渲染
 
-        readonly FormatFlags stringCenter = FormatFlags.Center | FormatFlags.NoWrap;
-
         int use_primary = 0;
         public override Bitmap? PrintBit()
         {
             use_primary = 0;
             var rect = TargetRectXY;
             Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(rbmp).High())
+            using (var g = Graphics.FromImage(rbmp).High(Dpi))
             {
                 foreach (var it in config.Btns)
                 {
@@ -236,28 +220,28 @@ namespace AntdUI
                             {
                                 case TTypeMini.Primary:
                                     use_primary++;
-                                    back = Colour.Primary.Get(nameof(FloatButton));
-                                    fore = Colour.PrimaryColor.Get(nameof(FloatButton));
+                                    back = Colour.Primary.Get(name);
+                                    fore = Colour.PrimaryColor.Get(name);
                                     break;
                                 case TTypeMini.Success:
-                                    back = Colour.Success.Get(nameof(FloatButton));
-                                    fore = Colour.SuccessColor.Get(nameof(FloatButton));
+                                    back = Colour.Success.Get(name);
+                                    fore = Colour.SuccessColor.Get(name);
                                     break;
                                 case TTypeMini.Error:
-                                    back = Colour.Error.Get(nameof(FloatButton));
-                                    fore = Colour.ErrorColor.Get(nameof(FloatButton));
+                                    back = Colour.Error.Get(name);
+                                    fore = Colour.ErrorColor.Get(name);
                                     break;
                                 case TTypeMini.Warn:
-                                    back = Colour.Warning.Get(nameof(FloatButton));
-                                    fore = Colour.WarningColor.Get(nameof(FloatButton));
+                                    back = Colour.Warning.Get(name);
+                                    fore = Colour.WarningColor.Get(name);
                                     break;
                                 case TTypeMini.Info:
-                                    back = Colour.Info.Get(nameof(FloatButton));
-                                    fore = Colour.InfoColor.Get(nameof(FloatButton));
+                                    back = Colour.Info.Get(name);
+                                    fore = Colour.InfoColor.Get(name);
                                     break;
                                 default:
-                                    back = Colour.BgElevated.Get(nameof(FloatButton));
-                                    fore = Colour.Text.Get(nameof(FloatButton));
+                                    back = Colour.BgElevated.Get(name);
+                                    fore = Colour.Text.Get(name);
                                     break;
                             }
                             if (it.Fore.HasValue) fore = it.Fore.Value;
@@ -265,7 +249,7 @@ namespace AntdUI
                             g.Fill(back, path);
 
                             float loading_size = it.rect_read.Height * 0.06F;
-                            using (var pen = new Pen(Colour.Fill.Get(nameof(FloatButton)), loading_size))
+                            using (var pen = new Pen(Colour.Fill.Get(name), loading_size))
                             using (var brush = new Pen(fore, pen.Width))
                             {
                                 g.DrawEllipse(pen, it.rect_icon);
@@ -282,51 +266,51 @@ namespace AntdUI
                                 {
                                     case TTypeMini.Primary:
                                         use_primary++;
-                                        back = Colour.Primary.Get(nameof(FloatButton));
-                                        back_hover = Colour.PrimaryHover.Get(nameof(FloatButton));
-                                        fore = Colour.PrimaryColor.Get(nameof(FloatButton));
+                                        back = Colour.Primary.Get(name);
+                                        back_hover = Colour.PrimaryHover.Get(name);
+                                        fore = Colour.PrimaryColor.Get(name);
                                         break;
                                     case TTypeMini.Success:
-                                        back = Colour.Success.Get(nameof(FloatButton));
-                                        back_hover = Colour.SuccessHover.Get(nameof(FloatButton));
-                                        fore = Colour.SuccessColor.Get(nameof(FloatButton));
+                                        back = Colour.Success.Get(name);
+                                        back_hover = Colour.SuccessHover.Get(name);
+                                        fore = Colour.SuccessColor.Get(name);
                                         break;
                                     case TTypeMini.Error:
-                                        back = Colour.Error.Get(nameof(FloatButton));
-                                        back_hover = Colour.ErrorHover.Get(nameof(FloatButton));
-                                        fore = Colour.ErrorColor.Get(nameof(FloatButton));
+                                        back = Colour.Error.Get(name);
+                                        back_hover = Colour.ErrorHover.Get(name);
+                                        fore = Colour.ErrorColor.Get(name);
                                         break;
                                     case TTypeMini.Warn:
-                                        back = Colour.Warning.Get(nameof(FloatButton));
-                                        back_hover = Colour.WarningHover.Get(nameof(FloatButton));
-                                        fore = Colour.WarningColor.Get(nameof(FloatButton));
+                                        back = Colour.Warning.Get(name);
+                                        back_hover = Colour.WarningHover.Get(name);
+                                        fore = Colour.WarningColor.Get(name);
                                         break;
                                     case TTypeMini.Info:
-                                        back = Colour.Info.Get(nameof(FloatButton));
-                                        back_hover = Colour.InfoHover.Get(nameof(FloatButton));
-                                        fore = Colour.InfoColor.Get(nameof(FloatButton));
+                                        back = Colour.Info.Get(name);
+                                        back_hover = Colour.InfoHover.Get(name);
+                                        fore = Colour.InfoColor.Get(name);
                                         break;
                                     default:
-                                        back = Colour.BgElevated.Get(nameof(FloatButton));
-                                        back_hover = Colour.FillSecondary.Get(nameof(FloatButton));
-                                        fore = Colour.Text.Get(nameof(FloatButton));
+                                        back = Colour.BgElevated.Get(name);
+                                        back_hover = Colour.FillSecondary.Get(name);
+                                        fore = Colour.Text.Get(name);
                                         break;
                                 }
                                 if (it.Fore.HasValue) fore = it.Fore.Value;
                             }
                             else
                             {
-                                back = back_hover = Colour.FillTertiary.Get(nameof(FloatButton));
-                                fore = Colour.TextQuaternary.Get(nameof(FloatButton));
+                                back = back_hover = Colour.FillTertiary.Get(name);
+                                fore = Colour.TextQuaternary.Get(name);
                             }
 
                             g.Fill(back, path);
                             if (it.hover) g.Fill(back_hover, path);
-                            if (it.IconSvg != null) g.GetImgExtend(it.IconSvg, it.rect_icon, fore);
+                            if (it.IconSvg != null) g.Svg(it.IconSvg, it.rect_icon, fore);
                             else if (it.Icon != null) g.Image(it.Icon, it.rect_icon);
-                            else g.String(it.Text, Font, fore, it.rect_read, stringCenter);
+                            else g.String(it.Text, Font, fore, it.rect_read);
                         }
-                        it.PaintBadge(Font, it.rect_read, g, TAMode.Auto);
+                        it.PaintBadge(Font, it.rect_read, g, TAMode.Auto, "FloatButton");
                     }
                 }
             }
@@ -340,7 +324,7 @@ namespace AntdUI
         GraphicsPath DrawShadow(Canvas g, FloatButton.ConfigBtn it)
         {
             bool round = it.Round;
-            float radius = round ? it.rect_read.Height : it.Radius * Config.Dpi;
+            float radius = round ? it.rect_read.Height : it.Radius * Dpi;
             var path = Helper.RoundPath(it.rect_read, radius, round);
             if (Config.ShadowEnabled && it.Enabled)
             {
@@ -352,12 +336,7 @@ namespace AntdUI
                         it.shadow_temp = path2.PaintShadowO(it.rect.Width, it.rect.Height, 14);
                     }
                 }
-                using (var attributes = new ImageAttributes())
-                {
-                    var matrix = new ColorMatrix { Matrix33 = 0.2F };
-                    attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                    g.Image(it.shadow_temp, new Rectangle(it.rect.X, it.rect.Y + 6, it.rect.Width, it.rect.Height), 0, 0, it.rect.Width, it.rect.Height, GraphicsUnit.Pixel, attributes);
-                }
+                g.Image(it.shadow_temp, new Rectangle(it.rect.X, it.rect.Y + (int)(4 * g.Dpi), it.rect.Width, it.rect.Height), Config.ShadowOpacity);
             }
             return path;
         }
@@ -400,19 +379,22 @@ namespace AntdUI
         protected override bool CanMouseMove { get; set; } = true;
         protected override void OnMouseHover(int x, int y)
         {
-            if (x == -1 || y == -1)
-            {
-                CloseTip();
-                return;
-            }
+            var it = GetItemMouseHover(x, y);
+            if (tmp == it) return;
+            tmp = it;
+            CloseTip();
+            if (it == null) return;
+            OpenTip(it);
+        }
+
+        FloatButton.ConfigBtn? tmp;
+        FloatButton.ConfigBtn? GetItemMouseHover(int x, int y)
+        {
             foreach (var it in config.Btns)
             {
-                if (it.Enabled && !it.Loading && it.rect.Contains(x, y))
-                {
-                    OpenTip(it);
-                    return;
-                }
+                if (it.Enabled && !it.Loading && it.rect.Contains(x, y)) return it;
             }
+            return null;
         }
 
         #region Tip
@@ -452,6 +434,7 @@ namespace AntdUI
 
         protected override void OnMouseLeave(EventArgs e)
         {
+            tmp = null;
             CloseTip();
             int count = 0;
             foreach (var it in config.Btns)

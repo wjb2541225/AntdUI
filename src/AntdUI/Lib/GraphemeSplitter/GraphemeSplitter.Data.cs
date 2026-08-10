@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Collections.Generic;
 
@@ -39,7 +26,7 @@ namespace AntdUI
         public const int ZWJ = 15;
         public const int Extended_Pictographic = 18;
 
-        static List<RangeInfo> m_lst_code_range = new List<RangeInfo>(1062);
+        static List<RangeInfo> m_lst_code_range = new List<RangeInfo>(1063);
 
         static GraphemeSplitter()
         {
@@ -1459,6 +1446,8 @@ namespace AntdUI
             AddCodeRange(0x111BF, 0x111C0, SpacingMark);
             // Lo   [2] SHARADA SIGN JIHVAMULIYA..SHARADA SIGN UPADHMANIYA
             AddCodeRange(0x111C2, 0x111C3, Prepend);
+            // Lo       TULU-TIGALARI REPHA
+            AddCodeRange(0x113D1, 0x113D1, Prepend);
             // Mn   [4] SHARADA SANDHI MARK..SHARADA EXTRA SHORT VOWEL MARK
             AddCodeRange(0x111C9, 0x111CC, Extend);
             // Mc   [3] KHOJKI VOWEL SIGN AA..KHOJKI VOWEL SIGN II
@@ -1573,6 +1562,8 @@ namespace AntdUI
             AddCodeRange(0x11A59, 0x11A5B, Extend);
             // Lo   [6] SOYOMBO SIGN JIHVAMULIYA..SOYOMBO CLUSTER-INITIAL LETTER SA
             AddCodeRange(0x11A84, 0x11A89, Prepend);
+            // Lo       KAWI SIGN REPHA
+            AddCodeRange(0x11F02, 0x11F02, Prepend);
             // Mn  [13] SOYOMBO FINAL CONSONANT SIGN G..SOYOMBO SIGN ANUSVARA
             AddCodeRange(0x11A8A, 0x11A96, Extend);
             // Mn   [2] SOYOMBO GEMINATION MARK..SOYOMBO SUBJOINER
@@ -1605,8 +1596,8 @@ namespace AntdUI
             AddCodeRange(0x11EF3, 0x11EF4, Extend);
             // Mc   [2] MAKASAR VOWEL SIGN E..MAKASAR VOWEL SIGN O
             AddCodeRange(0x11EF5, 0x11EF6, SpacingMark);
-            // Cf   [9] EGYPTIAN HIEROGLYPH VERTICAL JOINER..EGYPTIAN HIEROGLYPH END SEGMENT
-            AddCodeRange(0x13430, 0x13438, Control);
+            // Cf  [16] EGYPTIAN HIEROGLYPH VERTICAL JOINER..EGYPTIAN HIEROGLYPH END WALLED ENCLOSURE
+            AddCodeRange(0x13430, 0x1343F, Control);
             // Mn   [5] BASSA VAH COMBINING HIGH TONE..BASSA VAH COMBINING HIGH-LOW TONE
             AddCodeRange(0x16AF0, 0x16AF4, Extend);
             // Mn   [7] PAHAWH HMONG MARK CIM TUB..PAHAWH HMONG MARK CIM TAUM

@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -44,7 +31,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -62,7 +49,7 @@ namespace AntdUI
         /// <summary>
         /// 颜色
         /// </summary>
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -80,7 +67,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -99,12 +86,12 @@ namespace AntdUI
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
-        FormatFlags s_f = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis;
+        FormatFlags sf = FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrapEllipsis | FormatFlags.HotkeyPrefixShow;
         ContentAlignment textAlign = ContentAlignment.MiddleLeft;
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("外观"), DefaultValue(ContentAlignment.MiddleLeft)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -112,7 +99,7 @@ namespace AntdUI
             {
                 if (textAlign == value) return;
                 textAlign = value;
-                s_f = textAlign.SetAlignment(s_f);
+                sf = textAlign.SetAlignment(sf);
                 Invalidate();
                 OnPropertyChanged(nameof(TextAlign));
             }
@@ -124,7 +111,7 @@ namespace AntdUI
         /// <summary>
         /// 选中状态
         /// </summary>
-        [Description("选中状态"), Category("数据"), DefaultValue(false)]
+        [Description("选中状态"), Category(nameof(CategoryAttribute.Data)), DefaultValue(false)]
         public bool Checked
         {
             get => _checked;
@@ -133,7 +120,7 @@ namespace AntdUI
                 if (_checked == value) return;
                 _checked = value;
                 ThreadCheck?.Dispose();
-                if (IsHandleCreated && Config.HasAnimation(nameof(Radio)))
+                if (IsHandleCreated && Config.HasAnimation(nameof(Radio), Name))
                 {
                     AnimationCheck = true;
                     ThreadCheck = new AnimationTask(new AnimationLinearFConfig(this, i =>
@@ -176,11 +163,11 @@ namespace AntdUI
         /// <summary>
         /// 点击时自动改变选中状态
         /// </summary>
-        [Description("点击时自动改变选中状态"), Category("行为"), DefaultValue(true)]
+        [Description("点击时自动改变选中状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool AutoCheck { get; set; } = true;
 
         RightToLeft rightToLeft = RightToLeft.No;
-        [Description("反向"), Category("外观"), DefaultValue(RightToLeft.No)]
+        [Description("反向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(RightToLeft.No)]
         public override RightToLeft RightToLeft
         {
             get => rightToLeft;
@@ -190,18 +177,53 @@ namespace AntdUI
                 rightToLeft = value;
                 if (rightToLeft == RightToLeft.Yes)
                 {
-                    s_f &= ~FormatFlags.Left;
-                    s_f |= FormatFlags.Right;
+                    sf &= ~FormatFlags.Left;
+                    sf |= FormatFlags.Right;
                 }
                 else
                 {
-                    s_f &= ~FormatFlags.Right;
-                    s_f |= FormatFlags.Left;
+                    sf &= ~FormatFlags.Right;
+                    sf |= FormatFlags.Left;
                 }
                 Invalidate();
                 OnPropertyChanged(nameof(RightToLeft));
             }
         }
+
+        #region 助记键
+
+        bool useMnemonic = true;
+        /// <summary>
+        /// 助记键
+        /// </summary>
+        [Description("如果为 true，则前面有(&)号 的第一个字符将用作按钮的助记键"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool UseMnemonic
+        {
+            get => useMnemonic;
+            set
+            {
+                if (useMnemonic == value) return;
+                useMnemonic = value;
+                if (value) sf |= FormatFlags.HotkeyPrefixShow;
+                else sf &= ~FormatFlags.HotkeyPrefixShow;
+            }
+        }
+
+        protected override bool ProcessMnemonic(char charCode)
+        {
+            if (useMnemonic && CanProcessMnemonicBefore(charCode, text))
+            {
+                if (CanProcessMnemonicAfter())
+                {
+                    if (AutoCheck) Checked = !Checked;
+                    base.OnClick(EventArgs.Empty);
+                    return true;
+                }
+            }
+            return base.ProcessMnemonic(charCode);
+        }
+
+        #endregion
 
         #endregion
 
@@ -210,7 +232,7 @@ namespace AntdUI
         /// <summary>
         /// Checked 属性值更改时发生
         /// </summary>
-        [Description("Checked 属性值更改时发生"), Category("行为")]
+        [Description("Checked 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? CheckedChanged;
 
         protected virtual void OnCheckedChanged(bool e) => CheckedChanged?.Invoke(this, new BoolEventArgs(e));
@@ -239,9 +261,9 @@ namespace AntdUI
                 bool right = rightToLeft == RightToLeft.Yes;
                 PaintChecked(g, rect, enabled, icon_rect, right);
                 if (right) text_rect.X = rect.Width - text_rect.X - text_rect.Width;
-                using (var brush = new SolidBrush(enabled ? (fore ?? Colour.Text.Get(nameof(Radio), ColorScheme)) : Colour.TextQuaternary.Get(nameof(Radio), "foreDisabled", ColorScheme)))
+                using (var brush = new SolidBrush(enabled ? (fore ?? Colour.Text.Get(ColorScheme, nameof(Radio), Name)) : Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Radio), Name)))
                 {
-                    g.DrawText(Text, Font, brush, text_rect, s_f);
+                    g.DrawText(Text, Font, brush, text_rect, sf);
                 }
             }
             base.OnDraw(e);
@@ -253,15 +275,15 @@ namespace AntdUI
         {
             float dot_size = icon_rect.Height;
             if (right) icon_rect.X = rect.Width - icon_rect.X - icon_rect.Width;
-            var bor2 = 2F * Config.Dpi;
+            var bor2 = 2F * Dpi;
             if (enabled)
             {
                 if ((hasFocus && Config.FocusBorderEnabled) && (rect.Height - icon_rect.Height) > bor2)
                 {
                     float wave = bor2, wave2 = wave * 2;
-                    g.DrawEllipse(Colour.PrimaryBorder.Get(nameof(Radio), ColorScheme), wave, new RectangleF(icon_rect.X - wave, icon_rect.Y - wave, icon_rect.Width + wave2, icon_rect.Height + wave2));
+                    g.DrawEllipse(Colour.PrimaryBorder.Get(ColorScheme, nameof(Radio), Name), wave, new RectangleF(icon_rect.X - wave, icon_rect.Y - wave, icon_rect.Width + wave2, icon_rect.Height + wave2));
                 }
-                var color = fill ?? Colour.Primary.Get(nameof(Radio), ColorScheme);
+                var color = fill ?? Colour.Primary.Get(ColorScheme, nameof(Radio), Name);
                 if (AnimationCheck)
                 {
                     float dot = dot_size * 0.3F;
@@ -287,20 +309,20 @@ namespace AntdUI
                 }
                 else
                 {
-                    if (AnimationHover) g.DrawEllipse(Colour.BorderColor.Get(nameof(Radio), ColorScheme).BlendColors(AnimationHoverValue, color), bor2, icon_rect);
+                    if (AnimationHover) g.DrawEllipse(Colour.BorderColor.Get(ColorScheme, nameof(Radio), Name).BlendColors(AnimationHoverValue, color), bor2, icon_rect);
                     else if (ExtraMouseHover) g.DrawEllipse(color, bor2, icon_rect);
-                    else g.DrawEllipse(Colour.BorderColor.Get(nameof(Radio), ColorScheme), bor2, icon_rect);
+                    else g.DrawEllipse(Colour.BorderColor.Get(ColorScheme, nameof(Radio), Name), bor2, icon_rect);
                 }
             }
             else
             {
-                g.FillEllipse(Colour.FillQuaternary.Get(nameof(Radio), "bgDisabled", ColorScheme), icon_rect);
+                g.FillEllipse(Colour.FillQuaternary.GetSymbol(ColorScheme, "bgDisabled", nameof(Radio), Name), icon_rect);
                 if (_checked)
                 {
                     float dot = dot_size / 2F, dot2 = dot / 2F;
-                    g.FillEllipse(Colour.TextQuaternary.Get(nameof(Radio), "foreDisabled", ColorScheme), new RectangleF(icon_rect.X + dot2, icon_rect.Y + dot2, icon_rect.Width - dot, icon_rect.Height - dot));
+                    g.FillEllipse(Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Radio), Name), new RectangleF(icon_rect.X + dot2, icon_rect.Y + dot2, icon_rect.Width - dot, icon_rect.Height - dot));
                 }
-                g.DrawEllipse(Colour.BorderColorDisable.Get(nameof(Radio), "borderColorDisabled", ColorScheme), bor2, icon_rect);
+                g.DrawEllipse(Colour.BorderColorDisable.GetSymbol(ColorScheme, "borderColorDisabled", nameof(Radio), Name), bor2, icon_rect);
             }
         }
 
@@ -347,7 +369,7 @@ namespace AntdUI
                 SetCursor(value && enabled);
                 if (enabled)
                 {
-                    if (Config.HasAnimation(nameof(Radio)))
+                    if (Config.HasAnimation(nameof(Radio), Name))
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
@@ -401,7 +423,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -422,7 +444,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("外观"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -449,11 +471,11 @@ namespace AntdUI
             return PSize;
         }
 
-        public Size PSize
+        public virtual Size PSize
         {
             get
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     var font_size = g.MeasureString(Config.NullText, Font);
                     int gap = (int)(font_size.Height * 1.02F);
@@ -502,7 +524,7 @@ namespace AntdUI
         /// 是否存在焦点
         /// </summary>
         [Browsable(false)]
-        [Description("是否存在焦点"), Category("行为"), DefaultValue(false)]
+        [Description("是否存在焦点"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool HasFocus
         {
             get => hasFocus;

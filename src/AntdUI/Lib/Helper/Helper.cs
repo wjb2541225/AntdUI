@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections;
@@ -27,6 +14,12 @@ namespace AntdUI
 {
     public static partial class Helper
     {
+        /// <summary>
+        /// 计算两个浮点数的和，并保留3位小数
+        /// </summary>
+        /// <param name="val">第一个浮点数</param>
+        /// <param name="add">要添加的浮点数</param>
+        /// <returns>计算结果</returns>
         public static float Calculate(this float val, float add) => (float)Math.Round(val + add, 3);
 
         /// <summary>
@@ -36,11 +29,18 @@ namespace AntdUI
         public static Size Size(this SizeF size) => new Size((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height));
 
         /// <summary>
-        /// SizeF转Size（向上取整）
+        /// SizeF转Size（向上取整），并添加偏移量
         /// </summary>
         /// <param name="size">SizeF</param>
+        /// <param name="p">要添加的偏移量</param>
         public static Size Size(this SizeF size, float p) => new Size((int)Math.Ceiling(size.Width + p), (int)Math.Ceiling(size.Height + p));
 
+        /// <summary>
+        /// 调整Size大小，根据DPI缩放因子添加偏移量
+        /// </summary>
+        /// <param name="size">原始Size</param>
+        /// <param name="p">要添加的偏移量（像素单位）</param>
+        /// <returns>调整后的Size</returns>
         public static Size Size(this Size size, int p)
         {
             if (p > 0)
@@ -52,6 +52,31 @@ namespace AntdUI
             return size;
         }
 
+        /// <summary>
+        /// 调整Size大小，根据Canvas的DPI缩放因子添加偏移量
+        /// </summary>
+        /// <param name="size">原始Size</param>
+        /// <param name="g">Canvas对象</param>
+        /// <param name="p">要添加的偏移量（像素单位）</param>
+        /// <returns>调整后的Size</returns>
+        public static Size Size(this Size size, Canvas g, int p)
+        {
+            if (p > 0)
+            {
+                var s = (int)(p * g.Dpi);
+                size.Width += s;
+                size.Height += s;
+            }
+            return size;
+        }
+
+        /// <summary>
+        /// 调整Size大小，根据DPI缩放因子分别添加宽度和高度偏移量
+        /// </summary>
+        /// <param name="size">原始Size</param>
+        /// <param name="w">要添加的宽度偏移量（像素单位）</param>
+        /// <param name="h">要添加的高度偏移量（像素单位）</param>
+        /// <returns>调整后的Size</returns>
         public static Size Size(this Size size, int w, int h)
         {
             if (w > 0) size.Width += (int)(w * Config.Dpi);
@@ -59,14 +84,59 @@ namespace AntdUI
             return size;
         }
 
+        /// <summary>
+        /// 调整Size大小，根据Canvas的DPI缩放因子分别添加宽度和高度偏移量
+        /// </summary>
+        /// <param name="size">原始Size</param>
+        /// <param name="g">Canvas对象</param>
+        /// <param name="w">要添加的宽度偏移量（像素单位）</param>
+        /// <param name="h">要添加的高度偏移量（像素单位）</param>
+        /// <returns>调整后的Size</returns>
+        public static Size Size(this Size size, Canvas g, int w, int h)
+        {
+            if (w > 0) size.Width += (int)(w * g.Dpi);
+            if (h > 0) size.Height += (int)(h * g.Dpi);
+            return size;
+        }
+
+        /// <summary>
+        /// 根据字体大小调整Size，用于计算文本的最佳显示大小
+        /// </summary>
+        /// <param name="size">原始Size</param>
+        /// <param name="font">字体对象</param>
+        /// <returns>调整后的Size</returns>
         public static Size SizeEm(this Size size, Font font) => new Size(size.Width + (int)Math.Round(size.Width * 0.135f), size.Height + (int)Math.Round(font.Size * 0.17f));
 
+        /// <summary>
+        /// 根据浮点数alpha值创建带透明度的颜色
+        /// </summary>
+        /// <param name="alpha">透明度值（0-255）</param>
+        /// <param name="color">原始颜色</param>
+        /// <returns>带透明度的颜色</returns>
         public static Color ToColor(float alpha, Color color) => ToColor((int)alpha, color);
 
+        /// <summary>
+        /// 根据归一化的alpha值（0-1）创建带透明度的颜色
+        /// </summary>
+        /// <param name="val">归一化的透明度值（0-1）</param>
+        /// <param name="color">原始颜色</param>
+        /// <returns>带透明度的颜色</returns>
         public static Color ToColorN(float val, Color color) => ToColor((int)(val * color.A), color);
 
+        /// <summary>
+        /// 根据整数alpha值创建带透明度的颜色
+        /// </summary>
+        /// <param name="alpha">透明度值（0-255）</param>
+        /// <param name="color">原始颜色</param>
+        /// <returns>带透明度的颜色</returns>
         public static Color ToColor(int alpha, Color color) => Color.FromArgb(Style.rgbbyte(alpha), color);
 
+        /// <summary>
+        /// 查找控件的父级Form
+        /// </summary>
+        /// <param name="control">要查找的控件</param>
+        /// <param name="mdi">是否查找MDI父窗口</param>
+        /// <returns>找到的Form，找不到则返回null</returns>
         public static Form? FindPARENT(this Control? control, bool mdi = false)
         {
             if (control == null) return null;
@@ -84,6 +154,13 @@ namespace AntdUI
             else if (control.Parent != null) return FindPARENT(control.Parent, mdi);
             return null;
         }
+
+        /// <summary>
+        /// 查找Target的父级Form
+        /// </summary>
+        /// <param name="target">要查找的Target</param>
+        /// <param name="mdi">是否查找MDI父窗口</param>
+        /// <returns>找到的Form，找不到则返回null</returns>
         public static Form? FindPARENT(this Target? target, bool mdi = false)
         {
             if (target == null) return null;
@@ -102,6 +179,12 @@ namespace AntdUI
             return null;
         }
 
+        /// <summary>
+        /// 查找控件的所有父级Form
+        /// </summary>
+        /// <param name="control">要查找的控件</param>
+        /// <param name="mdi">是否查找MDI父窗口</param>
+        /// <returns>父级Form列表</returns>
         public static List<Control> FindPARENTs(this Control control, bool mdi = false)
         {
             var list = new List<Control>(2);
@@ -137,6 +220,12 @@ namespace AntdUI
             return list;
         }
 
+        /// <summary>
+        /// 根据控件的TopMost属性设置窗口置顶
+        /// </summary>
+        /// <param name="control">参考控件</param>
+        /// <param name="hand">要设置的窗口句柄</param>
+        /// <returns>是否设置成功</returns>
         public static bool SetTopMost(this Control? control, IntPtr hand)
         {
             var form = control.FindPARENT();
@@ -147,6 +236,13 @@ namespace AntdUI
             }
             return false;
         }
+
+        /// <summary>
+        /// 根据Target的TopMost属性设置窗口置顶
+        /// </summary>
+        /// <param name="target">参考Target</param>
+        /// <param name="hand">要设置的窗口句柄</param>
+        /// <returns>是否设置成功</returns>
         public static bool SetTopMost(this Target? target, IntPtr hand)
         {
             var form = target.FindPARENT();
@@ -158,29 +254,18 @@ namespace AntdUI
             return false;
         }
 
-        public static void SetTopMost(IntPtr hand) => Vanara.PInvoke.User32.SetWindowPos(hand, new IntPtr(-1), 0, 0, 0, 0, Vanara.PInvoke.User32.SetWindowPosFlags.SWP_NOACTIVATE);
+        /// <summary>
+        /// 设置窗口置顶
+        /// </summary>
+        /// <param name="hand">要设置的窗口句柄</param>
+        public static void SetTopMost(IntPtr hand) => Win32.User32.SetWindowPos(hand, new IntPtr(-1), 0, 0, 0, 0, Win32.User32.SetWindowPosFlags.SWP_NOACTIVATE);
 
-        public static bool AreDateTimeArraysEqual(DateTime[]? array1, DateTime[]? array2)
-        {
-            // 两个都为null，视为相等
-            if (array1 == null && array2 == null) return true;
-
-            // 其中一个为null，另一个不为null，视为不相等
-            if (array1 == null || array2 == null) return false;
-
-            // 长度不同，视为不相等
-            if (array1.Length != array2.Length) return false;
-
-            // 逐个比较元素
-            for (int i = 0; i < array1.Length; i++)
-            {
-                if (!array1[i].Equals(array2[i])) return false;
-            }
-
-            // 所有元素都相等
-            return true;
-        }
-
+        /// <summary>
+        /// 等待WaitHandle信号
+        /// </summary>
+        /// <param name="handle">WaitHandle对象</param>
+        /// <param name="close">如果句柄已关闭是否返回true</param>
+        /// <returns>true表示已关闭或出错，false表示等待成功</returns>
         public static bool Wait(this System.Threading.WaitHandle? handle, bool close = true)
         {
             if (handle == null) return true;
@@ -197,6 +282,13 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 等待WaitHandle信号，带超时时间
+        /// </summary>
+        /// <param name="handle">WaitHandle对象</param>
+        /// <param name="timeout">超时时间（毫秒）</param>
+        /// <param name="close">如果句柄已关闭是否返回true</param>
+        /// <returns>true表示已关闭或出错，false表示等待成功</returns>
         public static bool Wait(this System.Threading.WaitHandle? handle, int timeout, bool close = true)
         {
             if (handle == null) return true;
@@ -212,6 +304,11 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 设置EventWaitHandle信号
+        /// </summary>
+        /// <param name="handle">EventWaitHandle对象</param>
+        /// <returns>true表示已关闭或出错，false表示设置成功</returns>
         public static bool SetWait(this System.Threading.EventWaitHandle? handle)
         {
             if (handle == null) return true;
@@ -226,6 +323,12 @@ namespace AntdUI
                 return true;
             }
         }
+
+        /// <summary>
+        /// 重置EventWaitHandle信号
+        /// </summary>
+        /// <param name="handle">EventWaitHandle对象</param>
+        /// <returns>true表示已关闭或出错，false表示重置成功</returns>
         public static bool ResetWait(this System.Threading.EventWaitHandle? handle)
         {
             if (handle == null) return true;
@@ -240,21 +343,32 @@ namespace AntdUI
                 return true;
             }
         }
+
+        /// <summary>
+        /// 等待并释放EventWaitHandle
+        /// </summary>
+        /// <param name="handle">EventWaitHandle对象</param>
+        /// <param name="set">释放前是否设置信号</param>
         public static void WaitDispose(this System.Threading.EventWaitHandle? handle, bool set = true)
         {
             if (handle == null) return;
             try
             {
                 if (handle.SafeWaitHandle.IsClosed) return;
+                handle.Dispose();
                 if (set) handle.SetWait();
                 else handle.ResetWait();
-                handle.Dispose();
             }
             catch
             {
             }
         }
 
+        /// <summary>
+        /// 检查CancellationTokenSource是否已取消
+        /// </summary>
+        /// <param name="token">CancellationTokenSource对象</param>
+        /// <returns>true表示已取消或出错，false表示正常</returns>
         public static bool Wait(this System.Threading.CancellationTokenSource? token)
         {
             try
@@ -268,6 +382,12 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 检查CancellationTokenSource是否已取消或控件是否已释放
+        /// </summary>
+        /// <param name="token">CancellationTokenSource对象</param>
+        /// <param name="control">要检查的控件</param>
+        /// <returns>true表示已取消、已释放或出错，false表示正常</returns>
         public static bool Wait(this System.Threading.CancellationTokenSource? token, Control control)
         {
             try
@@ -281,81 +401,48 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 检查列表索引是否越界
+        /// </summary>
+        /// <param name="list">要检查的列表</param>
+        /// <param name="index">要检查的索引</param>
+        /// <returns>true表示越界，false表示正常</returns>
         public static bool ListExceed(this IList? list, int index)
         {
             if (list == null || list.Count <= index || index < 0) return true;
             return false;
         }
 
-        public static bool DateExceed(DateTime date, DateTime? min, DateTime? max)
+#if NET40 || NET46 || NET48
+        public static bool IsNull(this object? value)
+#else
+        public static bool IsNull([System.Diagnostics.CodeAnalysis.NotNullWhen(false)] this object? value)
+#endif
         {
-            if (min.HasValue && min.Value >= date) return false;
-            if (max.HasValue && max.Value <= date) return false;
-            return true;
-        }
-
-        public static bool DateExceedMonth(DateTime date, int num, DateTime? min, DateTime? max)
-        {
-            try
-            {
-                return DateExceedMonth(date.AddMonths(num), min, max);
-            }
-            catch { return false; }
-        }
-        public static bool DateExceedMonth(DateTime date, DateTime? min, DateTime? max)
-        {
-            // 检查目标月份是否早于minDate所在的月份
-            if (min.HasValue)
-            {
-                // 如果目标月份比minDate的月份还早，禁用
-                if (date.Year < min.Value.Year || (date.Year == min.Value.Year && date.Month < min.Value.Month)) return false;
-            }
-            // 检查目标月份是否晚于maxDate所在的月份
-            if (max.HasValue)
-            {
-                // 如果目标月份比maxDate的月份还晚，禁用
-                if (date.Year > max.Value.Year || (date.Year == max.Value.Year && date.Month > max.Value.Month)) return false;
-            }
-            // 目标月份在允许范围内
-            return true;
-        }
-
-        public static bool DateExceedYear(DateTime date, int num, DateTime? min, DateTime? max)
-        {
-            try
-            {
-                return DateExceedYear(date.AddYears(num), min, max);
-            }
-            catch { return false; }
-        }
-        public static bool DateExceedYear(DateTime date, DateTime? min, DateTime? max)
-        {
-            if (min.HasValue && min.Value >= date) return false;
-            if (max.HasValue)
-            {
-                if (max.Value.Year == date.Year) return true;
-                if (max.Value <= date) return false;
-            }
-            return true;
-        }
-
-        public static bool DateExceedRelax(DateTime date, DateTime? min, DateTime? max)
-        {
-            if (min.HasValue && min.Value > date) return false;
-            if (max.HasValue && max.Value < date) return false;
-            return true;
+            if (value == null || value is DBNull) return true;
+            return false;
         }
 
         #region 剪贴板
 
+        /// <summary>
+        /// 获取剪贴板文本（线程安全）
+        /// </summary>
+        /// <param name="control">用于调用Invoke的控件</param>
+        /// <returns>剪贴板文本，获取失败返回null</returns>
         public static string? ClipboardGetText(this Control control)
         {
             if (control.InvokeRequired) return ITask.Invoke(control, new Func<string?>(() => ClipboardGetText()));
             return ClipboardGetText();
         }
+
+        /// <summary>
+        /// 获取剪贴板文本
+        /// </summary>
+        /// <returns>剪贴板文本，获取失败返回null</returns>
         public static string? ClipboardGetText()
         {
-            if (Win32.GetClipBoardText(out var text)) return text;
+            if (Win32.User32.GetClipBoardText(out var text)) return text;
             else
             {
                 try
@@ -368,14 +455,27 @@ namespace AntdUI
                 }
             }
         }
+
+        /// <summary>
+        /// 设置剪贴板文本（线程安全）
+        /// </summary>
+        /// <param name="control">用于调用Invoke的控件</param>
+        /// <param name="text">要设置的文本，null表示清空剪贴板</param>
+        /// <returns>是否设置成功</returns>
         public static bool ClipboardSetText(this Control control, string? text)
         {
             if (control.InvokeRequired) return ITask.Invoke(control, new Func<bool>(() => ClipboardSetText(text)));
             return ClipboardSetText(text);
         }
+
+        /// <summary>
+        /// 设置剪贴板文本
+        /// </summary>
+        /// <param name="text">要设置的文本，null表示清空剪贴板</param>
+        /// <returns>是否设置成功</returns>
         public static bool ClipboardSetText(string? text)
         {
-            if (Win32.SetClipBoardText(text)) return true;
+            if (Win32.User32.SetClipBoardText(text)) return true;
             else
             {
                 try
@@ -393,67 +493,229 @@ namespace AntdUI
 
         #endregion
 
-        public static bool IsAdmin()
+        static bool? cacheadmin;
+        /// <summary>
+        /// 检查当前进程是否以管理员身份运行
+        /// </summary>
+        /// <returns>true表示以管理员身份运行，false表示不是</returns>
+        public static bool IsAdmin(bool force = false)
         {
+            if (cacheadmin.HasValue)
+            {
+                if (force) cacheadmin = null;
+                else return cacheadmin.Value;
+            }
             using (var id = System.Security.Principal.WindowsIdentity.GetCurrent())
             {
-                return new System.Security.Principal.WindowsPrincipal(id).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+                cacheadmin = new System.Security.Principal.WindowsPrincipal(id).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+                return cacheadmin.Value;
             }
         }
 
         /// <summary>
-        /// 判断文本是否包含拼音
+        /// 判断文本是否包含搜索词，支持拼音搜索，并返回匹配权重
         /// </summary>
         /// <param name="search">搜索文字</param>
         /// <param name="text">全文本</param>
-        /// <param name="py">拼音</param>
+        /// <param name="py">拼音数组</param>
         /// <param name="select">是否需要选中</param>
-        /// <returns>返回权重</returns>
+        /// <returns>匹配权重，值越大匹配度越高</returns>
         public static int SearchContains(string search, string text, string[] py, out bool select)
         {
+            // 分割多关键字（支持空格、制表符、逗号分隔）
+            var keywords = search.Split(new[] { ' ', '\t', ',', '，' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (keywords.Length < 2) return SearchContainsSingle(keywords[0], text, py, out select);
+
             select = false;
-            int gear = py.Length, score = 0;
+            // 多关键字搜索
+            int totalScore = 0;
+
+            foreach (var keyword in keywords)
+            {
+                var trimmedKeyword = keyword.Trim();
+                if (string.IsNullOrEmpty(trimmedKeyword)) continue;
+                int score = SearchContainsSingle(trimmedKeyword, text, py, out bool keywordSelect);
+                if (score > 0)
+                {
+                    totalScore += score;
+                    if (keywordSelect) select = true;
+                }
+                else
+                {
+                    select = false;
+                    return 0;
+                }
+            }
+            return totalScore;
+        }
+
+        /// <summary>
+        /// 判断文本是否包含搜索词，支持拼音搜索，并返回匹配权重
+        /// </summary>
+        /// <param name="search">搜索文字</param>
+        /// <param name="text">全文本</param>
+        /// <param name="select">是否需要选中</param>
+        /// <returns>匹配权重，值越大匹配度越高</returns>
+        public static int SearchContains(string search, string text, out bool select)
+        {
+            // 分割多关键字（支持空格、制表符、逗号分隔）
+            var keywords = search.Split(new[] { ' ', '\t', ',', '，' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (keywords.Length < 2) return SearchContainsSingle(keywords[0], text, out select);
+
+            select = false;
+            // 多关键字搜索
+            int totalScore = 0;
+
+            foreach (var keyword in keywords)
+            {
+                var trimmedKeyword = keyword.Trim();
+                if (string.IsNullOrEmpty(trimmedKeyword)) continue;
+                int score = SearchContainsSingle(trimmedKeyword, text, out bool keywordSelect);
+                if (score > 0)
+                {
+                    totalScore += score;
+                    if (keywordSelect) select = true;
+                }
+                else
+                {
+                    select = false;
+                    return 0;
+                }
+            }
+            return totalScore;
+        }
+
+        /// <summary>
+        /// 判断文本是否包含搜索词，支持拼音搜索，并返回匹配权重（单个关键字）
+        /// </summary>
+        /// <param name="search">搜索文字</param>
+        /// <param name="text">全文本</param>
+        /// <param name="py">拼音数组</param>
+        /// <param name="select">是否需要选中</param>
+        /// <returns>匹配权重，值越大匹配度越高</returns>
+        public static int SearchContainsSingle(string search, string text, string[] py, out bool select)
+        {
+            select = false;
+
+            int searchLen = search.Length;
+            string searchLower = search.ToLower();
+
+            // 1. 完全匹配（区分大小写）- 最高分
             if (text == search)
             {
                 select = true;
-                score += gear * 10;
+                return 1000 + searchLen * 100;
             }
-            search = search.ToLower();
-            if (text == search)
+
+            // 2. 完全匹配（不区分大小写）
+            if (text.ToLower() == searchLower)
             {
                 select = true;
-                score += gear * 8;
+                return 900 + searchLen * 100;
             }
+
+            int score = 0;
             foreach (var pinyin in py)
             {
-                if (pinyin == search)
+                float pinyinLength = pinyin.Length;
+                // 拼音完全匹配
+                if (pinyin == searchLower)
                 {
                     select = true;
-                    score += gear * 3;
+                    var matchRatio = searchLen / pinyinLength;
+                    score += 500 + (int)(matchRatio * 100);
                 }
-                else if (pinyin.StartsWith(search)) score += gear * 2;
-                else if (pinyin.Contains(search)) score += gear;
-                gear--;
+                // 拼音前缀匹配
+                else if (pinyin.StartsWith(searchLower))
+                {
+                    var matchRatio = searchLen / pinyinLength;
+                    score += (int)(10 * matchRatio) + searchLen * 10;
+                }
+                else if (pinyin.Contains(searchLower))
+                {
+                    // 拼音包含匹配
+                    var matchRatio = searchLen / pinyinLength;
+                    score += (int)(5 * matchRatio) + searchLen * 5;
+                }
             }
             return score;
         }
 
+        /// <summary>
+        /// 判断文本是否包含搜索词，支持拼音搜索，并返回匹配权重（单个关键字）
+        /// </summary>
+        /// <param name="search">搜索文字</param>
+        /// <param name="text">全文本</param>
+        /// <param name="select">是否需要选中</param>
+        /// <returns>匹配权重，值越大匹配度越高</returns>
+        public static int SearchContainsSingle(string search, string text, out bool select)
+        {
+            select = false;
+
+            int searchLen = search.Length;
+            string searchLower = search.ToLower();
+
+            // 1. 完全匹配（区分大小写）- 最高分
+            if (text == search)
+            {
+                select = true;
+                return 1000 + searchLen * 100;
+            }
+
+            // 2. 完全匹配（不区分大小写）
+            var textLower = text.ToLower();
+            if (textLower == searchLower)
+            {
+                select = true;
+                return 900 + searchLen * 100;
+            }
+
+            float textLength = text.Length;
+            int score = 0;
+            if (textLower.StartsWith(searchLower))
+            {
+                var matchRatio = searchLen / textLength;
+                score += (int)(10 * matchRatio) + searchLen * 10;
+            }
+            else if (textLower.Contains(searchLower))
+            {
+                var matchRatio = searchLen / textLength;
+                score += (int)(5 * matchRatio) + searchLen * 5;
+            }
+
+            return score;
+        }
+
+        /// <summary>
+        /// 根据权重对搜索结果进行排序
+        /// </summary>
+        /// <param name="list">搜索结果列表</param>
+        /// <returns>排序后的对象列表</returns>
         public static List<object>? SearchWeightSort(this List<iItemSearchWeigth> list)
         {
             if (list.Count > 0)
             {
-                list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+                SearchWeightSortCore(ref list);
                 var result = new List<object>(list.Count);
                 foreach (var it in list) result.Add(it.Value);
                 return result;
             }
             return null;
         }
+
+        /// <summary>
+        /// 根据权重对搜索结果进行排序，并转换为指定类型
+        /// </summary>
+        /// <typeparam name="T">目标类型</typeparam>
+        /// <param name="list">搜索结果列表</param>
+        /// <returns>排序后的指定类型列表</returns>
         public static List<T>? SearchWeightSort<T>(this List<iItemSearchWeigth> list)
         {
             if (list.Count > 0)
             {
-                list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+                SearchWeightSortCore(ref list);
                 var result = new List<T>(list.Count);
                 foreach (var it in list)
                 {
@@ -463,33 +725,67 @@ namespace AntdUI
             }
             return null;
         }
+
+        /// <summary>
+        /// 根据权重对泛型搜索结果进行排序
+        /// </summary>
+        /// <typeparam name="T">目标类型</typeparam>
+        /// <param name="list">泛型搜索结果列表</param>
+        /// <returns>排序后的指定类型列表</returns>
         public static List<T>? SearchWeightSort<T>(this List<ItemSearchWeigth<T>> list)
         {
             if (list.Count > 0)
             {
-                list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+                SearchWeightSortCore(ref list);
                 var result = new List<T>(list.Count);
                 foreach (var it in list) result.Add(it.Value);
                 return result;
             }
             return null;
         }
+
+        /// <summary>
+        /// 根据权重对泛型搜索结果进行排序，支持分组排序
+        /// </summary>
+        /// <typeparam name="T">目标类型</typeparam>
+        /// <param name="list">泛型搜索结果列表</param>
+        /// <returns>排序后的指定类型列表</returns>
+        public static void SearchWeightSortByVirtualItem(this List<ItemSearchWeigth<VirtualItem>> list)
+        {
+            if (list.Count <= 0) return;
+            SearchWeightSortCore(ref list);
+            // 设置排序索引
+            for (int i = 0; i < list.Count; i++) list[i].Value.SortIndex = i;
+        }
+
+        /// <summary>
+        /// 根据权重对搜索结果进行排序，并转换为对象数组
+        /// </summary>
+        /// <param name="list">搜索结果列表</param>
+        /// <returns>排序后的对象数组</returns>
         public static object[]? SearchWeightSortArray(this List<iItemSearchWeigth> list)
         {
             if (list.Count > 0)
             {
-                list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+                SearchWeightSortCore(ref list);
                 var result = new List<object>(list.Count);
                 foreach (var it in list) result.Add(it.Value);
                 return result.ToArray();
             }
             return null;
         }
+
+        /// <summary>
+        /// 根据权重对搜索结果进行排序，并转换为指定类型数组
+        /// </summary>
+        /// <typeparam name="T">目标类型</typeparam>
+        /// <param name="list">搜索结果列表</param>
+        /// <returns>排序后的指定类型数组</returns>
         public static T[]? SearchWeightSortArray<T>(this List<iItemSearchWeigth> list)
         {
             if (list.Count > 0)
             {
-                list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+                SearchWeightSortCore(ref list);
                 var result = new List<T>(list.Count);
                 foreach (var it in list)
                 {
@@ -499,16 +795,243 @@ namespace AntdUI
             }
             return null;
         }
+
+        /// <summary>
+        /// 根据权重对泛型搜索结果进行排序，并转换为指定类型数组
+        /// </summary>
+        /// <typeparam name="T">目标类型</typeparam>
+        /// <param name="list">泛型搜索结果列表</param>
+        /// <returns>排序后的指定类型数组</returns>
         public static T[]? SearchWeightSortArray<T>(this List<ItemSearchWeigth<T>> list)
         {
             if (list.Count > 0)
             {
-                list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+                SearchWeightSortCore(ref list);
                 var result = new List<T>(list.Count);
                 foreach (var it in list) result.Add(it.Value);
                 return result.ToArray();
             }
             return null;
+        }
+
+        static void SearchWeightSortCore<T>(ref List<ItemSearchWeigth<T>> list)
+        {
+            list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+
+            var groupOrder = new Dictionary<string, List<ItemSearchWeigth<T>>>(list.Count);
+            int count = list.Count;
+            foreach (var it in list)
+            {
+                if (it.Group == null) return;
+                count--;
+                if (groupOrder.ContainsKey(it.Group)) groupOrder[it.Group].Add(it);
+                else groupOrder.Add(it.Group, new List<ItemSearchWeigth<T>>(count) { it });
+            }
+            count = list.Count;
+            foreach (var it in groupOrder)
+            {
+                foreach (var item in it.Value)
+                {
+                    item.Weight = count;
+                    count--;
+                }
+            }
+
+            list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+        }
+        static void SearchWeightSortCore(ref List<iItemSearchWeigth> list)
+        {
+            list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+
+            var groupOrder = new Dictionary<string, List<iItemSearchWeigth>>(list.Count);
+            int count = list.Count;
+            foreach (var it in list)
+            {
+                if (it.Group == null) return;
+                count--;
+                if (groupOrder.ContainsKey(it.Group)) groupOrder[it.Group].Add(it);
+                else groupOrder.Add(it.Group, new List<iItemSearchWeigth>(count) { it });
+            }
+            count = list.Count;
+            foreach (var it in groupOrder)
+            {
+                foreach (var item in it.Value)
+                {
+                    item.Weight = count;
+                    count--;
+                }
+            }
+
+            list.Sort((x, y) => -x.Weight.CompareTo(y.Weight));
+        }
+
+        /// <summary>
+        /// 判断指定坐标是否在三角形内
+        /// </summary>
+        /// <param name="x">鼠标X坐标</param>
+        /// <param name="y">鼠标Y坐标</param>
+        /// <param name="trianglePoints">三角形的三个顶点（必须包含3个Point）</param>
+        /// <returns>true=在内部，false=在外部</returns>
+        public static bool IsPointInTriangle(int x, int y, Point[] trianglePoints)
+        {
+            // 校验参数：必须传入3个顶点
+            Point A = trianglePoints[0], B = trianglePoints[1], C = trianglePoints[2];
+
+            // 计算三个叉乘结果（判断P在各边的哪一侧）
+            float cross1 = CrossProduct(B.X - A.X, B.Y - A.Y, x - A.X, y - A.Y), cross2 = CrossProduct(C.X - B.X, C.Y - B.Y, x - B.X, y - B.Y), cross3 = CrossProduct(A.X - C.X, A.Y - C.Y, x - C.X, y - C.Y);
+
+            // 判断是否全部同向（都为正 或 都为负，包含0则在边上）
+            bool isSameSign = (cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0);
+
+            return isSameSign;
+        }
+
+        /// <summary>
+        /// 计算二维向量叉乘（仅返回Z轴分量，代表方向）
+        /// </summary>
+        /// <param name="x1">向量1 X</param>
+        /// <param name="y1">向量1 Y</param>
+        /// <param name="x2">向量2 X</param>
+        /// <param name="y2">向量2 Y</param>
+        /// <returns>叉乘结果</returns>
+        private static float CrossProduct(int x1, int y1, int x2, int y2) => (x1 * (float)y2) - (y1 * (float)x2);
+
+        /// <summary>
+        /// 是否触屏
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsTouch()
+        {
+            uint extra = Win32.User32.GetMessageExtraInfo();
+            bool isTouchOrPen = ((extra & 0xFFFFFF00) == 0xFF515700);
+            if (isTouchOrPen) return ((extra & 0x00000080) == 0x00000080);
+            return false;
+        }
+
+        /// <summary>
+        /// 打开屏幕键盘
+        /// </summary>
+        public static bool OpenOsk()
+        {
+            if (OpenTabTip()) return true;
+            var windir = Environment.GetEnvironmentVariable("WINDIR");
+            if (windir == null) return ProcessShellOpen("osk.exe");
+            var path = System.IO.Path.Combine(windir, "sysnative", "osk.exe");
+            if (System.IO.File.Exists(path)) return ProcessShellOpen(path);
+            path = System.IO.Path.Combine(windir, "system32", "osk.exe");
+            if (System.IO.File.Exists(path)) return ProcessShellOpen(path);
+            return ProcessShellOpen("osk.exe");
+        }
+
+        internal static bool OpenTabTip()
+        {
+            var commonFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles);
+            if (commonFilesPath.Contains("Program Files (x86)")) commonFilesPath = commonFilesPath.Replace("Program Files (x86)", "Program Files");
+            var tabTipPath = System.IO.Path.Combine(commonFilesPath, @"microsoft shared\ink\TabTip.exe");
+            if (System.IO.File.Exists(tabTipPath))
+            {
+                var check = HasTabTip(out _);
+                if (check) return true;
+                return ProcessShellOpen(tabTipPath);
+            }
+            return false;
+        }
+
+        internal static bool HasTabTip(out IntPtr handle)
+        {
+            handle = Win32.User32.FindWindow("IPTIP_Main_Window", "");
+            if (Win32.IsValidHandle(handle))
+            {
+                var isVisible = IsWindowVisibleByHandle(handle);
+                if (isVisible.HasValue) return isVisible.Value;
+            }
+            var textInputHandle = FindTextInputWindow();
+            return Win32.IsValidHandle(textInputHandle);
+        }
+
+        internal static IntPtr FindTextInputWindow()
+        {
+            // enumerating Windows Store Container windows and try to find Window with caption 'Microsoft Text Input Application'
+            IntPtr lastProbed = IntPtr.Zero;
+            do
+            {
+                lastProbed = Win32.User32.FindWindowEx(IntPtr.Zero, lastProbed, "ApplicationFrameWindow", "");
+                if (Win32.IsValidHandle(lastProbed))
+                {
+                    var textInput = Win32.User32.FindWindowEx(lastProbed, IntPtr.Zero, "Windows.UI.Core.CoreWindow", "Microsoft Text Input Application");
+                    return textInput;
+                }
+            } while (Win32.IsValidHandle(lastProbed));
+
+            return IntPtr.Zero;
+        }
+        internal static bool? IsWindowVisibleByHandle(IntPtr handle)
+        {
+            var style = Win32.User32.GetWindowLong(handle, -16);
+            // if is disabled - not visible
+            if ((style & 0x08000000) != 0) return false;
+            // if has visible style - visible :)
+            if ((style & 0x10000000) != 0) return true;
+
+            // DWM Window can be cloaked
+            // see https://social.msdn.microsoft.com/Forums/vstudio/en-US/f8341376-6015-4796-8273-31e0be91da62/difference-between-actually-visible-and-not-visiblewhich-are-there-but-we-cant-see-windows-of?forum=vcgeneral
+            int cloaked;
+            if (Win32.DwmApi.DwmGetWindowAttribute(handle, 14, out cloaked, 4) == 0)
+            {
+                if (cloaked != 0) return false;
+            }
+            // undefined
+            return null;
+        }
+        internal static bool CloseTabTip()
+        {
+            if (HasTabTip(out var handle))
+            {
+                Win32.User32.SendMessage(handle, Win32.User32.WindowMessage.WM_SYSCOMMAND, 0xF060, IntPtr.Zero);
+                return true;
+            }
+            return false;
+        }
+
+        internal static bool ProcessShellOpen(this string file)
+        {
+            try
+            {
+                var pro = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { UseShellExecute = true, FileName = file });
+                if (pro == null) return false;
+                return true;
+            }
+            catch { }
+            return false;
+        }
+
+        /// <summary>
+        /// 安全截图控制，避免 Object is currently in use elsewhere 异常
+        /// </summary>
+        public static Bitmap? CaptureControl(this Control control)
+        {
+            if (control.Width <= 0 || control.Height <= 0) return null;
+            var bitmap = new Bitmap(control.Width, control.Height);
+            var rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    control.DrawToBitmap(bitmap, rect);
+                    return bitmap;
+                }
+                catch { }
+                System.Threading.Thread.Sleep(10);
+            }
+            bitmap.Dispose();
+            return null;
+        }
+
+        internal static Color HandColor(this Color? color, Colour? db, Color def)
+        {
+            if (color.HasValue) return color.Value;
+            if (db.HasValue) return Style.Get(db.Value);
+            return def;
         }
     }
 

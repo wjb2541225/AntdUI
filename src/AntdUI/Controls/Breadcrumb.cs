@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -34,12 +21,12 @@ namespace AntdUI
     [ToolboxItem(true)]
     [DefaultProperty("Items")]
     [DefaultEvent("ItemClick")]
-    public class Breadcrumb : IControl
+    public class Breadcrumb : IControl, IEventListener
     {
         #region 属性
 
         int gap = 12;
-        [Description("间距"), Category("外观"), DefaultValue(12)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(12)]
         public int Gap
         {
             get => gap;
@@ -56,7 +43,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -73,7 +60,7 @@ namespace AntdUI
         /// <summary>
         /// 激活文字颜色
         /// </summary>
-        [Description("激活文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ForeActive { get; set; }
 
@@ -81,7 +68,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(4)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(4)]
         public int Radius
         {
             get => radius;
@@ -94,12 +81,29 @@ namespace AntdUI
             }
         }
 
+        string separator = "/";
+        /// <summary>
+        /// 获取或设置分割符
+        /// </summary>
+        [Description("获取或设置分割符"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue("/")]
+        public string Separator
+        {
+            get => separator;
+            set
+            {
+                if (separator == value) return;
+                separator = value;
+                Invalidate();
+                OnPropertyChanged(nameof(Separator));
+            }
+        }
+
         BreadcrumbItemCollection? items;
         /// <summary>
         /// 获取列表中所有列表项的集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("集合"), Category("数据"), DefaultValue(null)]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public BreadcrumbItemCollection Items
         {
             get
@@ -113,7 +117,7 @@ namespace AntdUI
         /// <summary>
         /// 点击项时发生
         /// </summary>
-        [Description("点击项时发生"), Category("行为")]
+        [Description("点击项时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BreadcrumbItemEventHandler? ItemClick;
 
         protected virtual void OnItemClick(BreadcrumbItem item, MouseEventArgs e) => ItemClick?.Invoke(this, new BreadcrumbItemEventArgs(item, e));
@@ -130,6 +134,7 @@ namespace AntdUI
         {
             base.OnHandleCreated(e);
             ChangeItems();
+            this.AddListener();
         }
 
         protected override void OnMarginChanged(EventArgs e)
@@ -150,6 +155,16 @@ namespace AntdUI
             base.OnFontChanged(e);
         }
 
+        public void HandleEvent(EventType id, object? tag)
+        {
+            switch (id)
+            {
+                case EventType.LANG:
+                    ChangeItems();
+                    break;
+            }
+        }
+
         #endregion
 
         #endregion
@@ -165,41 +180,66 @@ namespace AntdUI
                 return;
             }
             var g = e.Canvas;
-            float _radius = radius * Config.Dpi;
-            using (var brush = new SolidBrush(fore ?? Colour.TextSecondary.Get(nameof(Breadcrumb), ColorScheme)))
-            using (var brush_active = new SolidBrush(ForeActive ?? Colour.Text.Get(nameof(Breadcrumb), ColorScheme)))
+            float _radius = radius * Dpi;
+            using (var brush = new SolidBrush(fore ?? Colour.TextSecondary.Get(ColorScheme, nameof(Breadcrumb), Name)))
+            using (var brush_active = new SolidBrush(ForeActive ?? Colour.Text.Get(ColorScheme, nameof(Breadcrumb), Name)))
             {
-                foreach (var it in hs) g.DrawText("/", Font, brush, it, s_f);
+                for (int i = 0; i < hs.Length; i++)
+                {
+                    var it = items[i];
+                    g.DrawText(it.Separator ?? separator, Font, brush, hs[i], s_f);
+                }
                 for (int i = 0; i < items.Count; i++)
                 {
                     var it = items[i];
-                    if (it == null) continue;
-                    if (i == items.Count - 1)
-                    {
-                        //最后一个
-                        PaintImg(g, it, brush_active.Color, it.IconSvg, it.Icon);
-                        g.DrawText(it.Text, Font, brush_active, it.RectText, s_f);
-                    }
+                    if (i == items.Count - 1) PaintItemActive(g, it, brush_active);
                     else
                     {
                         if (it.Hover)
                         {
                             using (var path = it.Rect.RoundPath(_radius))
                             {
-                                g.Fill(Colour.FillSecondary.Get(nameof(Breadcrumb), ColorScheme), path);
+                                g.Fill(Colour.FillSecondary.Get(ColorScheme, nameof(Breadcrumb), Name), path);
                             }
-                            PaintImg(g, it, brush_active.Color, it.IconSvg, it.Icon);
-                            g.DrawText(it.Text, Font, brush_active, it.RectText, s_f);
+                            PaintItemActive(g, it, brush_active);
                         }
-                        else
-                        {
-                            PaintImg(g, it, brush.Color, it.IconSvg, it.Icon);
-                            g.DrawText(it.Text, Font, brush, it.RectText, s_f);
-                        }
+                        else PaintItem(g, it, brush);
                     }
                 }
             }
             base.OnDraw(e);
+        }
+
+        void PaintItemActive(Canvas g, BreadcrumbItem it, SolidBrush brush)
+        {
+            if (it.ForeActive.HasValue)
+            {
+                PaintImg(g, it, it.ForeActive.Value, it.IconSvg, it.Icon);
+                g.DrawText(it.Text, Font, it.ForeActive.Value, it.RectText, s_f);
+            }
+            else if (it.Fore.HasValue)
+            {
+                PaintImg(g, it, it.Fore.Value, it.IconSvg, it.Icon);
+                g.DrawText(it.Text, Font, it.Fore.Value, it.RectText, s_f);
+            }
+            else
+            {
+                PaintImg(g, it, brush.Color, it.IconSvg, it.Icon);
+                g.DrawText(it.Text, Font, brush, it.RectText, s_f);
+            }
+        }
+        void PaintItem(Canvas g, BreadcrumbItem it, SolidBrush brush)
+        {
+            if (it.Fore.HasValue)
+            {
+                PaintImg(g, it, it.Fore.Value, it.IconSvg, it.Icon);
+                g.DrawText(it.Text, Font, it.Fore.Value, it.RectText, s_f);
+            }
+            else
+            {
+                PaintImg(g, it, brush.Color, it.IconSvg, it.Icon);
+                g.DrawText(it.Text, Font, brush, it.RectText, s_f);
+            }
         }
 
         bool PaintImg(Canvas g, BreadcrumbItem it, Color color, string? svg, Image? bmp)
@@ -210,7 +250,7 @@ namespace AntdUI
                 g.Image(bmp, it.RectImg);
                 count++;
             }
-            if (svg != null && g.GetImgExtend(svg, it.RectImg, color)) count++;
+            if (svg != null && g.Svg(svg, it.RectImg, color)) count++;
             return count == 0;
         }
 
@@ -219,7 +259,7 @@ namespace AntdUI
         #region 布局
 
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -248,11 +288,11 @@ namespace AntdUI
             if (CanLayout())
             {
                 var rect = ClientRectangle.PaddingRect(Padding).PaddingRect(Margin);
-                hs = Helper.GDI(g =>
+                hs = this.GDI(g =>
                 {
                     var hs = new List<Rectangle>(items!.Count);
                     var size_t = g.MeasureString(Config.NullText, Font);
-                    int sp = (int)(4 * Config.Dpi), sp2 = sp * 2, imgsize = (int)(size_t.Height * .8F), h = size_t.Height + sp, y = rect.Y + (rect.Height - h) / 2, y_img = rect.Y + (rect.Height - imgsize) / 2, _gap = (int)(gap * Config.Dpi);
+                    int sp = (int)(4 * Dpi), sp2 = sp * 2, imgsize = (int)(size_t.Height * .8F), h = size_t.Height + sp, y = rect.Y + (rect.Height - h) / 2, y_img = rect.Y + (rect.Height - imgsize) / 2, _gap = (int)(gap * Dpi);
                     int x = 0, tmpx = 0;
                     foreach (var it in items)
                     {
@@ -288,8 +328,8 @@ namespace AntdUI
                     }
                     return hs.ToArray();
                 });
+                if (print) Invalidate();
             }
-            if (print) Invalidate();
         }
 
         #endregion
@@ -390,14 +430,14 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         Image? icon;
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -413,7 +453,7 @@ namespace AntdUI
         /// <summary>
         /// 图标SVG
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -434,7 +474,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? Text
         {
             get => Localization.GetLangI(LocalizationText, text, new string?[] { "{id}", ID });
@@ -446,13 +486,42 @@ namespace AntdUI
             }
         }
 
+        string? separator;
+        /// <summary>
+        /// 获取或设置尾部的自定义分割符
+        /// </summary>
+        [Description("获取或设置尾部的自定义分割符"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public string? Separator
+        {
+            get => separator;
+            set
+            {
+                if (separator == value) return;
+                separator = value;
+                Invalidates();
+            }
+        }
+
+        /// <summary>
+        /// 文字颜色
+        /// </summary>
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
+        public Color? Fore { get; set; }
+        /// <summary>
+        /// 激活文字颜色
+        /// </summary>
+        [Description("激活文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
+        public Color? ForeActive { get; set; }
+
         [Description("文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationText { get; set; }
 
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 内部
@@ -502,6 +571,24 @@ namespace AntdUI
         {
             text = value;
             LocalizationText = localization;
+            return this;
+        }
+
+        public BreadcrumbItem SetFore(Color? value)
+        {
+            Fore = value;
+            return this;
+        }
+
+        public BreadcrumbItem SetForeActive(Color? value)
+        {
+            ForeActive = value;
+            return this;
+        }
+
+        public BreadcrumbItem SetSeparatorChar(string? value)
+        {
+            Separator = value;
             return this;
         }
 

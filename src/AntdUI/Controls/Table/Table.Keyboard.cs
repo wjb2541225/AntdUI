@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Windows.Forms;
 
@@ -30,9 +17,7 @@ namespace AntdUI
                 case Keys.Control | Keys.A:
                     if (MultipleRows && dataTmp != null)
                     {
-                        var list = new int[dataTmp.rows.Length];
-                        for (int i = 0; i < dataTmp.rows.Length; i++) list[i] = (i + 1);
-                        SelectedIndexs = list;
+                        SelectedIndexs = dataTmp.GetInts(1);
                         if (HandShortcutKeys) return true;
                     }
                     break;
@@ -65,20 +50,10 @@ namespace AntdUI
                     }
                     break;
                 case Keys.Left:
-                    int x = IKeyLeft();
-                    if (ScrollBar.ShowX)
-                    {
-                        ScrollBar.ValueX -= x;
-                        if (HandShortcutKeys) return true;
-                    }
+                    if (IKeyLeft() && HandShortcutKeys) return true;
                     break;
                 case Keys.Right:
-                    int xr = IKeyRight();
-                    if (ScrollBar.ShowX)
-                    {
-                        ScrollBar.ValueX += xr;
-                        if (HandShortcutKeys) return true;
-                    }
+                    if (IKeyRight() && HandShortcutKeys) return true;
                     break;
                 case Keys.Enter:
                 case Keys.Space:
@@ -90,11 +65,16 @@ namespace AntdUI
 
         bool IKeyUp()
         {
-            if (rows == null) return false;
-            if (selectedIndex.Length == 0) ScrollBar.ValueY -= 50;
+            if (rows == null || _editControls.Count > 0) return false;
+            if (selectedIndex.Length == 0) ScrollBar.ValueY -= (int)(60 * Dpi);
             else if (selectedIndex[0] > 1)
             {
-                int value = NextIndexUp(rows, selectedIndex[0] - 1);
+                int value = selectedIndex[0] - 1;
+                if (value > 0)
+                {
+                    if (dataLen < value) value = dataLen - 1;
+                }
+                else value = 0;
                 SelectedIndex = value;
                 ScrollLine(value, rows);
             }
@@ -102,11 +82,11 @@ namespace AntdUI
         }
         bool IKeyDown()
         {
-            if (rows == null) return false;
-            if (selectedIndex.Length == 0) ScrollBar.ValueY += 50;
-            else if (selectedIndex[selectedIndex.Length - 1] < (rows.Length - 1 - rowSummary))
+            if (rows == null || _editControls.Count > 0) return false;
+            if (selectedIndex.Length == 0) ScrollBar.ValueY += (int)(60 * Dpi);
+            else if (selectedIndex[selectedIndex.Length - 1] < dataLen)
             {
-                int value = NextIndexDown(rows, selectedIndex[selectedIndex.Length - 1] + 1);
+                int value = selectedIndex[selectedIndex.Length - 1] + 1;
                 SelectedIndex = value;
                 ScrollLine(value, rows);
             }
@@ -118,79 +98,87 @@ namespace AntdUI
             }
             return true;
         }
-        int IKeyLeft()
+        bool IKeyLeft()
         {
-            if (focusedCell == null || focusedCell.INDEX <= 0) return 50;
-            FocusedCell = focusedCell.ROW.cells[focusedCell.INDEX - 1];
-            if (focusedCell == null) return 50;
-            int x = (fixedColumnR != null && fixedColumnR.Contains(focusedCell.INDEX)) ? 0 : focusedCell.RECT.Width;
-            Invalidate(focusedCell.ROW.RECT);
-            return x;
-        }
-        int IKeyRight()
-        {
-            if (focusedCell == null) return 50;
-            int next = focusedCell.INDEX + 1;
-            if (next < focusedCell.ROW.cells.Length)
+            if (rows == null || _editControls.Count > 0) return false;
+            if (focusedxy == null || focusedxy[0] <= 0)
             {
-                FocusedCell = focusedCell?.ROW.cells[next];
-                if (focusedCell == null) return 50;
-                int x = (fixedColumnL != null && fixedColumnL.Contains(focusedCell.INDEX)) || focusedCell.RECT.Right < Width ? 0 : focusedCell.RECT.Width;
-                Invalidate(focusedCell.ROW.RECT);
-                return x;
+                if (ScrollBar.ShowX) ScrollBar.ValueX -= (int)(60 * Dpi);
+                return false;
             }
-            return 50;
+            try
+            {
+                var row = rows[focusedxy[1]];
+                if (row == null)
+                {
+                    if (ScrollBar.ShowX) ScrollBar.ValueX -= (int)(60 * Dpi);
+                    return false;
+                }
+                var cel = row.cells[focusedxy[0] - 1];
+                SetFocusedCell(cel);
+                ScrollColumn(cel.COLUMN);
+                return true;
+            }
+            catch { }
+            if (ScrollBar.ShowX) ScrollBar.ValueX -= (int)(60 * Dpi);
+            return false;
+        }
+        bool IKeyRight()
+        {
+            if (rows == null || _editControls.Count > 0) return false;
+            if (focusedxy == null)
+            {
+                if (ScrollBar.ShowX) ScrollBar.ValueX += (int)(60 * Dpi);
+                return false;
+            }
+            int next = focusedxy[0] + 1;
+            try
+            {
+                var row = rows[focusedxy[1]];
+                if (row == null)
+                {
+                    if (ScrollBar.ShowX) ScrollBar.ValueX += (int)(60 * Dpi);
+                    return false;
+                }
+                if (next < row.cells.Length)
+                {
+                    var cel = row.cells[next];
+                    SetFocusedCell(cel);
+                    ScrollColumn(cel.COLUMN);
+                    return true;
+                }
+            }
+            catch { }
+            if (ScrollBar.ShowX) ScrollBar.ValueX += (int)(60 * Dpi);
+            return false;
         }
 
         void IKeyEnter()
         {
-            if (rows == null) return;
             try
             {
                 if (selectedIndex.Length > 0)
                 {
                     int index = selectedIndex[0];
-                    if (index > rows.Length) return;
-                    var it = rows[index];
-                    OnCellClick(it.RECORD, index, 0, null, RealRect(it.RECT, ScrollBar.ValueX, ScrollBar.ValueY), new MouseEventArgs(MouseButtons.None, 0, 0, 0, 0));
-                    if (EditMode != TEditMode.None && focusedCell != null) EnterEditMode(index, focusedCell.INDEX);
+                    if (index > dataLen) return;
+                    var it = rows?[index];
+                    if (it == null) return;
+                    OnCellClick(it.RECORD, it.Type, index, 0, FocusedColumn, RealRect(it.RECT, ScrollBar.ValueX, ScrollBar.ValueY), new MouseEventArgs(MouseButtons.None, 0, 0, 0, 0));
+                    if (editmode == TEditMode.None || focusedxy == null) return;
+                    if (inEditMode)
+                    {
+                        var id_tmp = "edit_" + focusedxy[0] + "_" + focusedxy[1];
+                        foreach (var item in _editControls)
+                        {
+                            if (item.Key.Name == id_tmp) return;
+                        }
+                        if (EnableFocusNavigation && (navigationConfig?.Contains(rows!.First.cells[focusedxy[0]].COLUMN.Key, out _) ?? false)) return;
+                    }
+                    _currentEdit = null;
+                    EnterEditMode(index, focusedxy[0]);
                 }
             }
             catch { }
-        }
-
-        int NextIndexDown(RowTemplate[] rows, int value)
-        {
-            if (value < rows.Length - 1)
-            {
-                while (true)
-                {
-                    if (value < rows.Length - 1)
-                    {
-                        if (rows[value].SHOW) return value;
-                        else value++;
-                    }
-                    else return rows.Length - 1;
-                }
-            }
-            return value;
-        }
-        int NextIndexUp(RowTemplate[] rows, int value)
-        {
-            if (value > 0)
-            {
-                while (true)
-                {
-                    if (value > 0)
-                    {
-                        if (rows.Length < value) return rows.Length - 1;
-                        else if (rows[value].SHOW) return value;
-                        else value--;
-                    }
-                    else return 0;
-                }
-            }
-            return value;
         }
     }
 }

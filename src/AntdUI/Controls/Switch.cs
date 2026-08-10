@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -44,7 +31,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -62,7 +49,7 @@ namespace AntdUI
         /// <summary>
         /// 颜色
         /// </summary>
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -79,7 +66,7 @@ namespace AntdUI
         /// <summary>
         /// 悬停颜色
         /// </summary>
-        [Description("悬停颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? FillHover { get; set; }
 
@@ -90,7 +77,7 @@ namespace AntdUI
         /// <summary>
         /// 选中状态
         /// </summary>
-        [Description("选中状态"), Category("数据"), DefaultValue(false)]
+        [Description("选中状态"), Category(nameof(CategoryAttribute.Data)), DefaultValue(false)]
         public bool Checked
         {
             get => _checked;
@@ -99,7 +86,7 @@ namespace AntdUI
                 if (_checked == value) return;
                 _checked = value;
                 ThreadCheck?.Dispose();
-                if (IsHandleCreated && Config.HasAnimation(nameof(Switch)))
+                if (IsHandleCreated && Config.HasAnimation(nameof(Switch), Name))
                 {
                     AnimationCheck = true;
                     ThreadCheck = new AnimationTask(new AnimationLinearFConfig(this, i =>
@@ -119,21 +106,21 @@ namespace AntdUI
         /// <summary>
         /// 点击时自动改变选中状态
         /// </summary>
-        [Description("点击时自动改变选中状态"), Category("行为"), DefaultValue(true)]
+        [Description("点击时自动改变选中状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool AutoCheck { get; set; } = true;
 
         /// <summary>
         /// 波浪大小
         /// </summary>
-        [Description("波浪大小"), Category("外观"), DefaultValue(4)]
+        [Description("波浪大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(4)]
         public int WaveSize { get; set; } = 4;
 
-        [Description("间距"), Category("外观"), DefaultValue(2)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(2)]
         public int Gap { get; set; } = 2;
 
         string? _checkedText, _unCheckedText;
 
-        [Description("选中时显示的文本"), Category("外观"), DefaultValue(null)]
+        [Description("选中时显示的文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? CheckedText
         {
@@ -150,7 +137,7 @@ namespace AntdUI
         [Description("选中时显示的文本"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationCheckedText { get; set; }
 
-        [Description("未选中时显示的文本"), Category("外观"), DefaultValue(null)]
+        [Description("未选中时显示的文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? UnCheckedText
         {
@@ -173,7 +160,7 @@ namespace AntdUI
         /// <summary>
         /// 加载中
         /// </summary>
-        [Description("加载中"), Category("外观"), DefaultValue(false)]
+        [Description("加载中"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading
         {
             get => loading;
@@ -223,7 +210,7 @@ namespace AntdUI
         /// <summary>
         /// Checked 属性值更改时发生
         /// </summary>
-        [Description("Checked 属性值更改时发生"), Category("行为")]
+        [Description("Checked 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? CheckedChanged;
 
         protected virtual void OnCheckedChanged(bool e) => CheckedChanged?.Invoke(this, new BoolEventArgs(e));
@@ -242,29 +229,29 @@ namespace AntdUI
             bool enabled = Enabled;
             using (var path = rect_read.RoundPath(rect_read.Height))
             {
-                Color _color = fill ?? Colour.Primary.Get(nameof(Switch), ColorScheme);
+                Color _color = fill ?? Colour.Primary.Get(ColorScheme, nameof(Switch), Name);
                 PaintClick(g, path, rect, rect_read, _color);
                 if (enabled && (hasFocus && Config.FocusBorderEnabled) && WaveSize > 0)
                 {
-                    float wave = (WaveSize * Config.Dpi / 2), wave2 = wave * 2;
+                    float wave = (WaveSize * Dpi / 2), wave2 = wave * 2;
                     using (var path_focus = new RectangleF(rect_read.X - wave, rect_read.Y - wave, rect_read.Width + wave2, rect_read.Height + wave2).RoundPath(0, TShape.Round))
                     {
-                        g.Draw(Colour.PrimaryBorder.Get(nameof(Switch), ColorScheme), wave, path_focus);
+                        g.Draw(Colour.PrimaryBorder.Get(ColorScheme, nameof(Switch), Name), wave, path_focus);
                     }
                 }
-                using (var brush = new SolidBrush(Colour.TextQuaternary.Get(nameof(Switch), ColorScheme)))
+                using (var brush = new SolidBrush(Colour.TextQuaternary.Get(ColorScheme, nameof(Switch), Name)))
                 {
                     g.Fill(brush, path);
                     if (AnimationHover) g.Fill(Helper.ToColorN(AnimationHoverValue, brush.Color), path);
                     else if (ExtraMouseHover) g.Fill(brush, path);
                 }
-                int gap = (int)(Gap * Config.Dpi), gap2 = gap * 2;
+                int gap = (int)(Gap * Dpi), gap2 = gap * 2;
                 if (AnimationCheck)
                 {
                     var alpha = 255 * AnimationCheckValue;
                     g.Fill(Helper.ToColor(alpha, _color), path);
                     var dot_rect = new RectangleF(rect_read.X + gap + (rect_read.Width - rect_read.Height) * AnimationCheckValue, rect_read.Y + gap, rect_read.Height - gap2, rect_read.Height - gap2);
-                    g.FillEllipse(enabled ? Colour.BgBase.Get(nameof(Switch), ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), "bgDisabled", ColorScheme)), dot_rect);
+                    g.FillEllipse(enabled ? Colour.BgBase.Get(ColorScheme, nameof(Switch), Name) : Color.FromArgb(200, Colour.BgBase.GetSymbol(ColorScheme, "bgDisabled", nameof(Switch), Name)), dot_rect);
                     if (loading)
                     {
                         var dot_rect2 = new RectangleF(dot_rect.X + gap, dot_rect.Y + gap, dot_rect.Height - gap2, dot_rect.Height - gap2);
@@ -278,12 +265,12 @@ namespace AntdUI
                 }
                 else if (_checked)
                 {
-                    var colorhover = FillHover ?? Colour.PrimaryHover.Get(nameof(Switch), ColorScheme);
+                    var colorhover = FillHover ?? Colour.PrimaryHover.Get(ColorScheme, nameof(Switch), Name);
                     g.Fill(enabled ? _color : Color.FromArgb(200, _color), path);
                     if (AnimationHover) g.Fill(Helper.ToColorN(AnimationHoverValue, colorhover), path);
                     else if (ExtraMouseHover) g.Fill(colorhover, path);
                     var dot_rect = new RectangleF(rect_read.X + gap + rect_read.Width - rect_read.Height, rect_read.Y + gap, rect_read.Height - gap2, rect_read.Height - gap2);
-                    g.FillEllipse(enabled ? Colour.BgBase.Get(nameof(Switch), ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), "bgDisabled", ColorScheme)), dot_rect);
+                    g.FillEllipse(enabled ? Colour.BgBase.Get(ColorScheme, nameof(Switch), Name) : Color.FromArgb(200, Colour.BgBase.GetSymbol(ColorScheme, "bgDisabled", nameof(Switch), Name)), dot_rect);
                     if (loading)
                     {
                         var dot_rect2 = new RectangleF(dot_rect.X + gap, dot_rect.Y + gap, dot_rect.Height - gap2, dot_rect.Height - gap2);
@@ -298,7 +285,7 @@ namespace AntdUI
                 else
                 {
                     var dot_rect = new RectangleF(rect_read.X + gap, rect_read.Y + gap, rect_read.Height - gap2, rect_read.Height - gap2);
-                    g.FillEllipse(enabled ? Colour.BgBase.Get(nameof(Switch), ColorScheme) : Color.FromArgb(200, Colour.BgBase.Get(nameof(Switch), "bgDisabled", ColorScheme)), dot_rect);
+                    g.FillEllipse(enabled ? Colour.BgBase.Get(ColorScheme, nameof(Switch), Name) : Color.FromArgb(200, Colour.BgBase.GetSymbol(ColorScheme, "bgDisabled", nameof(Switch), Name)), dot_rect);
                     if (loading)
                     {
                         var dot_rect2 = new RectangleF(dot_rect.X + gap, dot_rect.Y + gap, dot_rect.Height - gap2, dot_rect.Height - gap2);
@@ -315,7 +302,7 @@ namespace AntdUI
                 string? textToRender = Checked ? CheckedText : UnCheckedText;
                 if (textToRender != null)
                 {
-                    Color _fore = fore ?? Colour.PrimaryColor.Get(nameof(Switch), ColorScheme);
+                    Color _fore = fore ?? Colour.PrimaryColor.Get(ColorScheme, nameof(Switch), Name);
                     using (var brush = new SolidBrush(_fore))
                     {
                         var textSize = g.MeasureString(textToRender, Font);
@@ -342,7 +329,7 @@ namespace AntdUI
             }
         }
 
-        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding, WaveSize * Config.Dpi);
+        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding, WaveSize * Dpi);
 
         public override GraphicsPath RenderRegion
         {
@@ -359,7 +346,7 @@ namespace AntdUI
 
         protected override void OnClick(EventArgs e)
         {
-            if (AutoCheck && Enabled) Checked = !_checked;
+            if (AutoCheck) Checked = !_checked;
             base.OnClick(e);
         }
 
@@ -394,7 +381,7 @@ namespace AntdUI
                 SetCursor(value && enabled);
                 if (enabled)
                 {
-                    if (Config.HasAnimation(nameof(Switch)))
+                    if (Config.HasAnimation(nameof(Switch), Name))
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
@@ -428,7 +415,7 @@ namespace AntdUI
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            if (Config.HasAnimation(nameof(Switch)) && e.Button == MouseButtons.Left)
+            if (Config.HasAnimation(nameof(Switch), Name) && e.Button == MouseButtons.Left)
             {
                 ThreadClick?.Dispose();
                 AnimationClickValue = 0;
@@ -475,7 +462,7 @@ namespace AntdUI
         /// 是否存在焦点
         /// </summary>
         [Browsable(false)]
-        [Description("是否存在焦点"), Category("行为"), DefaultValue(false)]
+        [Description("是否存在焦点"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool HasFocus
         {
             get => hasFocus;

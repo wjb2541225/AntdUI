@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 
 namespace Demo.Controls
@@ -81,7 +62,7 @@ namespace Demo.Controls
             header1.Dock = System.Windows.Forms.DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Signal.Description";
-            header1.LocalizationText = "Signal.Text";
+            header1.LocalizationText = "Signal";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
@@ -118,9 +99,9 @@ namespace Demo.Controls
             // 
             button2.AutoSizeMode = AntdUI.TAutoSize.Width;
             button2.LocalizationText = "Signal.Subtract";
-            button2.Location = new Point(59, 7);
+            button2.Location = new Point(54, 7);
             button2.Name = "button2";
-            button2.Size = new Size(50, 38);
+            button2.Size = new Size(45, 38);
             button2.TabIndex = 10;
             button2.Text = "减";
             button2.Type = AntdUI.TTypeMini.Success;
@@ -132,7 +113,7 @@ namespace Demo.Controls
             button1.LocalizationText = "Signal.Add";
             button1.Location = new Point(3, 7);
             button1.Name = "button1";
-            button1.Size = new Size(50, 38);
+            button1.Size = new Size(45, 38);
             button1.TabIndex = 9;
             button1.Text = "加";
             button1.Type = AntdUI.TTypeMini.Primary;

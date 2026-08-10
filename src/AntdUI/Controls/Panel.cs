@@ -1,28 +1,15 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace AntdUI
@@ -43,7 +30,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -51,13 +38,18 @@ namespace AntdUI
             {
                 if (radius == value) return;
                 radius = value;
+                if (XScroll != null) XScroll.Radius = value;
+                if (YScroll != null) YScroll.Radius = value;
                 Invalidate();
                 OnPropertyChanged(nameof(Radius));
             }
         }
 
         TAlignRound radiusAlign = TAlignRound.ALL;
-        [Description("圆角方向"), Category("外观"), DefaultValue(TAlignRound.ALL)]
+        /// <summary>
+        /// 圆角方向
+        /// </summary>
+        [Description("圆角方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlignRound.ALL)]
         public TAlignRound RadiusAlign
         {
             get => radiusAlign;
@@ -72,19 +64,30 @@ namespace AntdUI
 
         #region 阴影
 
-        Padding _padding = new Padding(0);
-        [Description("内边距"), Category("外观"), DefaultValue(typeof(Padding), "0, 0, 0, 0")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete("use InnerPadding"), Description("内边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Padding), "0, 0, 0, 0")]
         public Padding padding
+        {
+            get => InnerPadding;
+            set => InnerPadding = value;
+        }
+
+        Padding _padding = new Padding(0);
+        /// <summary>
+        /// 内边距
+        /// </summary>
+        [Description("内边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Padding), "0, 0, 0, 0")]
+        public Padding InnerPadding
         {
             get => _padding;
             set
             {
                 if (_padding == value) return;
                 _padding = value;
-                shadow_temp?.Dispose();
-                shadow_temp = null;
+                shadow_temp.Change();
                 IOnSizeChanged();
-                OnPropertyChanged(nameof(padding));
+                OnPropertyChanged(nameof(InnerPadding));
+
             }
         }
 
@@ -92,7 +95,7 @@ namespace AntdUI
         /// <summary>
         /// 阴影大小
         /// </summary>
-        [Description("阴影"), Category("外观"), DefaultValue(0)]
+        [Description("阴影"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Shadow
         {
             get => shadow;
@@ -100,8 +103,7 @@ namespace AntdUI
             {
                 if (shadow == value) return;
                 shadow = value;
-                shadow_temp?.Dispose();
-                shadow_temp = null;
+                shadow_temp.Change();
                 IOnSizeChanged();
                 OnPropertyChanged(nameof(Shadow));
             }
@@ -120,8 +122,7 @@ namespace AntdUI
             {
                 if (shadowColor == value) return;
                 shadowColor = value;
-                shadow_temp?.Dispose();
-                shadow_temp = null;
+                shadow_temp.Change();
                 Invalidate();
                 OnPropertyChanged(nameof(ShadowColor));
             }
@@ -139,8 +140,7 @@ namespace AntdUI
             {
                 if (shadowOffsetX == value) return;
                 shadowOffsetX = value;
-                shadow_temp?.Dispose();
-                shadow_temp = null;
+                shadow_temp.Change();
                 IOnSizeChanged();
                 OnPropertyChanged(nameof(ShadowOffsetX));
             }
@@ -158,8 +158,7 @@ namespace AntdUI
             {
                 if (shadowOffsetY == value) return;
                 shadowOffsetY = value;
-                shadow_temp?.Dispose();
-                shadow_temp = null;
+                shadow_temp.Change();
                 IOnSizeChanged();
                 OnPropertyChanged(nameof(ShadowOffsetY));
             }
@@ -236,12 +235,17 @@ namespace AntdUI
             {
                 if (shadowAlign == value) return;
                 shadowAlign = value;
-                shadow_temp?.Dispose();
-                shadow_temp = null;
+                shadow_temp.Change();
                 IOnSizeChanged();
                 OnPropertyChanged(nameof(ShadowAlign));
             }
         }
+
+        /// <summary>
+        /// 阴影延迟毫秒
+        /// </summary>
+        [Description("阴影延迟毫秒"), Category("阴影"), DefaultValue(100)]
+        public int ShadowDelay { get; set; } = 100;
 
         #endregion
 
@@ -251,7 +255,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Back
         {
@@ -269,7 +273,7 @@ namespace AntdUI
         /// <summary>
         /// 背景渐变色
         /// </summary>
-        [Description("背景渐变色"), Category("外观"), DefaultValue(null)]
+        [Description("背景渐变色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? BackExtend
         {
             get => backExtend;
@@ -286,7 +290,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片
         /// </summary>
-        [Description("背景图片"), Category("外观"), DefaultValue(null)]
+        [Description("背景图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public new Image? BackgroundImage
         {
             get => backImage;
@@ -303,7 +307,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片布局
         /// </summary>
-        [Description("背景图片布局"), Category("外观"), DefaultValue(TFit.Fill)]
+        [Description("背景图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Fill)]
         public new TFit BackgroundImageLayout
         {
             get => backFit;
@@ -424,22 +428,28 @@ namespace AntdUI
             var rect_read = ReadRectangle;
             if (rect_read.Width > 0 && rect_read.Height > 0)
             {
-                float _radius = radius * Config.Dpi;
+                float _radius = radius * Dpi;
+                var bg = back ?? Colour.BgContainer.Get(ColorScheme, nameof(Panel), Name);
                 using (var path = DrawShadow(g, _radius, e.Rect, rect_read))
                 {
-                    using (var brush = backExtend.BrushEx(rect_read, back ?? Colour.BgContainer.Get(nameof(Panel), ColorScheme)))
+                    using (var brush = backExtend.BrushEx(rect_read, bg))
                     {
                         g.Fill(brush, path);
                     }
                     if (backImage != null) g.Image(rect_read, backImage, backFit, _radius, false);
-                    if (borderWidth > 0) g.Draw(borderColor ?? Colour.BorderColor.Get(nameof(Panel), ColorScheme), borderWidth * Config.Dpi, borderStyle, path);
+                    if (borderWidth > 0) g.Draw(borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(Panel), Name), borderWidth * Dpi, borderStyle, path);
                 }
-                if (ArrowAlign != TAlign.None) g.FillPolygon(back ?? Colour.BgContainer.Get(nameof(Panel), ColorScheme), ArrowAlign.AlignLines(ArrowSize, e.Rect, rect_read));
+                if (ArrowAlign != TAlign.None) g.FillPolygon(bg, ArrowAlign.AlignLines(ArrowSize, e.Rect, rect_read));
             }
             base.OnDraw(e);
         }
 
-        Bitmap? shadow_temp;
+        AsyncShadow shadow_temp;
+        public Panel()
+        {
+            shadow_temp = new AsyncShadow(this, rect => rect.RoundPath(radius, shadowAlign, radiusAlign));
+        }
+
         /// <summary>
         /// 绘制阴影
         /// </summary>
@@ -451,28 +461,18 @@ namespace AntdUI
             var path = rect_read.RoundPath(radius, shadowAlign, radiusAlign);
             if (shadow > 0)
             {
-                int shadow = (int)(Shadow * Config.Dpi), shadowOffsetX = (int)(ShadowOffsetX * Config.Dpi), shadowOffsetY = (int)(ShadowOffsetY * Config.Dpi);
-                if (shadow_temp == null || shadow_temp.PixelFormat == PixelFormat.DontCare || (shadow_temp.Width != rect_client.Width || shadow_temp.Height != rect_client.Height))
-                {
-                    shadow_temp?.Dispose();
-                    shadow_temp = path.PaintShadowO(rect_client.Width, rect_client.Height, shadowColor ?? Colour.TextBase.Get(nameof(Panel), ColorScheme), shadow);
-                }
-                using (var attributes = new ImageAttributes())
-                {
-                    var matrix = new ColorMatrix();
-                    if (AnimationHover) matrix.Matrix33 = AnimationHoverValue;
-                    else if (ExtraMouseHover) matrix.Matrix33 = shadowOpacityHover;
-                    else matrix.Matrix33 = shadowOpacity;
-                    attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                    g.Image(shadow_temp, new Rectangle(rect_client.X + shadowOffsetX, rect_client.Y + shadowOffsetY, rect_client.Width, rect_client.Height), 0, 0, shadow_temp.Width, shadow_temp.Height, GraphicsUnit.Pixel, attributes);
-                }
+                float opacity;
+                if (AnimationHover) opacity = AnimationHoverValue;
+                else if (ExtraMouseHover) opacity = shadowOpacityHover;
+                else opacity = shadowOpacity;
+                shadow_temp.Draw(g, rect_client, rect_read, Dpi, shadow, ShadowOffsetX, ShadowOffsetY, shadowColor ?? Colour.TextBase.Get(ColorScheme, nameof(Panel), Name), opacity);
             }
             return path;
         }
 
-        public override Rectangle ReadRectangle => ClientRectangle.DeflateRect(_padding).PaddingRect(this, shadowAlign, borderWidth / 2F);
+        public override Rectangle ReadRectangle => ClientRectangle.DeflateRect(_padding, Dpi).PaddingRect(this, shadowAlign, borderWidth / 2F);
 
-        public override GraphicsPath RenderRegion => ReadRectangle.RoundPath(radius * Config.Dpi);
+        public override GraphicsPath RenderRegion => ReadRectangle.RoundPath(radius * Dpi);
 
         #endregion
 
@@ -487,10 +487,10 @@ namespace AntdUI
             set
             {
                 if (_mouseHover == value) return;
-                _mouseHover = value;
                 if (Enabled && ShadowOpacityAnimation && shadow > 0 && shadowOpacityHover > 0 && shadowOpacityHover > shadowOpacity)
                 {
-                    if (Config.HasAnimation(nameof(Panel)))
+                    _mouseHover = value;
+                    if (Config.HasAnimation(nameof(Panel), Name))
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
@@ -536,8 +536,7 @@ namespace AntdUI
             ThreadHover?.Dispose();
             ThreadHover = null;
             ShadowOpacityAnimation = false;
-            shadow_temp?.Dispose();
-            shadow_temp = null;
+            shadow_temp.Dispose();
             base.Dispose(disposing);
         }
         AnimationTask? ThreadHover;
@@ -578,6 +577,7 @@ namespace AntdUI
             base.OnHandleCreated(e);
             this.AddListener();
             if (ShadowOpacityAnimation) Application.AddMessageFilter(this);
+            if (autoscroll) InitScroll();
         }
 
         #region 主题变化
@@ -587,9 +587,229 @@ namespace AntdUI
             switch (id)
             {
                 case EventType.THEME:
-                    shadow_temp?.Dispose();
-                    shadow_temp = null;
+                    shadow_temp.Change();
+                    if (IPanel != null) InitScrollBg(IPanel);
+                    if (XScroll != null) InitScrollBg(XScroll);
+                    if (YScroll != null) InitScrollBg(YScroll);
                     break;
+            }
+        }
+
+        #endregion
+
+        #region 滚动条
+
+        /// <summary>
+        /// 内部容器背景透明
+        /// </summary>
+        [Description("内部容器背景透明"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
+        public bool AutoContainerBgTransparent { get; set; }
+
+        bool autoscroll = false;
+        /// <summary>
+        /// 是否显示滚动条
+        /// </summary>
+        [Description("是否显示滚动条"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
+        public bool AutoScroll
+        {
+            get => autoscroll;
+            set
+            {
+                if (autoscroll == value) return;
+                autoscroll = value;
+                if (IsHandleCreated) InitScroll();
+                OnPropertyChanged(nameof(AutoScroll));
+            }
+        }
+
+        private PanelCore? IPanel;
+        public XScrollBar? XScroll;
+        public YScrollBar? YScroll;
+
+        #region 滚动条
+
+        void InitScroll()
+        {
+            if (autoscroll)
+            {
+                if (DesignMode) return;
+                if (IPanel == null)
+                {
+                    IPanel = new PanelCore(ScrollInfo)
+                    {
+                        Name = "__IN__",
+                        Dock = DockStyle.Fill,
+                        AutoScroll = true,
+                        Bounds = DisplayRectangle
+                    };
+                    InitScrollBg(IPanel);
+                    var controls = new List<Control>(IPanel.Controls.Count);
+                    foreach (Control it in base.Controls)
+                    {
+                        if (it.Name == "__IN__" || it.Name == "__BARX__" || it.Name == "__BARY__") continue;
+                        controls.Add(it);
+                    }
+                    if (controls.Count > 0) IPanel.Controls.AddRange(controls.ToArray());
+                    base.Controls.Add(IPanel);
+                }
+                if (XScroll == null)
+                {
+                    int h = SystemInformation.HorizontalScrollBarHeight, w = IPanel.Width;
+                    XScroll = new XScrollBar
+                    {
+                        Name = "__BARX__",
+                        Dock = DockStyle.Bottom,
+                        MinimumSize = new Size(0, h),
+                        Size = new Size(w, h),
+                        Radius = Radius
+                    };
+                    InitScrollBg(XScroll);
+                    XScroll.ValueChanged += ScrollX_ValueChanged;
+                    base.Controls.Add(XScroll);
+                }
+                if (YScroll == null)
+                {
+                    int w = SystemInformation.VerticalScrollBarWidth, h = IPanel.Height;
+                    YScroll = new YScrollBar
+                    {
+                        Name = "__BARY__",
+                        Dock = DockStyle.Right,
+                        MinimumSize = new Size(w, 0),
+                        Size = new Size(w, h),
+                        Radius = Radius
+                    };
+                    InitScrollBg(YScroll);
+                    YScroll.ShowChanged += ScrollY_ShowChanged;
+                    YScroll.ValueChanged += ScrollY_ValueChanged;
+                    base.Controls.Add(YScroll);
+                }
+            }
+            else
+            {
+                if (IPanel != null)
+                {
+                    if (IPanel.Controls.Count > 0)
+                    {
+                        var controls = new List<Control>(IPanel.Controls.Count);
+                        foreach (Control it in IPanel.Controls) controls.Add(it);
+                        base.Controls.AddRange(controls.ToArray());
+                    }
+                    IPanel?.Dispose();
+                    IPanel = null;
+                }
+                if (YScroll != null)
+                {
+                    YScroll.ValueChanged -= ScrollY_ValueChanged;
+                    YScroll.ShowChanged -= ScrollY_ShowChanged;
+                    YScroll.Dispose();
+                    YScroll = null;
+                }
+                if (XScroll != null)
+                {
+                    XScroll.ValueChanged -= ScrollX_ValueChanged;
+                    XScroll.Dispose();
+                    XScroll = null;
+                }
+            }
+        }
+        void InitScrollBg(Control control)
+        {
+            if (AutoContainerBgTransparent) control.BackColor = Color.Transparent;
+            else control.BackColor = back ?? Colour.BgContainer.Get(ColorScheme, nameof(Panel), Name);
+        }
+
+        private void ScrollY_ShowChanged(object? sender, BoolEventArgs e)
+        {
+            if (XScroll == null || YScroll == null) return;
+            XScroll.RadiusRB = !e.Value;
+        }
+        private void ScrollX_ValueChanged(object? sender, IntEventArgs e)
+        {
+            if (IPanel == null || XScroll == null) return;
+            XScroll.SetValue(IPanel.HorizontalScroll);
+        }
+        private void ScrollY_ValueChanged(object? sender, IntEventArgs e)
+        {
+            if (IPanel == null || YScroll == null) return;
+            YScroll.SetValue(IPanel.VerticalScroll);
+        }
+
+        private void ScrollInfo()
+        {
+            if (IPanel == null || YScroll == null || XScroll == null) return;
+            YScroll.LoadValue(IPanel.VerticalScroll);
+            XScroll.LoadValue(IPanel.HorizontalScroll);
+        }
+
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            if (e.Control == null) return;
+            if (IPanel == null || e.Control.Name == "__IN__" || e.Control.Name == "__BARX__" || e.Control.Name == "__BARY__")
+            {
+                base.OnControlAdded(e);
+                return;
+            }
+            if (DesignMode)
+            {
+                base.OnControlAdded(e);
+                return;
+            }
+            IPanel.Controls.Add(e.Control);
+        }
+
+        public void Add(Control control) => Controls.Add(control);
+
+        [Browsable(false)]
+        public new ControlCollection Controls
+        {
+            get
+            {
+                if (IPanel == null) return base.Controls;
+                return IPanel.Controls;
+            }
+        }
+
+        public void ScrollControlIntoView(Control? activeControl) => IPanel?.ScrollControlIntoView(activeControl);
+
+        protected override void OnContextMenuStripChanged(EventArgs e)
+        {
+            base.OnContextMenuStripChanged(e);
+            if (IPanel != null) IPanel.ContextMenuStrip = ContextMenuStrip;
+        }
+
+        #endregion
+
+        internal class PanelCore : ScrollableControl
+        {
+            public PanelCore(Action loadScroll)
+            {
+                LoadScroll = loadScroll;
+                SetStyle(
+                    ControlStyles.AllPaintingInWmPaint |
+                    ControlStyles.OptimizedDoubleBuffer |
+                    ControlStyles.ResizeRedraw |
+                    ControlStyles.SupportsTransparentBackColor |
+                    ControlStyles.UserPaint, true);
+                UpdateStyles();
+            }
+
+            public Action LoadScroll;
+
+            protected override void WndProc(ref System.Windows.Forms.Message m)
+            {
+                switch ((Win32.User32.WindowMessage)m.Msg)
+                {
+                    case Win32.User32.WindowMessage.WM_PAINT:
+                    case Win32.User32.WindowMessage.WM_MOUSEWHEEL:
+                    case Win32.User32.WindowMessage.WM_SIZE:
+                        Win32.User32.HideScrollBar(Handle);
+                        LoadScroll();
+                        break;
+                    case Win32.User32.WindowMessage.WM_NCCALCSIZE:
+                        Win32.User32.HideScrollBar(Handle);
+                        break;
+                }
+                base.WndProc(ref m);
             }
         }
 

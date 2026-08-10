@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -25,8 +12,8 @@ namespace Demo.Controls
 {
     public partial class Popover : UserControl
     {
-        Form form;
-        public Popover(Form _form)
+        AntdUI.BaseForm form;
+        public Popover(AntdUI.BaseForm _form)
         {
             form = _form;
             InitializeComponent();
@@ -39,7 +26,9 @@ namespace Demo.Controls
 
         private void button2_Click(object sender, EventArgs e)
         {
-            AntdUI.Popover.open(new AntdUI.Popover.Config(button2, new Button(form) { Size = new Size(800, 300) }) { });
+            var page = Helper.AddPage("Button", "按钮", "按钮用于开始一个即时操作。", Button.Page(form));
+            page.Size = new Size(800, 300);
+            AntdUI.Popover.open(new AntdUI.Popover.Config(button2, page));
         }
 
         private void buttonTL_Click(object sender, EventArgs e)

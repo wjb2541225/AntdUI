@@ -1,26 +1,14 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Demo
@@ -32,7 +20,6 @@ namespace Demo
             InitializeComponent();
             windowBar.Text += " " + windowBar.ProductVersion;
             TopMost = top;
-            colorTheme.ValueChanged += ColorTheme_ValueChanged;
             var globals = new AntdUI.SelectItem[] {
                 new AntdUI.SelectItem("中文","zh-CN"),
                 new AntdUI.SelectItem("English","en-US")
@@ -57,220 +44,163 @@ namespace Demo
             base.OnMouseDown(e);
         }
 
-        private void ItemClick(object sender, AntdUI.VirtualItemEventArgs e) => OpenPage(e.Item.Tag.ToString());
-
-        //AntdUI.Tabs tabs = null;
-        public void OpenPage(string id)
+        private void ItemClick(object sender, AntdUI.VirtualItemEventArgs e)
         {
-            Control control_add = null;
+            if (e.Item is VItem item) OpenPage(item.data.id, item.data.key);
+        }
+
+        public void OpenPage(string id, string key)
+        {
+            var control_add = GetPage(id, key);
+            if (control_add == null) return;
+            int w = virtualPanel.Width, h = virtualPanel.Height;
+            virtualPanel.Visible = false;
+            panel_main.Bounds = new Rectangle(-w * 2, -h * 2, w, h);
+            windowBar.SubText = id;
+            if (windowBar.Tag is Control control)
+            {
+                control.Dispose();
+                Controls.Remove(control);
+            }
+            windowBar.Tag = control_add;
+            windowBar.ShowBack = true;
+            OpenPage(control_add);
+        }
+        async void OpenPage(Control control_add)
+        {
+            control_add.Dock = DockStyle.Fill;
+            AntdUI.Win32.WindowTheme(control_add);
+            AutoDpi(control_add);
+            panel_main.Controls.Add(control_add);
+            await Task.Delay(100);
+            panel_main.Dock = DockStyle.Fill;
+            control_add.Focus();
+        }
+
+        Control GetPage(string id, string key)
+        {
             switch (id)
             {
                 case "Button":
-                    control_add = new Controls.Button(this);
-                    break;
+                    return Helper.AddPage(id, key, "按钮用于开始一个即时操作。", Button.Page(this));
                 case "Icon":
-                    control_add = new Controls.Icon(this);
-                    break;
+                    return new Controls.Icon(this);
                 case "Avatar":
-                    control_add = new Controls.Avatar(this);
-                    break;
+                    return new Controls.Avatar(this);
                 case "Carousel":
-                    control_add = new Controls.Carousel(this);
-                    break;
+                    return new Controls.Carousel(this);
                 case "Badge":
-                    control_add = new Controls.Badge(this);
-                    break;
+                    return new Controls.Badge(this);
                 case "Checkbox":
-                    control_add = new Controls.Checkbox(this);
-                    break;
+                    return new Controls.Checkbox(this);
                 case "Radio":
-                    control_add = new Controls.Radio(this);
-                    break;
+                    return new Controls.Radio(this);
                 case "Input":
-                    control_add = new Controls.Input(this);
-                    break;
+                    return new Controls.Input(this);
                 case "Select":
-                    control_add = new Controls.Select(this);
-                    break;
+                    return new Controls.Select(this);
                 case "Panel":
-                    control_add = new Controls.Panel(this);
-                    break;
+                    return new Controls.Panel(this);
                 case "Progress":
-                    control_add = new Controls.Progress(this);
-                    break;
+                    return new Controls.Progress(this);
                 case "Result":
-                    control_add = new Controls.Result(this);
-                    break;
+                    return new Controls.Result(this);
                 case "Tooltip":
-                    control_add = new Controls.Tooltip(this);
-                    break;
+                    return new Controls.Tooltip(this);
                 case "Tour":
-                    control_add = new Controls.Tour(this);
-                    break;
+                    return new Controls.Tour(this);
                 case "Divider":
-                    control_add = new Controls.Divider(this);
-                    break;
+                    return new Controls.Divider(this);
                 case "Slider":
-                    control_add = new Controls.Slider(this);
-                    break;
+                    return new Controls.Slider(this);
                 case "Tabs":
-                    control_add = new Controls.Tabs(this);
-                    break;
+                    return new Controls.Tabs(this);
                 case "Switch":
-                    control_add = new Controls.Switch(this);
-                    break;
+                    return new Controls.Switch(this);
                 case "Pagination":
-                    control_add = new Controls.Pagination(this);
-                    break;
+                    return new Controls.Pagination(this);
                 case "Alert":
-                    control_add = new Controls.Alert(this);
-                    break;
+                    return new Controls.Alert(this);
                 case "Message":
-                    control_add = new Controls.Message(this);
-                    break;
+                    return new Controls.Message(this);
                 case "Notification":
-                    control_add = new Controls.Notification(this);
-                    break;
+                    return new Controls.Notification(this);
                 case "Menu":
-                    control_add = new Controls.Menu(this);
-                    break;
+                    return new Controls.Menu(this);
                 case "Segmented":
-                    control_add = new Controls.Segmented(this);
-                    break;
+                    return new Controls.Segmented(this);
                 case "Modal":
-                    control_add = new Controls.Modal(this);
-                    break;
+                    return new Controls.Modal(this);
                 case "DatePicker":
-                    control_add = new Controls.DatePicker(this);
-                    break;
+                    return new Controls.DatePicker(this);
                 case "TimePicker":
-                    control_add = new Controls.TimePicker(this);
-                    break;
+                    return new Controls.TimePicker(this);
                 case "Dropdown":
-                    control_add = new Controls.Dropdown(this);
-                    break;
+                    return new Controls.Dropdown(this);
                 case "Tree":
-                    control_add = new Controls.Tree(this);
-                    break;
+                    return new Controls.Tree(this);
                 case "Popover":
-                    control_add = new Controls.Popover(this);
-                    break;
+                    return new Controls.Popover(this);
                 case "Timeline":
-                    control_add = new Controls.Timeline(this);
-                    break;
+                    return new Controls.Timeline(this);
                 case "Steps":
-                    control_add = new Controls.Steps(this);
-                    break;
+                    return new Controls.Steps(this);
                 case "ColorPicker":
-                    control_add = new Controls.ColorPicker(this);
-                    break;
+                    return new Controls.ColorPicker(this);
                 case "InputNumber":
-                    control_add = new Controls.InputNumber(this);
-                    break;
+                    return new Controls.InputNumber(this);
                 case "Tag":
-                    control_add = new Controls.Tag(this);
-                    break;
+                    return new Controls.Tag(this);
                 case "Drawer":
-                    control_add = new Controls.Drawer(this);
-                    break;
+                    return new Controls.Drawer(this);
                 case "FloatButton":
                     OpenFloatButton();
                     break;
                 case "Rate":
-                    control_add = new Controls.Rate(this);
-                    break;
+                    return new Controls.Rate(this);
                 case "Table":
 #if DEBUG
-                    control_add = new Controls.Table(this);
+                    return new Controls.Table(this);
 #else
-                    control_add = new Controls.TableAOT(this);
+                    return new Controls.TableAOT(this);
 #endif
-                    break;
                 case "Image":
-                    control_add = new Controls.Preview(this);
-                    break;
+                    return new Controls.Preview(this);
                 case "VirtualPanel":
-                    control_add = new Controls.VirtualPanel(this);
-                    break;
+                    return new Controls.VirtualPanel(this);
                 case "PageHeader":
-                    control_add = new Controls.PageHeader(this);
-                    break;
+                    return new Controls.PageHeader(this);
                 case "Breadcrumb":
-                    control_add = new Controls.Breadcrumb(this);
-                    break;
+                    return new Controls.Breadcrumb(this);
                 case "Collapse":
-                    control_add = new Controls.Collapse(this);
-                    break;
+                    return new Controls.Collapse(this);
 
                 case "GridPanel":
-                    control_add = new Controls.GridPanel(this);
-                    break;
+                    return new Controls.GridPanel(this);
                 case "Splitter":
-                    control_add = new Controls.Splitter(this);
-                    break;
+                    return new Controls.Splitter(this);
                 case "Calendar":
-                    control_add = new Controls.Calendar(this);
-                    break;
+                    return new Controls.Calendar(this);
                 case "Battery":
-                    control_add = new Controls.Battery(this);
-                    break;
+                    return new Controls.Battery(this);
                 case "Signal":
-                    control_add = new Controls.Signal(this);
-                    break;
+                    return new Controls.Signal(this);
                 case "Spin":
-                    control_add = new Controls.Spin(this);
-                    break;
+                    return new Controls.Spin(this);
                 case "ContextMenuStrip":
-                    control_add = new Controls.ContextMenuStrip(this);
-                    break;
+                    return new Controls.ContextMenuStrip(this);
                 case "Shield":
-                    control_add = new Controls.Shield(this);
-                    break;
+                    return new Controls.Shield(this);
                 case "Transfer":
-                    control_add = new Controls.Transfer(this);
-                    break;
+                    return new Controls.Transfer(this);
                 case "Chart":
-                    control_add = new Controls.Chart(this);
-                    break;
+                    return new Controls.Chart(this);
                 case "Watermark":
-                    control_add = new Controls.Watermark(this);
-                    break;
+                    return new Controls.Watermark(this);
                 case "HyperlinkLabel":
-                    control_add = new Controls.HyperlinkLabel(this);
-                    break;
+                    return new Controls.HyperlinkLabel(this);
             }
-            if (control_add != null)
-            {
-                //if (tabs == null)
-                //{
-                //    tabs = new AntdUI.Tabs { Dock = DockStyle.Bottom, Size = new Size(0, 400),Type= AntdUI.TabType.Card };
-                //    Controls.Add(tabs);
-                //}
-                //var page = new AntdUI.TabPage { Text=id };
-                //page.Controls.Add(control_add);
-                //AutoDpi(control_add);
-                //tabs.Pages.Add(page);
-                //tabs.SelectedTab = page;
-                //return;
-                windowBar.SubText = id;
-                if (windowBar.Tag is Control control)
-                {
-                    control.Dispose();
-                    Controls.Remove(control);
-                }
-                windowBar.Tag = control_add;
-                BeginInvoke(new Action(() =>
-                {
-                    virtualPanel.Visible = false;
-                    control_add.Dock = DockStyle.Fill;
-                    AntdUI.Win32.WindowTheme(control_add);
-                    AutoDpi(control_add);
-                    Controls.Add(control_add);
-                    control_add.BringToFront();
-                    control_add.Focus();
-                    windowBar.ShowBack = true;
-                }));
-            }
+            return null;
         }
 
         #region 悬浮按钮
@@ -339,6 +269,8 @@ namespace Demo
                     Controls.Remove(control);
                 }
                 windowBar.ShowBack = false;
+                panel_main.Dock = DockStyle.None;
+                panel_main.Bounds = new Rectangle(-100, -100, 0, 0);
                 virtualPanel.Visible = true;
                 windowBar.SubText = "Overview";
             }));
@@ -346,21 +278,14 @@ namespace Demo
 
         private void btn_mode_Click(object sender, EventArgs e)
         {
-            if (setcolor)
-            {
-                var color = AntdUI.Style.Db.Primary;
-                AntdUI.Config.IsDark = !AntdUI.Config.IsDark;
-                Dark = AntdUI.Config.IsDark;
-                AntdUI.Style.SetPrimary(color);
-            }
-            else
-            {
-                AntdUI.Config.IsDark = !AntdUI.Config.IsDark;
-                Dark = AntdUI.Config.IsDark;
-            }
-
-            btn_mode.Toggle = Dark;
+            btn_mode.Toggle = AntdUI.Config.IsDark = !AntdUI.Config.IsDark;
             OnSizeChanged(e);
+        }
+
+        private void colorTheme_ValueChanged(object sender, AntdUI.ColorEventArgs e)
+        {
+            AntdUI.Style.SetPrimary(e.Value);
+            Refresh();
         }
 
         private void btn_setting_Click(object sender, EventArgs e)
@@ -382,44 +307,10 @@ namespace Demo
         {
             if (e.Value is string lang)
             {
-                btn_global.Loading = true;
                 if (lang.StartsWith("en")) AntdUI.Localization.Provider = new Localizer();
                 else AntdUI.Localization.Provider = null;
                 AntdUI.Localization.SetLanguage(lang);
                 Refresh();
-                AntdUI.ITask.Run(() =>
-                {
-                    int ScrollBarValue = virtualPanel.ScrollBar.Value;
-                    virtualPanel.PauseLayout = true;
-                    virtualPanel.Items.Clear();
-                    LoadList();
-
-                    string search = txt_search.Text;
-                    if (string.IsNullOrEmpty(search)) virtualPanel.Empty = false;
-                    else
-                    {
-                        virtualPanel.Empty = true;
-                        string searchLower = search.ToLower();
-                        var titles = new List<TItem>(virtualPanel.Items.Count);
-                        foreach (var it in virtualPanel.Items)
-                        {
-                            if (it is VItem item) it.Visible = item.data.id.Contains(search) || item.data.key.Contains(search) || item.data.keyword.Contains(searchLower) || item.data.keywordmini.Contains(searchLower);
-                            else if (it is TItem itemTitle) titles.Add(itemTitle);
-                        }
-                        foreach (var it in titles)
-                        {
-                            int count = 0;
-                            foreach (var item in it.data)
-                            {
-                                if (item.Visible) count++;
-                            }
-                            it.Visible = count > 0;
-                        }
-                    }
-
-                    virtualPanel.ScrollBar.Value = ScrollBarValue;
-                    virtualPanel.PauseLayout = false;
-                }, () => btn_global.Loading = false);
             }
         }
 
@@ -464,14 +355,6 @@ namespace Demo
             }
         }
 
-        bool setcolor = false;
-        private void ColorTheme_ValueChanged(object sender, AntdUI.ColorEventArgs e)
-        {
-            setcolor = true;
-            AntdUI.Style.SetPrimary(e.Value);
-            Refresh();
-        }
-
         #region 搜索
 
         private void txt_search_PrefixClick(object sender, MouseEventArgs e) => LoadSearchList();
@@ -480,34 +363,50 @@ namespace Demo
 
         void LoadSearchList()
         {
-            string search = txt_search.Text;
+            string search = txt_search.Text.Trim();
             windowBar.Loading = true;
             BeginInvoke(new Action(() =>
             {
                 virtualPanel.PauseLayout = true;
                 if (string.IsNullOrEmpty(search))
                 {
-                    foreach (var it in virtualPanel.Items) it.Visible = true;
+                    foreach (var it in virtualPanel.Items)
+                    {
+                        it.ResetVisible();
+                        if (it is AntdUI.TItem itemTitle) itemTitle.Restore();
+                    }
                     virtualPanel.Empty = false;
                 }
                 else
                 {
                     virtualPanel.Empty = true;
-                    string searchLower = search.ToLower();
-                    var titles = new List<TItem>(virtualPanel.Items.Count);
+                    var titles = new List<AntdUI.TItem>(virtualPanel.Items.Count);
+                    var listSearch = new List<AntdUI.ItemSearchWeigth<AntdUI.VirtualItem>>(virtualPanel.Items.Count);
                     foreach (var it in virtualPanel.Items)
                     {
-                        if (it is VItem item) it.Visible = item.data.id.Contains(search) || item.data.key.Contains(search) || item.data.keyword.Contains(searchLower) || item.data.keywordmini.Contains(searchLower);
-                        else if (it is TItem itemTitle) titles.Add(itemTitle);
+                        if (it is VItem item)
+                        {
+                            int score = AntdUI.Helper.SearchContains(search, item.data.id, item.data.keyword, out _);
+                            it.Visible = score > 0;
+                            if (it.Visible) listSearch.Add(new AntdUI.ItemSearchWeigth<AntdUI.VirtualItem>(score, it).SetGroup(item.group));
+                        }
+                        else if (it is AntdUI.TItem itemTitle) titles.Add(itemTitle);
+
                     }
+                    AntdUI.Helper.SearchWeightSortByVirtualItem(listSearch);
                     foreach (var it in titles)
                     {
+                        it.SortIndex = -1;
                         int count = 0;
                         foreach (var item in it.data)
                         {
-                            if (item.Visible) count++;
+                            if (item.Visible)
+                            {
+                                count++;
+                                if (it.SortIndex == -1 || it.SortIndex > item.SortIndex) it.SortIndex = item.SortIndex;
+                            }
                         }
-                        it.Visible = count > 0;
+                        it.SetCount(count);
                     }
                 }
                 virtualPanel.PauseLayout = false;
@@ -616,29 +515,47 @@ namespace Demo
 
 
             var dir = new Dictionary<string, IList[]> {
-                { AntdUI.Localization.Get("General", "通用"), dir_General },
-                { AntdUI.Localization.Get("Layout", "布局"), dir_Layout },
-                { AntdUI.Localization.Get("Navigation", "导航"), dir_Navigation },
-                { AntdUI.Localization.Get("DataEntry", "数据录入"), dir_DataEntry },
-                { AntdUI.Localization.Get("DataDisplay", "数据展示"), dir_DataDisplay },
-                { AntdUI.Localization.Get("Feedback", "反馈"), dir_Feedback },
-                { AntdUI.Localization.Get("Other", "其他"), dir_Other }
+                { "General", dir_General },
+                { "Layout", dir_Layout },
+                { "Navigation", dir_Navigation },
+                { "DataEntry", dir_DataEntry },
+                { "DataDisplay", dir_DataDisplay },
+                { "Feedback", dir_Feedback },
+                { "Other", dir_Other }
             };
 
             var list = new List<AntdUI.VirtualItem>(dir.Count + dir_General.Length + dir_Layout.Length + dir_Navigation.Length + dir_DataEntry.Length + dir_DataDisplay.Length + dir_Feedback.Length);
 
-            bool china = true;
-            if (System.Threading.Thread.CurrentThread.CurrentUICulture.Name.StartsWith("en")) china = false;
             foreach (var it in dir)
             {
                 var list_sub = new List<AntdUI.VirtualItem>(it.Value.Length);
-                foreach (var item in it.Value) list_sub.Add(new VItem(item, china));
-                list.Add(new TItem(it.Key, list_sub));
+                foreach (var item in it.Value) list_sub.Add(new VItem(item, it.Key));
+                list.Add(new AntdUI.TItem(GetChinaGroup(it.Key), it.Key, list_sub.ToArray()));
                 list.AddRange(list_sub);
             }
             virtualPanel.Items.AddRange(list);
             windowBar.Loading = false;
             virtualPanel.BlurBar = windowBar;
+        }
+        string GetChinaGroup(string key)
+        {
+            switch (key)
+            {
+                case "General":
+                    return "通用";
+                case "Layout":
+                    return "布局";
+                case "Navigation":
+                    return "导航";
+                case "DataEntry":
+                    return "数据录入";
+                case "DataDisplay":
+                    return "数据展示";
+                case "Feedback":
+                    return "反馈";
+                default:
+                    return "其他";
+            }
         }
 
         string ShieldSvg(string color)
@@ -654,70 +571,31 @@ namespace Demo
             {
                 id = _id;
                 key = _key;
-                keyword = _id.ToLower() + AntdUI.Pinyin.GetPinyin(_key).ToLower();
-                keywordmini = AntdUI.Pinyin.GetInitials(_key).ToLower();
+                keyword = new string[] {
+                    _id.ToLower(),
+                    AntdUI.Pinyin.GetPinyin(_key).ToLower(),
+                    AntdUI.Pinyin.GetInitials(_key).ToLower()
+                };
                 imgs = new Image[] { AntdUI.SvgExtend.SvgToBmp(_img_light), AntdUI.SvgExtend.SvgToBmp(_img_dark) };
             }
             public string id { get; set; }
-            public string keyword { get; set; }
-            public string keywordmini { get; set; }
+            public string[] keyword { get; set; }
             public string key { get; set; }
             public Image[] imgs { get; set; }
         }
 
         #region 渲染
 
-        class TItem : AntdUI.VirtualItem
-        {
-            string title, count;
-            public List<AntdUI.VirtualItem> data;
-            public TItem(string t, List<AntdUI.VirtualItem> d)
-            {
-                CanClick = false;
-                data = d;
-                title = t;
-                count = d.Count.ToString();
-            }
-
-            public override void Paint(AntdUI.Canvas g, AntdUI.VirtualPanelArgs e)
-            {
-                using (var font_title = new Font(e.Panel.Font, FontStyle.Bold))
-                using (var font_count = new Font(e.Panel.Font.FontFamily, e.Panel.Font.Size * .74F, e.Panel.Font.Style))
-                {
-                    var size = AntdUI.Helper.Size(g.MeasureString(title, font_title));
-                    g.String(title, font_title, AntdUI.Style.Db.Text, new Rectangle(e.Rect.X + x, e.Rect.Y, e.Rect.Width, e.Rect.Height), AntdUI.FormatFlags.Left | AntdUI.FormatFlags.VerticalCenter | AntdUI.FormatFlags.NoWrap);
-
-                    var rect_count = new Rectangle(e.Rect.X + x + size.Width + gap, e.Rect.Y + (e.Rect.Height - size.Height) / 2, size.Height, size.Height);
-                    using (var path = AntdUI.Helper.RoundPath(rect_count, e.Radius))
-                    {
-                        g.Fill(AntdUI.Style.Db.TagDefaultBg, path);
-                        g.Draw(AntdUI.Style.Db.DefaultBorder, sp, path);
-                    }
-                    g.String(count, font_count, AntdUI.Style.Db.Text, rect_count, AntdUI.FormatFlags.Center | AntdUI.FormatFlags.NoWrap);
-                }
-            }
-
-            int gap = 8, sp = 1, x = 30;
-            public override Size Size(AntdUI.Canvas g, AntdUI.VirtualPanelArgs e)
-            {
-                var dpi = AntdUI.Config.Dpi;
-                gap = (int)(8 * dpi);
-                sp = (int)(1 * dpi);
-                x = (int)(30 * dpi);
-                return new Size(e.Rect.Width, (int)(44 * dpi));
-            }
-        }
-
         class VItem : AntdUI.VirtualShadowItem
         {
             public IList data;
-            string name;
-            public VItem(IList d, bool china)
+            public string group;
+            string LocalizationName;
+            public VItem(IList d, string g)
             {
                 data = d;
-                Tag = d.id;
-                if (china) name = data.id + " " + data.key;
-                else name = data.id;
+                LocalizationName = d.id + " " + d.key;
+                group = g;
             }
 
             AntdUI.FormatFlags s_f = AntdUI.FormatFlags.Left | AntdUI.FormatFlags.VerticalCenter;
@@ -738,14 +616,13 @@ namespace Demo
                 {
                     using (var font_title = new Font(e.Panel.Font.FontFamily, 11F, FontStyle.Bold))
                     {
-                        g.String(name, font_title, fore, rect_title, s_f);
+                        g.String(AntdUI.Localization.Get(data.id, LocalizationName), font_title, fore, rect_title, s_f);
                     }
                 }
                 using (var brush = new SolidBrush(AntdUI.Style.Db.Split))
                 {
                     g.Fill(brush, rect_line);
                 }
-                //g.Fill(Color.Blue, rect_ico);
                 try
                 {
                     var bmp = AntdUI.Config.IsDark ? data.imgs[1] : data.imgs[0];
@@ -760,7 +637,7 @@ namespace Demo
             RectangleF rect_line;
             public override Size Size(AntdUI.Canvas g, AntdUI.VirtualPanelArgs e)
             {
-                var dpi = AntdUI.Config.Dpi;
+                var dpi = g.Dpi;
                 thickness = (int)(1 * dpi);
                 int title_height = (int)(44 * dpi), size = (int)(10 * dpi), size2 = size * 2, size4 = size2 * 2;
 
@@ -777,5 +654,18 @@ namespace Demo
         #endregion
 
         #endregion
+    }
+
+    public class ViewPage
+    {
+        public ViewPage(string name, string text, UserControl control)
+        {
+            Name = name;
+            Text = text;
+            Control = control;
+        }
+        public string Name { get; set; }
+        public string Text { get; set; }
+        public UserControl Control { get; set; }
     }
 }

@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -77,7 +58,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Popover.Description";
-            header1.LocalizationText = "Popover.Text";
+            header1.LocalizationText = "Popover";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -267,7 +248,7 @@ namespace Demo.Controls
             button2.LocalizationText = "Popover.{id}";
             button2.Location = new Point(145, 17);
             button2.Name = "button2";
-            button2.Size = new Size(182, 47);
+            button2.Size = new Size(173, 46);
             button2.TabIndex = 7;
             button2.Text = "自定义控件内容弹出";
             button2.Type = AntdUI.TTypeMini.Primary;
@@ -279,7 +260,7 @@ namespace Demo.Controls
             button1.LocalizationText = "Popover.{id}";
             button1.Location = new Point(14, 17);
             button1.Name = "button1";
-            button1.Size = new Size(100, 47);
+            button1.Size = new Size(93, 46);
             button1.TabIndex = 7;
             button1.Text = "普通弹出";
             button1.Type = AntdUI.TTypeMini.Primary;

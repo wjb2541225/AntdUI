@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +32,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -63,7 +50,7 @@ namespace AntdUI
         /// <summary>
         /// 颜色
         /// </summary>
-        [Description("颜色"), Category("外观"), DefaultValue(null)]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -80,14 +67,14 @@ namespace AntdUI
         /// <summary>
         /// 悬停颜色
         /// </summary>
-        [Description("悬停颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? FillHover { get; set; }
 
         /// <summary>
         /// 激活颜色
         /// </summary>
-        [Description("激活颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? FillActive { get; set; }
 
@@ -95,7 +82,7 @@ namespace AntdUI
         /// <summary>
         /// 位置
         /// </summary>
-        [Description("位置"), Category("外观"), DefaultValue(TabAlignment.Top)]
+        [Description("位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TabAlignment.Top)]
         public TabAlignment Alignment
         {
             get => alignment;
@@ -103,6 +90,7 @@ namespace AntdUI
             {
                 if (alignment == value) return;
                 alignment = value;
+                SetIsRotate();
                 LoadLayout(true);
                 OnPropertyChanged(nameof(Alignment));
             }
@@ -112,7 +100,7 @@ namespace AntdUI
         /// <summary>
         /// 标签居中展示
         /// </summary>
-        [Description("标签居中展示"), Category("外观"), DefaultValue(false)]
+        [Description("标签居中展示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Centered
         {
             get => centered;
@@ -129,7 +117,7 @@ namespace AntdUI
         /// <summary>
         /// 文本是否居中对齐（仅在Left/Right方向生效）
         /// </summary>
-        [Description("文本是否居中对齐（仅在Left/Right方向生效）"), Category("外观"), DefaultValue(false)]
+        [Description("文本是否居中对齐（仅在Left/Right方向生效）"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool TextCenter
         {
             get => textCenter;
@@ -146,7 +134,7 @@ namespace AntdUI
         /// <summary>
         /// 超出UI类型
         /// </summary>
-        [Description("超出UI类型"), Category("外观"), DefaultValue(TabTypExceed.Button)]
+        [Description("超出UI类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TabTypExceed.Button)]
         public TabTypExceed TypExceed
         {
             get => typExceed;
@@ -165,20 +153,38 @@ namespace AntdUI
         /// <summary>
         /// 切换使能
         /// </summary>
-        [Description("切换使能"), Category("行为"), DefaultValue(true)]
+        [Description("切换使能"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool EnableSwitch { get; set; } = true;
 
         /// <summary>
         /// 鼠标滚轮切换焦点页使能
         /// </summary>
-        [Description("鼠标滚轮切换焦点页使能"), Category("行为"), DefaultValue(true)]
+        [Description("鼠标滚轮切换焦点页使能"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool EnablePageScrolling { get; set; } = true;
+
+        /// <summary>
+        /// 鼠标中键关闭使能
+        /// </summary>
+        [Description("鼠标中键关闭使能"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool EnablePageCloseByMouseMiddle { get; set; } = true;
+
+        /// <summary>
+        /// 鼠标双击关闭使能
+        /// </summary>
+        [Description("鼠标双击关闭使能"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool EnablePageCloseByMouseDoubleClick { get; set; } = true;
+
+        /// <summary>
+        /// 关闭页面后释放
+        /// </summary>
+        [Description("关闭页面后释放"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public bool CloseDisposePage { get; set; }
 
         Color? scrollback;
         /// <summary>
         /// 滚动条颜色
         /// </summary>
-        [Description("滚动条颜色"), Category("外观"), DefaultValue(null)]
+        [Description("滚动条颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ScrollBack
         {
@@ -199,7 +205,7 @@ namespace AntdUI
         /// <summary>
         /// 滚动条文本颜色
         /// </summary>
-        [Description("滚动条文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("滚动条文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ScrollFore
         {
@@ -216,14 +222,14 @@ namespace AntdUI
         /// <summary>
         /// 滚动条悬停文本颜色
         /// </summary>
-        [Description("滚动条悬停文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("滚动条悬停文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ScrollForeHover { get; set; }
 
         /// <summary>
         /// 滚动条悬停颜色
         /// </summary>
-        [Description("滚动条悬停颜色"), Category("外观"), DefaultValue(null)]
+        [Description("滚动条悬停颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ScrollBackHover { get; set; }
 
@@ -233,7 +239,7 @@ namespace AntdUI
         /// <summary>
         /// 样式
         /// </summary>
-        [Description("样式"), Category("外观")]
+        [Description("样式"), Category(nameof(CategoryAttribute.Appearance))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public IStyle Style
         {
@@ -245,7 +251,7 @@ namespace AntdUI
         /// <summary>
         /// 样式类型
         /// </summary>
-        [Description("样式类型"), Category("外观"), DefaultValue(TabType.Line)]
+        [Description("样式类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TabType.Line)]
         public TabType Type
         {
             get => type;
@@ -282,7 +288,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(8)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(8)]
         public int Gap
         {
             get => _gap;
@@ -299,7 +305,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(.7F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.7F)]
         public float IconRatio
         {
             get => iconratio;
@@ -316,7 +322,7 @@ namespace AntdUI
         /// <summary>
         /// 图标与文字间距比例
         /// </summary>
-        [Description("图标与文字间距比例"), Category("外观"), DefaultValue(.25F)]
+        [Description("图标与文字间距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.25F)]
         public float IconGap
         {
             get => icongap;
@@ -330,7 +336,7 @@ namespace AntdUI
         }
 
         bool _tabMenuVisible = true;
-        [Description("是否显示头"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示头"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool TabMenuVisible
         {
             get => _tabMenuVisible;
@@ -346,7 +352,7 @@ namespace AntdUI
         /// <summary>
         /// 自定义项宽度
         /// </summary>
-        [Description("自定义项大小"), Category("外观"), DefaultValue(null)]
+        [Description("自定义项大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? ItemSize
         {
             get => _itemSize;
@@ -362,14 +368,14 @@ namespace AntdUI
         /// <summary>
         /// 拖动顺序
         /// </summary>
-        [Description("拖动顺序"), Category("行为"), DefaultValue(false)]
+        [Description("拖动顺序"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool DragOrder { get; set; }
 
         internal Dictionary<TabPage, Size> HandItemSize(Dictionary<TabPage, Size> rect_dir, ref int sizewh)
         {
             if (_itemSize.HasValue)
             {
-                int Size = (int)Math.Ceiling(_itemSize.Value * Config.Dpi);
+                int Size = (int)Math.Ceiling(_itemSize.Value * Dpi);
                 var rect_dirtmp = new Dictionary<TabPage, Size>(rect_dir.Count);
                 foreach (var it in rect_dir) rect_dirtmp.Add(it.Key, new Size(Size, it.Value.Height));
                 if (alignment == TabAlignment.Left || alignment == TabAlignment.Right) sizewh = Size;
@@ -377,6 +383,27 @@ namespace AntdUI
             }
             return rect_dir;
         }
+
+        TRotate rotate = TRotate.None;
+        /// <summary>
+        /// 旋转（用于 Left/Right 时竖排显示）
+        /// </summary>
+        [Description("旋转（用于 Left/Right 时竖排显示）"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TRotate.None)]
+        public TRotate Rotate
+        {
+            get => rotate;
+            set
+            {
+                if (rotate == value) return;
+                rotate = value;
+                SetIsRotate();
+                LoadLayout(true); // 重新布局
+                OnPropertyChanged(nameof(Rotate));
+            }
+        }
+
+        internal bool IsRotate = false;
+        void SetIsRotate() => IsRotate = (alignment == TabAlignment.Left || alignment == TabAlignment.Right) && rotate != TRotate.None;
 
         public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, _padding);
 
@@ -387,7 +414,7 @@ namespace AntdUI
         /// 数据
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public TabCollection Pages
         {
             get
@@ -437,23 +464,37 @@ namespace AntdUI
 
         public void SelectTab(int index) => SelectedIndex = index;
 
+        /// <summary>
+        /// 添加页面并设置激活
+        /// </summary>
+        public void AddTabSelect(TabPage page)
+        {
+            if (items == null) items = new TabCollection(this);
+            int index = _select = items.Count;
+            items.Add(page);
+            if (IsHandleCreated) ShowPage(index);
+        }
+
         #region 动画
 
         int _select = 0;
-        [Description("选中序号"), Category("数据"), DefaultValue(0)]
+        [Description("选中序号"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int SelectedIndex
         {
             get => _select;
             set
             {
                 if (_select == value) return;
-                int old = _select;
-                _select = value;
-                style.SelectedIndexChanged(value, old);
-                OnSelectedIndexChanged(value);
-                Invalidate();
-                ShowPage(_select);
-                OnPropertyChanged(nameof(SelectedIndex));
+                if (OnSelectedIndexChanging(value))
+                {
+                    int old = _select;
+                    _select = value;
+                    style.SelectedIndexChanged(value, old);
+                    Invalidate();
+                    ShowPage(_select);
+                    OnSelectedIndexChanged(value);
+                    OnPropertyChanged(nameof(SelectedIndex));
+                }
             }
         }
 
@@ -462,8 +503,20 @@ namespace AntdUI
             if (showok)
             {
                 if (items == null) return;
-                if (items.Count <= index || index < 0) return;
-                for (int i = 0; i < items.Count; i++) items[i].Showed = i == index;
+                try
+                {
+                    BeginInvoke(() =>
+                    {
+                        if (items.Count <= index || index < 0) return;
+                        for (int i = 0; i < items.Count; i++)
+                        {
+                            var page = items[i];
+                            bool show = i == index;
+                            page.Showed = show;
+                        }
+                    });
+                }
+                catch { }
             }
         }
 
@@ -472,9 +525,7 @@ namespace AntdUI
             style.Dispose();
             bitblock_l?.Dispose();
             bitblock_r?.Dispose();
-            if (items == null || items.Count == 0) return;
-            foreach (var it in items) it.Dispose();
-            items.Clear();
+            items?.Dispose();
             base.Dispose(disposing);
         }
 
@@ -542,8 +593,8 @@ namespace AntdUI
             {
                 if (_tabMenuVisible) style.LoadLayout(this, ClientRectangle.DeflateRect(Margin), items!);
                 else SetPadding(0, 0, 0, 0);
+                if (print) Invalidate();
             }
-            if (print) Invalidate();
         }
 
         #endregion
@@ -563,19 +614,19 @@ namespace AntdUI
         {
             if (page.Badge != null)
             {
-                var color = page.BadgeBack ?? Colour.Error.Get(nameof(Tabs), ColorScheme);
-                using (var brush_fore = new SolidBrush(Colour.ErrorColor.Get(nameof(Tabs), ColorScheme)))
+                var color = page.BadgeBack ?? Colour.Error.Get(ColorScheme, nameof(Tabs), Name);
+                using (var brush_fore = new SolidBrush(Colour.ErrorColor.Get(ColorScheme, nameof(Tabs), Name)))
                 {
                     using (var font = new Font(Font.FontFamily, Font.Size * page.BadgeSize))
                     {
                         if (string.IsNullOrEmpty(page.Badge) || page.Badge == "" || page.Badge == " ")
                         {
                             var size = g.MeasureString(Config.NullText, font).Width / 2;
-                            var rect_badge = new RectangleF(rect.Right - size - page.BadgeOffsetX * Config.Dpi, rect.Y + page.BadgeOffsetY * Config.Dpi, size, size);
+                            var rect_badge = new RectangleF(rect.Right - size - page.BadgeOffsetX * Dpi, rect.Y + page.BadgeOffsetY * Dpi, size, size);
                             using (var brush = new SolidBrush(color))
                             {
                                 g.FillEllipse(brush, rect_badge);
-                                g.DrawEllipse(brush_fore.Color, Config.Dpi, rect_badge);
+                                g.DrawEllipse(brush_fore.Color, Dpi, rect_badge);
                             }
                         }
                         else
@@ -584,24 +635,24 @@ namespace AntdUI
                             int size_badge = (int)(size.Height * 1.2F);
                             if (size.Height > size.Width)
                             {
-                                var rect_badge = new Rectangle(rect.Right - size_badge - (int)(page.BadgeOffsetX * Config.Dpi), rect.Y + (int)(page.BadgeOffsetY * Config.Dpi), size_badge, size_badge);
+                                var rect_badge = new Rectangle(rect.Right - size_badge - (int)(page.BadgeOffsetX * Dpi), rect.Y + (int)(page.BadgeOffsetY * Dpi), size_badge, size_badge);
                                 using (var brush = new SolidBrush(color))
                                 {
                                     g.FillEllipse(brush, rect_badge);
-                                    g.DrawEllipse(brush_fore.Color, Config.Dpi, rect_badge);
+                                    g.DrawEllipse(brush_fore.Color, Dpi, rect_badge);
                                 }
                                 g.String(page.Badge, font, brush_fore, rect_badge, s_f);
                             }
                             else
                             {
                                 int w_badge = size.Width + (size_badge - size.Height);
-                                var rect_badge = new Rectangle(rect.Right - w_badge - (int)(page.BadgeOffsetX * Config.Dpi), rect.Y + (int)(page.BadgeOffsetY * Config.Dpi), w_badge, size_badge);
+                                var rect_badge = new Rectangle(rect.Right - w_badge - (int)(page.BadgeOffsetX * Dpi), rect.Y + (int)(page.BadgeOffsetY * Dpi), w_badge, size_badge);
                                 using (var brush = new SolidBrush(color))
                                 {
                                     using (var path = rect_badge.RoundPath(rect_badge.Height))
                                     {
                                         g.Fill(brush, path);
-                                        g.Draw(brush_fore.Color, Config.Dpi, path);
+                                        g.Draw(brush_fore.Color, Dpi, path);
                                     }
                                 }
                                 g.String(page.Badge, font, brush_fore, rect_badge, s_f);
@@ -616,11 +667,13 @@ namespace AntdUI
 
         #region 鼠标
 
+        int clicks = 1;
         protected override void OnMouseDown(MouseEventArgs e)
         {
             pageDown = pageMove = null;
             offsetx = offsety = 0;
             base.OnMouseDown(e);
+            clicks = e.Clicks;
             if (items == null || MouseDownPre(e.X, e.Y)) return;
             if (_tabMenuVisible && EnableSwitch)
             {
@@ -669,7 +722,7 @@ namespace AntdUI
             {
                 if (alignment == TabAlignment.Top || alignment == TabAlignment.Bottom)
                 {
-                    int moveXY = oldXY - e.X, moveXYa = Math.Abs(moveXY), threshold = (int)(Config.TouchThreshold * Config.Dpi);
+                    int moveXY = oldXY - e.X, moveXYa = Math.Abs(moveXY), threshold = (int)(Config.TouchThreshold * Dpi);
                     if (moveXYa > threshold)
                     {
                         oldXY = e.X;
@@ -679,7 +732,7 @@ namespace AntdUI
                 }
                 else
                 {
-                    int moveXY = oldXY - e.Y, moveXYa = Math.Abs(moveXY), threshold = (int)(Config.TouchThreshold * Config.Dpi);
+                    int moveXY = oldXY - e.Y, moveXYa = Math.Abs(moveXY), threshold = (int)(Config.TouchThreshold * Dpi);
                     if (moveXYa > threshold)
                     {
                         oldXY = e.Y;
@@ -719,6 +772,7 @@ namespace AntdUI
             pageDown = pageMove = null;
             base.OnMouseUp(e);
             if (items == null) return;
+            if (clicks > 1) e = new MouseEventArgs(e.Button, clicks, e.X, e.Y, e.Delta);
             if (_tabMenuVisible)
             {
                 if (_pageMove != null)
@@ -738,28 +792,23 @@ namespace AntdUI
                     }
                     Invalidate();
                 }
-                int i = 0, x = e.X + scroll_x, y = e.Y + scroll_y;
-                foreach (var it in items)
+                if (_pageDown != null)
                 {
-                    if (it == _pageDown)
+                    int i = 0, x = e.X + scroll_x, y = e.Y + scroll_y;
+                    foreach (var it in items)
                     {
-                        if (it.Contains(x, y))
+                        if (it == _pageDown)
                         {
-                            if (style.MouseClick(it, i, x, y)) return;
-                            if (TabClick == null)
+                            if (_pageDown.Contains(x, y))
                             {
-                                SelectedIndex = i;
-                                return;
+                                if (style.MouseClick(_pageDown, i, x, y)) return;
+                                if (OnTabClick(_pageDown, i, style, e)) return;
                             }
-                            var args = new TabsItemEventArgs(it, i, style, e);
-                            TabClick(this, args);
-                            if (args.Cancel) return;
-                            SelectedIndex = i;
+                            else Invalidate();
+                            return;
                         }
-                        else Invalidate();
-                        return;
+                        i++;
                     }
-                    i++;
                 }
             }
         }
@@ -785,12 +834,6 @@ namespace AntdUI
             int dx = (rect1.X + rect1.Width / 2) - (rect2.X + rect2.Width / 2), dy = (rect1.Y + rect1.Height / 2) - (rect2.Y + rect2.Height / 2);
             return Math.Sqrt(dx * dx + dy * dy);
         }
-
-        /// <summary>
-        /// 点击标签时发生
-        /// </summary>
-        [Description("点击标签时发生"), Category("行为")]
-        public event TabsItemEventHandler? TabClick;
 
         int hover_i = -1;
         int Hover_i
@@ -1064,6 +1107,7 @@ namespace AntdUI
                     {
                         case TabAlignment.Left:
                         case TabAlignment.Right:
+                            if (IsRotate) size = last.Width;
                             rect_r = new Rectangle(last.X, rect.Bottom - size, last.Width, size);
                             break;
                         case TabAlignment.Top:
@@ -1080,8 +1124,9 @@ namespace AntdUI
             }
         }
 
-        public virtual Rectangle PaintExceedPre(Rectangle rect, int size)
+        public virtual Rectangle PaintExceedPre(Rectangle rect, Rectangle rect_btn)
         {
+            int size = IsRotate ? rect_btn.Width : rect_btn.Height;
             switch (typExceed)
             {
                 case TabTypExceed.Button:
@@ -1159,8 +1204,8 @@ namespace AntdUI
                 case TabAlignment.Right:
                     if (scroll_y > 0 || scroll_max != scroll_y)
                     {
-                        int gap = (int)(_gap * Config.Dpi), gap2 = gap * 2;
-                        int size = last.Height, icosize = (int)(size * 0.4F);
+                        int gap = (int)(_gap * Dpi), gap2 = gap * 2;
+                        int size = IsRotate ? last.Width : last.Height, icosize = (int)(size * 0.4F);
                         var rect_cr = new Rectangle(last.X, rect.Bottom - size, last.Width, size);
                         if (scroll_y > 0)
                         {
@@ -1170,7 +1215,7 @@ namespace AntdUI
                             {
                                 bitblock_l?.Dispose();
                                 bitblock_l = new Bitmap(rect_l.Width, rect_l.Height);
-                                using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay())
+                                using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay(Dpi))
                                 {
                                     using (var brush = new SolidBrush(color))
                                     {
@@ -1191,7 +1236,7 @@ namespace AntdUI
                             {
                                 bitblock_r?.Dispose();
                                 bitblock_r = new Bitmap(rect_r.Width, rect_r.Height);
-                                using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay())
+                                using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay(Dpi))
                                 {
                                     using (var brush = new SolidBrush(color))
                                     {
@@ -1206,7 +1251,7 @@ namespace AntdUI
                             g.Image(bitblock_r, rect_r, .1F);
                         }
                         var rect_ico = new Rectangle(rect_cr.X + (rect_cr.Width - icosize) / 2, rect_cr.Y + (rect_cr.Height - icosize) / 2, icosize, icosize);
-                        g.GetImgExtend(SvgDb.IcoMore, rect_ico, color);
+                        g.Svg(SvgDb.IcoMore, rect_ico, color);
                     }
                     break;
                 case TabAlignment.Top:
@@ -1214,7 +1259,7 @@ namespace AntdUI
                 default:
                     if (scroll_x > 0 || scroll_max != scroll_x)
                     {
-                        int gap = (int)(_gap * Config.Dpi), gap2 = gap * 2;
+                        int gap = (int)(_gap * Dpi), gap2 = gap * 2;
                         int size = last.Height, icosize = (int)(size * 0.4F);
                         var rect_cr = new Rectangle(rect.Right - size, last.Y, size, size);
                         if (scroll_x > 0)
@@ -1225,7 +1270,7 @@ namespace AntdUI
                             {
                                 bitblock_l?.Dispose();
                                 bitblock_l = new Bitmap(rect_l.Width, rect_l.Height);
-                                using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay())
+                                using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay(Dpi))
                                 {
                                     using (var brush = new SolidBrush(color))
                                     {
@@ -1246,7 +1291,7 @@ namespace AntdUI
                             {
                                 bitblock_r?.Dispose();
                                 bitblock_r = new Bitmap(rect_r.Width, rect_r.Height);
-                                using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay())
+                                using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay(Dpi))
                                 {
                                     using (var brush = new SolidBrush(color))
                                     {
@@ -1261,7 +1306,7 @@ namespace AntdUI
                             g.Image(bitblock_r, rect_r, .1F);
                         }
                         var rect_ico = new Rectangle(rect_cr.X + (rect_cr.Width - icosize) / 2, rect_cr.Y + (rect_cr.Height - icosize) / 2, icosize, icosize);
-                        g.GetImgExtend(SvgDb.IcoMore, rect_ico, color);
+                        g.Svg(SvgDb.IcoMore, rect_ico, color);
                     }
                     break;
             }
@@ -1276,11 +1321,11 @@ namespace AntdUI
                 case TabAlignment.Right:
                     if (scroll_y > 0 || scroll_max != scroll_y)
                     {
-                        int size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
-                        using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
+                        int size = (int)((IsRotate ? last.Width : last.Height) * .6F);
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var pen = new Pen(scrollfore ?? color, 2F * Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(ColorScheme, nameof(Tabs), Name), 2F * Dpi))
                         {
                             if (scroll_y > 0)
                             {
@@ -1325,10 +1370,10 @@ namespace AntdUI
                     if (scroll_x > 0 || scroll_max != scroll_x)
                     {
                         int size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
-                        using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var pen = new Pen(scrollfore ?? color, 2F * Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(ColorScheme, nameof(Tabs), Name), 2F * Dpi))
                         {
                             if (scroll_x > 0)
                             {
@@ -1379,11 +1424,11 @@ namespace AntdUI
                 case TabAlignment.Right:
                     if (scroll_y > 0 || scroll_max != scroll_y)
                     {
-                        int gap = (int)(_gap * Config.Dpi), gap2 = gap * 2, size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
-                        using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
+                        int gap = (int)(_gap * Dpi), gap2 = gap * 2, size = (int)((IsRotate ? last.Width : last.Height) * .6F);
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var pen = new Pen(scrollfore ?? color, 2F * Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(ColorScheme, nameof(Tabs), Name), 2F * Dpi))
                         {
                             if (scroll_y > 0)
                             {
@@ -1394,7 +1439,7 @@ namespace AntdUI
                                 {
                                     bitblock_l?.Dispose();
                                     bitblock_l = new Bitmap(Rect_l.Width, Rect_l.Height);
-                                    using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay())
+                                    using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay(Dpi))
                                     {
                                         using (var path = new Rectangle(0, 0, bitblock_l.Width, gap).RoundPath(gap, false, false, true, true))
                                         {
@@ -1428,7 +1473,7 @@ namespace AntdUI
                                 {
                                     bitblock_r?.Dispose();
                                     bitblock_r = new Bitmap(Rect_r.Width, Rect_r.Height);
-                                    using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay())
+                                    using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay(Dpi))
                                     {
                                         using (var path = new Rectangle(0, gap, bitblock_r.Width, gap).RoundPath(gap, true, true, false, false))
                                         {
@@ -1461,11 +1506,11 @@ namespace AntdUI
                 default:
                     if (scroll_x > 0 || scroll_max != scroll_x)
                     {
-                        int gap = (int)(_gap * Config.Dpi), gap2 = gap * 2, size = (int)(last.Height * .6F);
-                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(nameof(Tabs), ColorScheme)))
-                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(nameof(Tabs), ColorScheme)))
-                        using (var pen = new Pen(scrollfore ?? color, 2F * Config.Dpi))
-                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(nameof(Tabs), ColorScheme), 2F * Config.Dpi))
+                        int gap = (int)(_gap * Dpi), gap2 = gap * 2, size = (int)(last.Height * .6F);
+                        using (var brush = new SolidBrush(scrollback ?? Colour.FillSecondary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var brush_hover = new SolidBrush(ScrollBackHover ?? Colour.Primary.Get(ColorScheme, nameof(Tabs), Name)))
+                        using (var pen = new Pen(scrollfore ?? color, 2F * Dpi))
+                        using (var pen_hover = new Pen(ScrollForeHover ?? Colour.PrimaryColor.Get(ColorScheme, nameof(Tabs), Name), 2F * Dpi))
                         {
                             if (scroll_x > 0)
                             {
@@ -1476,7 +1521,7 @@ namespace AntdUI
                                 {
                                     bitblock_l?.Dispose();
                                     bitblock_l = new Bitmap(Rect_l.Width, Rect_l.Height);
-                                    using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay())
+                                    using (var g_bmp = Graphics.FromImage(bitblock_l).HighLay(Dpi))
                                     {
                                         using (var path = new Rectangle(0, 0, gap, bitblock_l.Height).RoundPath(gap, false, true, true, false))
                                         {
@@ -1510,7 +1555,7 @@ namespace AntdUI
                                 {
                                     bitblock_r?.Dispose();
                                     bitblock_r = new Bitmap(Rect_r.Width, Rect_r.Height);
-                                    using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay())
+                                    using (var g_bmp = Graphics.FromImage(bitblock_r).HighLay(Dpi))
                                     {
                                         using (var path = new Rectangle(gap, 0, gap, bitblock_r.Height).RoundPath(gap, true, false, false, true))
                                         {
@@ -1575,31 +1620,94 @@ namespace AntdUI
         /// <summary>
         /// SelectedIndex 属性值更改时发生
         /// </summary>
-        [Description("SelectedIndex 属性值更改时发生"), Category("行为")]
+        [Description("SelectedIndex 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event IntEventHandler? SelectedIndexChanged;
 
+        /// <summary>
+        /// SelectedIndex 属性值更改前发生
+        /// </summary>
+        [Description("SelectedIndex 属性值更改前发生"), Category(nameof(CategoryAttribute.Behavior))]
+        public event TabsIndexChangingEventHandler? SelectedIndexChanging;
+
         protected virtual void OnSelectedIndexChanged(int e) => SelectedIndexChanged?.Invoke(this, new IntEventArgs(e));
+        protected virtual bool OnSelectedIndexChanging(int e)
+        {
+            if (SelectedIndexChanging == null) return true;
+            var args = new TabsIndexChangingEventArgs(e);
+            SelectedIndexChanging(this, args);
+            if (args.Cancel) return false;
+            return true;
+        }
 
         internal void MouseChangeIndex(TabPage page)
         {
             if (items == null) return;
             int index = items.IndexOf(page);
-            if (TabClick == null)
-            {
-                SelectedIndex = index;
-                return;
-            }
-            var args = new TabsItemEventArgs(items[index], index, style, new MouseEventArgs(MouseButtons.None, 0, 0, 0, 0));
-            TabClick(this, args);
-            if (args.Cancel) return;
-            SelectedIndex = index;
+            if (OnTabClick(items[index], index, style, new MouseEventArgs(MouseButtons.None, 0, 0, 0, 0))) return;
         }
 
         /// <summary>
         /// 关闭页面前发生
         /// </summary>
-        [Description("关闭页面前发生"), Category("行为")]
+        [Description("关闭页面前发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ClosingPageEventHandler? ClosingPage;
+
+        protected virtual bool OnClosingPage(TabPage item)
+        {
+            if (ClosingPage == null) return true;
+            var args = new ClosingPageEventArgs(item);
+            return ClosingPage(this, args);
+        }
+
+        internal bool IOnClosingPage(TabPage item) => OnClosingPage(item);
+
+        /// <summary>
+        /// 点击标签时发生
+        /// </summary>
+        [Description("点击标签时发生"), Category(nameof(CategoryAttribute.Behavior))]
+        public event TabsItemEventHandler? TabClick;
+
+        protected virtual bool OnTabClick(TabPage item, int index, IStyle style, MouseEventArgs e)
+        {
+            if (TabClick == null)
+            {
+                RunTabClick(item, index, style, e);
+                return true;
+            }
+            var args = new TabsItemEventArgs(item, index, style, e);
+            TabClick(this, args);
+            if (args.Cancel) return false;
+            RunTabClick(item, index, style, e);
+            return true;
+        }
+        void RunTabClick(TabPage item, int index, IStyle style, MouseEventArgs e)
+        {
+            if (((EnablePageCloseByMouseMiddle && e.Button == MouseButtons.Middle) || (EnablePageCloseByMouseDoubleClick && e.Button == MouseButtons.Left && e.Clicks > 1)) && CanClose(item, style))
+            {
+                items!.Remove(item);
+                if (CloseDisposePage) item.Dispose();
+                return;
+            }
+            SelectedIndex = index;
+        }
+        bool CanClose(TabPage item, IStyle style)
+        {
+            if (item.ReadOnly) return false;
+            bool flag = false;
+            if (style is StyleLine line)
+            {
+                if (line.Closable) flag = true;
+            }
+            else if (style is StyleCard card)
+            {
+                if (card.Closable) flag = true;
+            }
+            else if (style is StyleCard2 card2)
+            {
+                if (card2.Closable != StyleCard2.CloseType.none) flag = true;
+            }
+            return flag && OnClosingPage(item);
+        }
 
         #endregion
 
@@ -1635,26 +1743,68 @@ namespace AntdUI
             action_add = item =>
             {
                 item.PARENT = it;
-                item.Dock = DockStyle.Fill;
-                if (it.InvokeRequired) it.Invoke(() => it.Controls.Add(item));
-                else it.Controls.Add(item);
-            };
-            action_del = (item, index) =>
-            {
-                if (index == -1) it.SelectedIndex = 0;
+                if (it.SelectedIndex == 0 && Count == 1)
+                {
+                    if (it.InvokeRequired)
+                    {
+                        it.Invoke(() =>
+                        {
+                            it.Controls.Add(item);
+                            item.Showed = true;
+                        });
+                    }
+                    else
+                    {
+                        it.Controls.Add(item);
+                        item.Showed = true;
+                    }
+                }
                 else
                 {
-                    int old = it.SelectedIndex;
-                    if (old == index)
-                    {
-                        int _new = index - 1;
-                        if (_new > -1) it.SelectedIndex = _new;
-                        else it.ShowPage(_new);
-                    }
-                    else if (old > index) it.SelectedIndex = old - 1;
+                    if (it.InvokeRequired) it.Invoke(() => it.Controls.Add(item));
+                    else it.Controls.Add(item);
                 }
-                // 针对 #IBLKEA 修正
-                it.Controls.Remove(item);
+            };
+            action_del = obj =>
+            {
+                if (obj is int obj_int && obj_int == -1)
+                {
+                    it.SelectedIndex = 0;
+                    if (it.CloseDisposePage)
+                    {
+                        foreach (Control control in it.Controls) control.Dispose();
+                    }
+                    it.Controls.Clear();
+                }
+                else if (obj is object[] objs && objs[0] is TabPage item && objs[1] is int index)
+                {
+                    if (index == -1) it.SelectedIndex = 0;
+                    else
+                    {
+                        int old = it.SelectedIndex;
+                        if (old == index)
+                        {
+                            if (index == 0) it.ShowPage(index);
+                            else
+                            {
+                                int _new = index - 1;
+                                if (_new > -1) it.SelectedIndex = _new;
+                                else it.ShowPage(_new);
+                            }
+                        }
+                        else if (old > index) it.SelectedIndex = old - 1;
+                    }
+                    if (it.CloseDisposePage) item.Dispose();
+                    it.Controls.Remove(item);
+                }
+                else if (obj is IList<TabPage> list)
+                {
+                    if (it.CloseDisposePage)
+                    {
+                        foreach (var control in list) control.Dispose();
+                    }
+                    foreach (var control in list) it.Controls.Remove(control);
+                }
             };
             return this;
         }
@@ -1670,7 +1820,6 @@ namespace AntdUI
                ControlStyles.AllPaintingInWmPaint |
                ControlStyles.OptimizedDoubleBuffer |
                ControlStyles.ResizeRedraw |
-               ControlStyles.DoubleBuffer |
                ControlStyles.SupportsTransparentBackColor |
                ControlStyles.ContainerControl |
                ControlStyles.UserPaint, true);
@@ -1683,7 +1832,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Category("外观"), Description("图标"), DefaultValue(null)]
+        [Category(nameof(CategoryAttribute.Appearance)), Description("图标"), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -1699,7 +1848,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Category("外观"), Description("图标SVG"), DefaultValue(null)]
+        [Category(nameof(CategoryAttribute.Appearance)), Description("图标SVG"), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -1720,7 +1869,7 @@ namespace AntdUI
         /// <summary>
         /// 只读
         /// </summary>
-        [Description("只读"), Category("行为"), DefaultValue(false)]
+        [Description("只读"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ReadOnly
         {
             get => readOnly;
@@ -1798,7 +1947,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue("")]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue("")]
         public override string Text
         {
             get => this.GetLangIN(LocalizationText, text);
@@ -1855,23 +2004,45 @@ namespace AntdUI
 
         #region 隐藏显示
 
-        bool showed = false;
+        DockStyle olddock = DockStyle.Fill;
+        /// <summary>
+        /// 定义要绑定到容器的控件边框
+        /// </summary>
+        [Category(nameof(CategoryAttribute.Layout)), Description("定义要绑定到容器的控件边框"), DefaultValue(DockStyle.Fill)]
+        public new DockStyle Dock
+        {
+            get => olddock;
+            set
+            {
+                if (olddock == value) return;
+                olddock = value;
+                if (Showed) base.Dock = value;
+            }
+        }
+
+        bool? showed;
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Description("显示的"), Category("外观"), DefaultValue(false)]
+        [Description("显示的"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Showed
         {
-            get => showed;
+            get => showed ?? false;
             internal set
             {
                 if (showed == value) return;
                 showed = value;
-                ShowedChanged?.Invoke(this, EventArgs.Empty);
                 if (value)
                 {
-                    if (IsHandleCreated) BeginInvoke(BringToFront);
-                    else BringToFront();
+                    base.Dock = olddock;
+                    BringToFront();
                 }
+                else
+                {
+                    int w = Width, h = Height;
+                    base.Dock = DockStyle.None;
+                    Bounds = new Rectangle(-w * 2, -h * 2, w, h);
+                }
+                ShowedChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

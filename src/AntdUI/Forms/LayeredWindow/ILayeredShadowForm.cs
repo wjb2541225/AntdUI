@@ -1,22 +1,10 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -32,7 +20,7 @@ namespace AntdUI
         {
             if (ShadowEnabled)
             {
-                shadow = (int)(10 * Config.Dpi);
+                shadow = (int)(Config.ShadowSize * Dpi);
                 shadow2 = shadow * 2;
             }
         }
@@ -41,13 +29,13 @@ namespace AntdUI
 
         public void CLocation(IControl control, TAlignFrom Placement, bool DropDownArrow, int ArrowSize)
         {
-            var calculateCoordinate = new CalculateCoordinate(control, TargetRect, Radius, DropDownArrow ? ArrowSize : 0, shadow, shadow2);
+            var calculateCoordinate = new CalculateCoordinate(this, control, TargetRect, Radius, DropDownArrow ? ArrowSize : 0, shadow, shadow2);
             calculateCoordinate.Auto(Placement, animateConfig, true, out int x, out int y, out ArrowLine);
             SetLocation(x, y);
         }
         public void CLocation(IControl control, TAlignFrom Placement, Rectangle rect_real, bool DropDownArrow, int ArrowSize, bool Collision = false)
         {
-            var calculateCoordinate = new CalculateCoordinate(control, TargetRect, Radius, DropDownArrow ? ArrowSize : 0, shadow, shadow2, rect_real);
+            var calculateCoordinate = new CalculateCoordinate(this, control, TargetRect, Radius, DropDownArrow ? ArrowSize : 0, shadow, shadow2, rect_real);
             calculateCoordinate.Auto(Placement, animateConfig, Collision, out int x, out int y, out ArrowLine);
             SetLocation(x, y);
         }
@@ -142,7 +130,29 @@ namespace AntdUI
         {
             if (RunAnimation) return;
             base.OnMouseMove(e);
-            OnMouseMove(e.Button, e.Clicks, e.X - shadow, e.Y - shadow, e.Delta);
+            int x = e.X - shadow, y = e.Y - shadow;
+            if (EnableSafetyTriangleZone)
+            {
+                bool ret = false;
+                if (SafetyTriangleZone != null && Helper.IsPointInTriangle(x, y, SafetyTriangleZone)) ret = true;
+                var rect = OnSafetyTriangleZone(x, y);
+                if (rect.HasValue)
+                {
+                    var now = DateTime.Now;
+                    if ((now - SafetyTriangleFlag).TotalMilliseconds > 500)
+                    {
+                        SafetyTriangleFlag = now;
+                        int x2 = rect.Value.X - TargetRect.X, y2 = rect.Value.Y - TargetRect.Y;
+                        SafetyTriangleZone = new Point[] {
+                            new Point(x, y),
+                            new Point(x2, y2),
+                            new Point(x2, y2 + rect.Value.Height)
+                        };
+                    }
+                }
+                if (ret) return;
+            }
+            OnMouseMove(e.Button, e.Clicks, x, y, e.Delta);
         }
         protected override void OnMouseWheel(MouseEventArgs e)
         {
@@ -153,10 +163,23 @@ namespace AntdUI
 
         #endregion
 
+        #region 安全三角区
+
+        Point[]? SafetyTriangleZone;
+        DateTime SafetyTriangleFlag;
+
+        /// <summary>
+        /// 是否启用安全三角区
+        /// </summary>
+        public virtual bool EnableSafetyTriangleZone => false;
+        public virtual Rectangle? OnSafetyTriangleZone(int x, int y) => null;
+
+        #endregion
+
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius { get; set; }
 
         public Point[]? ArrowLine;
@@ -178,7 +201,7 @@ namespace AntdUI
         {
             var rect = TargetRectXY;
             Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(rbmp).HighLay())
+            using (var g = Graphics.FromImage(rbmp).HighLay(Dpi))
             {
                 if (ShadowEnabled)
                 {
@@ -223,7 +246,7 @@ namespace AntdUI
         {
             if (ShadowEnabled)
             {
-                shadow = (int)(10 * Config.Dpi);
+                shadow = (int)(Config.ShadowSize * Dpi);
                 shadow2 = shadow * 2;
             }
         }
@@ -306,7 +329,29 @@ namespace AntdUI
         {
             if (RunAnimation) return;
             base.OnMouseMove(e);
-            OnMouseMove(e.Button, e.Clicks, e.X - shadow, e.Y - shadow, e.Delta);
+            int x = e.X - shadow, y = e.Y - shadow;
+            if (EnableSafetyTriangleZone)
+            {
+                bool ret = false;
+                if (SafetyTriangleZone != null && Helper.IsPointInTriangle(x, y, SafetyTriangleZone)) ret = true;
+                var rect = OnSafetyTriangleZone(x, y);
+                if (rect.HasValue)
+                {
+                    var now = DateTime.Now;
+                    if ((now - SafetyTriangleFlag).TotalMilliseconds > 500)
+                    {
+                        SafetyTriangleFlag = now;
+                        int x2 = rect.Value.X - TargetRect.X, y2 = rect.Value.Y - TargetRect.Y;
+                        SafetyTriangleZone = new Point[] {
+                            new Point(x, y),
+                            new Point(x2, y2),
+                            new Point(x2, y2 + rect.Value.Height)
+                        };
+                    }
+                }
+                if (ret) return;
+            }
+            OnMouseMove(e.Button, e.Clicks, x, y, e.Delta);
         }
         protected override void OnMouseWheel(MouseEventArgs e)
         {
@@ -317,10 +362,23 @@ namespace AntdUI
 
         #endregion
 
+        #region 安全三角区
+
+        Point[]? SafetyTriangleZone;
+        DateTime SafetyTriangleFlag;
+
+        /// <summary>
+        /// 是否启用安全三角区
+        /// </summary>
+        public virtual bool EnableSafetyTriangleZone => false;
+        public virtual Rectangle? OnSafetyTriangleZone(int x, int y) => null;
+
+        #endregion
+
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius { get; set; }
 
         public Point[]? ArrowLine;
@@ -342,7 +400,7 @@ namespace AntdUI
         {
             var rect = TargetRectXY;
             Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(rbmp).HighLay())
+            using (var g = Graphics.FromImage(rbmp).HighLay(Dpi))
             {
                 if (ShadowEnabled)
                 {
@@ -350,7 +408,7 @@ namespace AntdUI
                     using (var path = rect_read.RoundPath(Radius))
                     {
                         shadow_temp ??= path.PaintShadow(rect.Width, rect.Height, shadow);
-                        g.Image(shadow_temp.Bitmap, rect, .2F);
+                        g.Image(shadow_temp.Bitmap, rect, Config.ShadowOpacity);
                         PrintBg(g, rect_read, path);
                     }
                     g.SetClip(rect_read);

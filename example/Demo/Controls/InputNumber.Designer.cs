@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -55,9 +36,9 @@ namespace Demo.Controls
             input6 = new AntdUI.InputNumber();
             panel1 = new System.Windows.Forms.Panel();
             panel2 = new System.Windows.Forms.Panel();
-            divider1 = new AntdUI.Divider();
-            inputNumberWithValueFormatter = new AntdUI.InputNumber();
             inputNumberWithoutValueFormatter = new AntdUI.InputNumber();
+            inputNumberWithValueFormatter = new AntdUI.InputNumber();
+            divider1 = new AntdUI.Divider();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
@@ -68,7 +49,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "InputNumber.Description";
-            header1.LocalizationText = "InputNumber.Text";
+            header1.LocalizationText = "InputNumber";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -83,35 +64,43 @@ namespace Demo.Controls
             input1.Name = "input1";
             input1.Size = new Size(220, 44);
             input1.TabIndex = 0;
+            input1.Text = "1";
+            input1.Value = 1;
             // 
             // input2
             // 
-            input2.DecimalPlaces = 3;
+            input2.DecimalPlaces = 1;
+            input2.Increment = 1;
             input2.Location = new Point(18, 54);
             input2.Name = "input2";
             input2.Size = new Size(220, 44);
             input2.TabIndex = 2;
+            input2.Text = "1.0";
+            input2.Value = 1;
             // 
             // input3
             // 
             input3.LocalizationPlaceholderText = "InputNumber.{id}";
             input3.Location = new Point(244, 6);
-            input3.Minimum = 0D;
             input3.Name = "input3";
             input3.PlaceholderText = "请输入数字";
             input3.Radius = 0;
             input3.Size = new Size(220, 44);
             input3.TabIndex = 1;
+            input3.Text = "0";
             // 
             // input4
             // 
-            input4.Increment = 1000D;
+            input4.Increment = 1;
             input4.Location = new Point(244, 54);
             input4.Name = "input4";
             input4.Radius = 0;
+            input4.ReadOnly = true;
             input4.Size = new Size(220, 44);
             input4.TabIndex = 3;
+            input4.Text = "10,000";
             input4.ThousandsSeparator = true;
+            input4.Value = 10;
             // 
             // input5
             // 
@@ -120,6 +109,8 @@ namespace Demo.Controls
             input5.PrefixSvg = "PoweroffOutlined";
             input5.Size = new Size(220, 44);
             input5.TabIndex = 4;
+            input5.Text = "10";
+            input5.Value = 10;
             // 
             // input6
             // 
@@ -128,6 +119,8 @@ namespace Demo.Controls
             input6.Name = "input6";
             input6.Size = new Size(220, 44);
             input6.TabIndex = 5;
+            input6.Text = "1";
+            input6.Value = 1;
             // 
             // panel1
             // 
@@ -156,6 +149,32 @@ namespace Demo.Controls
             panel2.Size = new Size(555, 214);
             panel2.TabIndex = 0;
             // 
+            // inputNumberWithoutValueFormatter
+            // 
+            inputNumberWithoutValueFormatter.DecimalPlaces = 2;
+            inputNumberWithoutValueFormatter.Increment = 1000;
+            inputNumberWithoutValueFormatter.Location = new Point(18, 152);
+            inputNumberWithoutValueFormatter.Name = "inputNumberWithoutValueFormatter";
+            inputNumberWithoutValueFormatter.Radius = 0;
+            inputNumberWithoutValueFormatter.Size = new Size(220, 44);
+            inputNumberWithoutValueFormatter.TabIndex = 3;
+            inputNumberWithoutValueFormatter.Text = "10,000.00";
+            inputNumberWithoutValueFormatter.ThousandsSeparator = true;
+            inputNumberWithoutValueFormatter.Value = 10000;
+            // 
+            // inputNumberWithValueFormatter
+            // 
+            inputNumberWithValueFormatter.DecimalPlaces = 2;
+            inputNumberWithValueFormatter.Increment = 1000;
+            inputNumberWithValueFormatter.Location = new Point(244, 152);
+            inputNumberWithValueFormatter.Name = "inputNumberWithValueFormatter";
+            inputNumberWithValueFormatter.Radius = 0;
+            inputNumberWithValueFormatter.Size = new Size(220, 44);
+            inputNumberWithValueFormatter.TabIndex = 3;
+            inputNumberWithValueFormatter.Text = "10,000.00";
+            inputNumberWithValueFormatter.ThousandsSeparator = true;
+            inputNumberWithValueFormatter.Value = 10000;
+            // 
             // divider1
             // 
             divider1.Dock = DockStyle.Top;
@@ -169,32 +188,6 @@ namespace Demo.Controls
             divider1.TabStop = false;
             divider1.Text = "常规";
             // 
-            // inputNumberWithValueFormatter
-            // 
-            inputNumberWithValueFormatter.DecimalPlaces = 2;
-            inputNumberWithValueFormatter.Increment =(double) new decimal(new int[] { 1000, 0, 0, 0 });
-            inputNumberWithValueFormatter.Location = new Point(244, 152);
-            inputNumberWithValueFormatter.Name = "inputNumberWithValueFormatter";
-            inputNumberWithValueFormatter.Radius = 0;
-            inputNumberWithValueFormatter.Size = new Size(220, 44);
-            inputNumberWithValueFormatter.TabIndex = 3;
-            inputNumberWithValueFormatter.Text = "10,000.00";
-            inputNumberWithValueFormatter.ThousandsSeparator = true;
-            inputNumberWithValueFormatter.Value = (double)new decimal(new int[] { 10000, 0, 0, 0 });
-            // 
-            // inputNumberWithoutValueFormatter
-            // 
-            inputNumberWithoutValueFormatter.DecimalPlaces = 2;
-            inputNumberWithoutValueFormatter.Increment = (double)new decimal(new int[] { 1000, 0, 0, 0 });
-            inputNumberWithoutValueFormatter.Location = new Point(18, 152);
-            inputNumberWithoutValueFormatter.Name = "inputNumberWithoutValueFormatter";
-            inputNumberWithoutValueFormatter.Radius = 0;
-            inputNumberWithoutValueFormatter.Size = new Size(220, 44);
-            inputNumberWithoutValueFormatter.TabIndex = 3;
-            inputNumberWithoutValueFormatter.Text = "10,000.00";
-            inputNumberWithoutValueFormatter.ThousandsSeparator = true;
-            inputNumberWithoutValueFormatter.Value = (double)new decimal(new int[] { 10000, 0, 0, 0 });
-            // 
             // InputNumber
             // 
             Controls.Add(panel1);
@@ -202,7 +195,6 @@ namespace Demo.Controls
             Font = new Font("Microsoft YaHei UI", 12F);
             Name = "InputNumber";
             Size = new Size(555, 554);
-            Load += InputNumber_Load;
             panel1.ResumeLayout(false);
             panel2.ResumeLayout(false);
             ResumeLayout(false);

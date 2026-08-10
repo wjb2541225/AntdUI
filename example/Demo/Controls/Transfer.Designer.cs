@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 
 namespace Demo.Controls
@@ -66,7 +47,7 @@ namespace Demo.Controls
             header1.Dock = System.Windows.Forms.DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Transfer.Description";
-            header1.LocalizationText = "Transfer.Text";
+            header1.LocalizationText = "Transfer";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
@@ -156,10 +137,15 @@ namespace Demo.Controls
             // transfer1
             // 
             transfer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            transfer1.LocalizationSearchPlaceholderSource = "Transfer.search";
+            transfer1.LocalizationSearchPlaceholderTarget = "Transfer.search";
             transfer1.Location = new Point(0, 110);
             transfer1.MinimumSize = new Size(300, 200);
             transfer1.Name = "transfer1";
             transfer1.Padding = new System.Windows.Forms.Padding(8);
+            transfer1.SearchPlaceholderSource = "请输入搜索内容";
+            transfer1.SearchPlaceholderTarget = "请输入搜索内容";
+            transfer1.ShowSearch = true;
             transfer1.Size = new Size(800, 390);
             transfer1.TabIndex = 0;
             // 

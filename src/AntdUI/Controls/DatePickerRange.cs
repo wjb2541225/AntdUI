@@ -1,27 +1,15 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace AntdUI
@@ -44,7 +32,7 @@ namespace AntdUI
         /// <summary>
         /// 显示的水印文本
         /// </summary>
-        [Description("显示的水印文本S"), Category("行为"), DefaultValue(null)]
+        [Description("显示的水印文本S"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         [Localizable(true)]
         public string? PlaceholderStart
         {
@@ -63,7 +51,7 @@ namespace AntdUI
         /// <summary>
         /// 显示的水印文本
         /// </summary>
-        [Description("显示的水印文本E"), Category("行为"), DefaultValue(null)]
+        [Description("显示的水印文本E"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         [Localizable(true)]
         public string? PlaceholderEnd
         {
@@ -79,11 +67,45 @@ namespace AntdUI
         [Description("显示的水印文本E"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationPlaceholderEnd { get; set; }
 
+        #region 隐藏
+
         /// <summary>
         /// 水印文本
         /// </summary>
-        [Browsable(false), Description("水印文本"), Category("行为"), DefaultValue(null)]
+        [Browsable(false), Description("水印文本"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         public override string? PlaceholderText => null;
+
+        /// <summary>
+        /// 是否显示滚动条
+        /// </summary>
+        [Browsable(false), Description("是否显示滚动条"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
+        public override bool AutoScroll => false;
+
+        /// <summary>
+        /// 多行文本
+        /// </summary>
+        [Browsable(false), Description("多行文本"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public override bool Multiline => false;
+
+        /// <summary>
+        /// 自动换行
+        /// </summary>
+        [Browsable(false), Description("自动换行"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public override bool WordWrap => false;
+
+        /// <summary>
+        /// 使用密码框
+        /// </summary>
+        [Browsable(false), Description("使用密码框"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public override bool UseSystemPasswordChar => false;
+
+        /// <summary>
+        /// 自定义密码字符
+        /// </summary>
+        [Browsable(false), Description("自定义密码字符"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue((char)0)]
+        public override char PasswordChar => base.PasswordChar;
+
+        #endregion
 
         string dateFormat = "yyyy-MM-dd";
         bool ShowTime = false;
@@ -91,7 +113,7 @@ namespace AntdUI
         /// <summary>
         /// 格式化
         /// </summary>
-        [Description("格式化"), Category("行为"), DefaultValue("yyyy-MM-dd")]
+        [Description("格式化"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue("yyyy-MM-dd")]
         public string Format
         {
             get => dateFormat;
@@ -106,7 +128,7 @@ namespace AntdUI
         }
 
         DateTime[]? _value;
-        [Description("控件当前日期"), Category("数据"), DefaultValue(null)]
+        [Description("控件当前日期"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public DateTime[]? Value
         {
             get => _value;
@@ -114,8 +136,8 @@ namespace AntdUI
             {
                 if (Helper.AreDateTimeArraysEqual(_value, value)) return;
                 _value = value;
-                OnValueChanged(value);
                 SetText(value);
+                OnValueChanged(value);
                 OnPropertyChanged(nameof(Value));
             }
         }
@@ -129,48 +151,63 @@ namespace AntdUI
         /// <summary>
         /// 最小日期
         /// </summary>
-        [Description("最小日期"), Category("数据"), DefaultValue(null)]
+        [Description("最小日期"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public DateTime? MinDate { get; set; }
 
         /// <summary>
         /// 最大日期
         /// </summary>
-        [Description("最大日期"), Category("数据"), DefaultValue(null)]
+        [Description("最大日期"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public DateTime? MaxDate { get; set; }
 
         /// <summary>
         /// 时间值水平对齐
         /// </summary>
-        [Description("时间值水平对齐"), Category("外观"), DefaultValue(false)]
+        [Description("时间值水平对齐"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ValueTimeHorizontal { get; set; }
 
         /// <summary>
         /// 交互重置（是否每次都开始时间选择）
         /// </summary>
-        [Description("交互重置（是否每次都开始时间选择）"), Category("外观"), DefaultValue(true)]
+        [Description("交互重置（是否每次都开始时间选择）"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool InteractiveReset { get; set; } = true;
 
         /// <summary>
         /// 选择器类型
         /// </summary>
-        [Description("选择器类型"), Category("外观"), DefaultValue(TDatePicker.Date)]
+        [Description("选择器类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TDatePicker.Date)]
         public TDatePicker Picker { get; set; } = TDatePicker.Date;
 
         protected override void OnTextChanged(EventArgs e)
         {
+            base.OnTextChanged(e);
             if (isempty) showS = showE = true;
             else
             {
                 string text = Text;
                 int index = text.IndexOf("\t");
-                if (index > -1)
+                if (index == 0 && text.Trim() == "")
+                {
+                    Text = string.Empty;
+                    showS = showE = true;
+                }
+                else if (index > -1)
                 {
                     showS = index == 0;
                     showE = string.IsNullOrEmpty(text.Substring(index + 1));
                 }
-                else showS = showE = false;
+                else
+                {
+                    if (EndFocused && !StartFocused)
+                    {
+                        EndFocused = false;
+                        StartFocused = true;
+                        SelectionStart = text.Length;
+                    }
+                    showS = string.IsNullOrEmpty(text);
+                    showE = true;
+                }
             }
-            base.OnTextChanged(e);
         }
 
         protected override bool Verify(char key, out string? change)
@@ -199,7 +236,7 @@ namespace AntdUI
         /// <summary>
         /// 交换图标SVG
         /// </summary>
-        [Description("交换图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("交换图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? SwapSvg
         {
             get => swapSvg;
@@ -222,7 +259,7 @@ namespace AntdUI
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Editor("System.Windows.Forms.Design.ListControlStringCollectionEditor", typeof(UITypeEditor))]
-        [Description("预置"), Category("数据"), DefaultValue(null)]
+        [Description("预置"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public BaseCollection Presets
         {
             get
@@ -236,19 +273,26 @@ namespace AntdUI
         /// <summary>
         /// 菜单弹出位置
         /// </summary>
-        [Description("菜单弹出位置"), Category("行为"), DefaultValue(TAlignFrom.BL)]
+        [Description("菜单弹出位置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TAlignFrom.BL)]
         public TAlignFrom Placement { get; set; } = TAlignFrom.BL;
 
         /// <summary>
         /// 下拉箭头是否显示
         /// </summary>
-        [Description("下拉箭头是否显示"), Category("外观"), DefaultValue(true)]
+        [Description("下拉箭头是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool DropDownArrow { get; set; } = true;
+
+        /// <summary>
+        /// 文本改变时是否更新Value值
+        /// </summary>
+        [Description("文本改变时是否更新Value值"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public bool EnabledValueTextChange { get; set; }
 
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
             SetText(_value);
+            if (expandDrop) OpenSubForm();
         }
 
         #region 自带图标
@@ -257,7 +301,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示图标
         /// </summary>
-        [Description("是否显示图标"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowIcon
         {
             get => showicon;
@@ -270,21 +314,11 @@ namespace AntdUI
             }
         }
 
-        public override bool HasSuffix
-        {
-            get => showicon;
-        }
+        public override bool HasSuffix => showicon;
 
         protected override void PaintRIcon(Canvas g, Rectangle rect_r)
         {
-            if (showicon)
-            {
-                using (var bmp = SvgDb.IcoDate.SvgToBmp(rect_r.Width, rect_r.Height, Colour.TextQuaternary.Get(nameof(DatePicker), ColorScheme)))
-                {
-                    if (bmp == null) return;
-                    g.Image(bmp, rect_r);
-                }
-            }
+            if (showicon) g.Svg(SvgDb.IcoDate, rect_r, Colour.TextQuaternary.Get(ColorScheme, nameof(DatePicker), Name));
         }
 
         #endregion
@@ -300,13 +334,13 @@ namespace AntdUI
         /// <summary>
         /// 预置点击时发生
         /// </summary>
-        [Description("预置点击时发生"), Category("行为")]
+        [Description("预置点击时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ObjectNEventHandler? PresetsClickChanged;
 
         /// <summary>
         /// 下拉展开 属性值更改时发生
         /// </summary>
-        [Description("下拉展开 属性值更改时发生"), Category("行为")]
+        [Description("下拉展开 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? ExpandDropChanged;
 
         protected virtual void OnExpandDropChanged(bool e) => ExpandDropChanged?.Invoke(this, new BoolEventArgs(e));
@@ -320,7 +354,7 @@ namespace AntdUI
         /// 展开下拉菜单
         /// </summary>
         [Browsable(false)]
-        [Description("展开下拉菜单"), Category("行为"), DefaultValue(false)]
+        [Description("展开下拉菜单"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ExpandDrop
         {
             get => expandDrop;
@@ -328,44 +362,52 @@ namespace AntdUI
             {
                 if (expandDrop == value) return;
                 expandDrop = value;
-                if (!ReadOnly && value)
+                if (IsHandleCreated)
                 {
-                    if (subForm == null)
+                    if (value) OpenSubForm();
+                    else CloseSubForm(true);
+                }
+                OnExpandDropChanged(value);
+            }
+        }
+
+        void CloseSubForm(bool close)
+        {
+            if (close) subForm?.IClose();
+            subForm = null;
+            ExpandDrop = false;
+        }
+        void OpenSubForm()
+        {
+            if (ReadOnly)
+            {
+                CloseSubForm(true);
+                return;
+            }
+            if (subForm == null)
+            {
+                int bar = 0;
+                if (EndFocused) bar = rect_d_r.X;
+                else bar = rect_d_l.X;
+                try
+                {
+                    if (ShowTime)
                     {
-                        int bar = 0;
-                        if (EndFocused) bar = rect_d_r.X;
-                        else bar = rect_d_l.X;
-                        try
-                        {
-                            if (ShowTime)
-                            {
-                                subForm = new LayeredFormDatePickerRangeTime(this, EndFocused, bar, date => Value = date, btn => PresetsClickChanged?.Invoke(this, new ObjectNEventArgs(btn)), BadgeAction);
-                                subForm.Disposed += (a, b) =>
-                                {
-                                    subForm = null;
-                                    ExpandDrop = false;
-                                };
-                                subForm.Show(this);
-                            }
-                            else
-                            {
-                                subForm = new LayeredFormDatePickerRange(this, EndFocused, bar, date => Value = date, btn => PresetsClickChanged?.Invoke(this, new ObjectNEventArgs(btn)), BadgeAction);
-                                subForm.Disposed += (a, b) =>
-                                {
-                                    subForm = null;
-                                    ExpandDrop = false;
-                                };
-                                subForm.Show(this);
-                            }
-                        }
-                        catch
-                        {
-                            subForm = null;
-                        }
+                        subForm = new LayeredFormDatePickerRangeTime(this, EndFocused, bar, date => Value = date, btn => PresetsClickChanged?.Invoke(this, new ObjectNEventArgs(btn)), BadgeAction);
+                        subForm.Disposed += (a, b) => CloseSubForm(false);
+                        subForm.Show(this);
+                    }
+                    else
+                    {
+                        subForm = new LayeredFormDatePickerRange(this, EndFocused, bar, date => Value = date, btn => PresetsClickChanged?.Invoke(this, new ObjectNEventArgs(btn)), BadgeAction);
+                        subForm.Disposed += (a, b) => CloseSubForm(false);
+                        subForm.Show(this);
                     }
                 }
-                else subForm?.IClose();
-                OnExpandDropChanged(value);
+                catch
+                {
+                    CloseSubForm(true);
+                }
             }
         }
 
@@ -430,8 +472,8 @@ namespace AntdUI
 
         protected override bool ProcessCmdKey(ref System.Windows.Forms.Message msg, Keys keyData)
         {
-            if (keyData == Keys.Escape && subForm != null) subForm.IClose();
-            else if (keyData == Keys.Down && subForm == null) ExpandDrop = true;
+            if (keyData == Keys.Escape) ExpandDrop = false;
+            else if (keyData == Keys.Down) ExpandDrop = true;
             else if (keyData == Keys.Enter)
             {
                 if (StartFocused || EndFocused)
@@ -461,7 +503,7 @@ namespace AntdUI
                             StartFocused = false;
                             EndFocused = true;
                             StartEndFocused();
-                            SetCaretPostion();
+                            if (SetCaretPostion()) Invalidate();
                         }
                     }
                     else
@@ -507,6 +549,23 @@ namespace AntdUI
             return false;
         }
 
+        protected override void OnSetText(string text, bool isempty)
+        {
+            if (EnabledValueTextChange && !isempty)
+            {
+                int index = text.IndexOf("\t");
+                if (index > 0 && index < text.Length - 1)
+                {
+                    string sd = text.Substring(0, index), ed = text.Substring(index + 1);
+                    if (DateTime.TryParseExact(sd, Format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var sdate) &&
+                        DateTime.TryParseExact(ed, Format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var edate))
+                    {
+                        Value = new DateTime[] { sdate, edate };
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region 渲染
@@ -549,7 +608,7 @@ namespace AntdUI
             string? placeholderS = PlaceholderStart, placeholderE = PlaceholderEnd;
             if ((showS && placeholderS != null) || (showE && placeholderE != null))
             {
-                using (var fore = new SolidBrush(Colour.TextQuaternary.Get(nameof(DatePicker), ColorScheme)))
+                using (var fore = new SolidBrush(Colour.TextQuaternary.Get(ColorScheme, nameof(DatePicker), Name)))
                 {
                     if (showS && placeholderS != null) g.String(placeholderS, Font, fore, rect_d_l, sf_placeholder);
                     if (showE && placeholderE != null) g.String(placeholderE, Font, fore, rect_d_r, sf_placeholder);
@@ -558,20 +617,20 @@ namespace AntdUI
             if (AnimationBar)
             {
                 float h = rect_text.Height * 0.14F;
-                var BarColor = BorderActive ?? Colour.Primary.Get(nameof(DatePicker), ColorScheme);
+                var BarColor = BorderActive ?? Colour.Primary.Get(ColorScheme, nameof(DatePicker), Name);
                 g.Fill(BarColor, new RectangleF(AnimationBarValue.X, rect_read.Bottom - h, AnimationBarValue.Width, h));
             }
             else if (StartFocused || EndFocused)
             {
                 float h = rect_text.Height * 0.14F;
-                var BarColor = BorderActive ?? Colour.Primary.Get(nameof(DatePicker), ColorScheme);
+                var BarColor = BorderActive ?? Colour.Primary.Get(ColorScheme, nameof(DatePicker), Name);
                 using (var brush = new SolidBrush(BarColor))
                 {
                     if (StartFocused) g.Fill(brush, new RectangleF(rect_d_l.X, rect_read.Bottom - h, rect_d_l.Width, h));
                     else g.Fill(brush, new RectangleF(rect_d_r.X, rect_read.Bottom - h, rect_d_r.Width, h));
                 }
             }
-            g.GetImgExtend(swapSvg ?? SvgDb.IcoSwap, rect_d_ico, Colour.TextQuaternary.Get(nameof(DatePicker), ColorScheme));
+            g.Svg(swapSvg ?? SvgDb.IcoSwap, rect_d_ico, Colour.TextQuaternary.Get(ColorScheme, nameof(DatePicker), Name));
         }
 
         #endregion
@@ -665,6 +724,14 @@ namespace AntdUI
 
             if (s) AnimationBarValue = rect_d_l;
             else AnimationBarValue = rect_d_r;
+        }
+
+        internal void MoveEndFocused(bool s, bool e)
+        {
+            StartFocused = s;
+            EndFocused = e;
+            StartEndFocused();
+            ModeRangeCaretPostion(false);
         }
 
         bool StartFocused = false, EndFocused = false;

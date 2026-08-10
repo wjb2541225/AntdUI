@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -47,7 +34,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(8)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(8)]
         public int Radius
         {
             get => radius;
@@ -64,7 +51,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -87,7 +74,7 @@ namespace AntdUI
         /// <summary>
         /// 文本描述
         /// </summary>
-        [Description("文本描述"), Category("外观"), DefaultValue(null)]
+        [Description("文本描述"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? TextDesc
         {
@@ -105,7 +92,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -122,20 +109,20 @@ namespace AntdUI
         /// <summary>
         /// 点击上传
         /// </summary>
-        [Description("点击上传"), Category("行为"), DefaultValue(true)]
+        [Description("点击上传"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool ClickHand { get; set; } = true;
 
         /// <summary>
         /// 多个文件
         /// </summary>
-        [Description("多个文件"), Category("行为"), DefaultValue(true)]
+        [Description("多个文件"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Multiselect { get; set; } = true;
 
         string? filter;
         /// <summary>
         /// 文件名筛选器字符串
         /// </summary>
-        [Description("文件名筛选器字符串"), Category("行为"), DefaultValue(null)]
+        [Description("文件名筛选器字符串"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         public string? Filter
         {
             get => filter;
@@ -185,7 +172,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(1.92F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(1.92F)]
         public float IconRatio
         {
             get => iconratio;
@@ -202,7 +189,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -219,7 +206,7 @@ namespace AntdUI
         /// <summary>
         /// 图标SVG
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue("InboxOutlined")]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue("InboxOutlined")]
         public string? IconSvg
         {
             get => iconSvg;
@@ -240,7 +227,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Back
         {
@@ -258,7 +245,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片
         /// </summary>
-        [Description("背景图片"), Category("外观"), DefaultValue(null)]
+        [Description("背景图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public new Image? BackgroundImage
         {
             get => backImage;
@@ -275,7 +262,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片布局
         /// </summary>
-        [Description("背景图片布局"), Category("外观"), DefaultValue(TFit.Fill)]
+        [Description("背景图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Fill)]
         public new TFit BackgroundImageLayout
         {
             get => backFit;
@@ -346,7 +333,7 @@ namespace AntdUI
 
         #endregion
 
-        public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, (borderWidth / 2F * Config.Dpi));
+        public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, (borderWidth / 2F * Dpi));
 
         #endregion
 
@@ -358,16 +345,16 @@ namespace AntdUI
         {
             var g = e.Canvas;
             var rect = DisplayRectangle;
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
             using (var path = rect.RoundPath(_radius))
             {
-                g.Fill(back ?? Colour.FillQuaternary.Get(nameof(UploadDragger), ColorScheme), path);
+                g.Fill(back ?? Colour.FillQuaternary.Get(ColorScheme, nameof(UploadDragger), Name), path);
                 if (backImage != null) g.Image(rect, backImage, backFit, _radius, false);
 
                 #region 渲染主体
 
                 var size = g.MeasureString(Config.NullText, Font);
-                int sp = (int)(4 * Config.Dpi), gap = (int)(16 * Config.Dpi), gap2 = gap * 2, icon_size = (int)(size.Height * iconratio);
+                int sp = (int)(4 * Dpi), gap = (int)(16 * Dpi), gap2 = gap * 2, icon_size = (int)(size.Height * iconratio);
 
                 if (string.IsNullOrWhiteSpace(iconSvg) && icon == null)
                 {
@@ -375,7 +362,7 @@ namespace AntdUI
                     {
                         int y = rect.Y + (rect.Height - size.Height) / 2;
                         var rect_text = new Rectangle(rect.X + gap, y, rect.Width - gap2, size.Height);
-                        using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(UploadDragger), ColorScheme)))
+                        using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(UploadDragger), Name)))
                         {
                             g.DrawText(Text, Font, brush, rect_text, s_f);
                         }
@@ -388,11 +375,11 @@ namespace AntdUI
                             int th = sp + size.Height + size_desc.Height, y = rect.Y + (rect.Height - th) / 2;
                             Rectangle rect_text = new Rectangle(rect.X + gap, y, rect.Width - gap2, size.Height),
                                 rect_desc = new Rectangle(rect_text.X, rect_text.Bottom + sp, rect_text.Width, size_desc.Height);
-                            using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(UploadDragger), ColorScheme)))
+                            using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(UploadDragger), Name)))
                             {
                                 g.DrawText(Text, Font, brush, rect_text, s_f);
                             }
-                            using (var brush = new SolidBrush(Colour.TextTertiary.Get(nameof(UploadDragger), ColorScheme)))
+                            using (var brush = new SolidBrush(Colour.TextTertiary.Get(ColorScheme, nameof(UploadDragger), Name)))
                             {
                                 g.DrawText(TextDesc, font_desc, brush, rect_desc, s_f);
                             }
@@ -407,8 +394,8 @@ namespace AntdUI
                         Rectangle rect_icon = new Rectangle(rect.X + (rect.Width - icon_size) / 2, y, icon_size, icon_size),
                             rect_text = new Rectangle(rect.X + gap, y + icon_size + gap, rect.Width - gap2, size.Height);
                         if (icon != null) g.Image(icon, rect_icon);
-                        if (iconSvg != null) g.GetImgExtend(iconSvg, rect_icon, Colour.Primary.Get(nameof(UploadDragger), ColorScheme));
-                        using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(UploadDragger), ColorScheme)))
+                        if (iconSvg != null) g.Svg(iconSvg, rect_icon, Colour.Primary.Get(ColorScheme, nameof(UploadDragger), Name));
+                        using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(UploadDragger), Name)))
                         {
                             g.DrawText(Text, Font, brush, rect_text, s_f);
                         }
@@ -423,12 +410,12 @@ namespace AntdUI
                                 rect_text = new Rectangle(rect.X + gap, y + icon_size + gap, rect.Width - gap2, size.Height),
                                 rect_desc = new Rectangle(rect_text.X, rect_text.Bottom + sp, rect_text.Width, size_desc.Height);
                             if (icon != null) g.Image(icon, rect_icon);
-                            if (iconSvg != null) g.GetImgExtend(iconSvg, rect_icon, Colour.Primary.Get(nameof(UploadDragger), ColorScheme));
-                            using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(UploadDragger), ColorScheme)))
+                            if (iconSvg != null) g.Svg(iconSvg, rect_icon, Colour.Primary.Get(ColorScheme, nameof(UploadDragger), Name));
+                            using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(UploadDragger), Name)))
                             {
                                 g.DrawText(Text, Font, brush, rect_text, s_f);
                             }
-                            using (var brush = new SolidBrush(Colour.TextTertiary.Get(nameof(UploadDragger), ColorScheme)))
+                            using (var brush = new SolidBrush(Colour.TextTertiary.Get(ColorScheme, nameof(UploadDragger), Name)))
                             {
                                 g.DrawText(TextDesc, font_desc, brush, rect_desc, s_f);
                             }
@@ -440,10 +427,10 @@ namespace AntdUI
 
                 if (borderWidth > 0)
                 {
-                    var borw = borderWidth * Config.Dpi;
-                    if (AnimationHover) g.Draw((borderColor ?? Colour.BorderColor.Get(nameof(UploadDragger), ColorScheme)).BlendColors(AnimationHoverValue, Colour.PrimaryHover.Get(nameof(UploadDragger), ColorScheme)), borw, path);
-                    else if (ExtraMouseHover) g.Draw(Colour.PrimaryHover.Get(nameof(UploadDragger), ColorScheme), borw, borderStyle, path);
-                    else g.Draw(borderColor ?? Colour.BorderColor.Get(nameof(UploadDragger), ColorScheme), borw, borderStyle, path);
+                    var borw = borderWidth * Dpi;
+                    if (AnimationHover) g.Draw((borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(UploadDragger), Name)).BlendColors(AnimationHoverValue, Colour.PrimaryHover.Get(ColorScheme, nameof(UploadDragger), Name)), borw, path);
+                    else if (ExtraMouseHover) g.Draw(Colour.PrimaryHover.Get(ColorScheme, nameof(UploadDragger), Name), borw, borderStyle, path);
+                    else g.Draw(borderColor ?? Colour.BorderColor.Get(ColorScheme, nameof(UploadDragger), Name), borw, borderStyle, path);
                 }
             }
             base.OnDraw(e);
@@ -451,7 +438,7 @@ namespace AntdUI
 
         public override Rectangle ReadRectangle => DisplayRectangle;
 
-        public override GraphicsPath RenderRegion => DisplayRectangle.RoundPath(radius * Config.Dpi);
+        public override GraphicsPath RenderRegion => DisplayRectangle.RoundPath(radius * Dpi);
 
         #endregion
 
@@ -466,6 +453,7 @@ namespace AntdUI
         {
             base.AllowDrop = true;
             base.OnHandleCreated(e);
+            if (fileDrop == null && Helper.IsAdmin()) fileDrop = new FileDropHandler(this);
         }
 
         #endregion
@@ -493,7 +481,7 @@ namespace AntdUI
                 _mouseHover = value;
                 if (Enabled)
                 {
-                    if (Config.HasAnimation(nameof(UploadDragger)))
+                    if (Config.HasAnimation(nameof(UploadDragger), Name))
                     {
                         ThreadHover?.Dispose();
                         AnimationHover = true;
@@ -548,9 +536,9 @@ namespace AntdUI
         [Flags]
         public enum FilterType
         {
-            ALL = 1,
-            Img = 2,
-            Imgs = 3,
+            ALL = 0,
+            Img = 1,
+            Imgs = 2,
             Video = 4
         }
 
@@ -564,63 +552,18 @@ namespace AntdUI
 
     public sealed class FileDropHandler : IMessageFilter, IDisposable
     {
-        #region native members
-
-        [DllImport("user32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool ChangeWindowMessageFilterEx(IntPtr hWnd, uint message, ChangeFilterAction action, in ChangeFilterStruct pChangeFilterStruct);
-
-        [DllImport("shell32.dll", SetLastError = false, CallingConvention = CallingConvention.Winapi)]
-        private static extern void DragAcceptFiles(IntPtr hWnd, bool fAccept);
-
-        [DllImport("shell32.dll", SetLastError = false, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Winapi)]
-        private static extern uint DragQueryFile(IntPtr hWnd, uint iFile, StringBuilder? lpszFile, int cch);
-
-        [DllImport("shell32.dll", SetLastError = false, CallingConvention = CallingConvention.Winapi)]
-        private static extern void DragFinish(IntPtr hDrop);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct ChangeFilterStruct
-        {
-            public uint CbSize;
-            public ChangeFilterStatu ExtStatus;
-        }
-
-        private enum ChangeFilterAction : uint
-        {
-            MSGFLT_RESET,
-            MSGFLT_ALLOW,
-            MSGFLT_DISALLOW
-        }
-
-        private enum ChangeFilterStatu : uint
-        {
-            MSGFLTINFO_NONE,
-            MSGFLTINFO_ALREADYALLOWED_FORWND,
-            MSGFLTINFO_ALREADYDISALLOWED_FORWND,
-            MSGFLTINFO_ALLOWED_HIGHER
-        }
-
-        private const uint WM_COPYGLOBALDATA = 0x0049;
-        private const uint WM_COPYDATA = 0x004A;
-        private const uint WM_DROPFILES = 0x0233;
-
-        #endregion
-
-        const uint GetIndexCount = 0xFFFFFFFFU;
-
         Control ContainerControl;
 
         public FileDropHandler(Control containerControl)
         {
             ContainerControl = containerControl;
             if (containerControl.IsDisposed) throw new ObjectDisposedException("control");
-            var status = new ChangeFilterStruct { CbSize = 8 };
+            var status = new Win32.User32.ChangeFilterStruct { CbSize = 8 };
 
-            if (!ChangeWindowMessageFilterEx(containerControl.Handle, WM_DROPFILES, ChangeFilterAction.MSGFLT_ALLOW, in status)) throw new Win32Exception(Marshal.GetLastWin32Error());
-            if (!ChangeWindowMessageFilterEx(containerControl.Handle, WM_COPYGLOBALDATA, ChangeFilterAction.MSGFLT_ALLOW, in status)) throw new Win32Exception(Marshal.GetLastWin32Error());
-            if (!ChangeWindowMessageFilterEx(containerControl.Handle, WM_COPYDATA, ChangeFilterAction.MSGFLT_ALLOW, in status)) throw new Win32Exception(Marshal.GetLastWin32Error());
-            DragAcceptFiles(containerControl.Handle, true);
+            if (!Win32.User32.ChangeWindowMessageFilterEx(containerControl.Handle, Win32.User32.WM_DROPFILES, Win32.User32.ChangeFilterAction.MSGFLT_ALLOW, in status)) throw new Win32Exception(Marshal.GetLastWin32Error());
+            if (!Win32.User32.ChangeWindowMessageFilterEx(containerControl.Handle, Win32.User32.WM_COPYGLOBALDATA, Win32.User32.ChangeFilterAction.MSGFLT_ALLOW, in status)) throw new Win32Exception(Marshal.GetLastWin32Error());
+            if (!Win32.User32.ChangeWindowMessageFilterEx(containerControl.Handle, Win32.User32.WM_COPYDATA, Win32.User32.ChangeFilterAction.MSGFLT_ALLOW, in status)) throw new Win32Exception(Marshal.GetLastWin32Error());
+            Win32.Shell32.DragAcceptFiles(containerControl.Handle, true);
 
             Application.AddMessageFilter(this);
         }
@@ -628,8 +571,7 @@ namespace AntdUI
         public bool PreFilterMessage(ref System.Windows.Forms.Message m)
         {
             if (ContainerControl == null || ContainerControl.IsDisposed) return false;
-            if (ContainerControl.AllowDrop) return ContainerControl.AllowDrop = false;
-            if (m.Msg == WM_DROPFILES)
+            if (m.Msg == Win32.User32.WM_DROPFILES)
             {
                 var point = Control.MousePosition;
                 var rect = ContainerControl.RectangleToScreen(ContainerControl.ClientRectangle);
@@ -637,7 +579,7 @@ namespace AntdUI
                 {
                     var handle = m.WParam;
 
-                    var fileCount = DragQueryFile(handle, GetIndexCount, null, 0);
+                    var fileCount = Win32.Shell32.DragQueryFile(handle, Win32.Shell32.GetIndexCount, null, 0);
 
                     var fileNames = new string[fileCount];
 
@@ -645,9 +587,9 @@ namespace AntdUI
                     var charLength = sb.Capacity;
                     for (uint i = 0; i < fileCount; i++)
                     {
-                        if (DragQueryFile(handle, i, sb, charLength) > 0) fileNames[i] = sb.ToString();
+                        if (Win32.Shell32.DragQueryFile(handle, i, sb, charLength) > 0) fileNames[i] = sb.ToString();
                     }
-                    DragFinish(handle);
+                    Win32.Shell32.DragFinish(handle);
                     ContainerControl.AllowDrop = true;
                     ContainerControl.DoDragDrop(fileNames, DragDropEffects.All);
                     ContainerControl.AllowDrop = false;

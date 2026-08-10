@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.ComponentModel;
 using System.Drawing;
@@ -38,7 +25,7 @@ namespace AntdUI
         /// <summary>
         /// 填充颜色
         /// </summary>
-        [Description("填充颜色"), Category("外观"), DefaultValue(null)]
+        [Description("填充颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -54,26 +41,26 @@ namespace AntdUI
         /// <summary>
         /// 满格颜色
         /// </summary>
-        [Description("满格颜色"), Category("外观"), DefaultValue(null)]
+        [Description("满格颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? FillFully { get; set; }
 
         /// <summary>
         /// 警告颜色
         /// </summary>
-        [Description("警告颜色"), Category("外观"), DefaultValue(null)]
+        [Description("警告颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? FillWarn { get; set; }
 
         /// <summary>
         /// 危险颜色
         /// </summary>
-        [Description("危险颜色"), Category("外观"), DefaultValue(null)]
+        [Description("危险颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? FillDanger { get; set; }
 
         int vol = 0;
         /// <summary>
         /// 信号强度
         /// </summary>
-        [Description("信号强度"), Category("外观"), DefaultValue(0)]
+        [Description("信号强度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Value
         {
             get => vol;
@@ -92,7 +79,7 @@ namespace AntdUI
         /// <summary>
         /// 加载状态
         /// </summary>
-        [Description("加载状态"), Category("外观"), DefaultValue(false)]
+        [Description("加载状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading
         {
             get => loading;
@@ -142,7 +129,7 @@ namespace AntdUI
         /// <summary>
         /// 启用线样式
         /// </summary>
-        [Description("启用线样式"), Category("外观"), DefaultValue(false)]
+        [Description("启用线样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool StyleLine
         {
             get => styleLine;
@@ -180,7 +167,7 @@ namespace AntdUI
                     rect_5 = new RectangleF(rect_dot.X + (gap + onew) * 4, rect_dot.Y, onew, rect_dot.Height);
                 if (loading)
                 {
-                    Color color1 = fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme), color2 = FillFully ?? Colour.Success.Get(nameof(Signal), ColorScheme);
+                    Color color1 = fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name), color2 = FillFully ?? Colour.Success.Get(ColorScheme, nameof(Signal), Name);
                     using (var path = new GraphicsPath())
                     {
                         path.AddRectangle(rect_1);
@@ -197,7 +184,7 @@ namespace AntdUI
                                 Positions = new float[] { 0, loading_vol / 100F, 1F }
                             };
                             g.Fill(brush, path);
-                            g.Draw(color2, Config.Dpi, path);
+                            g.Draw(color2, Dpi, path);
                         }
                     }
                 }
@@ -205,7 +192,7 @@ namespace AntdUI
                 {
                     if (vol == 0)
                     {
-                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme)))
+                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name)))
                         {
                             g.Fill(brush_bg, rect_1);
                             g.Fill(brush_bg, rect_2);
@@ -216,8 +203,8 @@ namespace AntdUI
                     }
                     else if (vol == 1)
                     {
-                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme)))
-                        using (var brush = new SolidBrush(FillDanger ?? Colour.Error.Get(nameof(Signal), ColorScheme)))
+                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name)))
+                        using (var brush = new SolidBrush(FillDanger ?? Colour.Error.Get(ColorScheme, nameof(Signal), Name)))
                         {
                             g.Fill(brush, rect_1);
                             g.Fill(brush_bg, rect_2);
@@ -228,8 +215,8 @@ namespace AntdUI
                     }
                     else if (vol == 2)
                     {
-                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme)))
-                        using (var brush = new SolidBrush(FillDanger ?? Colour.Error.Get(nameof(Signal), ColorScheme)))
+                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name)))
+                        using (var brush = new SolidBrush(FillDanger ?? Colour.Error.Get(ColorScheme, nameof(Signal), Name)))
                         {
                             g.Fill(brush, rect_1);
                             g.Fill(brush, rect_2);
@@ -240,8 +227,8 @@ namespace AntdUI
                     }
                     else if (vol == 3)
                     {
-                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme)))
-                        using (var brush = new SolidBrush(FillWarn ?? Colour.Warning.Get(nameof(Signal), ColorScheme)))
+                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name)))
+                        using (var brush = new SolidBrush(FillWarn ?? Colour.Warning.Get(ColorScheme, nameof(Signal), Name)))
                         {
                             g.Fill(brush, rect_1);
                             g.Fill(brush, rect_2);
@@ -252,8 +239,8 @@ namespace AntdUI
                     }
                     else if (vol == 4)
                     {
-                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme)))
-                        using (var brush = new SolidBrush(FillFully ?? Colour.Success.Get(nameof(Signal), ColorScheme)))
+                        using (var brush_bg = new SolidBrush(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name)))
+                        using (var brush = new SolidBrush(FillFully ?? Colour.Success.Get(ColorScheme, nameof(Signal), Name)))
                         {
                             g.Fill(brush, rect_1);
                             g.Fill(brush, rect_2);
@@ -264,7 +251,7 @@ namespace AntdUI
                     }
                     else
                     {
-                        using (var brush = new SolidBrush(FillFully ?? Colour.Success.Get(nameof(Signal), ColorScheme)))
+                        using (var brush = new SolidBrush(FillFully ?? Colour.Success.Get(ColorScheme, nameof(Signal), Name)))
                         {
                             g.Fill(brush, rect_1);
                             g.Fill(brush, rect_2);
@@ -281,8 +268,8 @@ namespace AntdUI
 
                 if (loading)
                 {
-                    Color color1 = fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme), color2 = FillFully ?? Colour.Success.Get(nameof(Signal), ColorScheme);
-                    using (var pen = new Pen(color2, Config.Dpi))
+                    Color color1 = fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name), color2 = FillFully ?? Colour.Success.Get(ColorScheme, nameof(Signal), Name);
+                    using (var pen = new Pen(color2, Dpi))
                     using (var brush = new LinearGradientBrush(rect_pie, color1, color2, 90F))
                     {
                         brush.InterpolationColors = new ColorBlend(2)
@@ -311,7 +298,7 @@ namespace AntdUI
                         rect_3 = new RectangleF(rect_dot.X + (rect_dot.Width - size3) / 2F, y3, size3, size3);
                     if (vol == 0)
                     {
-                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme), onew))
+                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name), onew))
                         using (var brush = new SolidBrush(pen.Color))
                         {
                             g.DrawArc(pen, rect_1, -135, 90);
@@ -321,8 +308,8 @@ namespace AntdUI
                     }
                     else if (vol == 1)
                     {
-                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme), onew))
-                        using (var brush = new SolidBrush(FillDanger ?? Colour.Error.Get(nameof(Signal), ColorScheme)))
+                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name), onew))
+                        using (var brush = new SolidBrush(FillDanger ?? Colour.Error.Get(ColorScheme, nameof(Signal), Name)))
                         {
                             g.DrawArc(pen, rect_1, -135, 90);
                             g.DrawArc(pen, rect_2, -135, 90);
@@ -331,8 +318,8 @@ namespace AntdUI
                     }
                     else if (vol == 2)
                     {
-                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme), onew))
-                        using (var brush = new SolidBrush(FillWarn ?? Colour.Warning.Get(nameof(Signal), ColorScheme)))
+                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name), onew))
+                        using (var brush = new SolidBrush(FillWarn ?? Colour.Warning.Get(ColorScheme, nameof(Signal), Name)))
                         using (var penw = new Pen(brush.Color, onew))
                         {
                             g.DrawArc(pen, rect_1, -135, 90);
@@ -342,8 +329,8 @@ namespace AntdUI
                     }
                     else if (vol == 3)
                     {
-                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(nameof(Signal), ColorScheme), onew))
-                        using (var brush = new SolidBrush(FillWarn ?? Colour.Warning.Get(nameof(Signal), ColorScheme)))
+                        using (var pen = new Pen(fill ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Signal), Name), onew))
+                        using (var brush = new SolidBrush(FillWarn ?? Colour.Warning.Get(ColorScheme, nameof(Signal), Name)))
                         using (var penw = new Pen(brush.Color, onew))
                         {
                             g.DrawArc(pen, rect_1, -135, 90);
@@ -353,7 +340,7 @@ namespace AntdUI
                     }
                     else if (vol == 4)
                     {
-                        using (var pen = new Pen(FillFully ?? Colour.Success.Get(nameof(Signal), ColorScheme), onew))
+                        using (var pen = new Pen(FillFully ?? Colour.Success.Get(ColorScheme, nameof(Signal), Name), onew))
                         using (var brush = new SolidBrush(pen.Color))
                         {
                             g.DrawArc(pen, rect_1, -135, 90);
@@ -363,7 +350,7 @@ namespace AntdUI
                     }
                     else
                     {
-                        using (var pen = new Pen(FillFully ?? Colour.SuccessActive.Get(nameof(Signal), ColorScheme), onew))
+                        using (var pen = new Pen(FillFully ?? Colour.SuccessActive.Get(ColorScheme, nameof(Signal), Name), onew))
                         using (var brush = new SolidBrush(pen.Color))
                         {
                             g.DrawArc(pen, rect_1, -135, 90);

@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -51,6 +32,7 @@ namespace Demo
             btn_global = new AntdUI.Dropdown();
             btn_setting = new AntdUI.Button();
             virtualPanel = new AntdUI.VirtualPanel();
+            panel_main = new AntdUI.In.Panel();
             windowBar = new AntdUI.PageHeader();
             txt_search = new AntdUI.Input();
             colorTheme = new AntdUI.ColorPicker();
@@ -127,6 +109,13 @@ namespace Demo
             virtualPanel.Waterfall = true;
             virtualPanel.ItemClick += ItemClick;
             // 
+            // panel_main
+            // 
+            panel_main.Location = new Point(-100, -100);
+            panel_main.Name = "panel_main";
+            panel_main.Size = new Size(0, 0);
+            panel_main.TabIndex = 3;
+            // 
             // windowBar
             // 
             windowBar.BackgroundImageLayout = ImageLayout.Stretch;
@@ -152,14 +141,15 @@ namespace Demo
             // 
             // txt_search
             // 
+            txt_search.AutoSizeMode = AntdUI.TAutoSize.Width;
             txt_search.Dock = DockStyle.Right;
             txt_search.LocalizationPlaceholderText = "Overview.{id}";
-            txt_search.Location = new Point(762, 0);
+            txt_search.Location = new Point(764, 0);
             txt_search.Name = "txt_search";
             txt_search.Padding = new Padding(0, 2, 0, 2);
             txt_search.PlaceholderText = "输入关键字搜索...";
             txt_search.PrefixSvg = "SearchOutlined";
-            txt_search.Size = new Size(170, 40);
+            txt_search.Size = new Size(168, 40);
             txt_search.TabIndex = 9;
             txt_search.PrefixClick += txt_search_PrefixClick;
             txt_search.TextChanged += txt_search_TextChanged;
@@ -172,21 +162,24 @@ namespace Demo
             colorTheme.Padding = new Padding(5);
             colorTheme.Size = new Size(40, 40);
             colorTheme.TabIndex = 8;
-            colorTheme.Value = Color.FromArgb(22, 119, 255);
+            colorTheme.ValueChanged += colorTheme_ValueChanged;
             // 
             // Overview
             // 
             BackColor = Color.White;
             ClientSize = new Size(1300, 720);
             Controls.Add(virtualPanel);
+            Controls.Add(panel_main);
             Controls.Add(windowBar);
             Font = new Font("Microsoft YaHei UI", 12F);
             ForeColor = Color.Black;
+            Icon = Properties.Resources.icon;
             MinimumSize = new Size(660, 400);
             Name = "Overview";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "AntdUI Overview";
             windowBar.ResumeLayout(false);
+            windowBar.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -197,6 +190,7 @@ namespace Demo
         private AntdUI.Dropdown btn_global;
         private AntdUI.Button btn_setting;
         private AntdUI.VirtualPanel virtualPanel;
+        private AntdUI.In.Panel panel_main;
         private AntdUI.PageHeader windowBar;
         private AntdUI.ColorPicker colorTheme;
         private AntdUI.Input txt_search;

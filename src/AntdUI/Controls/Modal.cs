@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -139,22 +126,32 @@ namespace AntdUI
             {
                 if (config.Target.Value is Form form)
                 {
-                    if (form.WindowState == FormWindowState.Minimized || !form.Visible)
+                    if (!form.Visible)
                     {
                         config.Mask = config.MaskClosable = false;
                         var dialogResultN = DialogResult.None;
                         ModalCount++;
-                        dialogResultN = new LayeredFormModal(config).ShowDialog();
+                        dialogResultN = new LayeredFormModal(config, true).ShowDialog();
                         ModalCount--;
                         return dialogResultN;
                     }
                     if (!form.IsHandleCreated) config.Mask = config.MaskClosable = false;
                     if (form.InvokeRequired) return ITask.Invoke(form, new Func<DialogResult>(() => open(config)));
-                    var frm = new LayeredFormModal(config);
+                    if (form.WindowState == FormWindowState.Minimized) form.WindowState = FormWindowState.Normal;
+                    var frm = new LayeredFormModal(config, false);
                     ModalCount++;
                     DialogResult dialogResult;
-                    if (config.Mask) dialogResult = frm.ShowDialog(form.FormMask(frm));
-                    else dialogResult = frm.ShowDialog();
+                    ILayeredFormOpacity? mask = null;
+                    try
+                    {
+                        if (config.Mask) dialogResult = form.ShowDialogMask(frm, out mask);
+                        else dialogResult = frm.ShowDialog();
+                    }
+                    catch
+                    {
+                        mask?.IClose();
+                        throw;
+                    }
                     ModalCount--;
                     return dialogResult;
                 }
@@ -165,17 +162,26 @@ namespace AntdUI
                         config.Mask = config.MaskClosable = false;
                         var dialogResultN = DialogResult.None;
                         ModalCount++;
-                        dialogResultN = new LayeredFormModal(config).ShowDialog();
+                        dialogResultN = new LayeredFormModal(config, false).ShowDialog();
                         ModalCount--;
                         return dialogResultN;
                     }
                     if (!control.IsHandleCreated) config.Mask = config.MaskClosable = false;
                     if (control.InvokeRequired) return ITask.Invoke(control, new Func<DialogResult>(() => open(config)));
-                    var frm = new LayeredFormModal(config);
+                    var frm = new LayeredFormModal(config, false);
                     ModalCount++;
                     DialogResult dialogResult;
-                    if (config.Mask) dialogResult = frm.ShowDialog(control.FormMask(frm));
-                    else dialogResult = frm.ShowDialog();
+                    ILayeredFormOpacity? mask = null;
+                    try
+                    {
+                        if (config.Mask) dialogResult = control.ShowDialogMask(frm, out mask);
+                        else dialogResult = frm.ShowDialog();
+                    }
+                    catch
+                    {
+                        mask?.IClose();
+                        throw;
+                    }
                     ModalCount--;
                     return dialogResult;
                 }
@@ -184,7 +190,7 @@ namespace AntdUI
                     config.Mask = config.MaskClosable = false;
                     var dialogResultN = DialogResult.None;
                     ModalCount++;
-                    dialogResultN = new LayeredFormModal(config).ShowDialog();
+                    dialogResultN = new LayeredFormModal(config, true).ShowDialog();
                     ModalCount--;
                     return dialogResultN;
                 }
@@ -516,6 +522,11 @@ namespace AntdUI
             public bool DefaultFocus { get; set; }
 
             /// <summary>
+            /// 默认接受OK按钮
+            /// </summary>
+            public bool DefaultAcceptButton { get; set; } = true;
+
+            /// <summary>
             /// 取消按钮字体
             /// </summary>
             public Font? CancelFont { get; set; }
@@ -712,6 +723,11 @@ namespace AntdUI
                 DefaultFocus = value;
                 return this;
             }
+            public Config SetDefaultAcceptButton(bool value = false)
+            {
+                DefaultAcceptButton = value;
+                return this;
+            }
             public Config SetInput(Input value)
             {
                 DefaultFocus = true;
@@ -749,6 +765,11 @@ namespace AntdUI
 
             #region 按钮
 
+            public Config SetCancelHide()
+            {
+                CancelText = null;
+                return this;
+            }
             public Config SetCancel(Font? font)
             {
                 CancelFont = font;
@@ -1091,10 +1112,5 @@ namespace AntdUI
                 Layered.DialogResult = result;
             }
         }
-    }
-
-    public interface ControlEvent
-    {
-        void LoadCompleted();
     }
 }

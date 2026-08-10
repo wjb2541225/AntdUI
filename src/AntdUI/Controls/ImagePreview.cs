@@ -1,27 +1,13 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -45,7 +31,7 @@ namespace AntdUI
         /// <summary>
         /// 选择序号
         /// </summary>
-        [Description("选择序号"), Category("数据"), DefaultValue(0)]
+        [Description("选择序号"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0)]
         public int SelectIndex
         {
             get => selectIndex;
@@ -61,7 +47,11 @@ namespace AntdUI
                     }
                     selectIndex = value;
                     OnSelectIndexChanged(value);
-                    if (IsHandleCreated) LoadImg();
+                    if (IsHandleCreated)
+                    {
+                        LoadCore();
+                        Invalidate();
+                    }
                 }
                 else selectIndex = 0;
             }
@@ -72,7 +62,7 @@ namespace AntdUI
         /// 图片集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("图片集合"), Category("数据")]
+        [Description("图片集合"), Category(nameof(CategoryAttribute.Data))]
         public ImagePreviewItemCollection Image
         {
             get
@@ -86,7 +76,7 @@ namespace AntdUI
         /// <summary>
         /// SelectIndex 属性值更改时发生
         /// </summary>
-        [Description("SelectIndex 属性值更改时发生"), Category("行为")]
+        [Description("SelectIndex 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event IntEventHandler? SelectIndexChanged;
 
         protected virtual void OnSelectIndexChanged(int e) => SelectIndexChanged?.Invoke(this, new IntEventArgs(e));
@@ -105,6 +95,12 @@ namespace AntdUI
 
         #endregion
 
+        /// <summary>
+        /// 图片布局
+        /// </summary>
+        [Description("图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public TFit? Fit { get; set; }
+
         #region 按钮
 
         PreBtns[]? btns;
@@ -113,7 +109,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示按钮
         /// </summary>
-        [Description("是否显示按钮"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示按钮"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowBtn
         {
             get => showBtn;
@@ -133,7 +129,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示默认按钮
         /// </summary>
-        [Description("是否显示默认按钮"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示默认按钮"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool ShowDefaultBtn
         {
             get => showDefaultBtn;
@@ -154,7 +150,7 @@ namespace AntdUI
         /// 自定义按钮
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("自定义按钮"), Category("数据")]
+        [Description("自定义按钮"), Category(nameof(CategoryAttribute.Data))]
         public ImagePreviewButtonCollection CustomButton
         {
             get
@@ -168,7 +164,7 @@ namespace AntdUI
         /// <summary>
         /// 按钮点击时发生
         /// </summary>
-        [Description("按钮点击时发生"), Category("行为")]
+        [Description("按钮点击时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ImagePreviewButtonEventHandler? ButtonClick;
 
         protected virtual void OnButtonClick(ImagePreviewItem item, string id, object? tag) => ButtonClick?.Invoke(this, new ImagePreviewButtonEventArgs(item, id, tag));
@@ -177,7 +173,7 @@ namespace AntdUI
         /// <summary>
         /// 按钮大小
         /// </summary>
-        [Description("按钮大小"), Category("外观"), DefaultValue(typeof(Size), "42, 46")]
+        [Description("按钮大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "42, 46")]
         public Size BtnSize
         {
             get => btnSize;
@@ -196,7 +192,7 @@ namespace AntdUI
         /// <summary>
         /// 按钮图标大小
         /// </summary>
-        [Description("按钮图标大小"), Category("外观"), DefaultValue(18)]
+        [Description("按钮图标大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(18)]
         public int BtnIconSize
         {
             get => btnIconSize;
@@ -216,7 +212,7 @@ namespace AntdUI
         /// <summary>
         /// 左右按钮大小
         /// </summary>
-        [Description("左右按钮大小"), Category("外观"), DefaultValue(40)]
+        [Description("左右按钮大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(40)]
         public int BtnLRSize
         {
             get => btnLRSize;
@@ -236,7 +232,7 @@ namespace AntdUI
         /// <summary>
         /// 容器边距
         /// </summary>
-        [Description("容器边距"), Category("外观"), DefaultValue(24)]
+        [Description("容器边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(24)]
         public int ContainerPadding
         {
             get => containerPadding;
@@ -256,7 +252,7 @@ namespace AntdUI
         /// <summary>
         /// 按钮边距
         /// </summary>
-        [Description("按钮边距"), Category("外观"), DefaultValue(typeof(Size), "12, 32")]
+        [Description("按钮边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "12, 32")]
         public Size BtnPadding
         {
             get => btnPadding;
@@ -315,7 +311,7 @@ namespace AntdUI
         {
             base.OnHandleCreated(e);
             InitBtns();
-            LoadImg(false);
+            LoadCore();
         }
 
         protected override void Dispose(bool disposing)
@@ -382,61 +378,7 @@ namespace AntdUI
         void LoadGif()
         {
             if (imgtmp == null) return;
-            var fd = new FrameDimension(imgtmp.FrameDimensionsList[0]);
-            int count = imgtmp.GetFrameCount(fd);
-            if (count > 1) PlayGif(imgtmp, fd, count);
-        }
-
-        void PlayGif(Image value, FrameDimension fd, int count)
-        {
-            ITask.Run(() =>
-            {
-                int[] delays = GifDelays(value, count);
-                while (PlayGIF && imgtmp == value)
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (PlayGIF && imgtmp == value)
-                        {
-                            lock (_lock)
-                            {
-                                try
-                                {
-                                    value.SelectActiveFrame(fd, i);
-                                }
-                                catch { }
-                            }
-                            Invalidate();
-                            Thread.Sleep(Math.Max(delays[i], 10));
-                        }
-                        else
-                        {
-                            value.SelectActiveFrame(fd, 0);
-                            return;
-                        }
-                    }
-                }
-            }, () => Invalidate());
-        }
-
-        object _lock = new object();
-        int[] GifDelays(Image value, int count)
-        {
-            int PropertyTagFrameDelay = 0x5100;
-            var propItem = value.GetPropertyItem(PropertyTagFrameDelay);
-            if (propItem != null)
-            {
-                var bytes = propItem.Value;
-                if (bytes != null)
-                {
-                    int[] delays = new int[count];
-                    for (int i = 0; i < delays.Length; i++) delays[i] = BitConverter.ToInt32(bytes, i * 4) * 10;
-                    return delays;
-                }
-            }
-            int[] delaysd = new int[count];
-            for (int i = 0; i < delaysd.Length; i++) delaysd[i] = 100;
-            return delaysd;
+            Helper.GIFPlay(imgtmp, value => PlayGIF && imgtmp == value, Invalidate);
         }
 
         #endregion
@@ -444,10 +386,28 @@ namespace AntdUI
         #endregion
 
         Size ImgSize = new Size();
-        void LoadImg(bool r = true)
+        /// <summary>
+        /// 加载图片
+        /// </summary>
+        /// <param name="r">是否渲染</param>
+        public void LoadImg(bool r = true)
+        {
+            if (IsHandleCreated)
+            {
+                LoadCore();
+                SizeChange(ClientRectangle);
+                if (r) Invalidate();
+            }
+        }
+        void LoadCore()
         {
             autoDpi = true;
-            if (items == null) return;
+            if (items == null || items.Count == 0)
+            {
+                imgtmp?.Dispose();
+                imgtmp = null;
+                return;
+            }
             try
             {
                 int index = selectIndex;
@@ -458,14 +418,9 @@ namespace AntdUI
                     {
                         imgtmp?.Dispose();
                         Img = it.Call(index, it);
-                        if (Img == null)
-                        {
-                            if (r) Invalidate();
-                            return;
-                        }
+                        if (Img == null) return;
                         ImgSize = Img.Size;
                         FillScaleImg();
-                        if (r) Invalidate();
                     }
                     else if (it.CallProg != null)
                     {
@@ -509,18 +464,13 @@ namespace AntdUI
                             }
                         });
                     }
-                    else
-                    {
-                        Img = null;
-                        if (r) Invalidate();
-                    }
+                    else Img = null;
                 }
                 else
                 {
                     Img = it.Img;
                     ImgSize = Img.Size;
                     FillScaleImg();
-                    if (r) Invalidate();
                 }
             }
             catch { }
@@ -533,7 +483,7 @@ namespace AntdUI
         RectangleF rect_img_dpi;
         float offsetX = 0, offsetY = 0;
         float _dpi = 1F;
-        float Dpi
+        float DpiImg
         {
             get => _dpi;
             set
@@ -590,16 +540,34 @@ namespace AntdUI
             {
                 var rect = ClientRectangle;
                 float DpiX = (float)((rect.Width * 1.0) / (ImgSize.Width * 1.0)), DpiY = (float)((rect.Height * 1.0) / (ImgSize.Height * 1.0));
-                if (DpiX > 1 && DpiY > 0) Dpi = 1F;
-                else if (ImgSize.Width > ImgSize.Height)
+                if (Fit.HasValue)
                 {
-                    if (rect.Width > rect.Height) Dpi = DpiX;
-                    else Dpi = DpiY;
+                    switch (Fit.Value)
+                    {
+                        case TFit.Contain:
+                            DpiImg = Math.Min(DpiX, DpiY);
+                            break;
+                        case TFit.Cover:
+                            DpiImg = Math.Max(DpiX, DpiY);
+                            break;
+                        default:
+                            DpiImg = 1F;
+                            break;
+                    }
                 }
                 else
                 {
-                    if (rect.Width > rect.Height) Dpi = DpiY;
-                    else Dpi = (float)((rect.Width * 1.0) / (ImgSize.Height * 1.0));
+                    if (DpiX > 1 && DpiY > 0) DpiImg = 1F;
+                    else if (ImgSize.Width > ImgSize.Height)
+                    {
+                        if (rect.Width > rect.Height) DpiImg = DpiX;
+                        else DpiImg = DpiY;
+                    }
+                    else
+                    {
+                        if (rect.Width > rect.Height) DpiImg = DpiY;
+                        else DpiImg = (float)((rect.Width * 1.0) / (ImgSize.Height * 1.0));
+                    }
                 }
             }
         }
@@ -635,14 +603,8 @@ namespace AntdUI
                     g.Fill(brush, path);
                     foreach (var it in btns)
                     {
-                        using (var bmp = SvgExtend.GetImgExtend(it.svg, it.rect, it.hover ? colorHover : colorDefault))
-                        {
-                            if (bmp != null)
-                            {
-                                if (it.enabled) g.Image(bmp, it.rect);
-                                else g.Image(bmp, it.rect, 0.3F);
-                            }
-                        }
+                        if (it.enabled) g.Svg(it.svg, it.rect, it.hover ? colorHover : colorDefault);
+                        else g.Svg(it.svg, it.rect, 0.3F, it.hover ? colorHover : colorDefault);
                     }
                 }
             }
@@ -650,19 +612,19 @@ namespace AntdUI
 
         void PaintLoading(Canvas g, Rectangle rect, bool error = false)
         {
-            var bor6 = 6F * Config.Dpi;
-            int loading_size = (int)(40 * Config.Dpi);
+            var bor6 = 6F * Dpi;
+            int loading_size = (int)(40 * Dpi);
             var rect_loading = new Rectangle(rect.X + (rect.Width - loading_size) / 2, rect.Y + (rect.Height - loading_size) / 2, loading_size, loading_size);
             Color color, bg;
             if (error)
             {
-                bg = Colour.Error.Get(nameof(Preview));
-                color = Colour.ErrorColor.Get(nameof(Preview));
+                bg = Colour.Error.Get(nameof(Preview), Name);
+                color = Colour.ErrorColor.Get(nameof(Preview), Name);
             }
             else
             {
-                bg = Colour.Primary.Get(nameof(Preview));
-                color = Colour.PrimaryColor.Get(nameof(Preview));
+                bg = Colour.Primary.Get(nameof(Preview), Name);
+                color = Colour.PrimaryColor.Get(nameof(Preview), Name);
             }
             g.DrawEllipse(Color.FromArgb(220, color), bor6, rect_loading);
             if (_value > -1)
@@ -671,36 +633,25 @@ namespace AntdUI
                 {
                     g.DrawArc(penpro, rect_loading, -90, 360F * _value);
                 }
-                if (LoadingProgressStr != null)
-                {
-                    rect_loading.Offset(0, loading_size);
-                    g.String(LoadingProgressStr, Font, color, rect_loading, FormatFlags.Center | FormatFlags.NoWrap);
-                }
+                if (LoadingProgressStr != null) g.String(LoadingProgressStr, Font, color, new Rectangle(rect.X, rect_loading.Y + loading_size, rect.Width, rect_loading.Height));
             }
             else if (LoadingProgressStr != null)
             {
-                g.DrawEllipse(Colour.Error.Get(nameof(Preview)), bor6, rect_loading);
-                rect_loading.Offset(0, loading_size);
-                g.String(LoadingProgressStr, Font, Colour.ErrorColor.Get(nameof(Preview)), rect_loading, FormatFlags.Center | FormatFlags.NoWrap);
+                g.DrawEllipse(Colour.Error.Get(nameof(Preview), Name), bor6, rect_loading);
+                g.String(LoadingProgressStr, Font, Colour.ErrorColor.Get(nameof(Preview), Name), new Rectangle(rect.X, rect_loading.Y + loading_size, rect.Width, rect_loading.Height));
             }
         }
 
         void PaintBtn(Canvas g, SolidBrush brush, Rectangle rect, Rectangle rect_ico, string svg, bool hover, bool enabled)
         {
-            using (var bmp = SvgExtend.GetImgExtend(svg, rect_ico, Color.White))
+            if (hover)
             {
-                if (bmp != null)
-                {
-                    if (hover)
-                    {
-                        using (var brush_hover = new SolidBrush(Color.FromArgb(51, 0, 0, 0)))
-                        { g.FillEllipse(brush_hover, rect); }
-                    }
-                    else g.FillEllipse(brush, rect);
-                    if (enabled) g.Image(bmp, rect_ico);
-                    else g.Image(bmp, rect_ico, 0.3F);
-                }
+                using (var brush_hover = new SolidBrush(Color.FromArgb(51, 0, 0, 0)))
+                { g.FillEllipse(brush_hover, rect); }
             }
+            else g.FillEllipse(brush, rect);
+            if (enabled) g.Svg(svg, rect_ico, Color.White);
+            else g.Svg(svg, rect_ico, 0.3F, Color.White);
         }
 
         readonly Color colorDefault = Color.FromArgb(166, 255, 255, 255), colorHover = Color.FromArgb(217, 255, 255, 255);
@@ -726,7 +677,6 @@ namespace AntdUI
 
             public bool hover { get; set; }
             public bool enabled { get; set; } = true;
-            public bool mdown { get; set; }
         }
 
         #endregion
@@ -743,9 +693,9 @@ namespace AntdUI
 
         void SizeChange(Rectangle rect)
         {
-            int btn_height = (int)(BtnSize.Height * Config.Dpi), lr_size = (int)(BtnLRSize * Config.Dpi), btn_width = (int)(BtnSize.Width * Config.Dpi),
-                padding = (int)(ContainerPadding * Config.Dpi), padding_lr = (int)(BtnPadding.Width * Config.Dpi), padding_buttom = (int)(BtnPadding.Height * Config.Dpi),
-                icon_size = (int)(BtnIconSize * Config.Dpi);
+            int btn_height = (int)(BtnSize.Height * Dpi), lr_size = (int)(BtnLRSize * Dpi), btn_width = (int)(BtnSize.Width * Dpi),
+                padding = (int)(ContainerPadding * Dpi), padding_lr = (int)(BtnPadding.Width * Dpi), padding_buttom = (int)(BtnPadding.Height * Dpi),
+                icon_size = (int)(BtnIconSize * Dpi);
 
             if (PageSize > 1)
             {
@@ -784,13 +734,13 @@ namespace AntdUI
                 autoDpi = false;
                 if (e.Delta > 0)
                 {
-                    Dpi += 0.1F;
+                    DpiImg += 0.1F;
                     SetBtnEnabled("@t_zoomOut", true);
                 }
                 else
                 {
-                    Dpi -= 0.1F;
-                    SetBtnEnabled("@t_zoomOut", Dpi >= 0.06);
+                    DpiImg -= 0.1F;
+                    SetBtnEnabled("@t_zoomOut", DpiImg >= 0.06);
                 }
                 Invalidate();
             }
@@ -816,7 +766,7 @@ namespace AntdUI
                     moveImging = true;
                     offsetX = offsetXOld + e.X - movePos.X;
                     offsetY = offsetYOld + e.Y - movePos.Y;
-                    Dpi = _dpi;
+                    DpiImg = _dpi;
                     Invalidate();
                     return;
                 }
@@ -884,9 +834,11 @@ namespace AntdUI
             if (count > 0) Invalidate();
         }
 
+        PreBtns? mDown;
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+            mDown = null;
             if (e.Button == MouseButtons.Left)
             {
                 if (btns != null)
@@ -895,7 +847,7 @@ namespace AntdUI
                     {
                         if (it.enabled && it.Rect.Contains(e.X, e.Y))
                         {
-                            it.mdown = true;
+                            mDown = it;
                             return;
                         }
                     }
@@ -930,44 +882,38 @@ namespace AntdUI
                     return;
                 }
             }
-            if (btns != null)
+            if (mDown != null)
             {
-                foreach (var it in btns)
+                if (mDown.Rect.Contains(e.X, e.Y))
                 {
-                    if (it.mdown)
+                    switch (mDown.id)
                     {
-                        if (it.Rect.Contains(e.X, e.Y))
-                        {
-                            switch (it.id)
-                            {
-                                case "@t_flipY":
-                                    FlipY();
-                                    break;
-                                case "@t_flipX":
-                                    FlipX();
-                                    break;
-                                case "@t_rotateL":
-                                    RotateL();
-                                    break;
-                                case "@t_rotateR":
-                                    RotateR();
-                                    break;
-                                case "@t_zoomOut":
-                                    ZoomOut();
-                                    break;
-                                case "@t_zoomIn":
-                                    ZoomIn();
-                                    break;
-                                default:
-                                    if (items == null) return;
-                                    OnButtonClick(items[selectIndex], it.id, it.tag);
-                                    break;
-                            }
-                        }
-                        it.mdown = false;
-                        return;
+                        case "@t_flipY":
+                            FlipY();
+                            break;
+                        case "@t_flipX":
+                            FlipX();
+                            break;
+                        case "@t_rotateL":
+                            RotateL();
+                            break;
+                        case "@t_rotateR":
+                            RotateR();
+                            break;
+                        case "@t_zoomOut":
+                            ZoomOut();
+                            break;
+                        case "@t_zoomIn":
+                            ZoomIn();
+                            break;
+                        default:
+                            if (items == null) return;
+                            OnButtonClick(items[selectIndex], mDown.id, mDown.tag);
+                            break;
                     }
                 }
+                mDown = null;
+                return;
             }
             if (PageSize > 1)
             {
@@ -996,12 +942,12 @@ namespace AntdUI
         public void ZoomToControl()
         {
             if (Img == null) return;
-            Dpi = 1;
+            DpiImg = 1;
             var rect = ClientRectangle;
             float fControlWidth = rect.Width, fControlHeight = rect.Height;
             float fImageWidth = ImgSize.Width, fImageHeight = ImgSize.Height;
-            if (fImageWidth / fImageHeight > fControlWidth / fControlHeight) Dpi = fControlWidth / fImageWidth;
-            else Dpi = fControlHeight / fImageHeight;
+            if (fImageWidth / fImageHeight > fControlWidth / fControlHeight) DpiImg = fControlWidth / fImageWidth;
+            else DpiImg = fControlHeight / fImageHeight;
             Invalidate();
         }
 
@@ -1028,7 +974,7 @@ namespace AntdUI
             ImgSize = Img.Size;
             autoDpi = true;
             FillScaleImg();
-            Dpi = old;
+            DpiImg = old;
             autoDpi = oldautoDpi;
             Invalidate();
         }
@@ -1042,21 +988,21 @@ namespace AntdUI
             ImgSize = Img.Size;
             autoDpi = true;
             FillScaleImg();
-            Dpi = old;
+            DpiImg = old;
             autoDpi = oldautoDpi;
             Invalidate();
         }
 
         public void ZoomOut()
         {
-            Dpi -= 0.1F;
-            SetBtnEnabled("@t_zoomOut", Dpi >= 0.06);
+            DpiImg -= 0.1F;
+            SetBtnEnabled("@t_zoomOut", DpiImg >= 0.06);
             Invalidate();
         }
 
         public void ZoomIn()
         {
-            Dpi += 0.1F;
+            DpiImg += 0.1F;
             SetBtnEnabled("@t_zoomOut", true);
             Invalidate();
         }
@@ -1073,13 +1019,13 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         /// <summary>
         /// 图片
         /// </summary>
-        [Description("图片"), Category("外观"), DefaultValue(null)]
+        [Description("图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Img { get; set; }
 
         public Func<int, ImagePreviewItem, Image?>? Call { get; set; }
@@ -1088,7 +1034,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 设置
@@ -1165,7 +1111,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 设置

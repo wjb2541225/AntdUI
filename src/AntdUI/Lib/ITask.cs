@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Threading;
@@ -296,12 +283,65 @@ namespace AntdUI
 #endif
         }
 
-        public static Task<TResult> Run<TResult>(Func<TResult> action)
+        public static Task<TResult> Run<TResult>(Func<TResult> function)
+        {
+#if NET40
+            return Task.Factory.StartNew(function);
+#else
+            return Task.Run(function);
+#endif
+        }
+        public static Task<TResult> Run<TResult>(Func<TResult> function, CancellationToken cancellationToken)
+        {
+#if NET40
+            return Task.Factory.StartNew(function, cancellationToken);
+#else
+            return Task.Run(function, cancellationToken);
+#endif
+        }
+
+        public static Task Run(Action action)
         {
 #if NET40
             return Task.Factory.StartNew(action);
 #else
             return Task.Run(action);
+#endif
+        }
+
+        public static Task Run(Func<Task?> function)
+        {
+#if NET40
+            return Task.Factory.StartNew(function);
+#else
+            return Task.Run(function);
+#endif
+        }
+
+        public static Task Run(Func<Task?> function, CancellationToken cancellationToken)
+        {
+#if NET40
+            return Task.Factory.StartNew(function, cancellationToken);
+#else
+            return Task.Run(function, cancellationToken);
+#endif
+        }
+
+        public static Task<TResult> Run<TResult>(Func<Task<TResult>?> function)
+        {
+#if NET40
+            return Task.Factory.StartNew(function).Unwrap();
+#else
+            return Task.Run(function);
+#endif
+        }
+
+        public static Task<TResult> Run<TResult>(Func<Task<TResult>?> function, CancellationToken cancellationToken)
+        {
+#if NET40
+            return Task.Factory.StartNew(function, cancellationToken).Unwrap();
+#else
+            return Task.Run(function, cancellationToken);
 #endif
         }
 

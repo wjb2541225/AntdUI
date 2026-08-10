@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -53,7 +34,9 @@ namespace Demo.Controls
             divider1 = new AntdUI.Divider();
             label7 = new Label();
             panel1 = new AntdUI.Panel();
+            label1 = new Label();
             divider3 = new AntdUI.Divider();
+            label3 = new Label();
             panel9 = new AntdUI.Panel();
             label9 = new Label();
             label8 = new Label();
@@ -65,8 +48,6 @@ namespace Demo.Controls
             panel5 = new AntdUI.Panel();
             button3 = new AntdUI.Button();
             button4 = new AntdUI.Button();
-            label3 = new Label();
-            label1 = new Label();
             flowLayoutPanel1.SuspendLayout();
             panel8.SuspendLayout();
             panel1.SuspendLayout();
@@ -81,7 +62,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Panel.Description";
-            header1.LocalizationText = "Panel.Text";
+            header1.LocalizationText = "Panel";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -157,7 +138,7 @@ namespace Demo.Controls
             // 
             // panel1
             // 
-            panel1.ArrowAlign = AntdUI.TAlign.RB;
+            panel1.ArrowAlign = AntdUI.TAlign.LT;
             panel1.ArrowSize = 10;
             panel1.Controls.Add(label1);
             panel1.Controls.Add(divider3);
@@ -171,6 +152,19 @@ namespace Demo.Controls
             panel1.Size = new Size(269, 221);
             panel1.TabIndex = 18;
             // 
+            // label1
+            // 
+            label1.BackColor = Color.Transparent;
+            label1.Dock = DockStyle.Fill;
+            label1.Font = new Font("Microsoft YaHei UI", 11F);
+            label1.Location = new Point(24, 73);
+            label1.Name = "label1";
+            label1.Padding = new Padding(20, 0, 0, 0);
+            label1.Size = new Size(221, 124);
+            label1.TabIndex = 2;
+            label1.Text = "Card content\r\n\r\nCard content\r\n\r\nCard content";
+            label1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
             // divider3
             // 
             divider3.BackColor = Color.Transparent;
@@ -180,6 +174,19 @@ namespace Demo.Controls
             divider3.Name = "divider3";
             divider3.Size = new Size(221, 1);
             divider3.TabIndex = 1;
+            // 
+            // label3
+            // 
+            label3.BackColor = Color.Transparent;
+            label3.Dock = DockStyle.Top;
+            label3.Font = new Font("Microsoft YaHei UI", 15.75F, FontStyle.Bold);
+            label3.Location = new Point(24, 24);
+            label3.Name = "label3";
+            label3.Padding = new Padding(20, 0, 0, 0);
+            label3.Size = new Size(221, 48);
+            label3.TabIndex = 0;
+            label3.Text = "Card title";
+            label3.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // panel9
             // 
@@ -321,32 +328,6 @@ namespace Demo.Controls
             button4.Text = "OK";
             button4.Type = AntdUI.TTypeMini.Primary;
             // 
-            // label3
-            // 
-            label3.BackColor = Color.Transparent;
-            label3.Dock = DockStyle.Top;
-            label3.Font = new Font("Microsoft YaHei UI", 15.75F, FontStyle.Bold);
-            label3.Location = new Point(24, 24);
-            label3.Name = "label3";
-            label3.Padding = new Padding(20, 0, 0, 0);
-            label3.Size = new Size(221, 48);
-            label3.TabIndex = 0;
-            label3.Text = "Card title";
-            label3.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // label1
-            // 
-            label1.BackColor = Color.Transparent;
-            label1.Dock = DockStyle.Fill;
-            label1.Font = new Font("Microsoft YaHei UI", 11F);
-            label1.Location = new Point(24, 73);
-            label1.Name = "label1";
-            label1.Padding = new Padding(20, 0, 0, 0);
-            label1.Size = new Size(221, 124);
-            label1.TabIndex = 2;
-            label1.Text = "Card content\r\n\r\nCard content\r\n\r\nCard content";
-            label1.TextAlign = ContentAlignment.MiddleLeft;
-            // 
             // Panel
             // 
             Controls.Add(flowLayoutPanel1);
@@ -376,7 +357,9 @@ namespace Demo.Controls
         private AntdUI.Divider divider1;
         private Label label7;
         private AntdUI.Panel panel1;
+        private Label label1;
         private AntdUI.Divider divider3;
+        private Label label3;
         private AntdUI.Panel panel4;
         private Label label12;
         private Label label13;
@@ -384,7 +367,5 @@ namespace Demo.Controls
         private AntdUI.Panel panel5;
         private AntdUI.Button button3;
         private AntdUI.Button button4;
-        private Label label1;
-        private Label label3;
     }
 }

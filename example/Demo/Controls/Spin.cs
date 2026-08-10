@@ -1,24 +1,11 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
-using System.Diagnostics;
+using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -26,8 +13,8 @@ namespace Demo.Controls
 {
     public partial class Spin : UserControl
     {
-        Form form;
-        public Spin(Form _form)
+        AntdUI.BaseForm form;
+        public Spin(AntdUI.BaseForm _form)
         {
             form = _form;
             InitializeComponent();
@@ -78,20 +65,24 @@ namespace Demo.Controls
 
         private void btnWindow_Click(object sender, EventArgs e)
         {
+            CancellationTokenSource token = new CancellationTokenSource();
             AntdUI.Spin.open(form, AntdUI.Localization.Get("Loading2", "正在加载中..."), config =>
             {
                 Thread.Sleep(1000);
                 for (int i = 0; i < 101; i++)
                 {
+                    token.Token.ThrowIfCancellationRequested();
                     config.Value = i / 100F;
                     config.Text = AntdUI.Localization.Get("Processing", "处理中") + " " + i + "%";
                     Thread.Sleep(20);
                 }
+                token.Token.ThrowIfCancellationRequested();
                 Thread.Sleep(1000);
                 config.Value = null;
                 config.Text = AntdUI.Localization.Get("PleaseWait", "请耐心等候...");
+                token.Token.ThrowIfCancellationRequested();
                 Thread.Sleep(2000);
-            }, () =>
+            }, token, () =>
             {
                 System.Diagnostics.Debug.WriteLine("加载结束");
             });
@@ -123,7 +114,34 @@ namespace Demo.Controls
             },
             ex => //错误回调
             {
-                Debug.Print($"执行时发生了错误:{ex.Message}");
+                System.Diagnostics.Debug.Print($"执行时发生了错误:{ex.Message}");
+            });
+        }
+
+        private void BtnGif_Click(object sender, EventArgs e)
+        {
+            CancellationTokenSource token = new CancellationTokenSource();
+            AntdUI.Spin.open(form, "Loading Gif...", config =>
+            {
+                Image gif = Properties.Resources.Loading_indicator_wavy_transparent;
+                config.SetIndicator(gif);
+                Thread.Sleep(1000);
+                for (int i = 0; i < 101; i++)
+                {
+                    token.Token.ThrowIfCancellationRequested();
+                    config.Value = i / 100F;
+                    config.Text = "Loading Gif" + " " + i + "%";
+                    Thread.Sleep(20);
+                }
+                token.Token.ThrowIfCancellationRequested();
+                Thread.Sleep(1000);
+                config.Value = null;
+                config.Text = AntdUI.Localization.Get("PleaseWait", "请耐心等候...");
+                token.Token.ThrowIfCancellationRequested();
+                Thread.Sleep(2000);
+            }, token, () =>
+            {
+                System.Diagnostics.Debug.WriteLine("加载结束");
             });
         }
     }

@@ -1,22 +1,10 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -24,7 +12,7 @@ namespace AntdUI
 {
     public class CalculateCoordinate
     {
-        public CalculateCoordinate(Rectangle rect, Rectangle drop, int Radius, int ArrowSize, int Shadow, int Shadow2, Rectangle? rect_real = null)
+        public CalculateCoordinate(ILayeredForm owner, Rectangle rect, Rectangle drop, int Radius, int ArrowSize, int Shadow, int Shadow2, Rectangle? rect_real = null)
         {
             sx = rect.X;
             sy = rect.Y;
@@ -32,13 +20,13 @@ namespace AntdUI
             ch = rect.Height;
             dw = drop.Width;
             dh = drop.Height;
-            radius = GetRadius(Radius);
+            radius = GetRadius(owner, Radius);
             arrow = ArrowSize;
             shadow = Shadow;
             shadow2 = Shadow2;
             creal = rect_real;
         }
-        public CalculateCoordinate(Control control, Rectangle drop, int Radius, int ArrowSize, int Shadow, int Shadow2, Rectangle? rect_real = null)
+        public CalculateCoordinate(ILayeredForm owner, Control control, Rectangle drop, int Radius, int ArrowSize, int Shadow, int Shadow2, Rectangle? rect_real = null)
         {
             var point = control.PointToScreen(Point.Empty);
             var size = control.ClientSize;
@@ -49,11 +37,20 @@ namespace AntdUI
             if (control is IControl icontrol) padd = GetPadding(icontrol);
             dw = drop.Width;
             dh = drop.Height;
-            radius = GetRadius(Radius);
+            radius = GetRadius(owner, Radius);
             arrow = ArrowSize;
             shadow = Shadow;
             shadow2 = Shadow2;
             creal = rect_real;
+
+            // 计算控件在父级控件中的可见区域
+            var visibleRect = CalculateVisibleRect(control, point, size);
+            if (visibleRect == null) return;
+            sx = visibleRect[0];
+            sy = visibleRect[1];
+            cw = visibleRect[2];
+            ch = visibleRect[3];
+            padd = 0;
         }
 
         /// <summary>
@@ -123,24 +120,77 @@ namespace AntdUI
 
         int GetPadding(IControl control)
         {
-            if (control is Button button) return (int)((button.WaveSize + button.BorderWidth / 2F) * Config.Dpi);
-            else if (control is Input input) return (int)((input.WaveSize + input.BorderWidth / 2F) * Config.Dpi);
-            else if (control is ColorPicker colorPicker) return (int)((colorPicker.WaveSize + colorPicker.BorderWidth / 2F) * Config.Dpi);
-            else if (control is Switch _switch) return (int)(_switch.WaveSize * Config.Dpi);
-            else if (control is Panel panel) return (int)(panel.BorderWidth * Config.Dpi);
-            else if (control is Alert alert) return (int)(alert.BorderWidth * Config.Dpi);
-            else if (control is Avatar avatar) return (int)(avatar.BorderWidth * Config.Dpi);
-            else if (control is Tag tag) return (int)(tag.BorderWidth * Config.Dpi);
-            else if (control is Table table) return (int)(table.BorderWidth * Config.Dpi);
-            else if (control is Tabs tab) return (int)(tab.Gap * Config.Dpi);
-            else if (control is ContainerPanel containerPanel) return (int)(containerPanel.BorderWidth * Config.Dpi);
+            if (control is Button button) return (int)((button.WaveSize + button.BorderWidth / 2F) * control.Dpi);
+            else if (control is Input input) return (int)((input.WaveSize + input.BorderWidth / 2F) * control.Dpi);
+            else if (control is ColorPicker colorPicker) return (int)((colorPicker.WaveSize + colorPicker.BorderWidth / 2F) * control.Dpi);
+            else if (control is Switch _switch) return (int)(_switch.WaveSize * control.Dpi);
+            else if (control is Panel panel) return (int)(panel.BorderWidth * control.Dpi);
+            else if (control is Alert alert) return (int)(alert.BorderWidth * control.Dpi);
+            else if (control is Avatar avatar) return (int)(avatar.BorderWidth * control.Dpi);
+            else if (control is Tag tag) return (int)(tag.BorderWidth * control.Dpi);
+            else if (control is Table table) return (int)(table.BorderWidth * control.Dpi);
+            else if (control is Tabs tab) return (int)(tab.Gap * control.Dpi);
+            else if (control is ContainerPanel containerPanel) return (int)(containerPanel.BorderWidth * control.Dpi);
             return 0;
         }
-        int GetRadius(int radius)
+        int GetRadius(ILayeredForm owner, int radius)
         {
-            int min = (int)(4 * Config.Dpi);
+            int min = (int)(4 * owner.Dpi);
             if (min > radius) return min;
             return radius;
+        }
+
+        /// <summary>
+        /// 计算控件在父级控件中的可见区域
+        /// </summary>
+        /// <param name="control">目标控件</param>
+        /// <param name="screenPoint">控件的屏幕坐标</param>
+        /// <param name="controlSize">控件的区域大小</param>
+        /// <returns>如果需要裁剪，返回[x, y, w, h]，否则返回null</returns>
+        int[]? CalculateVisibleRect(Control control, Point screenPoint, Size controlSize)
+        {
+            // 初始可见区域
+            int visibleX = screenPoint.X, visibleY = screenPoint.Y, visibleWidth = controlSize.Width, visibleHeight = controlSize.Height;
+
+            Control currentControl = control;
+            Control? currentParent = control.Parent;
+
+            // 遍历所有父级控件，直到遇到窗口为止
+            while (currentParent != null && !(currentParent is Form))
+            {
+                // 获取父级控件的屏幕坐标和大小
+                var parentScreenPoint = currentParent.PointToScreen(Point.Empty);
+                var parentSize = currentParent.ClientSize;
+
+                // 计算当前控件在父级控件中的可见区域
+                int currentVisibleX = Math.Max(parentScreenPoint.X, visibleX);
+                int currentVisibleY = Math.Max(parentScreenPoint.Y, visibleY);
+                int currentVisibleRight = Math.Min(parentScreenPoint.X + parentSize.Width, visibleX + visibleWidth);
+                int currentVisibleBottom = Math.Min(parentScreenPoint.Y + parentSize.Height, visibleY + visibleHeight);
+
+                // 计算当前可见区域的宽度和高度
+                int currentVisibleWidth = currentVisibleRight - currentVisibleX;
+                int currentVisibleHeight = currentVisibleBottom - currentVisibleY;
+
+                // 如果可见区域无效，返回最小有效区域
+                if (currentVisibleWidth <= 0 || currentVisibleHeight <= 0) return new int[] { visibleX, visibleY, 1, 1 };
+
+                // 更新可见区域
+                visibleX = currentVisibleX;
+                visibleY = currentVisibleY;
+                visibleWidth = currentVisibleWidth;
+                visibleHeight = currentVisibleHeight;
+
+                // 继续向上遍历
+                currentControl = currentParent;
+                currentParent = currentParent.Parent;
+            }
+
+            // 如果最终可见区域与原始区域相同，返回null
+            if (visibleX == screenPoint.X && visibleY == screenPoint.Y && visibleWidth == controlSize.Width && visibleHeight == controlSize.Height) return null;
+
+            // 否则返回裁剪后的坐标和尺寸
+            return new int[] { visibleX, visibleY, visibleWidth, visibleHeight };
         }
 
         #region 设置
@@ -214,8 +264,10 @@ namespace AntdUI
         /// </summary>
         public int TopY()
         {
-            if (creal.HasValue) return sy - dh + padd + shadow - arrow + creal.Value.Y;
-            return sy - dh + padd + shadow - arrow;
+            int _padd = padd;
+            if (Config.DropDownMarginFurther) _padd = 0;
+            if (creal.HasValue) return sy - dh + _padd + shadow - arrow + creal.Value.Y;
+            return sy - dh + _padd + shadow - arrow;
         }
 
         /// <summary>
@@ -223,8 +275,10 @@ namespace AntdUI
         /// </summary>
         public int BottomY()
         {
-            if (creal.HasValue) return sy + creal.Value.Bottom + arrow - shadow - padd;
-            return sy + ch + arrow - shadow - padd;
+            int _padd = padd;
+            if (Config.DropDownMarginFurther) _padd = 0;
+            if (creal.HasValue) return sy + creal.Value.Bottom + arrow - shadow - _padd;
+            return sy + ch + arrow - shadow - _padd;
         }
 
         /// <summary>
@@ -232,8 +286,10 @@ namespace AntdUI
         /// </summary>
         public int Left()
         {
-            if (creal.HasValue) return sx - dw + padd + shadow - arrow + creal.Value.X;
-            return sx - dw + padd + shadow - arrow;
+            int _padd = padd;
+            if (Config.DropDownMarginFurther) _padd = 0;
+            if (creal.HasValue) return sx - dw + _padd + shadow - arrow + creal.Value.X;
+            return sx - dw + _padd + shadow - arrow;
         }
 
         /// <summary>
@@ -241,8 +297,10 @@ namespace AntdUI
         /// </summary>
         public int Right()
         {
-            if (creal.HasValue) return sx + creal.Value.Right + arrow - shadow - padd;
-            return sx + cw + arrow - shadow - padd;
+            int _padd = padd;
+            if (Config.DropDownMarginFurther) _padd = 0;
+            if (creal.HasValue) return sx + creal.Value.Right + arrow - shadow - _padd;
+            return sx + cw + arrow - shadow - _padd;
         }
 
         #endregion
@@ -337,28 +395,77 @@ namespace AntdUI
         {
             x = CenterX();
             y = TopY();
-            if (collision && ScreenArea.IsTop(x, y))
+            if (collision)
             {
-                y = BottomY();
-                rect_arrow = ArrowBottom(x, y);
+                if (ScreenArea.IsTop(x, y))
+                {
+                    y = BottomY();
+                    if (ScreenArea.IsRight(x, y))
+                    {
+                        x = R();
+                        rect_arrow = ArrowBR(x, y);
+                    }
+                    else if (ScreenArea.IsLeft(x, y))
+                    {
+                        x = L();
+                        rect_arrow = ArrowBL(x, y);
+                    }
+                    else rect_arrow = ArrowBottom(x, y);
+                    return;
+                }
+                else if (ScreenArea.IsRight(x, y))
+                {
+                    x = R();
+                    rect_arrow = ArrowTR(x, y);
+                    return;
+                }
+                else if (ScreenArea.IsLeft(x, y))
+                {
+                    x = L();
+                    rect_arrow = ArrowTL(x, y);
+                    return;
+                }
             }
-            else
-            {
-                inverted = true;
-                rect_arrow = ArrowTop(x, y);
-            }
+            inverted = true;
+            rect_arrow = ArrowTop(x, y);
         }
         void Bottom(bool collision, out int x, out int y, ref bool inverted, out Point[]? rect_arrow)
         {
             x = CenterX();
             y = BottomY();
-            if (collision && ScreenArea.IsBottom(x, y))
+            if (collision)
             {
-                y = TopY();
-                inverted = true;
-                rect_arrow = ArrowTop(x, y);
+                if (ScreenArea.IsBottom(x, y))
+                {
+                    y = TopY();
+                    inverted = true;
+                    if (ScreenArea.IsRight(x, y))
+                    {
+                        x = R();
+                        rect_arrow = ArrowTR(x, y);
+                    }
+                    else if (ScreenArea.IsLeft(x, y))
+                    {
+                        x = L();
+                        rect_arrow = ArrowTL(x, y);
+                    }
+                    else rect_arrow = ArrowTop(x, y);
+                    return;
+                }
+                else if (ScreenArea.IsRight(x, y))
+                {
+                    x = R();
+                    rect_arrow = ArrowBR(x, y);
+                    return;
+                }
+                else if (ScreenArea.IsLeft(x, y))
+                {
+                    x = L();
+                    rect_arrow = ArrowBL(x, y);
+                    return;
+                }
             }
-            else rect_arrow = ArrowBottom(x, y);
+            rect_arrow = ArrowBottom(x, y);
         }
 
         void Left(bool collision, out int x, out int y, ref bool inverted, out Point[]? rect_arrow)

@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,7 +29,7 @@ namespace AntdUI
         /// <summary>
         /// 当前值2
         /// </summary>
-        [Description("当前值2"), Category("数据"), DefaultValue(10)]
+        [Description("当前值2"), Category(nameof(CategoryAttribute.Data)), DefaultValue(10)]
         public int Value2
         {
             get => _value2;
@@ -52,8 +39,8 @@ namespace AntdUI
                 else if (value > MaxValue) value = MaxValue;
                 if (_value2 == value) return;
                 _value2 = value;
-                OnValue2Changed(_value2);
                 Invalidate();
+                OnValue2Changed(_value2);
                 OnPropertyChanged(nameof(Value2));
             }
         }
@@ -61,7 +48,7 @@ namespace AntdUI
         /// <summary>
         /// Value 属性值更改时发生
         /// </summary>
-        [Description("Value 属性值更改时发生"), Category("行为")]
+        [Description("Value 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event IntEventHandler? Value2Changed;
 
         protected virtual void OnValue2Changed(int e) => Value2Changed?.Invoke(this, new IntEventArgs(e));
@@ -78,7 +65,7 @@ namespace AntdUI
 
             using (var path = rect_read.RoundPath(rect_read.Height / 2))
             {
-                using (var brush = new SolidBrush(TrackColor ?? Colour.FillQuaternary.Get(nameof(Slider), ColorScheme)))
+                using (var brush = new SolidBrush(TrackColor ?? Colour.FillQuaternary.Get(ColorScheme, nameof(Slider), Name)))
                 {
                     g.Fill(brush, path);
                     if (AnimationHover) g.Fill(Helper.ToColorN(AnimationHoverValue, brush.Color), path);
@@ -100,7 +87,7 @@ namespace AntdUI
 
             #endregion
 
-            using (var brush = new SolidBrush(Colour.BgBase.Get(nameof(Slider), ColorScheme)))
+            using (var brush = new SolidBrush(Colour.BgBase.Get(ColorScheme, nameof(Slider), Name)))
             {
                 PaintMarksEllipse(g, rect, rect_read, brush, color, LineSize);
                 PaintEllipse(g, rect, rect_read, prog, brush, color_dot, color_hover, color_active, LineSize);
@@ -111,7 +98,7 @@ namespace AntdUI
         RectangleF rectEllipse2;
         internal void PaintEllipse2(Canvas g, Rectangle rect, RectangleF rect_read, float prog, SolidBrush brush, Color color, Color color_hover, Color color_active, int LineSize)
         {
-            int DotSize = (int)(dotSize * Config.Dpi), DotSizeActive = (int)(dotSizeActive * Config.Dpi);
+            int DotSize = (int)(dotSize * Dpi), DotSizeActive = (int)(dotSizeActive * Dpi);
             rectEllipse2 = RectDot(rect, rect_read, prog, DotSizeActive + LineSize);
 
             var rect_ellipse_rl = RectDot(rect, rect_read, prog, DotSize + LineSize);
@@ -267,7 +254,7 @@ namespace AntdUI
                 if (_mouseDotHover == value) return;
                 _mouseDotHover = value;
                 if (!value) CloseTips();
-                if (Config.HasAnimation(nameof(Slider)))
+                if (Config.HasAnimation(nameof(Slider), Name))
                 {
                     ThreadHover?.Dispose();
                     ThreadHover = null;

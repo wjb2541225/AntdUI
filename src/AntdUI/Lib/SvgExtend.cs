@@ -1,22 +1,10 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
+using System;
 using System.Drawing;
 
 namespace AntdUI
@@ -28,6 +16,7 @@ namespace AntdUI
             if (rect.Width > 0 && rect.Height > 0) return SvgToBmp(svg, rect.Width, rect.Height, color);
             return null;
         }
+
         public static bool GetImgExtend(this Canvas g, string svg, Rectangle rect, Color? color = null)
         {
             if (rect.Width > 0 && rect.Height > 0)
@@ -112,7 +101,33 @@ namespace AntdUI
             return doc.Draw();
         }
 
-        static Svg.SvgDocument? SvgDocument(string svg)
+        /// <summary>
+        /// SVG转图片
+        /// </summary>
+        /// <param name="svg">代码</param>
+        /// <param name="g">绘制</param>
+        /// <returns>Bitmap</returns>
+        public static Bitmap? SvgToBmp(this string svg, Canvas g)
+        {
+            var doc = SvgDocument(svg);
+            if (doc == null) return null;
+            if (g.Dpi == 1F) return doc.Draw();
+            Svg.SvgUnitType tw = doc.Width.Type, th = doc.Height.Type;
+            if (tw == Svg.SvgUnitType.Percentage && th == Svg.SvgUnitType.Percentage)
+            {
+                var size = doc.Bounds;
+                doc.Width = size.Width * g.Dpi;
+                doc.Height = size.Height * g.Dpi;
+            }
+            else
+            {
+                doc.Width *= g.Dpi;
+                doc.Height *= g.Dpi;
+            }
+            return doc.Draw();
+        }
+
+        internal static Svg.SvgDocument? SvgDocument(string svg)
         {
             if (svg.StartsWith("<svg")) return Svg.SvgDocument.FromSvg<Svg.SvgDocument>(svg);
             else if (svg.Contains("svg+xml;base64,"))

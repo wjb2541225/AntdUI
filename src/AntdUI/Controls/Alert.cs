@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -46,7 +33,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -80,7 +67,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -109,7 +96,7 @@ namespace AntdUI
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("外观"), DefaultValue(ContentAlignment.MiddleLeft)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleLeft)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -128,7 +115,7 @@ namespace AntdUI
         /// <summary>
         /// 标题
         /// </summary>
-        [Description("标题"), Category("外观"), DefaultValue(null)]
+        [Description("标题"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? TextTitle
         {
@@ -145,11 +132,45 @@ namespace AntdUI
         [Description("标题"), Category("国际化"), DefaultValue(null)]
         public string? LocalizationTextTitle { get; set; }
 
+        Color? textColor;
+        /// <summary>
+        /// 文本的自定义颜色
+        /// </summary>
+        [Description("文本的自定义颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? TextColor
+        {
+            get => textColor;
+            set
+            {
+                if (textColor == value) return;
+                textColor = value;
+                Invalidate();
+                OnPropertyChanged(nameof(TextColor));
+            }
+        }
+
+        Color? textTitleColor;
+        /// <summary>
+        /// 标题的自定义颜色
+        /// </summary>
+        [Description("标题的自定义颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? TextTitleColor
+        {
+            get => textTitleColor;
+            set
+            {
+                if (textTitleColor == value) return;
+                textTitleColor = value;
+                Invalidate();
+                OnPropertyChanged(nameof(TextTitleColor));
+            }
+        }
+
         TType icon = TType.None;
         /// <summary>
         /// 样式
         /// </summary>
-        [Description("样式"), Category("外观"), DefaultValue(TType.None)]
+        [Description("样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TType.None)]
         public TType Icon
         {
             get => icon;
@@ -168,7 +189,7 @@ namespace AntdUI
         /// <summary>
         /// 自定义图标SVG
         /// </summary>
-        [Description("自定义图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("自定义图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -181,11 +202,28 @@ namespace AntdUI
             }
         }
 
+        Image? iconCustom;
+        /// <summary>
+        /// 自定义图标
+        /// </summary>
+        [Description("自定义图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Image? IconCustom
+        {
+            get => iconCustom;
+            set
+            {
+                if (iconCustom == value) return;
+                iconCustom = value;
+                Invalidate();
+                OnPropertyChanged(nameof(IconCustom));
+            }
+        }
+
         bool closeIcon = false;
         /// <summary>
         /// 是否显示关闭图标
         /// </summary>
-        [Description("是否显示关闭图标"), Category("行为"), DefaultValue(false)]
+        [Description("是否显示关闭图标"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool CloseIcon
         {
             get => closeIcon;
@@ -202,7 +240,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(null)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public float? IconRatio
         {
             get => iconratio;
@@ -219,7 +257,7 @@ namespace AntdUI
         /// <summary>
         /// 图标与文字间距比例
         /// </summary>
-        [Description("图标与文字间距比例"), Category("外观"), DefaultValue(null)]
+        [Description("图标与文字间距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public float? IconGap
         {
             get => icongap;
@@ -235,7 +273,7 @@ namespace AntdUI
         /// <summary>
         /// 是否包含自定义图标
         /// </summary>
-        public bool HasIcon => iconSvg != null;
+        public bool HasIcon => iconSvg != null || iconCustom != null;
 
         #endregion
 
@@ -243,7 +281,7 @@ namespace AntdUI
         /// <summary>
         /// 文本轮播
         /// </summary>
-        [Description("文本轮播"), Category("外观"), DefaultValue(false)]
+        [Description("文本轮播"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loop
         {
             get => loop;
@@ -259,19 +297,19 @@ namespace AntdUI
         /// <summary>
         /// 溢出轮播
         /// </summary>
-        [Description("溢出轮播"), Category("外观"), DefaultValue(false)]
+        [Description("溢出轮播"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool LoopOverflow { get; set; }
 
         /// <summary>
         /// 轮播文本无尽
         /// </summary>
-        [Description("轮播文本无尽"), Category("外观"), DefaultValue(true)]
+        [Description("轮播文本无尽"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool LoopInfinite { get; set; } = true;
 
         /// <summary>
         /// 鼠标移入时暂停轮播
         /// </summary>
-        [Description("鼠标移入时暂停轮播"), Category("外观"), DefaultValue(true)]
+        [Description("鼠标移入时暂停轮播"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool LoopPauseOnMouseEnter { get; set; } = true;
 
         protected override void OnHandleCreated(EventArgs e)
@@ -304,7 +342,7 @@ namespace AntdUI
         /// <summary>
         /// 文本轮播速率
         /// </summary>
-        [Description("文本轮播速率"), Category("外观"), DefaultValue(10)]
+        [Description("文本轮播速率"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(10)]
         public int LoopSpeed
         {
             get => loopSpeed;
@@ -370,7 +408,7 @@ namespace AntdUI
         /// <summary>
         /// 显示区域（容器）
         /// </summary>
-        public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, borWidth / 2F * Config.Dpi);
+        public override Rectangle DisplayRectangle => ClientRectangle.PaddingRect(Padding, borWidth / 2F * Dpi);
 
         #endregion
 
@@ -379,7 +417,7 @@ namespace AntdUI
         /// <summary>
         /// Close时发生
         /// </summary>
-        [Description("Close时发生"), Category("行为")]
+        [Description("Close时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event RBoolEventHandler? CloseChanged;
 
         protected virtual bool OnCloseChanged() => CloseChanged == null || CloseChanged(this, EventArgs.Empty);
@@ -404,7 +442,7 @@ namespace AntdUI
         {
             if (closeIcon)
             {
-                hover_close.MaxValue = Colour.Text.Get(nameof(Alert), ColorScheme).A - Colour.TextQuaternary.Get(nameof(Alert), ColorScheme).A;
+                hover_close.MaxValue = Colour.Text.Get(ColorScheme, nameof(Alert), Name).A - Colour.TextQuaternary.Get(ColorScheme, nameof(Alert), Name).A;
                 hover_close.Switch = rect_close.Contains(e.X, e.Y);
                 SetCursor(hover_close.Switch);
             }
@@ -429,7 +467,7 @@ namespace AntdUI
                     if (font_size.HasValue)
                     {
                         g.SetClip(rect);
-                        PaintText(g, rect, font_size.Value, ForeColor);
+                        PaintText(g, rect, font_size.Value);
                         g.ResetClip();
                     }
                 }
@@ -443,7 +481,7 @@ namespace AntdUI
                             font_size = size;
                             int icon_size = (int)(size.Height * .86F), gap = (int)(icon_size * .4F);
                             var rect_txt = new Rectangle(rect.X + gap, rect.Y, rect.Width - gap * 2, rect.Height);
-                            g.DrawText(Text, Font, ForeColor, rect_txt, sf);
+                            g.DrawText(Text, Font, textColor ?? ForeColor, rect_txt, sf);
                         }
                     }
                     else
@@ -452,10 +490,11 @@ namespace AntdUI
                         {
                             var size_title = g.MeasureText(TextTitle, font_title);
                             int icon_size = (int)(size_title.Height * 1.2F), gap = (int)(icon_size * .5F);
-                            using (var brush = new SolidBrush(ForeColor))
+                            using (var brush = new SolidBrush(textColor ?? ForeColor))
+                            using (var brushTitle = new SolidBrush(textTitleColor ?? ForeColor))
                             {
                                 var rect_txt = new Rectangle(rect.X + gap, rect.Y + gap, rect.Width - (gap * 2), size_title.Height);
-                                g.DrawText(TextTitle, font_title, brush, rect_txt, sf);
+                                g.DrawText(TextTitle, font_title, brushTitle, rect_txt, sf);
 
                                 int desc_y = rect_txt.Bottom + (int)(icon_size * .33F);
                                 var rect_txt_desc = new Rectangle(rect_txt.X, desc_y, rect_txt.Width, rect.Height - (desc_y + gap));
@@ -467,29 +506,29 @@ namespace AntdUI
             }
             else
             {
-                float _radius = radius * Config.Dpi;
-                Color back, bor_color, color = Colour.Text.Get(nameof(Alert), ColorScheme);
+                float _radius = radius * Dpi;
+                Color back, bor_color, color = Colour.Text.Get(ColorScheme, nameof(Alert), Name);
                 switch (icon)
                 {
                     case TType.Success:
-                        back = Colour.SuccessBg.Get(nameof(Alert), ColorScheme);
-                        bor_color = Colour.SuccessBorder.Get(nameof(Alert), ColorScheme);
+                        back = Colour.SuccessBg.Get(ColorScheme, nameof(Alert), Name);
+                        bor_color = Colour.SuccessBorder.Get(ColorScheme, nameof(Alert), Name);
                         break;
                     case TType.Info:
-                        back = Colour.InfoBg.Get(nameof(Alert), ColorScheme);
-                        bor_color = Colour.InfoBorder.Get(nameof(Alert), ColorScheme);
+                        back = Colour.InfoBg.Get(ColorScheme, nameof(Alert), Name);
+                        bor_color = Colour.InfoBorder.Get(ColorScheme, nameof(Alert), Name);
                         break;
                     case TType.Warn:
-                        back = Colour.WarningBg.Get(nameof(Alert), ColorScheme);
-                        bor_color = Colour.WarningBorder.Get(nameof(Alert), ColorScheme);
+                        back = Colour.WarningBg.Get(ColorScheme, nameof(Alert), Name);
+                        bor_color = Colour.WarningBorder.Get(ColorScheme, nameof(Alert), Name);
                         break;
                     case TType.Error:
-                        back = Colour.ErrorBg.Get(nameof(Alert), ColorScheme);
-                        bor_color = Colour.ErrorBorder.Get(nameof(Alert), ColorScheme);
+                        back = Colour.ErrorBg.Get(ColorScheme, nameof(Alert), Name);
+                        bor_color = Colour.ErrorBorder.Get(ColorScheme, nameof(Alert), Name);
                         break;
                     default:
-                        back = Colour.SuccessBg.Get(nameof(Alert), ColorScheme);
-                        bor_color = Colour.SuccessBorder.Get(nameof(Alert), ColorScheme);
+                        back = Colour.SuccessBg.Get(ColorScheme, nameof(Alert), Name);
+                        bor_color = Colour.SuccessBorder.Get(ColorScheme, nameof(Alert), Name);
                         break;
                 }
                 using (var path = rect.RoundPath(_radius))
@@ -505,7 +544,8 @@ namespace AntdUI
                             var rect_icon = new Rectangle(gap, rect.Y + (rect.Height - icon_size) / 2, icon_size, icon_size);
                             PaintText(g, rect, rect_icon, font_size.Value, color, back, _radius);
                             g.ResetClip();
-                            g.PaintIcons(icon, iconSvg, rect_icon, Colour.BgBase, nameof(Alert), ColorScheme);
+                            if (iconCustom == null) g.PaintIcons(icon, iconSvg, rect_icon, Colour.BgBase, nameof(Alert), ColorScheme, Name);
+                            else g.Image(iconCustom, rect_icon);
                         }
                     }
                     else
@@ -519,9 +559,10 @@ namespace AntdUI
                         {
                             int icon_size = (int)(sizeT.Height * (iconratio ?? .86F)), gap = (int)(icon_size * (icongap ?? .4F));
                             var rect_icon = new Rectangle(rect.X + gap, rect.Y + (rect.Height - icon_size) / 2, icon_size, icon_size);
-                            g.PaintIcons(icon, iconSvg, rect_icon, Colour.BgBase, nameof(Alert), ColorScheme);
+                            if (iconCustom == null) g.PaintIcons(icon, iconSvg, rect_icon, Colour.BgBase, nameof(Alert), ColorScheme, Name);
+                            else g.Image(iconCustom, rect_icon);
                             var rect_txt = new Rectangle(rect_icon.X + rect_icon.Width + gap, rect.Y, rect.Width - (rect_icon.Width + gap * 3), rect.Height);
-                            g.DrawText(Text, Font, color, rect_txt, sf);
+                            g.DrawText(Text, Font, textColor ?? color, rect_txt, sf);
                             PaintCloseIcon(g, rect_txt, .4F);
                         }
                         else
@@ -531,12 +572,14 @@ namespace AntdUI
                                 int icon_size = (int)(sizeT.Height * (iconratio ?? 1.2F)), gap = (int)(icon_size * (icongap ?? .5F));
 
                                 var rect_icon = new Rectangle(rect.X + gap, rect.Y + gap, icon_size, icon_size);
-                                g.PaintIcons(icon, iconSvg, rect_icon, Colour.BgBase, nameof(Alert), ColorScheme);
+                                if (iconCustom == null) g.PaintIcons(icon, iconSvg, rect_icon, Colour.BgBase, nameof(Alert), ColorScheme, Name);
+                                else g.Image(iconCustom, rect_icon);
 
-                                using (var brush = new SolidBrush(color))
+                                using (var brush = new SolidBrush(textColor ?? color))
+                                using (var brushTitle = new SolidBrush(textTitleColor ?? color))
                                 {
                                     var rect_txt = new Rectangle(rect_icon.X + rect_icon.Width + icon_size / 2, rect_icon.Y, rect.Width - (rect_icon.Width + gap * 3), rect_icon.Height);
-                                    g.DrawText(TextTitle, font_title, brush, rect_txt, sf);
+                                    g.DrawText(TextTitle, font_title, brushTitle, rect_txt, sf);
 
                                     var desc_y = rect_txt.Bottom + (int)(icon_size * .2F);
                                     var rect_txt_desc = new Rectangle(rect_txt.X, desc_y, rect_txt.Width, rect.Height - (desc_y + gap));
@@ -546,7 +589,7 @@ namespace AntdUI
                             }
                         }
                     }
-                    if (borWidth > 0) g.Draw(bor_color, borWidth * Config.Dpi, path);
+                    if (borWidth > 0) g.Draw(bor_color, borWidth * Dpi, path);
                 }
             }
             base.OnDraw(e);
@@ -564,9 +607,10 @@ namespace AntdUI
         /// <param name="rect">区域</param>
         /// <param name="size">文字大小</param>
         /// <param name="fore">文字颜色</param>
-        void PaintText(Canvas g, Rectangle rect, Size size, Color fore)
+        void PaintText(Canvas g, Rectangle rect, Size size)
         {
-            using (var brush = new SolidBrush(fore))
+            using (var brush = new SolidBrush(textColor ?? ForeColor))
+            using (var brushTitle = new SolidBrush(textTitleColor ?? ForeColor))
             {
                 if (string.IsNullOrEmpty(TextTitle))
                 {
@@ -611,7 +655,7 @@ namespace AntdUI
                         g.Fill(brush2, rect_icon_l);
                         g.Fill(brush2, rect_icon_l);
                     }
-                    g.DrawText(TextTitle, Font, brush, new Rectangle(rect.X, rect.Y, size_title.Width, rect.Height), sc);
+                    g.DrawText(TextTitle, Font, brushTitle, new Rectangle(rect.X, rect.Y, size_title.Width, rect.Height), sc);
                 }
             }
         }
@@ -626,20 +670,21 @@ namespace AntdUI
         /// <param name="back">背景颜色</param>
         void PaintText(Canvas g, Rectangle rect, Rectangle rect_icon, Size size, Color fore, Color back, float radius)
         {
-            using (var brush_fore = new SolidBrush(fore))
+            using (var brushFore = new SolidBrush(textColor ?? fore))
+            using (var brushTitle = new SolidBrush(textTitleColor ?? fore))
             {
                 var rect_txt = new Rectangle(rect.X - val, rect.Y, size.Width, rect.Height);
 
                 g.SetClip(new Rectangle(rect.X, rect_txt.Y + ((rect.Height - size.Height) / 2), rect.Width, size.Height));
 
-                g.DrawText(Text, Font, brush_fore, rect_txt, sc);
+                g.DrawText(Text, Font, brushFore, rect_txt, sc);
                 if (LoopInfinite && rect.Width > size.Width)
                 {
                     var maxw = rect.Width + rect_txt.Width / 2;
                     var rect_txt2 = new Rectangle(rect_txt.Right, rect_txt.Y, rect_txt.Width, rect_txt.Height);
                     while (rect_txt2.X < maxw)
                     {
-                        g.DrawText(Text, Font, brush_fore, rect_txt2, sc);
+                        g.DrawText(Text, Font, brushFore, rect_txt2, sc);
                         rect_txt2.X = rect_txt2.Right;
                     }
                 }
@@ -664,7 +709,7 @@ namespace AntdUI
                         g.Fill(brush, rect_icon_l);
                         g.Fill(brush, rect_icon_l);
                     }
-                    g.DrawText(TextTitle, Font, brush_fore, new Rectangle(rect_icon.Right, rect.Y, size_title.Width, rect.Height), sc);
+                    g.DrawText(TextTitle, Font, brushTitle, new Rectangle(rect_icon.Right, rect.Y, size_title.Width, rect.Height), sc);
                 }
                 var rect_icon_r = new Rectangle(rect.Right - rect_icon_l.Width, rect_icon_l.Y, rect_icon_l.Width, rect_icon_l.Height);
                 using (var brush = new LinearGradientBrush(rect_icon_r, Color.Transparent, back, 0F))
@@ -684,9 +729,9 @@ namespace AntdUI
                 int size = (int)(rect.Height * ratio);
                 var rect_arrow = new Rectangle(rect.Right - size, rect.Y + (rect.Height - size) / 2, size, size);
                 rect_close = rect_arrow;
-                if (hover_close.Animation) g.PaintIconClose(rect_arrow, Helper.ToColor(hover_close.Value + Colour.TextQuaternary.Get(nameof(Alert), ColorScheme).A, Colour.Text.Get(nameof(Alert), ColorScheme)));
-                else if (hover_close.Switch) g.PaintIconClose(rect_arrow, Colour.Text.Get(nameof(Alert), ColorScheme));
-                else g.PaintIconClose(rect_arrow, Colour.TextQuaternary.Get(nameof(Alert), ColorScheme));
+                if (hover_close.Animation) g.Svg(SvgDb.IcoErrorGhost, rect_arrow, Helper.ToColor(hover_close.Value + Colour.TextQuaternary.Get(ColorScheme, nameof(Alert), Name).A, Colour.Text.Get(ColorScheme, nameof(Alert), Name)));
+                else if (hover_close.Switch) g.Svg(SvgDb.IcoErrorGhost, rect_arrow, Colour.Text.Get(ColorScheme, nameof(Alert), Name));
+                else g.Svg(SvgDb.IcoErrorGhost, rect_arrow, Colour.TextQuaternary.Get(ColorScheme, nameof(Alert), Name));
             }
         }
 
@@ -694,7 +739,7 @@ namespace AntdUI
 
         public override Rectangle ReadRectangle => DisplayRectangle;
 
-        public override GraphicsPath RenderRegion => DisplayRectangle.RoundPath(radius * Config.Dpi);
+        public override GraphicsPath RenderRegion => DisplayRectangle.RoundPath(radius * Dpi);
 
         #endregion
 

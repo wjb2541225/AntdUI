@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -47,6 +28,7 @@ namespace Demo.Controls
         private void InitializeComponent()
         {
             header1 = new AntdUI.PageHeader();
+            label1 = new AntdUI.Label();
             panel1 = new System.Windows.Forms.Panel();
             panel4 = new System.Windows.Forms.Panel();
             panel5 = new System.Windows.Forms.Panel();
@@ -66,6 +48,7 @@ namespace Demo.Controls
             radio2 = new AntdUI.Radio();
             radio1 = new AntdUI.Radio();
             divider1 = new AntdUI.Divider();
+            header1.SuspendLayout();
             panel1.SuspendLayout();
             panel4.SuspendLayout();
             panel5.SuspendLayout();
@@ -75,11 +58,12 @@ namespace Demo.Controls
             // 
             // header1
             // 
+            header1.Controls.Add(label1);
             header1.Description = "单选框。";
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Radio.Description";
-            header1.LocalizationText = "Radio.Text";
+            header1.LocalizationText = "Radio";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -87,6 +71,17 @@ namespace Demo.Controls
             header1.TabIndex = 0;
             header1.Text = "Radio 单选框";
             header1.UseTitleFont = true;
+            // 
+            // label1
+            // 
+            label1.AutoEllipsis = true;
+            label1.Font = new Font("微软雅黑", 24F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            label1.Location = new Point(257, 4);
+            label1.Margin = new Padding(2);
+            label1.Name = "label1";
+            label1.Size = new Size(343, 45);
+            label1.TabIndex = 0;
+            label1.Text = "Имя пользоватя";
             // 
             // panel1
             // 
@@ -312,6 +307,7 @@ namespace Demo.Controls
             Font = new Font("Microsoft YaHei UI", 12F);
             Name = "Radio";
             Size = new Size(650, 397);
+            header1.ResumeLayout(false);
             panel1.ResumeLayout(false);
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
@@ -346,5 +342,6 @@ namespace Demo.Controls
         private AntdUI.Button button1;
         private AntdUI.Radio radio9;
         private AntdUI.Divider divider3;
+        private AntdUI.Label label1;
     }
 }

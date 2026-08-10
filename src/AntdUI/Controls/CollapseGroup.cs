@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -40,20 +27,20 @@ namespace AntdUI
         /// <summary>
         /// 悬停背景颜色
         /// </summary>
-        [Description("悬停背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? BackHover { get; set; }
 
         /// <summary>
         /// 激活背景颜色
         /// </summary>
-        [Description("激活背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? BackActive { get; set; }
 
         Color? fore;
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public new Color? ForeColor
         {
             get => fore;
@@ -69,20 +56,20 @@ namespace AntdUI
         /// <summary>
         /// 激活字体颜色
         /// </summary>
-        [Description("激活字体颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活字体颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? ForeActive { get; set; }
 
         /// <summary>
         /// 只保持一个子菜单的展开
         /// </summary>
-        [Description("只保持一个子菜单的展开"), Category("外观"), DefaultValue(false)]
+        [Description("只保持一个子菜单的展开"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Unique { get; set; }
 
         int radius = 6;
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -99,7 +86,7 @@ namespace AntdUI
         /// <summary>
         /// 列数量
         /// </summary>
-        [Description("列数量"), Category("外观"), DefaultValue(6)]
+        [Description("列数量"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int ColumnCount
         {
             get => columnCount;
@@ -118,7 +105,7 @@ namespace AntdUI
         /// 集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public CollapseGroupItemCollection Items
         {
             get
@@ -130,7 +117,7 @@ namespace AntdUI
         }
 
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -177,10 +164,10 @@ namespace AntdUI
                 if (pauseLayout || items == null || items.Count == 0 || (_rect.Width == 0 || _rect.Height == 0)) return;
                 var rect = ClientRectangle.DeflateRect(Padding);
                 int y = rect.Y;
-                Helper.GDI(g =>
+                this.GDI(g =>
                 {
                     var size = g.MeasureString(Config.NullText, Font);
-                    int gap = (int)(4 * Config.Dpi), csize = (rect.Width - (gap * (columnCount - 1))) / columnCount, icon_size = csize / 2, height = size.Height + gap * 2;
+                    int gap = (int)(4 * Dpi), csize = (rect.Width - (gap * (columnCount - 1))) / columnCount, icon_size = csize / 2, height = size.Height + gap * 2;
                     foreach (var it in items)
                     {
                         it.PARENT = this;
@@ -201,8 +188,7 @@ namespace AntdUI
                         }
                     }
                 });
-                ScrollBar.SetVrSize(0, y);
-                ScrollBar.SizeChange(_rect);
+                ScrollBar.SetVrSize(0, y, _rect);
                 if (r) Invalidate();
             }
         }
@@ -213,7 +199,7 @@ namespace AntdUI
             foreach (var it in items)
             {
                 it.PARENT = this;
-                it.PARENTITEM = it.ParentItem = Parent;
+                it.ParentItem = Parent;
                 var size = g.MeasureString(it.Text, Font, csize, s_c);
                 int xc = size.Height - font_height;
                 if (xc > 0 && tmp < xc) tmp = xc;
@@ -245,14 +231,14 @@ namespace AntdUI
                 return;
             }
             var g = e.Canvas;
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
             int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
             g.TranslateTransform(-sx, -sy);
-            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get(nameof(CollapseGroup), ColorScheme)))
-            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get(nameof(CollapseGroup), ColorScheme)))
-            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get(nameof(CollapseGroup), ColorScheme)))
-            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(nameof(CollapseGroup), ColorScheme)))
-            using (var brush_TextQuaternary = new SolidBrush(Colour.TextQuaternary.Get(nameof(CollapseGroup), ColorScheme)))
+            using (var brush_fore = new SolidBrush(fore ?? Colour.TextBase.Get(ColorScheme, nameof(CollapseGroup), Name)))
+            using (var brush_fore_active = new SolidBrush(ForeActive ?? Colour.Primary.Get(ColorScheme, nameof(CollapseGroup), Name)))
+            using (var brush_hover = new SolidBrush(BackHover ?? Colour.FillSecondary.Get(ColorScheme, nameof(CollapseGroup), Name)))
+            using (var brush_active = new SolidBrush(BackActive ?? Colour.PrimaryBg.Get(ColorScheme, nameof(CollapseGroup), Name)))
+            using (var brush_TextQuaternary = new SolidBrush(Colour.TextQuaternary.Get(ColorScheme, nameof(CollapseGroup), Name)))
             {
                 PaintItem(g, e.Rect, sx, sy, items, brush_fore, brush_fore_active, brush_hover, brush_active, brush_TextQuaternary, _radius);
             }
@@ -291,7 +277,7 @@ namespace AntdUI
                                         else if (sub.Hover) PaintBack(g, sub, hover, radius);
 
                                         if (sub.Icon != null) g.Image(sub.Icon, sub.ico_rect);
-                                        if (sub.IconSvg != null) g.GetImgExtend(sub.IconSvg, sub.ico_rect, fore_active.Color);
+                                        if (sub.IconSvg != null) g.Svg(sub.IconSvg, sub.ico_rect, fore_active.Color);
                                         g.String(sub.Text, Font, fore_active, sub.txt_rect, s_c);
                                     }
                                     else
@@ -306,14 +292,14 @@ namespace AntdUI
                                         else if (sub.Hover) PaintBack(g, sub, hover, radius);
 
                                         if (sub.Icon != null) g.Image(sub.Icon, sub.ico_rect);
-                                        if (sub.IconSvg != null) g.GetImgExtend(sub.IconSvg, sub.ico_rect, fore.Color);
+                                        if (sub.IconSvg != null) g.Svg(sub.IconSvg, sub.ico_rect, fore.Color);
                                         g.String(sub.Text, Font, fore, sub.txt_rect, s_c);
                                     }
                                 }
                                 else
                                 {
                                     if (sub.Icon != null) g.Image(sub.Icon, sub.ico_rect);
-                                    if (sub.IconSvg != null) g.GetImgExtend(sub.IconSvg, sub.ico_rect, brush_TextQuaternary.Color);
+                                    if (sub.IconSvg != null) g.Svg(sub.IconSvg, sub.ico_rect, brush_TextQuaternary.Color);
                                     g.String(sub.Text, Font, brush_TextQuaternary, sub.txt_rect, s_c);
                                 }
                             }
@@ -353,9 +339,9 @@ namespace AntdUI
             using (var pen = new Pen(color, 2F))
             {
                 pen.StartCap = pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                if (item.ExpandThread) g.DrawLines(pen, item.arr_rect.TriangleLines(-(1F - (2F * item.ExpandProg)), .4F));
-                else if (item.Expand) g.DrawLines(pen, item.arr_rect.TriangleLines(1, .4F));
-                else g.DrawLines(pen, item.arr_rect.TriangleLines(-1, .4F));
+                if (item.ExpandThread) g.DrawLines(pen, item.arr_rect.TriangleLinesVertical(-(1F - (2F * item.ExpandProg)), .4F));
+                else if (item.Expand) g.DrawLines(pen, item.arr_rect.TriangleLinesVertical(1, .4F));
+                else g.DrawLines(pen, item.arr_rect.TriangleLinesVertical(-1, .4F));
             }
         }
 
@@ -363,11 +349,11 @@ namespace AntdUI
 
         #region 鼠标
 
-        object? MDown;
+        object? mDown;
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            MDown = null;
+            mDown = null;
             if (ScrollBar.MouseDownY(e.X, e.Y) && ScrollBar.MouseDownX(e.X, e.Y))
             {
                 if (items == null || items.Count == 0) return;
@@ -377,7 +363,7 @@ namespace AntdUI
                 {
                     if (it.rect.Contains(e.X, e.Y + y))
                     {
-                        MDown = it;
+                        mDown = it;
                         return;
                     }
                     else if (it.Expand && it.items != null && it.items.Count > 0)
@@ -386,7 +372,7 @@ namespace AntdUI
                         {
                             if (sub.Show && sub.Enabled && sub.rect.Contains(e.X, e.Y + y))
                             {
-                                MDown = sub;
+                                mDown = sub;
                                 return;
                             }
                         }
@@ -428,43 +414,32 @@ namespace AntdUI
             base.OnMouseUp(e);
             if (ScrollBar.MouseUpY() && ScrollBar.MouseUpX() && OnTouchUp())
             {
-                if (items == null || items.Count == 0 || MDown == null) return;
+                if (items == null || items.Count == 0 || mDown == null) return;
                 int y = ScrollBar.ValueY;
-                foreach (var it in items)
+                if (mDown is CollapseGroupItem item)
                 {
-                    if (it == MDown)
+                    if (item.rect.Contains(e.X, e.Y + y))
                     {
-                        if (it.rect.Contains(e.X, e.Y + y))
+                        item.Expand = !item.Expand;
+                        if (item.Expand && Unique)
                         {
-                            it.Expand = !it.Expand;
-                            if (it.Expand && Unique)
+                            foreach (var it2 in items)
                             {
-                                foreach (var it2 in items)
-                                {
-                                    if (it2 != it) it2.Expand = false;
-                                }
-                            }
-                        }
-                        MDown = null;
-                        return;
-                    }
-                    if (it.items != null && it.items.Count > 0)
-                    {
-                        foreach (var sub in it.items)
-                        {
-                            if (MDown == sub)
-                            {
-                                if (sub.rect.Contains(e.X, e.Y + y))
-                                {
-                                    sub.Select = true;
-                                    OnItemClick(sub, new Rectangle(sub.rect.X, sub.rect.Y - y, sub.rect.Width, sub.rect.Height), e);
-                                }
-                                MDown = null;
-                                return;
+                                if (it2 == item) continue;
+                                it2.Expand = false;
                             }
                         }
                     }
                 }
+                else if (mDown is CollapseGroupSub sub)
+                {
+                    if (sub.rect.Contains(e.X, e.Y + y))
+                    {
+                        sub.Select = true;
+                        OnItemClick(sub, new Rectangle(sub.rect.X, sub.rect.Y - y, sub.rect.Width, sub.rect.Height), e);
+                    }
+                }
+                mDown = null;
             }
         }
 
@@ -510,7 +485,7 @@ namespace AntdUI
         /// <summary>
         /// 点击项事件
         /// </summary>
-        [Description("点击项事件"), Category("行为")]
+        [Description("点击项事件"), Category(nameof(CategoryAttribute.Behavior))]
         public event ItemClickEventHandler? ItemClick;
 
         protected virtual void OnItemClick(CollapseGroupSub item, Rectangle rect, MouseEventArgs e) => ItemClick?.Invoke(this, new ItemClickEventArgs(item, rect, e));
@@ -592,7 +567,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? Text
         {
             get => text;
@@ -607,7 +582,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         internal CollapseGroupSubCollection? items;
@@ -615,7 +590,7 @@ namespace AntdUI
         /// 获取列表中所有列表项的集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("子集合"), Category("外观")]
+        [Description("子集合"), Category(nameof(CategoryAttribute.Appearance))]
         public CollapseGroupSubCollection Sub
         {
             get
@@ -633,7 +608,7 @@ namespace AntdUI
         /// <summary>
         /// 展开
         /// </summary>
-        [Description("展开"), Category("行为"), DefaultValue(false)]
+        [Description("展开"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool Expand
         {
             get => expand;
@@ -646,8 +621,7 @@ namespace AntdUI
                     if (PARENT != null && PARENT.IsHandleCreated && Config.HasAnimation(nameof(CollapseGroup)))
                     {
                         ThreadExpand?.Dispose();
-                        float oldval = -1;
-                        if (ThreadExpand?.Tag is float oldv) oldval = oldv;
+                        var oldval = ThreadExpand?.Tag;
                         ExpandThread = true;
                         ThreadExpand = new AnimationTask(new AnimationFixed2Config((i, val) =>
                         {
@@ -674,7 +648,7 @@ namespace AntdUI
             }
         }
 
-        [Description("是否可以展开"), Category("行为"), DefaultValue(false)]
+        [Description("是否可以展开"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool CanExpand => items != null && items.Count > 0;
 
         #endregion
@@ -685,7 +659,7 @@ namespace AntdUI
         /// <summary>
         /// 文本颜色
         /// </summary>
-        [Description("文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? Fore
         {
             get => fore;
@@ -791,7 +765,7 @@ namespace AntdUI
             base.Add(item);
 
             item.PARENT = PARENT;
-            item.PARENTITEM = item.ParentItem = PARENTITEM;
+            item.ParentItem = PARENTITEM;
         }
     }
     /// <summary>
@@ -828,11 +802,11 @@ namespace AntdUI
         /// <summary>
         /// Checked 属性值更改时发生
         /// </summary>
-        [Description("Checked 属性值更改时发生"), Category("行为")]
+        [Description("Checked 属性值更改时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event CollapseSwitchCheckedChangedEventHandler? CheckedChanged;
-        [Description("文本改变时发生"), Category("行为")]
+        [Description("文本改变时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event CollapseEditChangedEventHandler? TextChanged;
-        [Description("自定义编辑器"), Category("行为")]
+        [Description("自定义编辑器"), Category(nameof(CategoryAttribute.Behavior))]
         public event CollapseCustomInputEditEventHandler? CustomInputEdit;
         public CollapseGroupButton() : base() { }
         public CollapseGroupButton(string text) : base(text) { }
@@ -860,7 +834,7 @@ namespace AntdUI
         /// <summary>
         /// 自定义宽度
         /// </summary>
-        [Description("自定义宽度"), Category("外观"), DefaultValue(null)]
+        [Description("自定义宽度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? Width
         {
             get => width; set
@@ -873,7 +847,7 @@ namespace AntdUI
         }
 
         protected EButtonEditTypes m_editType = EButtonEditTypes.Default;
-        [Description("编辑类型"), Category("外观"), DefaultValue(typeof(EButtonEditTypes), "Default")]
+        [Description("编辑类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(EButtonEditTypes), "Default")]
         public EButtonEditTypes EditType
         {
             get => m_editType;
@@ -891,7 +865,7 @@ namespace AntdUI
         /// <summary>
         /// 是否可见
         /// </summary>
-        [Description("是否可见"), Category("行为"), DefaultValue(true)]
+        [Description("是否可见"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Visible
         {
             get => visible;
@@ -904,9 +878,8 @@ namespace AntdUI
         }
 
         bool switchMode = false;
-        //[Obsolete("请使用EditType")]
         [Browsable(false)]
-        [Description("Switch切换模式"), Category("行为"), DefaultValue(false)]
+        [Description("Switch切换模式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool SwitchMode
         {
             get
@@ -929,11 +902,11 @@ namespace AntdUI
         [Browsable(false)]
         public IControl? Edit { get; protected set; }
 
-        [Description("工具提示内容"), Category("外观"), DefaultValue(null)]
+        [Description("工具提示内容"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? Tooltip { get; set; }
         string? _checkedText, _unCheckedText;
 
-        [Description("选中时显示的文本"), Category("外观"), DefaultValue(null)]
+        [Description("选中时显示的文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? CheckedText
         {
@@ -946,7 +919,7 @@ namespace AntdUI
             }
         }
 
-        [Description("未选中时显示的文本"), Category("外观"), DefaultValue(null)]
+        [Description("未选中时显示的文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? UnCheckedText
         {
@@ -962,10 +935,10 @@ namespace AntdUI
         /// <summary>
         /// 波浪大小
         /// </summary>
-        [Description("波浪大小"), Category("外观"), DefaultValue(0)]
+        [Description("波浪大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int WaveSize { get; set; } = 0;
         bool _checked = false;
-        [Description("勾选状态"), Category("行为"), DefaultValue(false)]
+        [Description("勾选状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool Checked
         {
             get => _checked;
@@ -1025,7 +998,7 @@ namespace AntdUI
                 }
             }
         }
-
+        public Rectangle Rect => rect;
         internal override void SetRect(Canvas g, Rectangle rect_read, int font_height, int xc, int icon_size)
         {
             bool emptyIcon = string.IsNullOrEmpty(IconSvg) && Icon == null;
@@ -1051,7 +1024,7 @@ namespace AntdUI
             else
             {
                 //int sp = (int)(font_height * .25F), t_x = rect_read.Y + (emptyIcon ? 0 : ((rect_read.Height - (font_height + icon_size + sp)) / 2));
-                ico_rect = emptyIcon ? Rectangle.Empty : new Rectangle(emptyText == false ? rect_read.X + (int)(2 * Config.Dpi) : (rect_read.X + ((rect_read.Height - icon_size) / 2)), rect_read.Y + ((rect_read.Height - icon_size) / 2), icon_size, icon_size);
+                ico_rect = emptyIcon ? Rectangle.Empty : new Rectangle(emptyText == false ? rect_read.X + (int)(2 * g.Dpi) : (rect_read.X + ((rect_read.Height - icon_size) / 2)), rect_read.Y + ((rect_read.Height - icon_size) / 2), icon_size, icon_size);
                 txt_rect = emptyText ? Rectangle.Empty : new Rectangle(rect_read.X + icon_size, rect_read.Y + ((rect_read.Height - font_height) / 2), rect_read.Width - icon_size, rect_read.Height);
 
                 if (xc > 0) rect = new Rectangle(rect_read.X, rect_read.Y, rect_read.Width, rect_read.Height + xc);
@@ -1090,16 +1063,14 @@ namespace AntdUI
                     case EButtonEditTypes.Input:
                         Input input = new Input()
                         {
-                            Location = rect.Location,
+                            Bounds = rect,
                             TabIndex = parent.Controls.Count,
-                            Size = rect.Size,
                             PrefixSvg = IconSvg,
                             PrefixFore = Fore,
                             PlaceholderText = Text,
                             Anchor = AnchorStyles.Top | AnchorStyles.Right,
                             IconRatio = ico_rect.Height == 0 || rect.Height == 0 ? 1f : ico_rect.Height / rect.Height,
                         };
-
                         Edit = input;
                         break;
 
@@ -1110,8 +1081,7 @@ namespace AntdUI
                             CustomInputEdit(this, args);
                             if (args.Edit != null)
                             {
-                                args.Edit.Location = rect.Location;
-                                args.Edit.Size = new Size(Width ?? args.Edit.Width, rect.Size.Height);
+                                args.Edit.Bounds = new Rectangle(rect.X, rect.Y, Width ?? args.Edit.Width, rect.Size.Height);
                                 args.Edit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
                                 Edit = args.Edit;
                             }
@@ -1124,6 +1094,7 @@ namespace AntdUI
                 if (Edit != null)
                 {
                     Edit.TextChanged += edit_TextChanged;
+                    if (!string.IsNullOrEmpty(Tooltip)) Edit.MouseHover += (s, e) => parent?.OnButtonMouseHover(rect.X, rect.Y);
                     if (Select) Edit.Focus();
                     parent.Controls.Add(Edit);
                 }
@@ -1157,7 +1128,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -1173,7 +1144,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -1193,14 +1164,14 @@ namespace AntdUI
         /// <summary>
         /// 名称
         /// </summary>
-        [Description("名称"), Category("数据"), DefaultValue(null)]
+        [Description("名称"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? Name { get; set; }
 
         string? text;
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? Text
         {
             get => text;
@@ -1215,7 +1186,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 禁用
@@ -1224,7 +1195,7 @@ namespace AntdUI
         /// <summary>
         /// 禁掉响应
         /// </summary>
-        [Description("禁掉响应"), Category("行为"), DefaultValue(true)]
+        [Description("禁掉响应"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Enabled
         {
             get => enabled;
@@ -1244,7 +1215,7 @@ namespace AntdUI
         /// <summary>
         /// 文本颜色
         /// </summary>
-        [Description("文本颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文本颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? Fore
         {
             get => fore;
@@ -1260,7 +1231,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? Back
         {
             get => back;
@@ -1308,7 +1279,7 @@ namespace AntdUI
         }
 
         protected bool select = false;
-        [Description("激活状态"), Category("行为"), DefaultValue(false)]
+        [Description("激活状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public virtual bool Select
         {
             get => select;
@@ -1327,10 +1298,6 @@ namespace AntdUI
 
         internal ICollapse? PARENT { get; set; }
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Obsolete("use ParentItem")]
-        public ICollapseItem? PARENTITEM { get; set; }
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ICollapseItem? ParentItem { get; internal set; }
 
         internal virtual void SetRect(Canvas g, Rectangle rect_read, int font_height, int xc, int icon_size)
@@ -1343,7 +1310,7 @@ namespace AntdUI
             Show = true;
         }
 
-        internal virtual bool Show { get; set; }
+        internal virtual bool Show { get; set; } = true;
         internal Rectangle rect { get; set; }
 
         internal bool Contains(int x, int y, int sx, int sy)

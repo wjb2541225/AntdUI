@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -48,7 +29,6 @@ namespace Demo.Controls
         {
             header1 = new AntdUI.PageHeader();
             panel1 = new System.Windows.Forms.Panel();
-            label1 = new AntdUI.Label();
             avatar11 = new AntdUI.Avatar();
             avatar10 = new AntdUI.Avatar();
             avatar9 = new AntdUI.Avatar();
@@ -69,7 +49,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Avatar.Description";
-            header1.LocalizationText = "Avatar.Text";
+            header1.LocalizationText = "Avatar";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -80,7 +60,6 @@ namespace Demo.Controls
             // 
             // panel1
             // 
-            panel1.Controls.Add(label1);
             panel1.Controls.Add(avatar11);
             panel1.Controls.Add(avatar10);
             panel1.Controls.Add(avatar9);
@@ -97,21 +76,6 @@ namespace Demo.Controls
             panel1.Name = "panel1";
             panel1.Size = new Size(614, 372);
             panel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            label1.AutoSizeMode = AntdUI.TAutoSize.Height;
-            label1.BackColor = Color.Transparent;
-            label1.IconGap = 8;
-            label1.Location = new Point(415, 127);
-            label1.MaximumSize = new Size(92, 62);
-            label1.Name = "label1";
-            label1.Size = new Size(92, 54);
-            label1.SuffixImage = Properties.Resources.img1;
-            label1.SuffixImageSize = new Size(20, 20);
-            label1.TabIndex = 11;
-            label1.Text = "label1rollback";
-            label1.TextAlign = ContentAlignment.MiddleRight;
             // 
             // avatar11
             // 
@@ -244,7 +208,6 @@ namespace Demo.Controls
             Name = "Avatar";
             Size = new Size(614, 446);
             panel1.ResumeLayout(false);
-            panel1.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -263,6 +226,5 @@ namespace Demo.Controls
         private AntdUI.Avatar avatar9;
         private AntdUI.Avatar avatar10;
         private AntdUI.Avatar avatar11;
-        private AntdUI.Label label1;
     }
 }

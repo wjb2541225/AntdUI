@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -129,6 +116,14 @@ namespace AntdUI
             return rectlr;
         }
 
+        /// <summary>
+        /// 计算左侧图标和文本的矩形区域
+        /// </summary>
+        /// <param name="rect">父容器矩形</param>
+        /// <param name="text_height">文本高度</param>
+        /// <param name="icon_rect">输出的图标矩形区域</param>
+        /// <param name="text_rect">输出的文本矩形区域</param>
+        /// <param name="size">图标大小比例，默认为0.8</param>
         public static void IconRectL(this Rectangle rect, int text_height, out Rectangle icon_rect, out Rectangle text_rect, float size = .8F)
         {
             int h = (int)(text_height * size);
@@ -141,6 +136,12 @@ namespace AntdUI
 
         #region DisplayRectangle
 
+        /// <summary>
+        /// 根据内边距缩小矩形区域
+        /// </summary>
+        /// <param name="rect">原始矩形</param>
+        /// <param name="padding">内边距</param>
+        /// <returns>缩小后的矩形</returns>
         public static Rectangle DeflateRect(this Rectangle rect, Padding padding)
         {
             rect.X += padding.Left;
@@ -149,6 +150,42 @@ namespace AntdUI
             rect.Height -= padding.Vertical;
             return rect;
         }
+
+        /// <summary>
+        /// 根据内边距缩小矩形区域
+        /// </summary>
+        /// <param name="rect">原始矩形</param>
+        /// <param name="padding">内边距</param>
+        /// <returns>缩小后的矩形</returns>
+        public static Rectangle DeflateRect(this Rectangle rect, Padding padding, float dpi)
+        {
+            if (padding.All == 0) return rect;
+            else if (padding.All > 0)
+            {
+                int padd = (int)(padding.All * dpi), padd2 = padd * 2;
+                rect.X += padd;
+                rect.Y += padd;
+                rect.Width -= padd2;
+                rect.Height -= padd2;
+                return rect;
+            }
+            else
+            {
+                int x = (int)(padding.Left * dpi), y = (int)(padding.Top * dpi), r = (int)(padding.Right * dpi), b = (int)(padding.Bottom * dpi);
+                rect.X += x;
+                rect.Y += y;
+                rect.Width -= (x + r);
+                rect.Height -= (y + b);
+                return rect;
+            }
+        }
+
+        /// <summary>
+        /// 根据内边距放大尺寸
+        /// </summary>
+        /// <param name="size">原始尺寸</param>
+        /// <param name="padding">内边距</param>
+        /// <returns>放大后的尺寸</returns>
         public static Size DeflateSize(this Size size, Padding padding)
         {
             size.Width += padding.Horizontal;
@@ -156,11 +193,11 @@ namespace AntdUI
             return size;
         }
 
-        public static Rectangle DeflateRect(this Rectangle rect, Padding padding, ShadowConfig config, TAlignMini align, float borderWidth = 0F)
+        public static Rectangle DeflateRect(this Rectangle rect, Padding padding, Panel config, TAlignMini align, float borderWidth = 0F)
         {
             if (config.Shadow > 0)
             {
-                int shadow = (int)(config.Shadow * Config.Dpi), s2 = shadow * 2, shadowOffsetX = Math.Abs((int)(config.ShadowOffsetX * Config.Dpi)), shadowOffsetY = Math.Abs((int)(config.ShadowOffsetY * Config.Dpi));
+                int shadow = (int)(config.Shadow * config.Dpi), s2 = shadow * 2, shadowOffsetX = Math.Abs((int)(config.ShadowOffsetX * config.Dpi)), shadowOffsetY = Math.Abs((int)(config.ShadowOffsetY * config.Dpi));
                 int x, y, w, h;
                 switch (align)
                 {
@@ -214,7 +251,7 @@ namespace AntdUI
 
                 if (borderWidth > 0)
                 {
-                    int pr = (int)Math.Ceiling(borderWidth * Config.Dpi), pr2 = pr * 2;
+                    int pr = (int)Math.Ceiling(borderWidth * config.Dpi), pr2 = pr * 2;
                     return new Rectangle(x + pr, y + pr, w - pr2, h - pr2);
                 }
                 return new Rectangle(x, y, w, h);
@@ -223,20 +260,30 @@ namespace AntdUI
             {
                 if (borderWidth > 0)
                 {
-                    int pr = (int)Math.Ceiling(borderWidth * Config.Dpi), pr2 = pr * 2;
+                    int pr = (int)Math.Ceiling(borderWidth * config.Dpi), pr2 = pr * 2;
                     return new Rectangle(rect.X + padding.Left + pr, rect.Y + padding.Top + pr, rect.Width - padding.Horizontal - pr2, rect.Height - padding.Vertical - pr2);
                 }
                 return new Rectangle(rect.X + padding.Left, rect.Y + padding.Top, rect.Width - padding.Horizontal, rect.Height - padding.Vertical);
             }
         }
 
+        /// <summary>
+        /// 根据内边距缩小矩形左右区域
+        /// </summary>
+        public static Rectangle DeflateRectLR(int x, int y, int w, int h, int padding, float dpi)
+        {
+            if (padding == 0) return new Rectangle(x, y, w, h);
+            int padd = (int)(padding * dpi), padd2 = padd * 2;
+            return new Rectangle(x + padd, y, w - padd2, h);
+        }
+
         #endregion
 
-        public static Rectangle PaddingRect(this Rectangle rect, ShadowConfig config, TAlignMini align, float borderWidth = 0F)
+        public static Rectangle PaddingRect(this Rectangle rect, Panel config, TAlignMini align, float borderWidth = 0F)
         {
             if (config.Shadow > 0)
             {
-                int shadow = (int)(config.Shadow * Config.Dpi), s2 = shadow * 2, shadowOffsetX = Math.Abs((int)(config.ShadowOffsetX * Config.Dpi)), shadowOffsetY = Math.Abs((int)(config.ShadowOffsetY * Config.Dpi));
+                int shadow = (int)(config.Shadow * config.Dpi), s2 = shadow * 2, shadowOffsetX = Math.Abs((int)(config.ShadowOffsetX * config.Dpi)), shadowOffsetY = Math.Abs((int)(config.ShadowOffsetY * config.Dpi));
 
                 int x, y, w, h;
                 switch (align)
@@ -291,7 +338,7 @@ namespace AntdUI
 
                 if (borderWidth > 0)
                 {
-                    int pr = (int)Math.Ceiling(borderWidth * Config.Dpi / 2F), pr2 = pr * 2;
+                    int pr = (int)Math.Ceiling(borderWidth * config.Dpi / 2F), pr2 = pr * 2;
                     return new Rectangle(x + pr, y + pr, w - pr2, h - pr2);
                 }
                 return new Rectangle(x, y, w, h);
@@ -300,13 +347,30 @@ namespace AntdUI
             {
                 if (borderWidth > 0)
                 {
-                    int pr = (int)Math.Ceiling((borderWidth * Config.Dpi) / 2F), pr2 = pr * 2;
+                    int pr = (int)Math.Ceiling((borderWidth * config.Dpi) / 2F), pr2 = pr * 2;
                     return new Rectangle(rect.X + pr, rect.Y + pr, rect.Width - pr2, rect.Height - pr2);
                 }
                 return rect;
             }
         }
+        /// <summary>
+        /// 根据内边距和额外偏移计算矩形区域
+        /// </summary>
+        /// <param name="rect">原始矩形</param>
+        /// <param name="padding">内边距</param>
+        /// <param name="x">左侧额外偏移</param>
+        /// <param name="y">顶部额外偏移</param>
+        /// <param name="r">右侧额外偏移</param>
+        /// <param name="b">底部额外偏移</param>
+        /// <returns>计算后的矩形</returns>
         public static Rectangle PaddingRect(this Rectangle rect, Padding padding, int x, int y, int r, int b) => new Rectangle(rect.X + padding.Left + x, rect.Y + padding.Top + y, rect.Width - padding.Horizontal - x - r, rect.Height - padding.Vertical - y - b);
+
+        /// <summary>
+        /// 根据多个内边距计算矩形区域
+        /// </summary>
+        /// <param name="rect">原始矩形</param>
+        /// <param name="paddings">内边距数组</param>
+        /// <returns>计算后的矩形</returns>
         public static Rectangle PaddingRect(this Rectangle rect, params Padding[] paddings)
         {
             foreach (var padding in paddings)
@@ -375,9 +439,11 @@ namespace AntdUI
         /// 得到真实渲染区域
         /// </summary>
         /// <param name="rect">容器区域</param>
-        /// <param name="size">动画区域</param>
-        /// <param name="joinLeft">连接左边</param>
-        /// <param name="joinRight">连接右边</param>
+        /// <param name="size">边框大小</param>
+        /// <param name="joinMode">连接模式</param>
+        /// <param name="joinLeft">是否连接左边</param>
+        /// <param name="joinRight">是否连接右边</param>
+        /// <returns>真实渲染区域</returns>
         public static Rectangle ReadRect(this Rectangle rect, float size, TJoinMode joinMode, bool joinLeft, bool joinRight)
         {
             int pr = (int)Math.Ceiling(size), pr2 = pr * 2;
@@ -501,7 +567,7 @@ namespace AntdUI
                     return FormatFlags.Right | FormatFlags.Top;
                 case ContentAlignment.MiddleLeft:
                     //内容在垂直方向上中间对齐，在水平方向上左边对齐
-                    return FormatFlags.Left | FormatFlags.Top;
+                    return FormatFlags.Left | FormatFlags.VerticalCenter;
                 case ContentAlignment.MiddleCenter:
                     //内容在垂直方向上中间对齐，在水平方向上居中对齐
                     return FormatFlags.Center;
@@ -600,9 +666,9 @@ namespace AntdUI
             };
         }
 
-        public static PointF[] TriangleLines(this Rectangle rect, float prog, float d = 0.7F)
+        public static PointF[] TriangleLinesVertical(this Rectangle rect, float prog, float d = 0.7F)
         {
-            float size = rect.Width * d, size2 = size / 2;
+            float size = rect.Width * d, size2 = size / 2F;
             float x = rect.X + rect.Width / 2F, y = rect.Y + (rect.Height / 2F);
             if (prog == 0)
             {
@@ -615,48 +681,49 @@ namespace AntdUI
             {
                 float h = size2 * prog, h2 = h / 2;
                 return new PointF[] {
-                    new PointF(x - size2,y + h2),
+                    new PointF(x - size2, y + h2),
                     new PointF(x, y - h2),
-                    new PointF(x + size2,y + h2)
+                    new PointF(x + size2, y + h2)
                 };
             }
             else
             {
                 float h = size2 * -prog, h2 = h / 2;
                 return new PointF[] {
-                    new PointF(x - size2,y - h2),
+                    new PointF(x - size2, y - h2),
                     new PointF(x, y + h2),
-                    new PointF(x + size2,y - h2)
+                    new PointF(x + size2, y - h2)
                 };
             }
         }
-        public static PointF[] TriangleLines(this RectangleF rect, float prog, float d = 0.7F)
+        public static PointF[] TriangleLinesHorizontal(this Rectangle rect, float prog, float d = 0.7F)
         {
-            float size = rect.Width * d, size2 = size / 2;
-            float x = rect.X + rect.Width / 2F, y = rect.Y + (rect.Height / 2F);
+            // 计算箭头尺寸和中心点坐标
+            float size = rect.Height * d, size2 = size / 2F;
+            float x = rect.X + rect.Width / 2F, y = rect.Y + rect.Height / 2F;
             if (prog == 0)
             {
                 return new PointF[] {
-                    new PointF(x - size2, y),
-                    new PointF(x + size2, y)
+                    new PointF(x, y - size2),
+                    new PointF(x, y + size2)
                 };
             }
             else if (prog > 0)
             {
-                float h = size2 * prog, h2 = h / 2;
+                float w = size2 * prog, w2 = w / 2;
                 return new PointF[] {
-                    new PointF(x - size2,y + h2),
-                    new PointF(x, y - h2),
-                    new PointF(x + size2,y + h2)
+                    new PointF(x + w2, y - size2), // 右侧底点
+                    new PointF(x - w2, y),         // 尖端
+                    new PointF(x + w2, y + size2)  // 左侧顶点
                 };
             }
             else
             {
-                float h = size2 * -prog, h2 = h / 2;
+                float w = size2 * -prog, w2 = w / 2;
                 return new PointF[] {
-                    new PointF(x - size2,y - h2),
-                    new PointF(x, y + h2),
-                    new PointF(x + size2,y - h2)
+                    new PointF(x - w2, y - size2), // 左侧顶点
+                    new PointF(x + w2, y), // 尖端
+                    new PointF(x - w2, y + size2) // 右侧底点
                 };
             }
         }
@@ -1145,12 +1212,12 @@ namespace AntdUI
         #endregion
 
         /// <summary>
-        /// 所有屏幕之外的位置
+        /// 所有屏幕之外的区域
         /// </summary>
-        public static Point OffScreenArea(int w, int h)
+        public static Rectangle OffScreenArea(int w, int h)
         {
             var allScreens = Screen.AllScreens;
-            if (allScreens.Length == 0) return new Point(-w, -h);
+            if (allScreens.Length == 0) return new Rectangle(-w * 2, -h * 2, w, h);
             int x = 0, y = 0;
             foreach (var screen in allScreens)
             {
@@ -1158,7 +1225,145 @@ namespace AntdUI
                 x = Math.Min(x, bounds.X);
                 y = Math.Min(y, bounds.Y);
             }
-            return new Point(x - w, y - h);
+            return new Rectangle((x - w) * 2, (y - h) * 2, w, h);
         }
+        /// <summary>
+        /// 所有屏幕之外的坐标
+        /// </summary>
+        public static Point OffScreenLocation(int w, int h)
+        {
+            var allScreens = Screen.AllScreens;
+            if (allScreens.Length == 0) return new Point(-w * 2, -h * 2);
+            int x = 0, y = 0;
+            foreach (var screen in allScreens)
+            {
+                var bounds = screen.Bounds;
+                x = Math.Min(x, bounds.X);
+                y = Math.Min(y, bounds.Y);
+            }
+            return new Point((x - w) * 2, (y - h) * 2);
+        }
+
+        /// <summary>
+        /// 计算鼠标与容器的安全三角区
+        /// </summary>
+        /// <param name="x">鼠标x</param>
+        /// <param name="y">鼠标y</param>
+        /// <param name="rect">容器区域</param>
+        public static Point[]? SafetyTriangleZone(int x, int y, Rectangle rect)
+        {
+            // 确定鼠标相对于矩形的位置区域
+            bool isLeft = x < rect.X, isRight = x > rect.Right, isTop = y < rect.Y, isBottom = y > rect.Bottom;
+
+            // 只处理矩形外部的情况
+            if (isLeft || isRight || isTop || isBottom)
+            {
+                // 根据鼠标位置生成安全三角区域
+                if (isLeft && isTop) // 左上区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.Right, rect.Y),
+                        new Point(rect.X, rect.Bottom)
+                    };
+                }
+                else if (isRight && isTop) // 右上区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.X, rect.Y),
+                        new Point(rect.Right, rect.Bottom)
+                    };
+                }
+                else if (isLeft && isBottom) // 左下区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.X, rect.Y),
+                        new Point(rect.Right, rect.Bottom)
+                    };
+                }
+                else if (isRight && isBottom) // 右下区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.Right, rect.Y),
+                        new Point(rect.X, rect.Bottom)
+                    };
+                }
+                else if (isLeft) // 左侧中间区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.X, rect.Y),
+                        new Point(rect.X, rect.Bottom)
+                    };
+                }
+                else if (isRight) // 右侧中间区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.Right, rect.Y),
+                        new Point(rect.Right, rect.Bottom)
+                    };
+                }
+                else if (isTop) // 顶部中间区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.X, rect.Y),
+                        new Point(rect.Right, rect.Y)
+                    };
+                }
+                else if (isBottom) // 底部中间区域
+                {
+                    return new Point[] {
+                        new Point(x, y),
+                        new Point(rect.X, rect.Bottom),
+                        new Point(rect.Right, rect.Bottom)
+                    };
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 判断列表项是否需要渲染（只要有部分在可视区域内就返回true）
+        /// </summary>
+        /// <param name="rect">容器可视区域</param>
+        /// <param name="sy">滚动条垂直偏移量</param>
+        /// <param name="item_rect">列表项的原始区域</param>
+        /// <returns>true=需要渲染（有重叠），false=无需渲染（完全不可见）</returns>
+        public static bool IsItemVisible(this Rectangle rect, int sy, Rectangle item_rect) => (item_rect.Y < sy + rect.Height) && (item_rect.Bottom > sy);
+
+        /// <summary>
+        /// 判断列表项是否需要渲染（只要有部分在可视区域内就返回true）
+        /// </summary>
+        /// <param name="rect">容器可视区域</param>
+        /// <param name="sx">滚动条水平偏移量</param>
+        /// <param name="sy">滚动条垂直偏移量</param>
+        /// <param name="item_rect">列表项的原始区域</param>
+        public static bool IsItemVisible(this Rectangle rect, int sx, int sy, Rectangle item_rect) => (item_rect.X < sx + rect.Width) && (item_rect.Right > sx) && (item_rect.Y < sy + rect.Height) && (item_rect.Bottom > sy);
+
+        /// <summary>
+        /// 判断列表项是否需要渲染（只要有部分在可视区域内就返回true）
+        /// </summary>
+        /// <param name="rect">容器可视区域</param>
+        /// <param name="sx">滚动条水平偏移量</param>
+        /// <param name="sy">滚动条垂直偏移量</param>
+        /// <param name="item_rect">列表项的原始区域</param>
+        /// <param name="expand">是否展开</param>
+        /// <param name="expandHeight">展开后高度</param>
+        public static bool IsItemVisibleExpand(this Rectangle rect, int sx, int sy, Rectangle item_rect, bool expand, int expandHeight) => (item_rect.X < sx + rect.Width) && (item_rect.Right > sx) && (item_rect.Y < sy + rect.Height) && ((item_rect.Bottom + (expand ? expandHeight : 0)) > sy);
+
+        /// <summary>
+        /// 判断列表项是否需要渲染（只要有部分在可视区域内就返回true）
+        /// </summary>
+        /// <param name="rect">容器可视区域</param>
+        /// <param name="sy">滚动条垂直偏移量</param>
+        /// <param name="item_rect">列表项的原始区域</param>
+        /// <param name="expand">是否展开</param>
+        /// <param name="expandHeight">展开后高度</param>
+        public static bool IsItemVisibleExpand(this Rectangle rect, int sy, Rectangle item_rect, bool expand, int expandHeight) => (item_rect.Y < sy + rect.Height) && ((item_rect.Bottom + (expand ? expandHeight : 0)) > sy);
     }
 }

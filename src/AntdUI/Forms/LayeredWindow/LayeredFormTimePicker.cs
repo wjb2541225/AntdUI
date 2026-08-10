@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -31,9 +18,11 @@ namespace AntdUI
         public LayeredFormTimePicker(TimePicker control, TimeSpan date, Action<TimeSpan> _action)
         {
             PARENT = control;
+            cname = control.Name;
             Font = control.Font;
             ColorScheme = control.ColorScheme;
-            control.Parent.SetTopMost(Handle);
+            SetTopMost(control.Parent, Handle);
+            SetDpi(control);
             ValueTimeHorizontal = control.ValueTimeHorizontal;
             ShowButtonNow = control.ShowButtonNow;
             ShowH = control.Format.Contains("H");
@@ -71,12 +60,11 @@ namespace AntdUI
 
             #endregion
 
-            float dpi = Config.Dpi;
-            if (dpi == 1F) Radius = control.Radius;
+            if (Dpi == 1F) Radius = control.Radius;
             else
             {
-                ArrowSize = (int)(8 * dpi);
-                Radius = (int)(control.Radius * dpi);
+                ArrowSize = (int)(8 * Dpi);
+                Radius = (int)(control.Radius * Dpi);
             }
             LoadLayout(count);
             ScrollTime();
@@ -85,6 +73,7 @@ namespace AntdUI
         }
 
         public override string name => nameof(TimePicker);
+        string cname;
 
         void ScrollTime()
         {
@@ -118,7 +107,6 @@ namespace AntdUI
 
         #region 日期
 
-        DateTime DateNow = DateTime.Now;
         List<CalendarT> calendar_time;
 
         #endregion
@@ -129,19 +117,27 @@ namespace AntdUI
 
         string button_text = Localization.Get("Now", "此刻");
         string OKButton = Localization.Get("OK", "确定");
-        readonly FormatFlags s_f = FormatFlags.Center;
         public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
         {
-            using (var brush = new SolidBrush(Colour.BgElevated.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush = new SolidBrush(Colour.BgElevated.Get(ColorScheme, name, cname)))
             {
                 g.Fill(brush, path);
+                if (shadow == 0)
+                {
+                    int bor = (int)(Dpi), bor2 = bor * 2;
+                    using (var path2 = new Rectangle(rect.X + bor, rect.Y + bor, rect.Width - bor2, rect.Height - bor2).RoundPath(Radius))
+                    {
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, name, cname), bor, path2);
+                    }
+                    return;
+                }
                 if (ArrowLine != null) g.FillPolygon(brush, ArrowLine);
             }
         }
         public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
         {
-            using (var brush_fore = new SolidBrush(Colour.TextBase.Get(nameof(DatePicker), ColorScheme)))
-            using (var brush_bg = new SolidBrush(Colour.PrimaryBg.Get(nameof(DatePicker), ColorScheme)))
+            using (var brush_fore = new SolidBrush(Colour.TextBase.Get(ColorScheme, name, cname)))
+            using (var brush_bg = new SolidBrush(Colour.PrimaryBg.Get(ColorScheme, name, cname)))
             {
                 var state2 = g.Save();
                 int type = -1;
@@ -183,8 +179,8 @@ namespace AntdUI
                                 if (it.t == SelDate.Seconds) g.Fill(brush_bg, path);
                                 break;
                         }
-                        if (it.hover) g.Fill(Colour.FillTertiary.Get(nameof(DatePicker), ColorScheme), path);
-                        g.String(it.v, Font, brush_fore, it.rect_read, s_f);
+                        if (it.hover) g.Fill(Colour.FillTertiary.Get(ColorScheme, name, cname), path);
+                        g.String(it.v, Font, brush_fore, it.rect_read);
                     }
                 }
                 g.Restore(state2);
@@ -192,18 +188,18 @@ namespace AntdUI
                 ScrollM.Paint(g, ColorScheme);
                 ScrollS.Paint(g, ColorScheme);
 
-                var color_active = Colour.Primary.Get(nameof(DatePicker), ColorScheme);
+                var color_active = Colour.Primary.Get(ColorScheme, name, cname);
 
                 if (ShowButtonNow)
                 {
-                    if (hover_button.Animation) g.String(button_text, Font, color_active.BlendColors(hover_button.Value, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme)), rect_button, s_f);
-                    else if (hover_button.Switch) g.String(button_text, Font, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme), rect_button, s_f);
-                    else g.String(button_text, Font, color_active, rect_button, s_f);
+                    if (hover_button.Animation) g.String(button_text, Font, color_active.BlendColors(hover_button.Value, Colour.PrimaryActive.Get(ColorScheme, name, cname)), rect_button);
+                    else if (hover_button.Switch) g.String(button_text, Font, Colour.PrimaryActive.Get(ColorScheme, name, cname), rect_button);
+                    else g.String(button_text, Font, color_active, rect_button);
                 }
 
-                if (hover_buttonok.Animation) g.String(OKButton, Font, color_active.BlendColors(hover_buttonok.Value, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme)), rect_buttonok, s_f);
-                else if (hover_buttonok.Switch) g.String(OKButton, Font, Colour.PrimaryActive.Get(nameof(DatePicker), ColorScheme), rect_buttonok, s_f);
-                else g.String(OKButton, Font, color_active, rect_buttonok, s_f);
+                if (hover_buttonok.Animation) g.String(OKButton, Font, color_active.BlendColors(hover_buttonok.Value, Colour.PrimaryActive.Get(ColorScheme, name, cname)), rect_buttonok);
+                else if (hover_buttonok.Switch) g.String(OKButton, Font, Colour.PrimaryActive.Get(ColorScheme, name, cname), rect_buttonok);
+                else g.String(OKButton, Font, color_active, rect_buttonok);
             }
         }
 
@@ -215,7 +211,7 @@ namespace AntdUI
 
         void LoadLayout(int count)
         {
-            Helper.GDI(g =>
+            this.GDI(g =>
             {
                 var size = g.MeasureString(Config.NullText, Font);
                 int sp = (int)(size.Height * 0.2F), sp2 = sp * 2;
@@ -336,8 +332,8 @@ namespace AntdUI
                 {
                     if (ShowButtonNow && rect_button.Contains(x, y))
                     {
-                        DateNow = DateTime.Now;
-                        SelDate = new TimeSpan(DateNow.Hour, DateNow.Minute, DateNow.Second);
+                        var now = DateTime.Now;
+                        SelDate = new TimeSpan(now.Hour, now.Minute, now.Second);
                         action(SelDate);
                         ScrollTime();
                         Print();

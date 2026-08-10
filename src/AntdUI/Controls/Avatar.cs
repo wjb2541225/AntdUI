@@ -1,29 +1,14 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Threading;
 
 namespace AntdUI
 {
@@ -47,7 +32,7 @@ namespace AntdUI
         /// <summary>
         /// 原装背景颜色
         /// </summary>
-        [Description("原装背景颜色"), Category("外观"), DefaultValue(typeof(Color), "Transparent")]
+        [Description("原装背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "Transparent")]
         public Color OriginalBackColor
         {
             get => base.BackColor;
@@ -58,7 +43,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(typeof(Color), "Transparent")]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "Transparent")]
         public new Color BackColor
         {
             get => back;
@@ -75,7 +60,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -99,7 +84,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius
         {
             get => radius;
@@ -116,7 +101,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角样式
         /// </summary>
-        [Description("圆角样式"), Category("外观"), DefaultValue(false)]
+        [Description("圆角样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Round
         {
             get => round;
@@ -135,7 +120,7 @@ namespace AntdUI
         /// <summary>
         /// 图片
         /// </summary>
-        [Description("图片"), Category("外观"), DefaultValue(null)]
+        [Description("图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Image
         {
             get => image;
@@ -152,7 +137,7 @@ namespace AntdUI
         /// <summary>
         /// 图片SVG
         /// </summary>
-        [Description("图片SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图片SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? ImageSvg
         {
             get => imageSvg;
@@ -169,7 +154,7 @@ namespace AntdUI
         /// <summary>
         /// 图片布局
         /// </summary>
-        [Description("图片布局"), Category("外观"), DefaultValue(TFit.Cover)]
+        [Description("图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Cover)]
         public TFit ImageFit
         {
             get => imageFit;
@@ -205,7 +190,7 @@ namespace AntdUI
         /// <summary>
         /// 播放GIF
         /// </summary>
-        [Description("播放GIF"), Category("行为"), DefaultValue(true)]
+        [Description("播放GIF"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool PlayGIF
         {
             get => playGIF;
@@ -221,56 +206,8 @@ namespace AntdUI
             if (image == null) return;
             if (playGIF)
             {
-                var fd = new FrameDimension(image.FrameDimensionsList[0]);
-                int count = image.GetFrameCount(fd);
-                if (count > 1) PlayGif(image, fd, count);
-                else Invalidate();
+                if (!Helper.GIFPlay(image, value => PlayGIF && image == value, Invalidate)) Invalidate();
             }
-        }
-
-        void PlayGif(Image value, FrameDimension fd, int count)
-        {
-            ITask.Run(() =>
-            {
-                int[] delays = GifDelays(value, count);
-                while (PlayGIF && image == value)
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (PlayGIF && image == value)
-                        {
-                            lock (_lock) { value.SelectActiveFrame(fd, i); }
-                            Invalidate();
-                            Thread.Sleep(Math.Max(delays[i], 10));
-                        }
-                        else
-                        {
-                            value.SelectActiveFrame(fd, 0);
-                            return;
-                        }
-                    }
-                }
-            }, Invalidate);
-        }
-
-        object _lock = new object();
-        int[] GifDelays(Image value, int count)
-        {
-            int PropertyTagFrameDelay = 0x5100;
-            var propItem = value.GetPropertyItem(PropertyTagFrameDelay);
-            if (propItem != null)
-            {
-                var bytes = propItem.Value;
-                if (bytes != null)
-                {
-                    int[] delays = new int[count];
-                    for (int i = 0; i < delays.Length; i++) delays[i] = BitConverter.ToInt32(bytes, i * 4) * 10;
-                    return delays;
-                }
-            }
-            int[] delaysd = new int[count];
-            for (int i = 0; i < delaysd.Length; i++) delaysd[i] = 100;
-            return delaysd;
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -289,7 +226,7 @@ namespace AntdUI
         /// <summary>
         /// 加载状态
         /// </summary>
-        [Description("加载状态"), Category("外观"), DefaultValue(false)]
+        [Description("加载状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading
         {
             get => loading;
@@ -306,7 +243,7 @@ namespace AntdUI
         /// <summary>
         /// 加载进度
         /// </summary>
-        [Description("加载进度 0F-1F"), Category("数据"), DefaultValue(0F)]
+        [Description("加载进度 0F-1F"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0F)]
         public float LoadingProgress
         {
             get => _value;
@@ -447,37 +384,37 @@ namespace AntdUI
         /// <summary>
         /// 启用悬浮交互
         /// </summary>
-        [Description("启用悬浮交互"), Category("外观"), DefaultValue(false)]
+        [Description("启用悬浮交互"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool EnableHover { get; set; }
 
         /// <summary>
         /// 悬浮前景
         /// </summary>
-        [Description("悬浮前景"), Category("外观"), DefaultValue(null)]
+        [Description("悬浮前景"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? HoverFore { get; set; }
 
         /// <summary>
         /// 悬浮背景
         /// </summary>
-        [Description("悬浮背景"), Category("外观"), DefaultValue(null)]
+        [Description("悬浮背景"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? HoverBack { get; set; }
 
         /// <summary>
         /// 悬浮图标
         /// </summary>
-        [Description("悬浮图标"), Category("外观"), DefaultValue(null)]
+        [Description("悬浮图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? HoverImage { get; set; }
 
         /// <summary>
         /// 悬浮图标SVG
         /// </summary>
-        [Description("悬浮图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("悬浮图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? HoverImageSvg { get; set; }
 
         /// <summary>
         /// 悬浮图标比例
         /// </summary>
-        [Description("悬浮图标比例"), Category("外观"), DefaultValue(.4F)]
+        [Description("悬浮图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.4F)]
         public float HoverImageRatio { get; set; } = .4F;
 
         #endregion
@@ -489,29 +426,29 @@ namespace AntdUI
         protected override void OnDraw(DrawEventArgs e)
         {
             var g = e.Canvas;
-            float _radius = radius * Config.Dpi;
+            float _radius = radius * Dpi;
 
             var rect = ReadRectangle;
             if (shadow > 0 && shadowOpacity > 0) g.PaintShadow(this, e.Rect, rect, _radius, round);
             FillRect(g, rect, back, _radius, round);
 
-            if (PaintImage(g, rect, _radius)) g.DrawText(Text, Font, Enabled ? ForeColor : Colour.TextQuaternary.Get(nameof(Avatar), "foreDisabled", ColorScheme), rect, stringCenter);
-            if (borderWidth > 0) DrawRect(g, rect, borColor, borderWidth * Config.Dpi, _radius, round);
+            if (PaintImage(g, rect, _radius)) g.DrawText(Text, Font, Enabled ? ForeColor : Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Avatar), Name), rect, stringCenter);
+            if (borderWidth > 0) DrawRect(g, rect, borColor, borderWidth * Dpi, _radius, round);
             if (Hover)
             {
                 int size = (int)((rect.Width > rect.Height ? rect.Height : rect.Width) * HoverImageRatio);
-                FillRect(g, rect, HoverBack ?? Colour.TextTertiary.Get(nameof(Avatar), ColorScheme), _radius, round);
+                FillRect(g, rect, HoverBack ?? Colour.TextTertiary.Get(ColorScheme, nameof(Avatar), Name), _radius, round);
                 var rect_hover = new Rectangle(rect.X + (rect.Width - size) / 2, rect.Y + (rect.Height - size) / 2, size, size);
                 if (HoverImage != null) g.Image(HoverImage, rect_hover);
-                if (HoverImageSvg != null) g.GetImgExtend(HoverImageSvg, rect_hover, HoverFore ?? Colour.BgBase.Get(nameof(Avatar), ColorScheme));
+                if (HoverImageSvg != null) g.Svg(HoverImageSvg, rect_hover, HoverFore ?? Colour.BgBase.Get(ColorScheme, nameof(Avatar), Name));
             }
             if (loading)
             {
-                var bor6 = 6F * Config.Dpi;
-                int loading_size = (int)(40 * Config.Dpi);
+                var bor6 = 6F * Dpi;
+                int loading_size = (int)(40 * Dpi);
                 var rect_loading = new Rectangle(rect.X + (rect.Width - loading_size) / 2, rect.Y + (rect.Height - loading_size) / 2, loading_size, loading_size);
-                g.DrawEllipse(Color.FromArgb(220, Colour.PrimaryColor.Get(nameof(Avatar), ColorScheme)), bor6, rect_loading);
-                using (var penpro = new Pen(Colour.Primary.Get(nameof(Avatar), ColorScheme), bor6))
+                g.DrawEllipse(Color.FromArgb(220, Colour.PrimaryColor.Get(ColorScheme, nameof(Avatar), Name)), bor6, rect_loading);
+                using (var penpro = new Pen(Colour.Primary.Get(ColorScheme, nameof(Avatar), Name), bor6))
                 {
                     g.DrawArc(penpro, rect_loading, -90, 360F * _value);
                 }
@@ -528,10 +465,7 @@ namespace AntdUI
             int count = 0;
             if (image != null)
             {
-                lock (_lock)
-                {
-                    g.Image(rect, image, imageFit, _radius, round);
-                }
+                g.Image(rect, image, imageFit, _radius, round);
                 count++;
             }
             if (imageSvg != null)
@@ -580,7 +514,7 @@ namespace AntdUI
         {
             get
             {
-                if (borderWidth > 0) return ClientRectangle.PaddingRect(Padding, borderWidth * Config.Dpi / 2F);
+                if (borderWidth > 0) return ClientRectangle.PaddingRect(Padding, borderWidth * Dpi / 2F);
                 else return ClientRectangle.PaddingRect(Padding);
             }
         }
@@ -598,7 +532,7 @@ namespace AntdUI
                         path.AddEllipse(rect);
                         return path;
                     }
-                    else if (radius > 0) return rect.RoundPath(radius * Config.Dpi);
+                    else if (radius > 0) return rect.RoundPath(radius * Dpi);
                     else
                     {
                         var path = new GraphicsPath();
@@ -615,7 +549,7 @@ namespace AntdUI
                         path.AddEllipse(rect);
                         return path;
                     }
-                    else if (radius > 0) return rect.RoundPath(radius * Config.Dpi);
+                    else if (radius > 0) return rect.RoundPath(radius * Dpi);
                     else
                     {
                         var path = new GraphicsPath();

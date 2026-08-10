@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -117,7 +98,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Input.Description";
-            header1.LocalizationText = "Input.Text";
+            header1.LocalizationText = "Input";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -200,6 +181,7 @@ namespace Demo.Controls
             ic4.TextAlign = HorizontalAlignment.Center;
             ic4.VerifyKeyboard += VerifyKeyboard;
             ic4.TextChanged += CodeTextChanged;
+            ic4.GotFocus += CodeGotFocus;
             ic4.KeyPress += CodeKeyPress;
             // 
             // ic3
@@ -213,6 +195,7 @@ namespace Demo.Controls
             ic3.TextAlign = HorizontalAlignment.Center;
             ic3.VerifyKeyboard += VerifyKeyboard;
             ic3.TextChanged += CodeTextChanged;
+            ic3.GotFocus += CodeGotFocus;
             ic3.KeyPress += CodeKeyPress;
             // 
             // ic2
@@ -226,6 +209,7 @@ namespace Demo.Controls
             ic2.TextAlign = HorizontalAlignment.Center;
             ic2.VerifyKeyboard += VerifyKeyboard;
             ic2.TextChanged += CodeTextChanged;
+            ic2.GotFocus += CodeGotFocus;
             ic2.KeyPress += CodeKeyPress;
             // 
             // ic1
@@ -239,6 +223,7 @@ namespace Demo.Controls
             ic1.TextAlign = HorizontalAlignment.Center;
             ic1.VerifyKeyboard += VerifyKeyboard;
             ic1.TextChanged += CodeTextChanged;
+            ic1.GotFocus += CodeGotFocus;
             ic1.KeyPress += CodeKeyPress;
             // 
             // panel5
@@ -709,6 +694,6 @@ namespace Demo.Controls
         private AntdUI.Input ic3;
         private AntdUI.Input ic2;
         private AntdUI.Input ic1;
-        private AntdUI.  Label label1;
+        private AntdUI.Label label1;
     }
 }

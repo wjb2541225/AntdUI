@@ -1,22 +1,3 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
-
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -67,7 +48,7 @@ namespace Demo.Controls
             header1.Dock = DockStyle.Top;
             header1.Font = new Font("Microsoft YaHei UI", 12F);
             header1.LocalizationDescription = "Tour.Description";
-            header1.LocalizationText = "Tour.Text";
+            header1.LocalizationText = "Tour";
             header1.Location = new Point(0, 0);
             header1.Name = "header1";
             header1.Padding = new Padding(0, 0, 0, 10);
@@ -109,7 +90,7 @@ namespace Demo.Controls
             button1.IconSvg = "SearchOutlined";
             button1.Location = new Point(3, 3);
             button1.Name = "button1";
-            button1.Size = new Size(115, 47);
+            button1.Size = new Size(100, 46);
             button1.TabIndex = 0;
             button1.Text = "Button";
             button1.Type = AntdUI.TTypeMini.Primary;
@@ -122,7 +103,7 @@ namespace Demo.Controls
             button2.IconPosition = AntdUI.TAlignMini.Right;
             button2.Location = new Point(124, 3);
             button2.Name = "button2";
-            button2.Size = new Size(87, 47);
+            button2.Size = new Size(81, 46);
             button2.TabIndex = 1;
             button2.Text = "Button";
             button2.Type = AntdUI.TTypeMini.Primary;
@@ -135,7 +116,7 @@ namespace Demo.Controls
             button7.IconSvg = "SearchOutlined";
             button7.Location = new Point(3, 56);
             button7.Name = "button7";
-            button7.Size = new Size(115, 47);
+            button7.Size = new Size(100, 46);
             button7.TabIndex = 6;
             button7.Text = "Button";
             button7.Click += Btn;
@@ -147,7 +128,7 @@ namespace Demo.Controls
             button8.IconPosition = AntdUI.TAlignMini.Right;
             button8.Location = new Point(124, 56);
             button8.Name = "button8";
-            button8.Size = new Size(87, 47);
+            button8.Size = new Size(81, 46);
             button8.TabIndex = 7;
             button8.Text = "Button";
             button8.Click += Btn;
@@ -163,7 +144,7 @@ namespace Demo.Controls
             button3.LoadingWaveVertical = true;
             button3.Location = new Point(245, 3);
             button3.Name = "button3";
-            button3.Size = new Size(115, 75);
+            button3.Size = new Size(77, 69);
             button3.TabIndex = 2;
             button3.Text = "Button";
             button3.Type = AntdUI.TTypeMini.Primary;
@@ -180,7 +161,7 @@ namespace Demo.Controls
             button4.LoadingWaveVertical = true;
             button4.Location = new Point(366, 3);
             button4.Name = "button4";
-            button4.Size = new Size(115, 75);
+            button4.Size = new Size(77, 69);
             button4.TabIndex = 3;
             button4.Text = "Button";
             button4.Type = AntdUI.TTypeMini.Primary;
@@ -197,7 +178,7 @@ namespace Demo.Controls
             button5.LoadingWaveVertical = true;
             button5.Location = new Point(487, 3);
             button5.Name = "button5";
-            button5.Size = new Size(115, 75);
+            button5.Size = new Size(77, 69);
             button5.TabIndex = 4;
             button5.Text = "Button";
             button5.Click += Btn;
@@ -213,7 +194,7 @@ namespace Demo.Controls
             button6.LoadingWaveVertical = true;
             button6.Location = new Point(608, 3);
             button6.Name = "button6";
-            button6.Size = new Size(115, 75);
+            button6.Size = new Size(77, 69);
             button6.TabIndex = 5;
             button6.Text = "Button";
             button6.Click += Btn;

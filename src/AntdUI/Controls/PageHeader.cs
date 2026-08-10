@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
@@ -40,7 +27,8 @@ namespace AntdUI
         /// <summary>
         /// 色彩模式
         /// </summary>
-        [Obsolete("use ColorScheme"), Description("色彩模式"), Category("外观"), DefaultValue(TAMode.Auto)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Obsolete("use ColorScheme"), Description("色彩模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAMode.Auto)]
         public TAMode Mode
         {
             get => ColorScheme;
@@ -51,7 +39,7 @@ namespace AntdUI
         /// <summary>
         /// 文字
         /// </summary>
-        [Description("文字"), Category("外观"), DefaultValue(null)]
+        [Description("文字"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -76,32 +64,32 @@ namespace AntdUI
         /// <summary>
         /// 使用标题大小
         /// </summary>
-        [Description("使用标题大小"), Category("外观"), DefaultValue(false)]
+        [Description("使用标题大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool UseTitleFont { get; set; }
 
         /// <summary>
         /// 标题使用粗体
         /// </summary>
-        [Description("标题使用粗体"), Category("外观"), DefaultValue(true)]
+        [Description("标题使用粗体"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool UseTextBold { get; set; } = true;
 
         /// <summary>
         /// 副标题居中
         /// </summary>
-        [Description("副标题居中"), Category("外观"), DefaultValue(false)]
+        [Description("副标题居中"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool UseSubCenter { get; set; }
 
         /// <summary>
         /// 是否作用与自己的父窗口
         /// </summary>
-        [Description("是否作用与自己的父窗口"), Category("外观"), DefaultValue(false)]
+        [Description("是否作用与自己的父窗口"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool MDI { get; set; }
 
         bool useLeftMargin = true;
         /// <summary>
         /// 使用左边边距
         /// </summary>
-        [Description("使用左边边距"), Category("外观"), DefaultValue(true)]
+        [Description("使用左边边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool UseLeftMargin
         {
             get => useLeftMargin;
@@ -118,7 +106,7 @@ namespace AntdUI
         /// <summary>
         /// 副标题
         /// </summary>
-        [Description("副标题"), Category("外观"), DefaultValue(null)]
+        [Description("副标题"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? SubText
         {
@@ -136,7 +124,7 @@ namespace AntdUI
         /// <summary>
         /// 副标题字体
         /// </summary>
-        [Description("副标题字体"), Category("外观"), DefaultValue(null)]
+        [Description("副标题字体"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Font? SubFont
         {
             get => descFont;
@@ -159,7 +147,7 @@ namespace AntdUI
         /// <summary>
         /// 描述文本
         /// </summary>
-        [Description("描述文本"), Category("外观"), DefaultValue(null)]
+        [Description("描述文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? Description
         {
@@ -184,7 +172,7 @@ namespace AntdUI
         /// <summary>
         /// 间隔
         /// </summary>
-        [Description("间隔"), Category("外观"), DefaultValue(null)]
+        [Description("间隔"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? Gap
         {
             get => gap;
@@ -201,7 +189,7 @@ namespace AntdUI
         /// <summary>
         /// 副标题与标题间隔
         /// </summary>
-        [Description("副标题与标题间隔"), Category("外观"), DefaultValue(6)]
+        [Description("副标题与标题间隔"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int SubGap
         {
             get => subGap;
@@ -218,7 +206,7 @@ namespace AntdUI
         /// <summary>
         /// 使用系统颜色
         /// </summary>
-        [Description("使用系统颜色"), Category("外观"), DefaultValue(false)]
+        [Description("使用系统颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool UseSystemStyleColor
         {
             get => useSystemStyleColor;
@@ -236,7 +224,7 @@ namespace AntdUI
         /// <summary>
         /// 使用前景色绘制按钮图标
         /// </summary>
-        [Description("使用前景色绘制按钮图标"), Category("外观"), DefaultValue(false)]
+        [Description("使用前景色绘制按钮图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool UseForeColorDrawIcons
         {
             get => useForeColorDrawIcons;
@@ -254,7 +242,7 @@ namespace AntdUI
         /// <summary>
         /// 点击退出关闭
         /// </summary>
-        [Description("点击退出关闭"), Category("行为"), DefaultValue(false)]
+        [Description("点击退出关闭"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool CancelButton
         {
             get => cancelButton;
@@ -282,13 +270,19 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 是否允许双击最大化
+        /// </summary>
+        [Description("是否允许双击最大化"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool EnableDoubleClickMaximize { get; set; } = true;
+
         #region 图标
 
         bool showicon = false;
         /// <summary>
         /// 是否显示图标
         /// </summary>
-        [Description("是否显示图标"), Category("外观"), DefaultValue(false)]
+        [Description("是否显示图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ShowIcon
         {
             get => showicon;
@@ -305,7 +299,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -324,7 +318,7 @@ namespace AntdUI
         /// <summary>
         /// 图标SVG
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -343,7 +337,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(null)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public float? IconRatio
         {
             get => iconratio;
@@ -365,7 +359,7 @@ namespace AntdUI
         /// <summary>
         /// 加载状态
         /// </summary>
-        [Description("加载状态"), Category("外观"), DefaultValue(false)]
+        [Description("加载状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading
         {
             get => loading;
@@ -413,7 +407,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示返回按钮
         /// </summary>
-        [Description("是否显示返回按钮"), Category("外观"), DefaultValue(false)]
+        [Description("是否显示返回按钮"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ShowBack
         {
             get => showback;
@@ -421,7 +415,7 @@ namespace AntdUI
             {
                 if (showback == value) return;
                 showback = value;
-                if (Config.HasAnimation(nameof(PageHeader)) && IsHandleCreated)
+                if (Config.HasAnimation(nameof(PageHeader), Name) && IsHandleCreated)
                 {
                     ThreadBack?.Dispose();
                     AnimationBack = true;
@@ -446,14 +440,14 @@ namespace AntdUI
         /// <summary>
         /// 返回图表
         /// </summary>
-        [Description("返回图表"), Category("外观"), DefaultValue(null)]
+        [Description("返回图表"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? BackIcon { get; set; }
 
         bool showButton = false;
         /// <summary>
         /// 是否显示标题栏按钮
         /// </summary>
-        [Description("是否显示标题栏按钮"), Category("外观"), DefaultValue(false)]
+        [Description("是否显示标题栏按钮"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ShowButton
         {
             get => showButton;
@@ -472,7 +466,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示全屏按钮
         /// </summary>
-        [Description("是否显示全屏按钮"), Category("外观"), DefaultValue(false)]
+        [Description("是否显示全屏按钮"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool FullBox
         {
             get => fullBox;
@@ -494,7 +488,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示最大化按钮
         /// </summary>
-        [Description("是否显示最大化按钮"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示最大化按钮"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool MaximizeBox
         {
             get => maximizeBox;
@@ -516,7 +510,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示最小化按钮
         /// </summary>
-        [Description("是否显示最小化按钮"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示最小化按钮"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool MinimizeBox
         {
             get => minimizeBox;
@@ -538,7 +532,7 @@ namespace AntdUI
         /// <summary>
         /// 是否最大化
         /// </summary>
-        [Description("是否最大化"), Category("外观"), DefaultValue(false)]
+        [Description("是否最大化"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsMax
         {
@@ -555,7 +549,7 @@ namespace AntdUI
         /// <summary>
         /// 是否全屏
         /// </summary>
-        [Description("是否全屏"), Category("外观"), DefaultValue(false)]
+        [Description("是否全屏"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsFull
         {
@@ -573,14 +567,14 @@ namespace AntdUI
         /// <summary>
         /// 是否可以拖动位置
         /// </summary>
-        [Description("是否可以拖动位置"), Category("行为"), DefaultValue(true)]
+        [Description("是否可以拖动位置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool DragMove { get; set; } = true;
 
         /// <summary>
         /// 关闭按钮大小
         /// </summary>
-        [Description("关闭按钮大小"), Category("行为"), DefaultValue(48)]
-        public int CloseSize { get; set; } = 48;
+        [Description("关闭按钮大小"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
+        public int? CloseSize { get; set; }
 
         #region 线条
 
@@ -661,7 +655,7 @@ namespace AntdUI
         /// <summary>
         /// 背景渐变色
         /// </summary>
-        [Description("背景渐变色"), Category("外观"), DefaultValue(null)]
+        [Description("背景渐变色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? BackExtend
         {
             get => backExtend;
@@ -694,10 +688,10 @@ namespace AntdUI
 
             #region 显示颜色
 
-            Color fore = useForeColorDrawIcons ? ForeColor : Colour.Text.Get(nameof(PageHeader), ColorScheme),
-                forebase = useSystemStyleColor ? ForeColor : Colour.TextBase.Get(nameof(PageHeader), ColorScheme),
-                foreSecondary = Colour.TextSecondary.Get(nameof(PageHeader), "subFore", ColorScheme),
-                fillsecondary = Colour.FillSecondary.Get(nameof(PageHeader), ColorScheme);
+            Color fore = useForeColorDrawIcons ? ForeColor : Colour.Text.Get(ColorScheme, nameof(PageHeader), Name),
+                forebase = useSystemStyleColor ? ForeColor : Colour.TextBase.Get(ColorScheme, nameof(PageHeader), Name),
+                foreSecondary = Colour.TextSecondary.GetSymbol(ColorScheme, "subFore", nameof(PageHeader), Name),
+                fillsecondary = Colour.FillSecondary.Get(ColorScheme, nameof(PageHeader), Name);
 
             #endregion
 
@@ -711,8 +705,8 @@ namespace AntdUI
             else IPaint(g, e.Rect, rect, MeasureString(g, Text, Font), iconratio ?? 1F, null, fore, forebase, foreSecondary, fillsecondary);
             if (showDivider)
             {
-                int thickness = (int)(dividerthickness * Config.Dpi), margin = (int)(dividerMargin * Config.Dpi);
-                using (var brush = dividerColor.Brush(Colour.Split.Get(nameof(PageHeader), ColorScheme)))
+                int thickness = (int)(dividerthickness * Dpi), margin = (int)(dividerMargin * Dpi);
+                using (var brush = dividerColor.Brush(Colour.Split.Get(ColorScheme, nameof(PageHeader), Name)))
                 {
                     g.Fill(brush, new Rectangle(e.Rect.X + margin, e.Rect.Bottom - thickness, e.Rect.Width - margin * 2, thickness));
                 }
@@ -747,7 +741,7 @@ namespace AntdUI
                 rl += size_w;
                 if (SubText != null)
                 {
-                    int desc_t_w = size_w + (int)(subGap * Config.Dpi);
+                    int desc_t_w = size_w + (int)(subGap * Dpi);
                     using (var brushsub = new SolidBrush(foreSecondary))
                     {
                         if (UseSubCenter) g.DrawText(SubText, descFont ?? Font, brushsub, rect, stringCenter);
@@ -780,7 +774,7 @@ namespace AntdUI
                 size.Width = 0;
                 return size;
             }
-            else return g.MeasureString(text, font);
+            else return g.MeasureText(text, font);
         }
 
         public Rectangle GetTitleRect(Canvas g)
@@ -806,7 +800,7 @@ namespace AntdUI
         int IPaintS(Canvas g, Rectangle rect, Size size, float icon_ratio)
         {
             int u_x = 0, sHeight = size.Height;
-            int _gap = (int)(gap.HasValue ? gap.Value * Config.Dpi : sHeight * .6F);
+            int _gap = (int)(gap.HasValue ? gap.Value * Dpi : sHeight * .6F);
             int icon_size = (int)Math.Round(sHeight * .72F);
             if (showback || AnimationBack)
             {
@@ -831,7 +825,7 @@ namespace AntdUI
         int IPaint(Canvas g, Rectangle rect, Color fore, Size size, float icon_ratio)
         {
             int u_x = 0, sHeight = size.Height;
-            int _gap = (int)(gap.HasValue ? gap.Value * Config.Dpi : sHeight * .6F);
+            int _gap = (int)(gap.HasValue ? gap.Value * Dpi : sHeight * .6F);
             int icon_size = (int)Math.Round(sHeight * .72F);
             if (showback || AnimationBack)
             {
@@ -852,7 +846,7 @@ namespace AntdUI
             {
                 icon_size = sHeight;
                 var rect_icon = new Rectangle(rect.X + u_x + _gap, rect.Y + (rect.Height - icon_size) / 2, icon_size, icon_size);
-                using (var pen = new Pen(Colour.Fill.Get(nameof(PageHeader), ColorScheme), sHeight * .14F))
+                using (var pen = new Pen(Colour.Fill.Get(ColorScheme, nameof(PageHeader), Name), sHeight * .14F))
                 using (var brush = new Pen(Color.FromArgb(170, fore), pen.Width))
                 {
                     g.DrawEllipse(pen, rect_icon);
@@ -900,18 +894,18 @@ namespace AntdUI
             var rect_close_icon = new Rectangle(rect_close.X + btn_x, rect_close.Y + btn_y, btn_size, btn_size);
             if (hove_close.Down)
             {
-                g.Fill(Colour.ErrorActive.Get(nameof(PageHeader), ColorScheme), rect_close);
+                g.Fill(Colour.ErrorActive.Get(ColorScheme, nameof(PageHeader), Name), rect_close);
                 PrintCloseHover(g, rect_close_icon);
             }
             else if (hove_close.Animation)
             {
-                g.Fill(Helper.ToColor(hove_close.Value, Colour.Error.Get(nameof(PageHeader), ColorScheme)), rect_close);
+                g.Fill(Helper.ToColor(hove_close.Value, Colour.Error.Get(ColorScheme, nameof(PageHeader), Name)), rect_close);
                 PrintClose(g, fore, rect_close_icon);
-                g.GetImgExtend(SvgDb.IcoAppClose, rect_close_icon, Helper.ToColor(hove_close.Value, Colour.ErrorColor.Get(nameof(PageHeader), ColorScheme)));
+                g.Svg(SvgDb.IcoAppClose, rect_close_icon, Helper.ToColor(hove_close.Value, Colour.ErrorColor.Get(ColorScheme, nameof(PageHeader), Name)));
             }
             else if (hove_close.Switch)
             {
-                g.Fill(Colour.Error.Get(nameof(PageHeader), ColorScheme), rect_close);
+                g.Fill(Colour.Error.Get(ColorScheme, nameof(PageHeader), Name), rect_close);
                 PrintCloseHover(g, rect_close_icon);
             }
             else PrintClose(g, fore, rect_close_icon);
@@ -948,21 +942,21 @@ namespace AntdUI
         #region 渲染帮助
 
         Bitmap? temp_logo;
-        void PrintBack(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(BackIcon ?? SvgDb.IcoPageHeaderBack, rect_icon, color);
+        void PrintBack(Canvas g, Color color, Rectangle rect_icon) => g.Svg(BackIcon ?? SvgDb.IcoPageHeaderBack, rect_icon, color);
         void PrintBackHover(Canvas g, Color color, Rectangle rect_icon)
         {
             PrintBack(g, color, rect_icon);
-            PrintBack(g, Helper.ToColor(hove_back.Value, Colour.Primary.Get(nameof(PageHeader), ColorScheme)), rect_icon);
+            PrintBack(g, Helper.ToColor(hove_back.Value, Colour.Primary.Get(ColorScheme, nameof(PageHeader), Name)), rect_icon);
         }
-        void PrintBackHover(Canvas g, Rectangle rect_icon) => PrintBack(g, Colour.Primary.Get(nameof(PageHeader), ColorScheme), rect_icon);
-        void PrintBackDown(Canvas g, Rectangle rect_icon) => PrintBack(g, Colour.PrimaryActive.Get(nameof(PageHeader), ColorScheme), rect_icon);
-        void PrintClose(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppClose, rect_icon, color);
-        void PrintCloseHover(Canvas g, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppClose, rect_icon, Colour.ErrorColor.Get(nameof(PageHeader), ColorScheme));
-        void PrintFull(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppFull, rect_icon, color);
-        void PrintFullRestore(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppFullRestore, rect_icon, color);
-        void PrintMax(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppMax, rect_icon, color);
-        void PrintRestore(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppRestore, rect_icon, color);
-        void PrintMin(Canvas g, Color color, Rectangle rect_icon) => g.GetImgCanvas(SvgDb.IcoAppMin, rect_icon, color);
+        void PrintBackHover(Canvas g, Rectangle rect_icon) => PrintBack(g, Colour.Primary.Get(ColorScheme, nameof(PageHeader), Name), rect_icon);
+        void PrintBackDown(Canvas g, Rectangle rect_icon) => PrintBack(g, Colour.PrimaryActive.Get(ColorScheme, nameof(PageHeader), Name), rect_icon);
+        void PrintClose(Canvas g, Color color, Rectangle rect_icon) => g.Svg(SvgDb.IcoAppClose, rect_icon, color);
+        void PrintCloseHover(Canvas g, Rectangle rect_icon) => g.Svg(SvgDb.IcoAppClose, rect_icon, Colour.ErrorColor.Get(ColorScheme, nameof(PageHeader), Name));
+        void PrintFull(Canvas g, Color color, Rectangle rect_icon) => g.Svg(SvgDb.IcoAppFull, rect_icon, color);
+        void PrintFullRestore(Canvas g, Color color, Rectangle rect_icon) => g.Svg(SvgDb.IcoAppFullRestore, rect_icon, color);
+        void PrintMax(Canvas g, Color color, Rectangle rect_icon) => g.Svg(SvgDb.IcoAppMax, rect_icon, color);
+        void PrintRestore(Canvas g, Color color, Rectangle rect_icon) => g.Svg(SvgDb.IcoAppRestore, rect_icon, color);
+        void PrintMin(Canvas g, Color color, Rectangle rect_icon) => g.Svg(SvgDb.IcoAppMin, rect_icon, color);
         bool PrintLogo(Canvas g, string svg, Color color, Rectangle rect_icon)
         {
             if (temp_logo == null || temp_logo.Width != rect_icon.Width)
@@ -1019,10 +1013,10 @@ namespace AntdUI
                 return;
             }
             var rect = ClientRectangle.PaddingRect(Padding);
-            int rr = 0;
-            if (CloseSize > 0 && showButton)
+            int rr = 0, closeSize = GetCloseSize();
+            if (closeSize > 0 && showButton)
             {
-                int btn_size = (fullBox || maximizeBox || minimizeBox) ? (int)Math.Round(CloseSize * Config.Dpi) : (int)Math.Round((CloseSize - 8) * Config.Dpi);
+                int btn_size = (int)Math.Round(closeSize * Dpi);
                 rect_close = new Rectangle(rect.Right - btn_size, rect.Y, btn_size, rect.Height);
                 rr = btn_size;
                 int left = rect_close.Left;
@@ -1046,6 +1040,11 @@ namespace AntdUI
             }
             hasr = rr;
             if (DragMove) RMax(Parent.FindPARENT(MDI));
+        }
+        int GetCloseSize()
+        {
+            if (CloseSize.HasValue) return CloseSize.Value;
+            else return (fullBox || maximizeBox || minimizeBox) ? 48 : 40;
         }
 
         void RMax(Form? form)
@@ -1090,7 +1089,7 @@ namespace AntdUI
                 bool _close = rect_close.Contains(e.X, e.Y), _full = fullBox && rect_full.Contains(e.X, e.Y), _max = maximizeBox && rect_max.Contains(e.X, e.Y), _min = minimizeBox && rect_min.Contains(e.X, e.Y);
                 if (_close != hove_close.SwitchDown || _full != hove_full.SwitchDown || _max != hove_max.SwitchDown || _min != hove_min.SwitchDown)
                 {
-                    var fillsecondary = Colour.FillSecondary.Get(nameof(PageHeader), ColorScheme);
+                    var fillsecondary = Colour.FillSecondary.Get(ColorScheme, nameof(PageHeader), Name);
                     hove_max.MaxValue = hove_min.MaxValue = hove_full.MaxValue = fillsecondary.A;
                     hove_close.Switch = _close;
                     hove_full.Switch = _full;
@@ -1132,7 +1131,7 @@ namespace AntdUI
                     if (form != null)
                     {
                         if (form is LayeredFormDrawer || form is LayeredFormPopover) return;
-                        if (e.Clicks > 1)
+                        if (EnableDoubleClickMaximize && e.Clicks > 1)
                         {
                             if (maximizeBox)
                             {
@@ -1159,8 +1158,8 @@ namespace AntdUI
                             if (form is BaseForm form_win) form_win.DraggableMouseDown();
                             else
                             {
-                                Vanara.PInvoke.User32.ReleaseCapture();
-                                Vanara.PInvoke.User32.SendMessage(form.Handle, 0x0112, 61456 | 2, IntPtr.Zero);
+                                Win32.User32.ReleaseCapture();
+                                Win32.User32.SendMessage(form.Handle, 0x0112, 61456 | 2, IntPtr.Zero);
                             }
                         }
                     }
@@ -1279,7 +1278,7 @@ namespace AntdUI
 
         protected override bool ProcessDialogKey(Keys keyData)
         {
-            if (CancelButton && (keyData & (Keys.Alt | Keys.Control)) == Keys.None)
+            if (cancelButton && (keyData & (Keys.Alt | Keys.Control)) == Keys.None)
             {
                 Keys keyCode = keyData & Keys.KeyCode;
                 switch (keyCode)

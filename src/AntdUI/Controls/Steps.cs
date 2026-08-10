@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +23,7 @@ namespace AntdUI
     [ToolboxItem(true)]
     [DefaultProperty("Current")]
     [DefaultEvent("ItemClick")]
-    public class Steps : IControl
+    public class Steps : IControl, IEventListener
     {
         #region 属性
 
@@ -44,7 +31,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -62,7 +49,7 @@ namespace AntdUI
         /// <summary>
         /// 指定当前步骤，从 0 开始记数。在子 Step 元素中，可以通过 status 属性覆盖状态
         /// </summary>
-        [Description("指定当前步骤"), Category("外观"), DefaultValue(0)]
+        [Description("指定当前步骤"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Current
         {
             get => current;
@@ -80,7 +67,7 @@ namespace AntdUI
         /// <summary>
         /// 指定当前步骤的状态
         /// </summary>
-        [Description("指定当前步骤的状态"), Category("外观"), DefaultValue(TStepState.Process)]
+        [Description("指定当前步骤的状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TStepState.Process)]
         public TStepState Status
         {
             get => status;
@@ -97,7 +84,7 @@ namespace AntdUI
         /// <summary>
         /// 垂直方向
         /// </summary>
-        [Description("垂直方向"), Category("外观"), DefaultValue(false)]
+        [Description("垂直方向"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Vertical
         {
             get => vertical;
@@ -113,7 +100,7 @@ namespace AntdUI
         /// <summary>
         /// 全新里程碑模式
         /// </summary>
-        [Description("全新里程碑模式"), Category("外观"), DefaultValue(false)]
+        [Description("全新里程碑模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool MilestoneMode
         {
             get => milestoneMode;
@@ -130,7 +117,7 @@ namespace AntdUI
         /// <summary>
         /// 里程碑模式下是否动画展示
         /// </summary>
-        [Description("里程碑模式下是否动画展示"), Category("外观"), DefaultValue(true)]
+        [Description("里程碑模式下是否动画展示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool MilestoneAnimation
         {
             get => animation;
@@ -147,7 +134,7 @@ namespace AntdUI
         /// <summary>
         /// 里程碑时间点的显示类型
         /// </summary>
-        [Description("里程碑时间点的显示类型"), Category("外观"), DefaultValue(TMilestoneType.Day)]
+        [Description("里程碑时间点的显示类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TMilestoneType.Day)]
         public TMilestoneType MilestoneType
         {
             get => milestoneType;
@@ -164,7 +151,7 @@ namespace AntdUI
         /// <summary>
         /// 当前里程碑已完成
         /// </summary>
-        [Description("当前里程碑已完成"), Category("外观"), DefaultValue(false)]
+        [Description("当前里程碑已完成"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool MilestoneCurrentCompleted
         {
             get => milestoneCurrentCompleted;
@@ -180,7 +167,7 @@ namespace AntdUI
         /// <summary>
         /// 里程碑时间点显示格式
         /// </summary>
-        [Description("里程碑时间点显示格式"), Category("外观"), DefaultValue(null)]
+        [Description("里程碑时间点显示格式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? MilestoneTimeFormat
         {
             get => milestoneTimeFormat; set
@@ -195,7 +182,7 @@ namespace AntdUI
         /// <summary>
         /// 里程碑时间轴的显示厚度
         /// </summary>
-        [Description("里程碑时间轴的显示厚度"), Category("外观"), DefaultValue(16)]
+        [Description("里程碑时间轴的显示厚度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(16)]
         public int MilestoneTimelineThickness
         {
             get => milestoneTimelineThickness; set
@@ -211,21 +198,23 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(8)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(8)]
         public int Gap { get; set; } = 8;
 
-        [Description("步骤最小高度（纵向）"), Category("外观"), DefaultValue(60)]
+
+        [Description("步骤最小高度（纵向）"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(60)]
         public int MinItemHeight { get; set; }
 
-        [Description("步骤最小宽度（横向）"), Category("外观"), DefaultValue(60)]
+        [Description("步骤最小宽度（横向）"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(60)]
         public int MinItemWidth { get; set; }
+
 
         StepsItemCollection? items;
         /// <summary>
         /// 集合
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        [Description("集合"), Category("数据")]
+        [Description("集合"), Category(nameof(CategoryAttribute.Data))]
         public StepsItemCollection Items
         {
             get
@@ -252,10 +241,21 @@ namespace AntdUI
         {
             base.OnHandleCreated(e);
             ChangeList();
+            this.AddListener();
+        }
+
+        public void HandleEvent(EventType id, object? tag)
+        {
+            switch (id)
+            {
+                case EventType.LANG:
+                    ChangeList();
+                    break;
+            }
         }
 
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -278,15 +278,14 @@ namespace AntdUI
             }
             return false;
         }
-
         internal void ChangeList(bool print = false)
         {
             if (CanLayout())
             {
                 var rect = ClientRectangle.DeflateRect(Padding);
-                Helper.GDI(g =>
+                this.GDI(g =>
                 {
-                    int gap = (int)(Gap * Config.Dpi), split = (!milestoneMode ? 1 : milestoneTimelineThickness) * (int)Config.Dpi;
+                    int gap = (int)(Gap * Dpi), split = (!milestoneMode ? 1 : milestoneTimelineThickness) * (int)Dpi;
                     var _splits = new List<RectangleF>(items!.Count);
                     using (var font_description = new Font(Font.FontFamily, Font.Size * 0.875F))
                     {
@@ -299,7 +298,7 @@ namespace AntdUI
                         }
                         if (vertical)
                         {
-                            if (milestoneMode) rect.X += (int)(milestoneTimelineThickness * Config.Dpi);
+                            if (milestoneMode) rect.X += (int)(milestoneTimelineThickness * Dpi);
                             int t_height_one = rect.Height / count, iod = 0;
                             if (t_height_one < MinItemHeight)
                             {
@@ -403,8 +402,8 @@ namespace AntdUI
                     }
                     splits = _splits.ToArray();
                 });
+                if (print) Invalidate();
             }
-            if (print) Invalidate();
         }
 
         int MaxHeight(Canvas g, Font font_description, int gap, out int height)
@@ -454,17 +453,17 @@ namespace AntdUI
                 return;
             }
             var g = e.Canvas;
-            Color color_fore = fore ?? Colour.Text.Get(nameof(Steps), ColorScheme);
+            Color color_fore = fore ?? Colour.Text.Get(ColorScheme, nameof(Steps), Name);
             using (var brush_fore = new SolidBrush(color_fore))
-            using (var brush_primarybg = new SolidBrush(Colour.PrimaryBg.Get(nameof(Steps), ColorScheme)))
-            using (var brush_primary = new SolidBrush(Colour.Primary.Get(nameof(Steps), ColorScheme)))
-            using (var brush_primary_fore = new SolidBrush(Colour.PrimaryColor.Get(nameof(Steps), ColorScheme)))
-            using (var brush_fore2 = new SolidBrush(Colour.TextTertiary.Get(nameof(Steps), ColorScheme)))
-            using (var brush_fore3 = new SolidBrush(Colour.TextSecondary.Get(nameof(Steps), ColorScheme)))
-            using (var brush_bg2 = new SolidBrush(Colour.FillSecondary.Get(nameof(Steps), ColorScheme)))
+            using (var brush_primarybg = new SolidBrush(Colour.PrimaryBg.Get(ColorScheme, nameof(Steps), Name)))
+            using (var brush_primary = new SolidBrush(Colour.Primary.Get(ColorScheme, nameof(Steps), Name)))
+            using (var brush_primary_fore = new SolidBrush(Colour.PrimaryColor.Get(ColorScheme, nameof(Steps), Name)))
+            using (var brush_fore2 = new SolidBrush(Colour.TextTertiary.Get(ColorScheme, nameof(Steps), Name)))
+            using (var brush_fore3 = new SolidBrush(Colour.TextSecondary.Get(ColorScheme, nameof(Steps), Name)))
+            using (var brush_bg2 = new SolidBrush(Colour.FillSecondary.Get(ColorScheme, nameof(Steps), Name)))
             using (var font_description = new Font(Font.FontFamily, Font.Size * 0.875F))
             {
-                using (var brush_split = new SolidBrush(Colour.Split.Get(nameof(Steps), ColorScheme)))
+                using (var brush_split = new SolidBrush(Colour.Split.Get(ColorScheme, nameof(Steps), Name)))
                 {
                     for (int sp = 0; sp < splits.Length; sp++)
                     {
@@ -478,7 +477,7 @@ namespace AntdUI
                             {
                                 path.AddRectangle(rect);
                                 var alpha = 100 * (1F - AnimationLoadingValue);
-                                using (var brush_prog = new SolidBrush(Helper.ToColor(alpha, Colour.TextBase.Get(nameof(Progress), ColorScheme))))
+                                using (var brush_prog = new SolidBrush(Helper.ToColor(alpha, Colour.TextBase.Get(ColorScheme, nameof(Progress), Name))))
                                 {
                                     var state = g.Save();
                                     if (vertical)
@@ -516,7 +515,7 @@ namespace AntdUI
                                     ccolor = brush_fore2.Color;
                                     break;
                                 case TStepState.Error:
-                                    using (var brush_error = new SolidBrush(Colour.Error.Get(nameof(Steps), ColorScheme)))
+                                    using (var brush_error = new SolidBrush(Colour.Error.Get(ColorScheme, nameof(Steps), Name)))
                                     {
                                         g.DrawText(it.GetTitle, Font, brush_error, it.title_rect, stringLeft);
                                         g.DrawText(it.SubTitle, Font, brush_fore2, it.subtitle_rect, stringLeft);
@@ -557,7 +556,7 @@ namespace AntdUI
                             int space = i == current ? milestoneTimelineThickness : (int)(milestoneTimelineThickness / 1.35f);
                             rect.Inflate(space, space);
 
-                            using (var brush_dotback = new SolidBrush(BackColor != Color.Transparent ? BackColor : Colour.BgBase.Get(nameof(Steps), ColorScheme)))
+                            using (var brush_dotback = new SolidBrush(BackColor != Color.Transparent ? BackColor : Colour.BgBase.Get(ColorScheme, nameof(Steps), Name)))
                             {
                                 g.FillEllipse(brush_dotback, rect);
                             }
@@ -568,7 +567,7 @@ namespace AntdUI
                             rect.Inflate(space, space);
                             if (it.BackColor != null) brush_primary.Color = it.BackColor.Value;
                             g.FillEllipse(i > current ? brush_primarybg : brush_primary, rect);
-                            float sizeF = 8F * Config.Dpi;
+                            float sizeF = 8F * Dpi;
                             rect.Inflate((int)sizeF, (int)sizeF);
                             if (i == current)
                             {
@@ -593,7 +592,7 @@ namespace AntdUI
                                             g.DrawText((i + 1).ToString(), font_Id, brush_fore3, it.ico_rect, stringCenter);
                                             break;
                                         case TStepState.Error:
-                                            g.PaintIconCore(it.ico_rect, SvgDb.IcoError, Colour.ErrorColor.Get(nameof(Steps), ColorScheme), Colour.Error.Get(nameof(Steps), ColorScheme));
+                                            g.PaintIconCore(it.ico_rect, SvgDb.IcoError, Colour.ErrorColor.Get(ColorScheme, nameof(Steps), Name), Colour.Error.Get(ColorScheme, nameof(Steps), Name));
                                             break;
                                         case TStepState.Process:
                                         default:
@@ -627,7 +626,7 @@ namespace AntdUI
                 rect.Inflate(max, max);
             }
             if (it.Icon != null) { g.Image(it.Icon, rect); count++; }
-            if (it.IconSvg != null && g.GetImgExtend(it.IconSvg, rect, fore)) count++;
+            if (it.IconSvg != null && g.Svg(it.IconSvg, rect, fore)) count++;
             return count == 0;
         }
 
@@ -668,7 +667,7 @@ namespace AntdUI
         /// <summary>
         /// 点击项时发生
         /// </summary>
-        [Description("点击项时发生"), Category("行为")]
+        [Description("点击项时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event StepsItemEventHandler? ItemClick;
 
         protected override void OnMouseClick(MouseEventArgs e)
@@ -742,14 +741,14 @@ namespace AntdUI
         /// <summary>
         /// ID
         /// </summary>
-        [Description("ID"), Category("数据"), DefaultValue(null)]
+        [Description("ID"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? ID { get; set; }
 
         Image? icon;
         /// <summary>
         /// 图标，可选
         /// </summary>
-        [Description("图标，可选"), Category("外观"), DefaultValue(null)]
+        [Description("图标，可选"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -765,7 +764,7 @@ namespace AntdUI
         /// <summary>
         /// 图标SVG，可选
         /// </summary>
-        [Description("图标SVG，可选"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG，可选"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -781,7 +780,7 @@ namespace AntdUI
         /// <summary>
         /// 图标的大小，可选
         /// </summary>
-        [Description("图标的大小，可选"), Category("外观"), DefaultValue(null)]
+        [Description("图标的大小，可选"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? IconSize
         {
             get => iconsize;
@@ -798,14 +797,14 @@ namespace AntdUI
         /// <summary>
         /// 名称
         /// </summary>
-        [Description("名称"), Category("数据"), DefaultValue(null)]
+        [Description("名称"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public string? Name { get; set; }
 
         string title = string.Empty;
         /// <summary>
         /// 标题
         /// </summary>
-        [Description("标题"), Category("外观"), DefaultValue("")]
+        [Description("标题"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue("")]
         public string Title
         {
             get
@@ -859,7 +858,7 @@ namespace AntdUI
         /// <summary>
         /// 子标题
         /// </summary>
-        [Description("子标题"), Category("外观"), DefaultValue(null)]
+        [Description("子标题"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? SubTitle
         {
             get => Localization.GetLangI(LocalizationSubTitle, subTitle, new string?[] { "{id}", ID });
@@ -882,7 +881,7 @@ namespace AntdUI
         /// <summary>
         /// 详情描述，可选
         /// </summary>
-        [Description("详情描述，可选"), Category("外观"), DefaultValue(null)]
+        [Description("详情描述，可选"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? Description
         {
             get => Localization.GetLangI(LocalizationDescription, description, new string?[] { "{id}", ID });
@@ -905,7 +904,7 @@ namespace AntdUI
         /// <summary>
         /// 里程碑的时间点
         /// </summary>
-        [Description("里程碑时间点"), Category("数据"), DefaultValue(null)]
+        [Description("里程碑时间点"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public DateTime? MilestoneTimePoint
         {
             get => milestoneTime;
@@ -922,7 +921,7 @@ namespace AntdUI
         /// <summary>
         /// 是否显示
         /// </summary>
-        [Description("是否显示"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Visible
         {
             get => visible;
@@ -938,7 +937,7 @@ namespace AntdUI
         /// <summary>
         /// 时间轴背景色
         /// </summary>
-        [Description("时间轴背景色"), Category("外观"), DefaultValue(null)]
+        [Description("时间轴背景色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? BackColor
         {
             get => back;
@@ -954,7 +953,7 @@ namespace AntdUI
         /// <summary>
         /// 时间轴前景色
         /// </summary>
-        [Description("时间轴前景色"), Category("外观"), DefaultValue(null)]
+        [Description("时间轴前景色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? ForeColor
         {
             get => fore;
@@ -969,7 +968,7 @@ namespace AntdUI
         /// <summary>
         /// 用户定义数据
         /// </summary>
-        [Description("用户定义数据"), Category("数据"), DefaultValue(null)]
+        [Description("用户定义数据"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Tag { get; set; }
 
         #region 内部
@@ -1035,6 +1034,7 @@ namespace AntdUI
         {
             description = value;
             LocalizationDescription = localization;
+            showDescription = description != null;
             return this;
         }
 

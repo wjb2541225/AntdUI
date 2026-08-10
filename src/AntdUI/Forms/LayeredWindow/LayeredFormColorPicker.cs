@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -25,81 +12,143 @@ using System.Windows.Forms;
 
 namespace AntdUI
 {
-    public class LayeredFormColorPicker : ILayeredFormOpacityDown
+    public class LayeredFormColorPicker : ILayeredShadowForm
     {
-        float Radius = 10, Radius2 = 8;
-        TAlign ArrowAlign = TAlign.None;
-        readonly int ArrowSize = 8;
-        int gap = 12, w = 258, h = 224, dot_size = 16, dot_bor_size = 2, line_h = 8, panel_color = 28, btn_size = 24;//260
+        int Radius2 = 8;
+        int gap = 12, w = 258, h = 224, dot_size = 16, dot_bor_size = 2, line_h = 8, panel_color = 28, panel_color_input = 0, btn_size = 24;//260
         int offy = 0;
         Color Value, ValueNAlpha, ValueHue, ValueDefault;
-        Action<Color> action;
+        Action<Color>? action;
         TColorMode mode;
-        PointF[]? rect_arrow;
-        bool AllowClear = false, ShowClose = false, ShowReset = false;
+        bool AllowClear = false, ShowClose = false, ShowReset = false, Dfont = false;
         TAMode ColorScheme;
+
+        #region 初始化
+
         public LayeredFormColorPicker(ColorPicker control, Rectangle rect_read, Action<Color> _action)
         {
             ColorScheme = control.ColorScheme;
-            control.Parent.SetTopMost(Handle);
+            cname = control.Name;
+            SetTopMost(control.Parent, Handle);
+            SetDpi(control);
             AllowClear = control.AllowClear;
             ShowClose = control.ShowClose;
             ShowReset = control.ShowReset;
-            Font = control.Font.Size > 15f ? new Font(control.Font.Name, 15f, control.Font.Unit) : control.Font;//字体过大时, 编辑器文本超出编辑框
+            if (control.DropDownFontRatio == 1F) Font = control.Font;
+            else
+            {
+                Dfont = true;
+                Font = new Font(control.Font.FontFamily, control.Font.Size * control.DropDownFontRatio);
+            }
             mode = control.Mode;
-            MessageCloseMouseLeave = control.Trigger == Trigger.Hover;
+            if (control.Trigger == Trigger.Hover) CloseMode = CloseMode.Leave;
             color_alpha = Value = ValueDefault = control.Value;
             ValueNAlpha = Color.FromArgb(255, Value);
             var hsv = ValueNAlpha.ToHSV();
             hsv.s = hsv.v = 1;
             ValueHue = hsv.HSVToColor();
-            Radius = control.Radius * Config.Dpi;
-            Radius2 = Radius * 0.75F;
             PARENT = control;
             action = _action;
-            int colors_h = 160;
-            if (Config.Dpi != 1F)
-            {
-                colors_h = (int)(colors_h * Config.Dpi);
 
-                gap = (int)(gap * Config.Dpi);
-                dot_size = (int)(dot_size * Config.Dpi);
-                dot_bor_size = (int)(dot_bor_size * Config.Dpi);
-                btn_size = (int)(btn_size * Config.Dpi);
-                line_h = (int)(line_h * Config.Dpi);
-                panel_color = (int)(panel_color * Config.Dpi);
-                w = (int)(w * Config.Dpi);
-                h = (int)(h * Config.Dpi);
+            int colors_h = InitDpi(Dpi, control.Radius, 8, 160);
+            InitWidth(control, ref colors_h);
+            int yb = InitSize(control, colors_h);
+
+            CLocation(control, control.Placement, control.DropDownArrow, ArrowSize);
+
+            inputs = InitInput(control, yb);
+        }
+        public LayeredFormColorPicker(ColorPicker.Config config)
+        {
+            ColorScheme = config.ColorScheme;
+            cname = config.Target.GetControl?.Name ?? "NULL";
+            SetTopMost(config.Target, Handle);
+            SetDpi(config.Target);
+            AllowClear = config.AllowClear;
+            ShowClose = config.ShowClose;
+            ShowReset = config.ShowReset;
+            config.Target.SetFont(config.Font, this);
+            if (config.FontRatio != 1F && config.Font == null)
+            {
+                Dfont = true;
+                Font = new Font(Font.FontFamily, Font.Size * config.FontRatio);
+            }
+            mode = config.Mode;
+            color_alpha = Value = ValueDefault = config.Value ?? Style.Db.Primary;
+            ValueNAlpha = Color.FromArgb(255, Value);
+            var hsv = ValueNAlpha.ToHSV();
+            hsv.s = hsv.v = 1;
+            ValueHue = hsv.HSVToColor();
+            action = config.Call;
+
+            int colors_h = InitDpi(Dpi, config.Radius, config.ArrowSize, 160);
+            InitWidth(config, ref colors_h);
+            int yb = InitSize(config, colors_h);
+
+            if (config.Target.Value is Control control)
+            {
+                var calculateCoordinate = new CalculateCoordinate(this, control, TargetRect, Radius, ArrowSize, shadow, shadow2, config.Offset);
+                calculateCoordinate.Auto(config.Placement, animateConfig, true, out int rx, out int ry, out ArrowLine);
+                SetLocation(rx, ry);
+            }
+            else
+            {
+                var screen = Screen.FromPoint(MousePosition).WorkingArea;
+                SetLocationCenter(screen);
+            }
+            inputs = InitInput(config, yb);
+        }
+
+        int InitDpi(float dpi, int radius, int arrowSize, int colors_h)
+        {
+            Radius = (int)(radius * dpi);
+            Radius2 = (int)(Radius * 0.75F);
+
+            if (dpi == 1F)
+            {
+                ArrowSize = arrowSize;
+                return colors_h;
             }
 
-            if (control.Mode == TColorMode.Rgb)
+            ArrowSize = (int)(arrowSize * dpi);
+            gap = (int)(gap * dpi);
+            dot_size = (int)(dot_size * dpi);
+            dot_bor_size = (int)(dot_bor_size * dpi);
+            btn_size = (int)(btn_size * dpi);
+            line_h = (int)(line_h * dpi);
+            panel_color = (int)(panel_color * dpi);
+            w = (int)(w * dpi);
+            h = (int)(h * dpi);
+
+            return (int)(colors_h * dpi);
+        }
+
+        void InitWidth(IColorPicker config, ref int colors_h)
+        {
+            if (mode == TColorMode.Rgb)
             {
-                if (control.DisabledAlpha)
+                w = this.GDI(g =>
                 {
-                    w = Helper.GDI(g =>
-                    {
-                        var size = g.MeasureString("255%", Font);
-                        return (int)Math.Ceiling((size.Width + size.Height) * 3.4F);
-                    });
-                }
-                else
-                {
-                    w = Helper.GDI(g =>
-                    {
-                        var size = g.MeasureString("255%", Font);
-                        return (int)Math.Ceiling((size.Width + size.Height) * 4.4F);
-                    });
-                }
+                    var size = g.MeasureString("255 %", Font);
+                    panel_color_input = (int)(size.Height * 1.52F);
+                    if (config.DisabledAlpha) return (size.Width + size.Height) * 3 + ((int)(4 * Dpi) * 2);
+                    else return (size.Width + size.Height) * 4 + ((int)(4 * Dpi) * 3);
+                });
                 int chtmp = (int)Math.Ceiling(w * .62F);
                 int chxc = chtmp - colors_h;
                 colors_h = chtmp;
                 h += chxc;
             }
-            int y = 10;
+            else panel_color_input = this.GDI(g => (int)(g.MeasureString("255%", Font).Height * 1.52F));
+        }
+
+        int InitSize(IColorPicker config, int colors_h)
+        {
+            int y = 0;
 
             if (AllowClear || ShowClose || ShowReset)
             {
-                int uw = gap + btn_size, ux = 10 + w - uw;
+                int uw = gap + btn_size, ux = w - uw;
                 if (AllowClear)
                 {
                     rect_btn = new Rectangle(ux, y + gap, btn_size, btn_size);
@@ -110,18 +159,18 @@ namespace AntdUI
                     rect_reset = new Rectangle(ux, y + gap, btn_size, btn_size);
                     ux -= uw;
                 }
-                if (ShowClose) rect_close = new Rectangle(10 + gap, y + gap, btn_size, btn_size);
+                if (ShowClose) rect_close = new Rectangle(gap, y + gap, btn_size, btn_size);
                 offy = btn_size + line_h + line_h / 2;
                 y += offy;
                 h += offy;
             }
 
-            rect_colors = new Rectangle(10 + gap, y + gap, w - gap * 2, colors_h);
-            rect_color = new Rectangle(10 + gap + (w - gap * 2) - panel_color, rect_colors.Bottom + gap, panel_color, panel_color);
-            rect_hue = new Rectangle(10 + gap, rect_colors.Bottom + gap, w - gap * 3 - panel_color, line_h);
+            rect_colors = new Rectangle(gap, y + gap, w - gap * 2, colors_h);
+            rect_color = new Rectangle(gap + (w - gap * 2) - panel_color, rect_colors.Bottom + gap, panel_color, panel_color);
+            rect_hue = new Rectangle(gap, rect_colors.Bottom + gap, w - gap * 3 - panel_color, line_h);
             int yb = rect_hue.Bottom + gap;
             int line_h2 = line_h / 2;
-            if (control.DisabledAlpha)
+            if (config.DisabledAlpha)
             {
                 rect_alpha = rect_alpha_big = new Rectangle(-1, -1, 0, 0);
                 rect_hue.Offset(0, line_h + line_h2 / 2);
@@ -134,211 +183,215 @@ namespace AntdUI
             rect_colors_big = new Rectangle(rect_colors.X - line_h2, rect_colors.Y - line_h2, rect_colors.Width + line_h, rect_colors.Height + line_h);
             rect_hue_big = new Rectangle(rect_hue.X - line_h2, rect_hue.Y - line_h2, rect_hue.Width + line_h, rect_hue.Height + line_h);
 
-            bmp_dot_12 = new Bitmap(gap + 12, gap + 12);
-            using (var g2 = Graphics.FromImage(bmp_dot_12).High())
+            int gap2 = gap * 2, gap_2 = gap / 2;
+            bmp_dot_12 = new Bitmap(gap2, gap2);
+            using (var g2 = Graphics.FromImage(bmp_dot_12).High(Dpi))
             {
-                using (var brush = new SolidBrush(Colour.BgBase.Get(nameof(ColorPicker), ColorScheme)))
+                using (var brush = new SolidBrush(Colour.BgBase.Get(ColorScheme, name, cname)))
                 {
                     float yy = (bmp_dot_12.Height - gap) / 2F;
-                    var rect = new RectangleF(6, 6, bmp_dot_12.Height - 12, bmp_dot_12.Height - 12);
-                    g2.FillEllipse(Brushes.Black, rect);
-                    Helper.Blur(bmp_dot_12, 6);
+                    var rect = new RectangleF(gap_2, gap_2, bmp_dot_12.Height - gap, bmp_dot_12.Height - gap);
+                    g2.FillEllipse(brush, rect);
+                    Helper.Blur(bmp_dot_12, gap_2);
                     g2.CompositingMode = CompositingMode.SourceCopy;
                     g2.FillEllipse(Brushes.Transparent, rect);
                 }
             }
 
-            h += panel_color + gap;
+            h += panel_color_input + gap;
+            h += InitColors(config, h);
 
-            int r_w = w + 20, r_h = h + 20;
-            SetSize(r_w, r_h);
-            rect_arrow = CLocation(control.PointToScreen(Point.Empty), control.Placement, control.DropDownArrow, ArrowSize, 10, r_w, r_h, rect_read, ref ArrowAlign, true);
+            SetSize(w, h);
+            return yb;
+        }
 
-            Location = new Point(TargetRect.Location.X - control.WaveSize, TargetRect.Y);//有缺口，位置需要偏移
-            Size = TargetRect.Size;
+        #endregion
 
-            var rect_input = new Rectangle(rect_colors_big.X + 4, yb + line_h + gap, rect_colors_big.Width - 8, panel_color);
-            int wsize = (int)(4 * Config.Dpi), wsize2 = wsize * 2;
-            switch (control.Mode)
+        #region 文本框
+
+        InputRect[] InitInput(IColorPicker config, int yb)
+        {
+            InputRect[] inputs;
+            int wave = (int)(4 * Dpi), wave2 = wave * 2;
+            var rect_input = new Rectangle(rect_colors_big.X + wave, yb + line_h + gap, rect_colors_big.Width - wave2, panel_color_input);
+            Action call = () =>
+            {
+                if (RunAnimation) return;
+                Print();
+            };
+            switch (config.Mode)
             {
                 case TColorMode.Rgb:
-                    if (control.DisabledAlpha)
+                    if (config.DisabledAlpha)
                     {
-                        int wr4 = rect_input.Width / 3 - wsize;
+                        int wr4 = rect_input.Width / 3 - wave;
                         Rectangle rect_r = new Rectangle(rect_input.X, rect_input.Y, wr4, rect_input.Height),
-                            rect_g = new Rectangle(rect_input.X + wr4 + wsize, rect_input.Y, wr4, rect_input.Height),
-                            rect_b = new Rectangle(rect_input.X + wr4 * 2 + wsize2, rect_input.Y, wr4, rect_input.Height);
+                            rect_g = new Rectangle(rect_input.X + wr4 + wave, rect_input.Y, wr4, rect_input.Height),
+                            rect_b = new Rectangle(rect_input.X + wr4 * 2 + wave2, rect_input.Y, wr4, rect_input.Height);
 
-                        var input_r = new InputNumber
-                        {
-                            TabStop = false,
-                            ShowControl = false,
-                            PrefixText = "R",
-                            Location = rect_r.Location,
-                            Size = rect_r.Size,
-                            Value = Value.R,
-                            Maximum = 255
-                        };
-                        input_r.ValueChanged += (a, e) =>
-                        {
-                            if (isinput) ChangeColor(Color.FromArgb(Value.A, (int)e.Value, Value.G, Value.B));
-                        };
+                        InputNumberByLayeredForm input_r = GetInputNumber(rect_r, Value.R, call, "R"),
+                            input_g = GetInputNumber(rect_g, Value.G, call, "G"),
+                            input_b = GetInputNumber(rect_b, Value.B, call, "B");
 
-                        var input_g = new InputNumber
-                        {
-                            TabStop = false,
-                            ShowControl = false,
-                            PrefixText = "G",
-                            Location = rect_g.Location,
-                            Size = rect_g.Size,
-                            Value = Value.G,
-                            Maximum = 255
-                        };
-                        input_g.ValueChanged += (a, e) =>
-                        {
-                            if (isinput) ChangeColor(Color.FromArgb(Value.A, Value.R, (int)e.Value, Value.B));
-                        };
-
-                        var input_b = new InputNumber
-                        {
-                            TabStop = false,
-                            ShowControl = false,
-                            PrefixText = "B",
-                            Location = rect_b.Location,
-                            Size = rect_b.Size,
-                            Value = Value.B,
-                            Maximum = 255
-                        };
-                        input_b.ValueChanged += (a, e) =>
-                        {
-                            if (isinput) ChangeColor(Color.FromArgb(Value.A, Value.R, Value.G, (int)e.Value));
-                        };
                         inputs = new InputRect[] {
-                            new InputRect(input_r, rect_r, wsize, wsize2),
-                            new InputRect(input_g, rect_g, wsize, wsize2),
-                            new InputRect(input_b, rect_b, wsize, wsize2)
+                            new InputRect(input_r, rect_r, wave, wave2),
+                            new InputRect(input_g, rect_g, wave, wave2),
+                            new InputRect(input_b, rect_b, wave, wave2)
                         };
-                        input_r.TakePaint = input_g.TakePaint = input_b.TakePaint = () =>
-                        {
-                            if (RunAnimation) return;
-                            Print();
-                        };
-                        Controls.Add(input_r);
-                        Controls.Add(input_g);
-                        Controls.Add(input_b);
                     }
                     else
                     {
-                        int wr4 = rect_input.Width / 4 - wsize;
+                        int wr4 = rect_input.Width / 4 - wave;
                         Rectangle rect_r = new Rectangle(rect_input.X, rect_input.Y, wr4, rect_input.Height),
-                            rect_g = new Rectangle(rect_input.X + wr4 + wsize, rect_input.Y, wr4, rect_input.Height),
-                            rect_b = new Rectangle(rect_input.X + wr4 * 2 + wsize2, rect_input.Y, wr4, rect_input.Height),
-                            rect_a = new Rectangle(rect_input.X + wr4 * 3 + wsize * 3, rect_input.Y, wr4, rect_input.Height);
+                            rect_g = new Rectangle(rect_input.X + wr4 + wave, rect_input.Y, wr4, rect_input.Height),
+                            rect_b = new Rectangle(rect_input.X + wr4 * 2 + wave2, rect_input.Y, wr4, rect_input.Height),
+                            rect_a = new Rectangle(rect_input.X + wr4 * 3 + wave * 3, rect_input.Y, wr4, rect_input.Height);
 
-                        var input_r = new InputNumber
-                        {
-                            TabStop = false,
-                            ShowControl = false,
-                            PrefixText = "R",
-                            Location = rect_r.Location,
-                            Size = rect_r.Size,
-                            Value = Value.R,
-                            Maximum = 255
-                        };
-                        input_r.ValueChanged += (a, e) =>
-                        {
-                            if (isinput) ChangeColor(Color.FromArgb(Value.A, (int)e.Value, Value.G, Value.B));
-                        };
 
-                        var input_g = new InputNumber
-                        {
-                            TabStop = false,
-                            ShowControl = false,
-                            PrefixText = "G",
-                            Location = rect_g.Location,
-                            Size = rect_g.Size,
-                            Value = Value.G,
-                            Maximum = 255
-                        };
-                        input_g.ValueChanged += (a, e) =>
-                        {
-                            if (isinput) ChangeColor(Color.FromArgb(Value.A, Value.R, (int)e.Value, Value.B));
-                        };
-
-                        var input_b = new InputNumber
-                        {
-                            TabStop = false,
-                            ShowControl = false,
-                            PrefixText = "B",
-                            Location = rect_b.Location,
-                            Size = rect_b.Size,
-                            Value = Value.B,
-                            Maximum = 255
-                        };
-                        input_b.ValueChanged += (a, e) =>
-                        {
-                            if (isinput) ChangeColor(Color.FromArgb(Value.A, Value.R, Value.G, (int)e.Value));
-                        };
-
-                        var input_a = new InputNumber
-                        {
-                            TabStop = false,
-                            ShowControl = false,
-                            SuffixText = "%",
-                            Location = rect_a.Location,
-                            Size = rect_a.Size,
-                            Value = (int)(Value.A / 255F * 100F),
-                            Maximum = 100
-                        };
-                        input_a.ValueChanged += (s, e) =>
-                        {
-                            if (isinput) ChangeColor(Color.FromArgb((int)(255F * ((int)e.Value / 100F)), Value.R, Value.G, Value.B), true);
-                        };
+                        InputNumberByLayeredForm input_r = GetInputNumber(rect_r, Value.R, call, "R"),
+                            input_g = GetInputNumber(rect_g, Value.G, call, "G"),
+                            input_b = GetInputNumber(rect_b, Value.B, call, "B"),
+                            input_a = GetInputNumber(rect_a, (int)(Value.A / 255F * 100F), call);
 
                         inputs = new InputRect[] {
-                            new InputRect(input_r, rect_r, wsize, wsize2),
-                            new InputRect(input_g, rect_g, wsize, wsize2),
-                            new InputRect(input_b, rect_b, wsize, wsize2),
-                            new InputRect(input_a, rect_a, wsize, wsize2)
+                            new InputRect(input_r, rect_r, wave, wave2),
+                            new InputRect(input_g, rect_g, wave, wave2),
+                            new InputRect(input_b, rect_b, wave, wave2),
+                            new InputRect(input_a, rect_a, wave, wave2)
                         };
-                        input_r.TakePaint = input_g.TakePaint = input_b.TakePaint = input_a.TakePaint = () =>
-                        {
-                            if (RunAnimation) return;
-                            Print();
-                        };
-                        Controls.Add(input_r);
-                        Controls.Add(input_g);
-                        Controls.Add(input_b);
-                        Controls.Add(input_a);
                     }
                     break;
                 case TColorMode.Hex:
                 default:
-                    var input = new Input
-                    {
-                        RECTDIV = rect_input,
-                        Padding = new Padding(rect_colors_big.X + 4, 0, rect_colors_big.X + 4, 0),
-                        Location = new Point(0, rect_input.Y),
-                        Size = new Size(w + 20, rect_input.Height),
-                        TextAlign = HorizontalAlignment.Center,
-                        Text = "#" + Value.ToHex()
-                    };
-                    input.TakePaint = () =>
-                    {
-                        if (RunAnimation) return;
-                        Print(true);
-                    };
-                    input.TextChanged += (a, b) =>
-                    {
-                        if (isinput) ChangeColor(input.Text.ToColor());
-                    };
-                    Controls.Add(input);
-                    inputs = new InputRect[] { new InputRect(input, rect_input, wsize, wsize2) };
+                    inputs = new InputRect[] { new InputRect(GetInput(rect_input, call), rect_input, wave, wave2) };
                     break;
             }
+            foreach (var it in inputs) Controls.Add(it.input);
+            isinput = true;
+            return inputs;
         }
 
+        InputByLayeredForm GetInput(Rectangle rect, Action call)
+        {
+            var input = new InputByLayeredForm
+            {
+                MOffset = shadow,
+                PaddGap = 0F,
+                IconGap = 0F,
+                IconRatioRight = 0F,
+                PrefixFore = Style.Db.TextTertiary,
+                PrefixText = "#",
+                Bounds = new Rectangle(shadow + rect.X, shadow + rect.Y, rect.Width, rect.Height),
+                TextAlign = HorizontalAlignment.Center,
+                Text = Value.ToHex(),
+                TakePaint = call
+            };
+            input.TextChanged += (a, e) =>
+            {
+                if (isinput) ChangeColor(input.Text.ToColor());
+            };
+            return input;
+        }
+
+        InputNumberByLayeredForm GetInputNumber(Rectangle rect, byte value, Action call, string PrefixText)
+        {
+            var input = new InputNumberByLayeredForm
+            {
+                MOffset = shadow,
+                PaddGap = 0F,
+                IconGap = 0F,
+                IconRatioRight = 0F,
+                PrefixFore = Style.Db.TextTertiary,
+                PrefixText = PrefixText,
+                TabStop = false,
+                ShowControl = false,
+                Bounds = new Rectangle(shadow + rect.X, shadow + rect.Y, rect.Width, rect.Height),
+                Size = rect.Size,
+                Value = value,
+                Maximum = 255,
+                TakePaint = call
+            };
+            input.ValueChanged += (a, e) =>
+            {
+                if (isinput) ChangeColor(Color.FromArgb(Value.A, Value.R, Value.G, Value.B));
+            };
+            return input;
+        }
+        InputNumberByLayeredForm GetInputNumber(Rectangle rect, int value, Action call)
+        {
+            var input = new InputNumberByLayeredForm
+            {
+                MOffset = shadow,
+                PaddGap = 0F,
+                IconGap = 0F,
+                IconRatioRight = 0F,
+                SuffixFore = Style.Db.TextTertiary,
+                SuffixText = "%",
+                TabStop = false,
+                ShowControl = false,
+                Bounds = new Rectangle(shadow + rect.X, shadow + rect.Y, rect.Width, rect.Height),
+                Size = rect.Size,
+                Value = value,
+                Maximum = 100,
+                TakePaint = call
+            };
+            input.ValueChanged += (a, e) =>
+            {
+                if (isinput) ChangeColor(Color.FromArgb(Value.A, Value.R, Value.G, Value.B));
+            };
+            return input;
+        }
+
+        #endregion
+
+        #region 色卡
+
+        ColorRect[]? preset_color;
+        int InitColors(IColorPicker config, int y)
+        {
+            if (config.Presets == null || config.Presets.Length == 0) return 0;
+
+            int w = rect_colors.Width, mingap = (int)(4 * Dpi);
+            int count = (int)Math.Floor(w * 1F / (btn_size + mingap));
+            if (count % 2 == 1) count--;
+            int tmp_w = btn_size * count, color_gap = (w - tmp_w) / (count - 1), x = (w - (tmp_w + color_gap * (count - 1))) / 2,
+                h = 0, use_x = 0, tsize = btn_size + color_gap;
+
+            var list = new List<ColorRect>(config.Presets.Length);
+            foreach (var it in config.Presets)
+            {
+                list.Add(new ColorRect
+                {
+                    color = it,
+                    rect = new Rectangle(rect_colors.X + x + use_x, y + h, btn_size, btn_size)
+                });
+                use_x += tsize;
+                if ((use_x + btn_size) > w)
+                {
+                    h += tsize;
+                    use_x = 0;
+                }
+            }
+            if (use_x > 0) h += tsize;
+
+            preset_color = list.ToArray();
+
+            return h + gap - color_gap;
+        }
+
+        class ColorRect
+        {
+            public Color color { get; set; }
+            public bool hover { get; set; }
+            public Rectangle rect { get; set; }
+        }
+
+        #endregion
+
+        int ArrowSize = 0;
+
         public override string name => nameof(ColorPicker);
+        string cname;
 
         void ChangeColor(Color color, bool a = false)
         {
@@ -348,7 +401,7 @@ namespace AntdUI
             hsv.s = hsv.v = 1;
             ValueHue = hsv.HSVToColor();
 
-            action(Value);
+            action?.Invoke(Value);
             colors_mouse = null;
             bmp_hue?.Dispose();
             bmp_hue = null;
@@ -366,8 +419,7 @@ namespace AntdUI
         {
             BeginInvoke(() =>
             {
-                Location = TargetRect.Location;
-                Size = TargetRect.Size;
+                Bounds = TargetRect;
                 Input input = new Input
                 {
                     Dock = DockStyle.Bottom,
@@ -380,7 +432,7 @@ namespace AntdUI
 
         #region 鼠标
 
-        bool isinput = true;
+        bool isinput = false;
         void SetValue()
         {
             isinput = false;
@@ -394,23 +446,22 @@ namespace AntdUI
                     break;
                 case TColorMode.Hex:
                 default:
-                    inputs[0].input.Text = "#" + Value.ToHex();
+                    inputs[0].input.Text = Value.ToHex();
                     break;
             }
-            action(Value);
+            action?.Invoke(Value);
             isinput = true;
         }
-        protected override void OnMouseDown(MouseEventArgs e)
+        protected override void OnMouseDown(MouseButtons button, int clicks, int x, int y, int delta)
         {
-            if (RunAnimation) return;
-            if (e.Button == MouseButtons.Left)
+            if (button == MouseButtons.Left)
             {
-                if (rect_colors_big.Contains(e.X, e.Y))
+                if (rect_colors_big.Contains(x, y))
                 {
                     //顶部渐变色卡
                     if (colors_mouse != null)
                     {
-                        var value = GetColors(e.X, e.Y, colors_mouse);
+                        var value = GetColors(x, y, colors_mouse);
 
                         color_alpha = Value = Color.FromArgb(Value.A, value);
                         ValueNAlpha = Color.FromArgb(255, Value);
@@ -421,12 +472,12 @@ namespace AntdUI
                         down_colors = true;
                     }
                 }
-                else if (rect_hue_big.Contains(e.X, e.Y))
+                else if (rect_hue_big.Contains(x, y))
                 {
                     //色相
                     if (bmp_hue != null)
                     {
-                        point_hue = e.X - 10 - gap;
+                        point_hue = x - gap;
                         if (point_hue < 0) point_hue = 0;
                         else if (point_hue > bmp_hue.Width - 1) point_hue = bmp_hue.Width - 1;
                         ValueHue = bmp_hue.GetPixel(point_hue, 1);
@@ -444,12 +495,12 @@ namespace AntdUI
                         down_hue = true;
                     }
                 }
-                else if (rect_alpha_big.Contains(e.X, e.Y))
+                else if (rect_alpha_big.Contains(x, y))
                 {
                     //透明度
                     if (bmp_alpha_read != null)
                     {
-                        point_alpha = e.X - 10 - gap;
+                        point_alpha = x - gap;
                         if (point_alpha < 0) point_alpha = 0;
                         else if (point_alpha > bmp_alpha_read.Width - 1) point_alpha = bmp_alpha_read.Width - 1;
                         color_alpha = Value = Color.FromArgb(bmp_alpha_read.GetPixel(point_alpha, 1).A, ValueNAlpha);
@@ -458,7 +509,7 @@ namespace AntdUI
                         down_alpha = true;
                     }
                 }
-                else if (AllowClear && rect_btn.Contains(e.X, e.Y))
+                else if (AllowClear && rect_btn.Contains(x, y))
                 {
                     if (PARENT is ColorPicker color && color.HasValue)
                     {
@@ -466,22 +517,34 @@ namespace AntdUI
                         Print();
                     }
                 }
-                else if (ShowClose && rect_close.Contains(e.X, e.Y)) IClose();
-                else if (ShowReset && rect_reset.Contains(e.X, e.Y))
+                else if (ShowClose && rect_close.Contains(x, y)) IClose();
+                else if (ShowReset && rect_reset.Contains(x, y))
                 {
-                    if (Value != ValueDefault) ChangeColor(ValueDefault);
+                    if (Value != ValueDefault)
+                    {
+                        ChangeColor(ValueDefault);
+                        SetValue();
+                    }
+                }
+                if (preset_color == null) return;
+                foreach (var it in preset_color)
+                {
+                    if (it.rect.Contains(x, y))
+                    {
+                        ChangeColor(it.color);
+                        SetValue();
+                        return;
+                    }
                 }
             }
-            base.OnMouseDown(e);
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnMouseMove(MouseButtons button, int clicks, int x, int y, int delta)
         {
-            if (RunAnimation) return;
             int count = 0;
             if (AllowClear)
             {
-                var hover = rect_btn.Contains(e.X, e.Y);
+                var hover = rect_btn.Contains(x, y);
                 if (hover != hover_btn)
                 {
                     hover_btn = hover;
@@ -490,7 +553,7 @@ namespace AntdUI
             }
             if (ShowClose)
             {
-                var hover = rect_close.Contains(e.X, e.Y);
+                var hover = rect_close.Contains(x, y);
                 if (hover != hover_close)
                 {
                     hover_close = hover;
@@ -499,17 +562,37 @@ namespace AntdUI
             }
             if (ShowReset)
             {
-                var hover = rect_reset.Contains(e.X, e.Y);
+                var hover = rect_reset.Contains(x, y);
                 if (hover != hover_reset)
                 {
                     hover_reset = hover;
                     count++;
                 }
             }
+            if (preset_color != null)
+            {
+                foreach (var it in preset_color)
+                {
+                    if (it.rect.Contains(x, y))
+                    {
+                        if (it.hover) continue;
+                        else
+                        {
+                            it.hover = true;
+                            count++;
+                        }
+                    }
+                    else if (it.hover)
+                    {
+                        it.hover = false;
+                        count++;
+                    }
+                }
+            }
             if (count > 0) Print();
             if (down_colors && colors_mouse != null)
             {
-                var value = GetColors(e.X, e.Y, colors_mouse);
+                var value = GetColors(x, y, colors_mouse);
 
                 color_alpha = Value = Color.FromArgb(Value.A, value);
                 ValueNAlpha = Color.FromArgb(255, Value);
@@ -520,7 +603,7 @@ namespace AntdUI
             }
             else if (down_hue && bmp_hue != null)
             {
-                point_hue = e.X - 10 - gap;
+                point_hue = x - gap;
                 if (point_hue < 0) point_hue = 0;
                 else if (point_hue > bmp_hue.Width - 1) point_hue = bmp_hue.Width - 1;
                 ValueHue = bmp_hue.GetPixel(point_hue, 1);
@@ -538,19 +621,18 @@ namespace AntdUI
             }
             else if (down_alpha && bmp_alpha_read != null)
             {
-                point_alpha = e.X - 10 - gap;
+                point_alpha = x - gap;
                 if (point_alpha < 0) point_alpha = 0;
                 else if (point_alpha > bmp_alpha_read.Width - 1) point_alpha = bmp_alpha_read.Width - 1;
                 color_alpha = Value = Color.FromArgb(bmp_alpha_read.GetPixel(point_alpha, 1).A, ValueNAlpha);
                 SetValue();
                 Print(true);
             }
-            base.OnMouseMove(e);
         }
 
         Color GetColors(int x, int y, Dictionary<string, Color> dir)
         {
-            point_colors = new Point(x - 10 - gap, y - 10 - offy - gap);
+            point_colors = new Point(x - gap, y - offy - gap);
 
             int w = rect_colors.Width - 1, h = rect_colors.Height - 1;
             if (point_colors.X < 0) point_colors.X = 0;
@@ -561,13 +643,11 @@ namespace AntdUI
             return dir[point_colors.X + "_" + point_colors.Y];
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
+        protected override void OnMouseUp(MouseButtons button, int clicks, int x, int y, int delta)
         {
-            if (RunAnimation) return;
             if (down_colors) down_colors = false;
             if (down_hue) down_hue = false;
             if (down_alpha) down_alpha = false;
-            base.OnMouseUp(e);
         }
 
         #endregion
@@ -577,185 +657,214 @@ namespace AntdUI
         bool hover_btn = false, hover_close = false, hover_reset;
         Rectangle rect_btn, rect_close, rect_reset;
 
-        public override Bitmap? PrintBit()
+        public override void PrintContent(Canvas g, Rectangle rect, GraphicsState state)
         {
-            var rect = TargetRectXY;
-            var rect_read = new Rectangle(10, 10, rect.Width - 20, rect.Height - 20);
-            Bitmap rbmp = new Bitmap(rect.Width, rect.Height);
-            using (var g = Graphics.FromImage(rbmp).High())
+            using (var brush_bg = new SolidBrush(Colour.BgElevated.Get(ColorScheme, name, cname)))
             {
-                using (var brush_bg = new SolidBrush(Colour.BgElevated.Get(nameof(ColorPicker), ColorScheme)))
+                #region 渲染
+
+                if (AllowClear)
                 {
-                    using (var path = rect_read.RoundPath(Radius))
+                    using (var path = rect_btn.RoundPath(Radius2))
                     {
-                        DrawShadow(g, rect);
+                        g.SetClip(path);
+                        using (var pen = new Pen(Color.FromArgb(245, 34, 45), rect_btn.Height * .12F))
+                        {
+                            g.DrawLine(pen, new Point(rect_btn.X, rect_btn.Bottom), new Point(rect_btn.Right, rect_btn.Y));
+                        }
+                        g.ResetClip();
+                        g.Draw(hover_btn ? Colour.BorderColor.Get(ColorScheme, name, cname) : Colour.Split.Get(ColorScheme, name, cname), Dpi, path);
+                    }
+                }
+
+                if (ShowClose)
+                {
+                    using (var path = rect_close.RoundPath(Radius2))
+                    {
+                        g.Draw(hover_close ? Colour.BorderColor.Get(ColorScheme, name, cname) : Colour.Split.Get(ColorScheme, name, cname), Dpi, path);
+                    }
+                    g.PaintIconCore(rect_close, SvgDb.IcoErrorGhost, Colour.TextTertiary.Get(ColorScheme, name, cname), .8F);
+                }
+
+                if (ShowReset)
+                {
+                    using (var path = rect_reset.RoundPath(Radius2))
+                    {
+                        g.Draw(hover_reset ? Colour.BorderColor.Get(ColorScheme, name, cname) : Colour.Split.Get(ColorScheme, name, cname), Dpi, path);
+                    }
+                    g.PaintIconCore(rect_reset, SvgDb.IcoStar, ValueDefault, .8F);
+                }
+
+                #region 调色板
+
+                using (var bmp = new Bitmap(rect_colors.Width, rect_colors.Height))
+                {
+                    using (var g2 = Graphics.FromImage(bmp).High(Dpi))
+                    {
+                        PaintColors(g2, new Rectangle(0, 0, bmp.Width, bmp.Height));
+                    }
+                    colors_mouse ??= GetColorsPoint(bmp);
+                    g.Image(bmp, rect_colors);
+                }
+                using (var path = rect_colors.RoundPath(Radius))
+                {
+                    path.AddRectangle(new Rectangle(rect_colors.X - 1, rect_colors.Y - 1, rect_colors.Width + 2, rect_colors.Height + 2));
+                    g.Fill(brush_bg, path);
+                }
+
+                #endregion
+
+                #region 色相
+
+                if (bmp_hue == null)
+                {
+                    bmp_hue = new Bitmap(rect_hue.Width, rect_hue.Height);
+                    using (var g2 = Graphics.FromImage(bmp_hue).High(Dpi))
+                    {
+                        PaintHue(g2, new Rectangle(0, 0, bmp_hue.Width, bmp_hue.Height));
+                    }
+                    GetHuePoint(bmp_hue);
+                }
+                g.Image(bmp_hue, rect_hue);
+                using (var path = rect_hue.RoundPath(rect_hue.Height))
+                {
+                    path.AddRectangle(new Rectangle(rect_hue.X - 1, rect_hue.Y - 1, rect_hue.Width + 2, rect_hue.Height + 2));
+                    g.Fill(brush_bg, path);
+                }
+
+                #endregion
+
+                #region 透明度
+
+                if (rect_alpha.Width > 0)
+                {
+                    if (bmp_alpha_read == null)
+                    {
+                        bmp_alpha_read = new Bitmap(rect_alpha.Width, rect_alpha.Height);
+                        using (var g2 = Graphics.FromImage(bmp_alpha_read).High(Dpi))
+                        {
+                            PaintAlpha(g2, new Rectangle(0, 0, bmp_alpha_read.Width, bmp_alpha_read.Height), false);
+                        }
+                        GetAlphaPoint(bmp_alpha_read);
+                    }
+
+                    if (bmp_alpha == null)
+                    {
+                        bmp_alpha = new Bitmap(rect_alpha.Width, rect_alpha.Height);
+                        using (var g2 = Graphics.FromImage(bmp_alpha).High(Dpi))
+                        {
+                            PaintAlpha(g2, new Rectangle(0, 0, bmp_alpha.Width, bmp_alpha.Height), true);
+                        }
+                    }
+                    g.Image(bmp_alpha, rect_alpha);
+
+                    using (var path = rect_alpha.RoundPath(rect_alpha.Height))
+                    {
+                        path.AddRectangle(new Rectangle(rect_alpha.X - 1, rect_alpha.Y - 1, rect_alpha.Width + 2, rect_alpha.Height + 2));
                         g.Fill(brush_bg, path);
-                        if (ArrowAlign != TAlign.None)
-                        {
-                            if (rect_arrow == null) g.FillPolygon(brush_bg, ArrowAlign.AlignLines(ArrowSize, rect, rect_read));
-                            else g.FillPolygon(brush_bg, rect_arrow);
-                        }
                     }
-                    #region 渲染
+                }
 
-                    if (AllowClear)
-                    {
-                        using (var path = rect_btn.RoundPath(Radius2))
-                        {
-                            g.SetClip(path);
-                            using (var pen = new Pen(Color.FromArgb(245, 34, 45), rect_btn.Height * .12F))
-                            {
-                                g.DrawLine(pen, new Point(rect_btn.X, rect_btn.Bottom), new Point(rect_btn.Right, rect_btn.Y));
-                            }
-                            g.ResetClip();
-                            g.Draw(hover_btn ? Colour.BorderColor.Get(nameof(ColorPicker), ColorScheme) : Colour.Split.Get(nameof(ColorPicker), ColorScheme), Config.Dpi, path);
-                        }
-                    }
+                #endregion
 
-                    if (ShowClose)
-                    {
-                        using (var path = rect_close.RoundPath(Radius2))
-                        {
-                            g.Draw(hover_close ? Colour.BorderColor.Get(nameof(ColorPicker), ColorScheme) : Colour.Split.Get(nameof(ColorPicker), ColorScheme), Config.Dpi, path);
-                        }
-                        g.PaintIconClose(rect_close, Colour.TextTertiary.Get(nameof(ColorPicker), ColorScheme), .8F);
-                    }
+                #region 渲染指标
 
-                    if (ShowReset)
-                    {
-                        using (var path = rect_reset.RoundPath(Radius2))
-                        {
-                            g.Draw(hover_reset ? Colour.BorderColor.Get(nameof(ColorPicker), ColorScheme) : Colour.Split.Get(nameof(ColorPicker), ColorScheme), Config.Dpi, path);
-                        }
-                        g.PaintIconReset(rect_reset, ValueDefault, .8F);
-                    }
-
+                using (var brush_val = new SolidBrush(Value))
+                using (var brush_hue = new SolidBrush(ValueHue))
+                using (var pen = new Pen(Colour.BgBase.Get(ColorScheme, name, cname), dot_bor_size))
+                {
                     #region 调色板
 
-                    using (var bmp = new Bitmap(rect_colors.Width, rect_colors.Height))
-                    {
-                        using (var g2 = Graphics.FromImage(bmp).High())
-                        {
-                            PaintColors(g2, new Rectangle(0, 0, bmp.Width, bmp.Height));
-                        }
-                        colors_mouse ??= GetColorsPoint(bmp);
-                        g.Image(bmp, rect_colors);
-                    }
-                    using (var path = rect_colors.RoundPath(Radius))
-                    {
-                        path.AddRectangle(new Rectangle(rect_colors.X - 1, rect_colors.Y - 1, rect_colors.Width + 2, rect_colors.Height + 2));
-                        g.Fill(brush_bg, path);
-                    }
+                    var _rect_colors = new Rectangle(rect_colors.X + point_colors.X - dot_size / 2, rect_colors.Y + point_colors.Y - dot_size / 2, dot_size, dot_size);
+                    g.FillEllipse(brush_val, _rect_colors);
+                    g.DrawEllipse(pen, _rect_colors);
 
                     #endregion
 
                     #region 色相
 
-                    if (bmp_hue == null)
+                    if (bmp_dot_12 != null)
                     {
-                        bmp_hue = new Bitmap(rect_hue.Width, rect_hue.Height);
-                        using (var g2 = Graphics.FromImage(bmp_hue).High())
-                        {
-                            PaintHue(g2, new Rectangle(0, 0, bmp_hue.Width, bmp_hue.Height));
-                        }
-                        GetHuePoint(bmp_hue);
-                    }
-                    g.Image(bmp_hue, rect_hue);
-                    using (var path = rect_hue.RoundPath(rect_hue.Height))
-                    {
-                        path.AddRectangle(new Rectangle(rect_hue.X - 1, rect_hue.Y - 1, rect_hue.Width + 2, rect_hue.Height + 2));
-                        g.Fill(brush_bg, path);
+                        var _rect_hue = new Rectangle(rect_hue.X + point_hue - gap / 2, rect_hue.Y + rect_hue.Height / 2 - gap / 2, gap, gap);
+
+                        g.Image(bmp_dot_12, new Rectangle(rect_hue.X + point_hue - bmp_dot_12.Height / 2, rect_hue.Y + (rect_hue.Height - bmp_dot_12.Height) / 2, bmp_dot_12.Width, bmp_dot_12.Height));
+                        g.FillEllipse(brush_hue, _rect_hue);
+                        g.DrawEllipse(pen, _rect_hue);
                     }
 
                     #endregion
 
                     #region 透明度
 
-                    if (rect_alpha.Width > 0)
+                    if (rect_alpha.Width > 0 && bmp_dot_12 != null)
                     {
-                        if (bmp_alpha_read == null)
-                        {
-                            bmp_alpha_read = new Bitmap(rect_alpha.Width, rect_alpha.Height);
-                            using (var g2 = Graphics.FromImage(bmp_alpha_read).High())
-                            {
-                                PaintAlpha(g2, new Rectangle(0, 0, bmp_alpha_read.Width, bmp_alpha_read.Height), false);
-                            }
-                            GetAlphaPoint(bmp_alpha_read);
-                        }
+                        brush_val.Color = color_alpha;
+                        var _rect_alpha = new Rectangle(rect_alpha.X + point_alpha - gap / 2, rect_alpha.Y + rect_alpha.Height / 2 - gap / 2, gap, gap);
 
-                        if (bmp_alpha == null)
-                        {
-                            bmp_alpha = new Bitmap(rect_alpha.Width, rect_alpha.Height);
-                            using (var g2 = Graphics.FromImage(bmp_alpha).High())
-                            {
-                                PaintAlpha(g2, new Rectangle(0, 0, bmp_alpha.Width, bmp_alpha.Height), true);
-                            }
-                        }
-                        g.Image(bmp_alpha, rect_alpha);
-
-                        using (var path = rect_alpha.RoundPath(rect_alpha.Height))
-                        {
-                            path.AddRectangle(new Rectangle(rect_alpha.X - 1, rect_alpha.Y - 1, rect_alpha.Width + 2, rect_alpha.Height + 2));
-                            g.Fill(brush_bg, path);
-                        }
+                        g.Image(bmp_dot_12, new Rectangle(rect_alpha.X + point_alpha - bmp_dot_12.Height / 2, rect_alpha.Y + (rect_alpha.Height - bmp_dot_12.Height) / 2, bmp_dot_12.Width, bmp_dot_12.Height));
+                        g.FillEllipse(brush_val, _rect_alpha);
+                        g.DrawEllipse(pen, _rect_alpha);
                     }
 
                     #endregion
 
-                    #region 渲染指标
-
-                    using (var brush_val = new SolidBrush(Value))
-                    using (var brush_hue = new SolidBrush(ValueHue))
-                    using (var pen = new Pen(Colour.BgBase.Get(nameof(ColorPicker), ColorScheme), dot_bor_size))
+                    using (var path = rect_color.RoundPath(Radius))
                     {
-                        #region 调色板
-
-                        var _rect_colors = new Rectangle(rect_colors.X + point_colors.X - dot_size / 2, rect_colors.Y + point_colors.Y - dot_size / 2, dot_size, dot_size);
-                        g.FillEllipse(brush_val, _rect_colors);
-                        g.DrawEllipse(pen, _rect_colors);
-
-                        #endregion
-
-                        #region 色相
-
-                        if (bmp_dot_12 != null)
-                        {
-                            var _rect_hue = new Rectangle(rect_hue.X + point_hue - gap / 2, rect_hue.Y + rect_hue.Height / 2 - gap / 2, gap, gap);
-
-                            g.Image(bmp_dot_12, new Rectangle(rect_hue.X + point_hue - bmp_dot_12.Height / 2, rect_hue.Y + (rect_hue.Height - bmp_dot_12.Height) / 2, bmp_dot_12.Width, bmp_dot_12.Height));
-                            g.FillEllipse(brush_hue, _rect_hue);
-                            g.DrawEllipse(pen, _rect_hue);
-                        }
-
-                        #endregion
-
-                        #region 透明度
-
-                        if (rect_alpha.Width > 0 && bmp_dot_12 != null)
-                        {
-                            brush_val.Color = color_alpha;
-                            var _rect_alpha = new Rectangle(rect_alpha.X + point_alpha - gap / 2, rect_alpha.Y + rect_alpha.Height / 2 - gap / 2, gap, gap);
-
-                            g.Image(bmp_dot_12, new Rectangle(rect_alpha.X + point_alpha - bmp_dot_12.Height / 2, rect_alpha.Y + (rect_alpha.Height - bmp_dot_12.Height) / 2, bmp_dot_12.Width, bmp_dot_12.Height));
-                            g.FillEllipse(brush_val, _rect_alpha);
-                            g.DrawEllipse(pen, _rect_alpha);
-                        }
-
-                        #endregion
-
-                        using (var path = rect_color.RoundPath(Radius))
-                        {
-                            g.Fill(brush_val, path);
-                        }
+                        g.Fill(brush_val, path);
                     }
-
-                    #endregion
-
-                    #endregion
                 }
-                foreach (var input in inputs) input.input.IPaint(g, input.rect, input.rect_read);
+
+                #endregion
+
+                #region 色卡集
+
+                if (preset_color != null)
+                {
+                    using (var pen = new Pen(Colour.TextQuaternary.Get(ColorScheme, name, cname), Dpi))
+                    {
+                        foreach (var it in preset_color)
+                        {
+                            using (var path = it.rect.RoundPath(Radius2))
+                            {
+                                g.Fill(it.color, path);
+                                g.Draw(pen, path);
+                                if (it.hover)
+                                {
+                                    int size = dot_bor_size * 2, size2 = size * 2;
+                                    var rect_color = new Rectangle(it.rect.X - size, it.rect.Y - size, it.rect.Width + size2, it.rect.Height + size2);
+                                    using (var path_hove = rect_color.RoundPath(Radius2 + size))
+                                    {
+                                        g.Draw(pen, path_hove);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                #endregion
+
+                #endregion
             }
-            return rbmp;
+            foreach (var input in inputs) input.input.IPaint(g, input.rect, input.rect_read);
+        }
+
+        public override void PrintBg(Canvas g, Rectangle rect, GraphicsPath path)
+        {
+            using (var brush = new SolidBrush(Colour.BgElevated.Get(ColorScheme, name, cname)))
+            {
+                g.Fill(brush, path);
+                if (shadow == 0)
+                {
+                    int bor = (int)(Dpi), bor2 = bor * 2;
+                    using (var path2 = new Rectangle(rect.X + bor, rect.Y + bor, rect.Width - bor2, rect.Height - bor2).RoundPath(Radius))
+                    {
+                        g.Draw(Colour.BorderColor.Get(ColorScheme, name, cname), bor, path2);
+                    }
+                    return;
+                }
+                if (ArrowLine != null) g.FillPolygon(brush, ArrowLine);
+            }
         }
 
         class InputRect
@@ -763,8 +872,9 @@ namespace AntdUI
             public InputRect(Input _input, Rectangle _rect_read, int wsize, int wsize2)
             {
                 input = _input;
-                _input.RECTDIV = rect = new Rectangle(_rect_read.X - wsize, _rect_read.Y - wsize, _rect_read.Width + wsize2, _rect_read.Height + wsize2);
+                rect = new Rectangle(_rect_read.X - wsize, _rect_read.Y - wsize, _rect_read.Width + wsize2, _rect_read.Height + wsize2);
                 rect_read = _rect_read;
+                _input.RECTDIV = _rect_read;
             }
             public Input input { get; set; }
             public Rectangle rect { get; set; }
@@ -920,7 +1030,7 @@ namespace AntdUI
         {
             if (add)
             {
-                using (var brush = new SolidBrush(Colour.FillSecondary.Get(nameof(ColorPicker), ColorScheme)))
+                using (var brush = new SolidBrush(Colour.FillSecondary.Get(ColorScheme, name, cname)))
                 {
                     int he = rect.Height / 2;
                     int u_x = 0;
@@ -964,32 +1074,8 @@ namespace AntdUI
 
         #endregion
 
-        SafeBitmap? shadow_temp;
-        /// <summary>
-        /// 绘制阴影
-        /// </summary>
-        /// <param name="g">GDI</param>
-        /// <param name="rect">客户区域</param>
-        void DrawShadow(Canvas g, Rectangle rect)
-        {
-            if (Config.ShadowEnabled)
-            {
-                if (shadow_temp == null)
-                {
-                    shadow_temp?.Dispose();
-                    using (var path = new Rectangle(10, 10, rect.Width - 20, rect.Height - 20).RoundPath(Radius))
-                    {
-                        shadow_temp = path.PaintShadow(rect.Width, rect.Height);
-                    }
-                }
-                g.Image(shadow_temp.Bitmap, rect, .2F);
-            }
-        }
-
         protected override void Dispose(bool disposing)
         {
-            shadow_temp?.Dispose();
-            shadow_temp = null;
             bmp_hue?.Dispose();
             bmp_hue = null;
             bmp_alpha?.Dispose();
@@ -998,6 +1084,7 @@ namespace AntdUI
             bmp_alpha_read = null;
             bmp_dot_12?.Dispose();
             bmp_dot_12 = null;
+            if (Dfont) Font.Dispose();
             base.Dispose(disposing);
         }
 

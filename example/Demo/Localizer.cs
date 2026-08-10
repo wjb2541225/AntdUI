@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 namespace Demo
 {
@@ -39,25 +26,53 @@ namespace Demo
                 case "NoData":
                     return "No data";
 
+                case "Undo":
+                    return "Undo";
+                case "Redo":
+                    return "Redo";
+                case "Cut":
+                    return "Cut";
+                case "Copy":
+                    return "Copy";
+                case "Paste":
+                    return "Paste";
+                case "Delete":
+                    return "Delete";
+                case "SelectAll":
+                    return "SelectAll";
+
+                case "YearFormat":
+                    return "yyyy";
+                case "MonthFormat":
+                    return "MMM";
+                case "Mon":
+                    return "Mon";
+                case "Tue":
+                    return "Tue";
+                case "Wed":
+                    return "Wed";
+                case "Thu":
+                    return "Thu";
+                case "Fri":
+                    return "Fri";
+                case "Sat":
+                    return "Sat";
+                case "Sun":
+                    return "Sun";
+
                 case "ItemsPerPage":
                     return "Per/Page";
 
+                case "Filter":
+                    return "Filter";
                 case "Filter.Clean":
                     return "Clean";
-                case "Filter.ByView":
-                    return "ByView";
-                case "Filter.Auto":
-                    return "Auto";
-                case "Filter.DataSource":
-                    return "Source";
                 case "Filter.SelectAll":
                     return "(Select All)";
                 case "Filter.Blank":
                     return "(Blank)";
                 case "Filter.Search":
                     return "Search";
-                case "Filter.Width":
-                    return "200";
 
                 case "Filter.Equal":
                     return "Equal";
@@ -72,6 +87,18 @@ namespace Demo
                 case "Filter.NotContain":
                     return "NotContain";
                 case "Filter.None":
+                    return "None";
+                case "Table.Summary.SUM":
+                    return "SUM";
+                case "Table.Summary.AVG":
+                    return "AVG";
+                case "Table.Summary.MIN":
+                    return "MIN";
+                case "Table.Summary.MAX":
+                    return "MAX";
+                case "Table.Summary.COUNT":
+                    return "COUNT";
+                case "Table.Summary.NONE":
                     return "None";
 
                 #region DEMO
@@ -121,7 +148,7 @@ namespace Demo
                     return "Click:";
 
                 //Alert ----------------------------
-                case "Alert.Text":
+                case "Alert":
                     return "Alert";
                 case "Alert.Description":
                     return "Display warning messages that require attention.";
@@ -135,7 +162,7 @@ namespace Demo
                     return "Nike Just Do It";
 
                 //Avatar ----------------------------
-                case "Avatar.Text":
+                case "Avatar":
                     return "Avatar";
                 case "Avatar.Description":
                     return "Used to represent users or things, supporting the display of images, icons, or characters.";
@@ -143,7 +170,7 @@ namespace Demo
                     return "N";
 
                 //Badge ----------------------------
-                case "Badge.Text":
+                case "Badge":
                     return "Badge";
                 case "Badge.Description":
                     return "Small numerical value or status descriptor for UI elements.";
@@ -155,32 +182,55 @@ namespace Demo
                     return "GAMES";
 
                 //Breadcrumb ----------------------------
-                case "Breadcrumb.Text":
+                case "Breadcrumb":
                     return "Breadcrumb";
                 case "Breadcrumb.Description":
                     return "Display the current location within a hierarchy. And allow going back to states higher up in the hierarchy.";
 
                 //Button ----------------------------
-                case "Button.Text":
+                case "Button":
                     return "Button";
                 case "Button.Description":
                     return "To trigger an operation.";
                 case "Button.Search":
                     return "Search";
-                case "Button.divider1":
+                case "Button.dType":
                     return "Color & Type";
-                case "Button.divider2":
+                case "Button.dIcon":
                     return "Icon";
-                case "Button.divider3":
-                    return "Link";
-                case "Button.divider4":
-                    return "IconPosition";
-                case "Button.divider5":
-                    return "Multiple Buttons";
-                case "Button.divider6":
+                case "Button.dShape":
                     return "Shape";
+                case "Button.dLink":
+                    return "Link";
+                case "Button.dIconPosition":
+                    return "IconPosition";
+                case "Button.dCombo":
+                    return "Combo Button";
+                case "Button.dGradient":
+                    return "Gradient Button";
+                case "Button.dToggle":
+                    return "Toggle Button";
+                case "Button.dAnimate":
+                    return "Animate Button";
+
+                case "ButtonTipAgain":
+                    return "Click again for a surprise. 😁";
+                case "ButtonTipLoading":
+                    return "Here's the loading effect for you. 🌸";
+                case "ButtonTipEnabled":
+                    return "I've just disabled it now.";
+                case "ButtonTipWave":
+                    return "Progress loading effect with water waves 🌊";
+                case "ButtonTipWaveZero":
+                    return "Remove loading circle 💀";
+                case "ButtonTipNB":
+                    return "Let's try some unconventional moves. 👽";
+                case "ButtonThank":
+                    return "☺️ Thank you for your patronage! ";
 
                 //FloatButton ----------------------------
+                case "FloatButton":
+                    return "FloatButton";
                 case "FloatButton.1":
                     return "Search for";
                 case "FloatButton.2":
@@ -193,13 +243,13 @@ namespace Demo
                     return "Expand";
 
                 //Carousel ----------------------------
-                case "Carousel.Text":
+                case "Carousel":
                     return "Carousel";
                 case "Carousel.Description":
                     return "A set of carousel areas.";
 
                 //Checkbox ----------------------------
-                case "Checkbox.Text":
+                case "Checkbox":
                     return "Checkbox";
                 case "Checkbox.Description":
                     return "Collect user's choices.";
@@ -211,7 +261,7 @@ namespace Demo
                     return "Linkage";
 
                 //Collapse ----------------------------
-                case "Collapse.Text":
+                case "Collapse":
                     return "Collapse";
                 case "Collapse.Description":
                     return "A content area which can be collapsed and expanded.";
@@ -221,13 +271,13 @@ namespace Demo
                     return "Borderless";
 
                 //ColorPicker ----------------------------
-                case "ColorPicker.Text":
+                case "ColorPicker":
                     return "ColorPicker";
                 case "ColorPicker.Description":
                     return "Used for color selection.";
 
                 //DatePicker ----------------------------
-                case "DatePicker.Text":
+                case "DatePicker":
                     return "DatePicker";
                 case "DatePicker.Description":
                     return "To select or input a date.";
@@ -245,13 +295,13 @@ namespace Demo
                     return "End date";
 
                 //Divider ----------------------------
-                case "Divider.Text":
+                case "Divider":
                     return "Divider";
                 case "Divider.Description":
                     return "A divider line separates different content.";
 
                 //GridPanel ----------------------------
-                case "GridPanel.Text":
+                case "GridPanel":
                     return "GridPanel";
                 case "GridPanel.Description":
                     return "Grid layout container with precise division of areas.";
@@ -261,13 +311,13 @@ namespace Demo
                     return "-The column width attribute is before, and the row height attribute is after; grouping. Each row represents the number of row height attributes corresponding to the number of rows, with spaces separating each number";
 
                 //Splitter ----------------------------
-                case "Splitter.Text":
+                case "Splitter":
                     return "Splitter";
                 case "Splitter.Description":
                     return "Split panels to isolate";
 
                 //Drawer ----------------------------
-                case "Drawer.Text":
+                case "Drawer":
                     return "Drawer";
                 case "Drawer.Description":
                     return "A panel that slides out from the edge of the screen.";
@@ -275,7 +325,7 @@ namespace Demo
                     return "Basic";
 
                 //Dropdown ----------------------------
-                case "Dropdown.Text":
+                case "Dropdown":
                     return "Dropdown";
                 case "Dropdown.Description":
                     return "A dropdown list.";
@@ -287,7 +337,7 @@ namespace Demo
                     return "Subs menu";
 
                 //Icon ----------------------------
-                case "Icon.Text":
+                case "Icon":
                     return "Icon";
                 case "Icon.Description":
                     return "Semantic vector graphics.";
@@ -303,7 +353,7 @@ namespace Demo
                 case "Icon.Application": return "Application Icons";
 
                 //Input ----------------------------
-                case "Input.Text":
+                case "Input":
                     return "Input";
                 case "Input.Description":
                     return "Through mouse or keyboard input content, it is the most basic form field wrapper.";
@@ -323,6 +373,8 @@ namespace Demo
                     return "Combination";
                 case "Input.Code":
                     return "Please enter verification code";
+                case "Input.Code2":
+                    return "Code: ";
                 case "Input.Tao":
                     return "Tao, I like it";
                 case "Input.input2":
@@ -342,7 +394,7 @@ namespace Demo
                     return "input search text";
 
                 //InputNumber ----------------------------
-                case "InputNumber.Text":
+                case "InputNumber":
                     return "InputNumber";
                 case "InputNumber.Description":
                     return "Enter a number within certain range with the mouse or keyboard.";
@@ -352,7 +404,7 @@ namespace Demo
                     return "Enter number";
 
                 //Menu ----------------------------
-                case "Menu.Text":
+                case "Menu":
                     return "Menu";
                 case "Menu.Description":
                     return "A versatile menu for navigation.";
@@ -372,7 +424,7 @@ namespace Demo
                     return "Indent";
 
                 //Message ----------------------------
-                case "Message.Text":
+                case "Message":
                     return "Message";
                 case "Message.Description":
                     return "Display global messages as feedback in response to user operations.";
@@ -384,7 +436,7 @@ namespace Demo
                     return "System Sound";
 
                 //Modal ----------------------------
-                case "Modal.Text":
+                case "Modal":
                     return "Modal";
                 case "Modal.Description":
                     return "Display a modal dialog box, providing a title, content area, and action buttons.";
@@ -392,7 +444,7 @@ namespace Demo
                     return "Basic";
 
                 //Notification ----------------------------
-                case "Notification.Text":
+                case "Notification":
                     return "Notification";
                 case "Notification.Description":
                     return "Prompt notification message globally.";
@@ -404,7 +456,7 @@ namespace Demo
                     return "System Sound";
 
                 //PageHeader ----------------------------
-                case "PageHeader.Text":
+                case "PageHeader":
                     return "PageHeader";
                 case "PageHeader.Description":
                     return "A header with common actions and design elements built in.";
@@ -416,19 +468,19 @@ namespace Demo
                     return "CloseButton";
 
                 //Pagination ----------------------------
-                case "Pagination.Text":
+                case "Pagination":
                     return "Pagination";
                 case "Pagination.Description":
                     return "A long list can be divided into several pages, and only one page will be loaded at a time.";
 
                 //Panel ----------------------------
-                case "Panel.Text":
+                case "Panel":
                     return "Panel";
                 case "Panel.Description":
                     return "A container for displaying information.";
 
                 //Popover ----------------------------
-                case "Popover.Text":
+                case "Popover":
                     return "Popover";
                 case "Popover.Description":
                     return "The floating card pops up when clicking/mouse hovering over an element.";
@@ -442,7 +494,9 @@ namespace Demo
                     return "Custom Control Content";
 
                 //Preview ----------------------------
-                case "Preview.Text":
+                case "Image":
+                    return "Image";
+                case "Preview":
                     return "Preview";
                 case "Preview.Description":
                     return "Picture preview box.";
@@ -458,7 +512,7 @@ namespace Demo
                     return "Multiple images and Text previews";
 
                 //Progress ----------------------------
-                case "Progress.Text":
+                case "Progress":
                     return "Progress";
                 case "Progress.Description":
                     return "Display the current progress of the operation.";
@@ -474,7 +528,7 @@ namespace Demo
                     return "Progress bar with steps";
 
                 //Radio ----------------------------
-                case "Radio.Text":
+                case "Radio":
                     return "Radio";
                 case "Radio.Description":
                     return "Used to select a single state from multiple options.";
@@ -486,7 +540,7 @@ namespace Demo
                     return "Linkage";
 
                 //Rate ----------------------------
-                case "Rate.Text":
+                case "Rate":
                     return "Rate";
                 case "Rate.Description":
                     return "Used for rating operation on something.";
@@ -496,19 +550,19 @@ namespace Demo
                     return "NB";
 
                 //Result ----------------------------
-                case "Result.Text":
+                case "Result":
                     return "Result";
                 case "Result.Description":
                     return "Used to feedback the processing results of a series of operations.";
 
                 //Segmented ----------------------------
-                case "Segmented.Text":
+                case "Segmented":
                     return "Segmented";
                 case "Segmented.Description":
                     return "Display multiple options and allow users to select a single option.";
 
                 //Select ----------------------------
-                case "Select.Text":
+                case "Select":
                     return "Select";
                 case "Select.Description":
                     return "A dropdown menu for displaying choices.";
@@ -527,9 +581,13 @@ namespace Demo
                     return "Enter search freely";
                 case "Select.select8":
                     return "(Select)";
+                case "Select.sub menu 1":
+                    return "Sub menu 1";
+                case "Select.sub menu 2":
+                    return "Sub menu 2";
 
                 //Slider ----------------------------
-                case "Slider.Text":
+                case "Slider":
                     return "Slider";
                 case "Slider.Description":
                     return "A Slider component for displaying current value and intervals in range.";
@@ -539,7 +597,7 @@ namespace Demo
                     return "Mark Dot";
 
                 //Steps ----------------------------
-                case "Steps.Text":
+                case "Steps":
                     return "Steps";
                 case "Steps.Description":
                     return "A navigation bar that guides users through the steps of a task.";
@@ -549,13 +607,13 @@ namespace Demo
                     return "Current Processing";
 
                 //Switch ----------------------------
-                case "Switch.Text":
+                case "Switch":
                     return "Switch";
                 case "Switch.Description":
                     return "Used to toggle between two states.";
 
                 //Table ----------------------------
-                case "Table.Text":
+                case "Table":
                     return "Table";
                 case "Table.Description":
                     return "A table displays rows of data.";
@@ -585,10 +643,14 @@ namespace Demo
                     return "EditStyle";
                 case "Table.selectFocusedStyle":
                     return "FocusedStyle";
+                case "Table.checkTree":
+                    return "Tree";
                 case "Table.checkScrollBarAvoidHeader":
                     return "ScrollBar AvoidHeader";
                 case "Table.checkboxFocusNavigation":
                     return "FocusNavigation";
+                case "Table.checkboxSummaryCustomize":
+                    return "CustomSummary";
                 case "Table.Column.name":
                     return "Name";
                 case "Table.Column.checkTitle":
@@ -601,6 +663,8 @@ namespace Demo
                     return "Enable";
                 case "Table.Column.age":
                     return "Age";
+                case "Table.Column.hobby":
+                    return "Hobby";
                 case "Table.Column.address":
                     return "Address";
                 case "Table.Column.date":
@@ -635,9 +699,19 @@ namespace Demo
                     return "Sydney No. 1 Lake Park";
                 case "Table.Data.AddressNum":
                     return "London, Park Lane no.";
+                case "Table.Data.Books":
+                    return "Books";
+                case "Table.Data.Travel":
+                    return "Travel";
+                case "Table.Data.Social":
+                    return "Social";
+                case "Table.Data.Sports":
+                    return "Sports";
+                case "Table.Data.FormatSummary":
+                    return "{0} {1} in total";
 
                 //Tabs ----------------------------
-                case "Tabs.Text":
+                case "Tabs":
                     return "Tabs";
                 case "Tabs.Description":
                     return "Tabs make it easy to explore and switch between different views.";
@@ -649,7 +723,7 @@ namespace Demo
                     return "Center position";
 
                 //Tag ----------------------------
-                case "Tag.Text":
+                case "Tag":
                     return "Tag";
                 case "Tag.Description":
                     return "Used for marking and categorization.";
@@ -663,13 +737,13 @@ namespace Demo
                     return "Custom Icon";
 
                 //Timeline ----------------------------
-                case "Timeline.Text":
+                case "Timeline":
                     return "Timeline";
                 case "Timeline.Description":
                     return "Vertical display timeline.";
 
                 //TimePicker ----------------------------
-                case "TimePicker.Text":
+                case "TimePicker":
                     return "TimePicker";
                 case "TimePicker.Description":
                     return "To select/input a time.";
@@ -677,7 +751,7 @@ namespace Demo
                     return "Basic";
 
                 //Tooltip ----------------------------
-                case "Tooltip.Text":
+                case "Tooltip":
                     return "Tooltip";
                 case "Tooltip.Description":
                     return "Simple text popup box.";
@@ -689,13 +763,13 @@ namespace Demo
                     return "Simplest usage";
 
                 //Tour ----------------------------
-                case "Tour.Text":
+                case "Tour":
                     return "Tour";
                 case "Tour.Description":
                     return "A popup component for guiding users through a product.";
 
                 //Tree ----------------------------
-                case "Tree.Text":
+                case "Tree":
                     return "Tree";
                 case "Tree.Description":
                     return "Multiple-level structure list.";
@@ -703,7 +777,7 @@ namespace Demo
                     return "Load animation, click pause";
 
                 //VirtualPanel ----------------------------
-                case "VirtualPanel.Text":
+                case "VirtualPanel":
                     return "VirtualPanel";
                 case "VirtualPanel.Description":
                     return "Layout container detached from Winform framework.";
@@ -711,7 +785,7 @@ namespace Demo
                     return "Waterfall";
 
                 //Calendar ----------------------------
-                case "Calendar.Text":
+                case "Calendar":
                     return "Calendar";
                 case "Calendar.Description":
                     return "A container that displays data in calendar form.";
@@ -719,13 +793,13 @@ namespace Demo
                     return "Basic";
 
                 //ContextMenuStrip ----------------------------
-                case "ContextMenuStrip.Text":
+                case "ContextMenuStrip":
                     return "ContextMenuStrip";
                 case "ContextMenuStrip.Description":
                     return "Right click on the current page at will";
 
                 //Battery ----------------------------
-                case "Battery.Text":
+                case "Battery":
                     return "Battery";
                 case "Battery.Description":
                     return "Display device battery level.";
@@ -741,7 +815,7 @@ namespace Demo
                     return "Point size";
 
                 //Signal ----------------------------
-                case "Signal.Text":
+                case "Signal":
                     return "Signal";
                 case "Signal.Description":
                     return "Display device signals.";
@@ -757,7 +831,7 @@ namespace Demo
                     return "Loading";
 
                 //Spin ----------------------------
-                case "Spin.Text":
+                case "Spin":
                     return "Spin";
                 case "Spin.Description":
                     return "Used for the loading status of a page or a block.";
@@ -777,7 +851,7 @@ namespace Demo
                     return "Error callback";
 
                 //Shield ----------------------------
-                case "Shield.Text":
+                case "Shield":
                     return "Shield";
                 case "Shield.Description":
                     return "Concise, consistent, and legible badges.";
@@ -785,7 +859,7 @@ namespace Demo
                     return "QQ Group";
 
                 //Watermark ----------------------------
-                case "Watermark.Text":
+                case "Watermark":
                     return "Watermark";
                 case "Watermark.Description":
                     return "Add specific text or patterns to the page.";
@@ -823,7 +897,7 @@ namespace Demo
                 case "Watermark.btnClear":
                     return "Clear watermark";
 
-                case "Transfer.Text":
+                case "Transfer":
                     return "Transfer";
                 case "Transfer.Description":
                     return "Double column transfer choice box.";
@@ -845,15 +919,17 @@ namespace Demo
                     return "Source: ";
                 case "Transfer.TargetT":
                     return "Target: ";
+                case "Transfer.search":
+                    return "Search here";
 
                 //Chart ----------------------------
-                case "Chart.Text":
+                case "Chart":
                     return "Chart";
                 case "Chart.Description":
                     return "Visual chart library.";
 
                 //HyperlinkLabel ----------------------------
-                case "HyperlinkLabel.Text":
+                case "HyperlinkLabel":
                     return "HyperlinkLabel";
                 case "HyperlinkLabel.Description":
                     return "Hyperlink text<a>";
@@ -878,6 +954,25 @@ namespace Demo
                     return "Loading in progress...";
                 case "PleaseWait":
                     return "Please be patient and wait";
+
+                case "smileys emotion":
+                    return "Smileys & Emotion";
+                case "people body":
+                    return "People & Body";
+                case "animals nature":
+                    return "Animals & Nature";
+                case "food drink":
+                    return "Food & Drink";
+                case "travel places":
+                    return "Travel & Places";
+                case "activities":
+                    return "Activities";
+                case "objects":
+                    return "Objects";
+                case "symbols":
+                    return "Symbols";
+                case "flags":
+                    return "Flags";
 
                 default:
                     System.Diagnostics.Debug.WriteLine(key);

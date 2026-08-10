@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -26,8 +13,8 @@ namespace Demo.Controls
 {
     public partial class TableAOT : UserControl
     {
-        Form form;
-        public TableAOT(Form _form)
+        AntdUI.BaseForm form;
+        public TableAOT(AntdUI.BaseForm _form)
         {
             form = _form;
             InitializeComponent();
@@ -36,7 +23,7 @@ namespace Demo.Controls
 
             table1.Columns = new AntdUI.ColumnCollection {
                 new AntdUI.ColumnCheck("check").SetFixed(),
-                new AntdUI.Column("name", "姓名").SetFixed().SetLocalizationTitleID("Table.Column."),
+                new AntdUI.Column("name", "姓名").SetFixed().SetTree("Sub").SetLocalizationTitleID("Table.Column."),
                 new AntdUI.ColumnCheck("checkTitle", "不全选标题").SetColAlign().SetLocalizationTitleID("Table.Column."),
                 new AntdUI.ColumnRadio("radio", "单选").SetLocalizationTitleID("Table.Column."),
                 new AntdUI.Column("online", "状态", AntdUI.ColumnAlign.Center).SetLocalizationTitleID("Table.Column."),
@@ -48,9 +35,10 @@ namespace Demo.Controls
                         return value;
                     }
                 },
-                new AntdUI.Column("age", "年龄").SetAlign().SetLocalizationTitleID("Table.Column."),
+                new AntdUI.ColumnSelect("hobby", "爱好").SetItems(Table.GetEHobbies()).SetAlign().SetLocalizationTitleID("Table.Column."),
+                new AntdUI.Column("age", "年龄").SetAlign().SetLocalizationTitleID("Table.Column.").SetSummaryItem(AntdUI.TSummaryType.AVG),
                 new AntdUI.Column("address", "住址").SetLocalizationTitleID("Table.Column."),
-                new AntdUI.Column("date", "日期").SetLocalizationTitleID("Table.Column."),
+                new AntdUI.Column("date", "日期").SetLocalizationTitleID("Table.Column.").SetDisplayFormat("yyyy-MM-dd").SetSummaryItem(AntdUI.TSummaryType.Custom,"20后 {0:0} 位"),
                 new AntdUI.Column("tag", "Tag"),
                 new AntdUI.Column("imgs", "图片").SetLocalizationTitleID("Table.Column."),
                 new AntdUI.Column("btns", "操作").SetFixed().SetWidth("auto").SetLocalizationTitleID("Table.Column."),
@@ -58,6 +46,9 @@ namespace Demo.Controls
 
             table1.DataSource = GetPageData(pagination1.Current, pagination1.PageSize);
             pagination1.PageSizeOptions = new int[] { 10, 20, 30, 50, 100 };
+
+            // 配置焦点跳转顺序 
+            table1.ConfigureFocusNavigation(["age", "address", "date"], selectAll: true, lineBreak: true);
 
             #endregion
 
@@ -176,6 +167,7 @@ namespace Demo.Controls
                         case "name":
                             it.Filter = new AntdUI.FilterOption();
                             break;
+                        case "hobby":
                         case "age":
                             it.SetDefaultFilter(typeof(int));
                             break;
@@ -233,7 +225,7 @@ namespace Demo.Controls
             else table1.EditInputStyle = AntdUI.TEditInputStyle.Default;
         }
 
-        private void selectFocusedStyle_SelectedValueChanged(object sender, AntdUI.ObjectNEventArgs e)
+        void selectFocusedStyle_SelectedValueChanged(object sender, AntdUI.ObjectNEventArgs e)
         {
             if (e.Value is string v)
             {
@@ -255,6 +247,11 @@ namespace Demo.Controls
             if (e.Column == null) return true;
             if (e.Column.Key == "tag" || e.Column.Key == "btns" || e.Column.Key == "imgs") return false;
             return true;
+        }
+
+        void checkboxFocusNavigation_CheckedChanged(object sender, AntdUI.BoolEventArgs e)
+        {
+            table1.EnableFocusNavigation = checkboxFocusNavigation.Checked;
         }
 
         #endregion
@@ -354,6 +351,11 @@ namespace Demo.Controls
             if (tmpRowIndex == e.RowIndex && tmpProg > 0) e.g.Fill(AntdUI.Style.rgba(AntdUI.Style.Db.SuccessBorder, tmpProg), new Rectangle(e.Rect.X, e.Rect.Y, (int)(e.Rect.Width * tmpProg), e.Rect.Height));
         }
 
+        void table1_FilterPopupEnd(object sender, AntdUI.TableFilterPopupEndEventArgs e)
+        {
+            AntdUI.Notification.info(form, "筛选结果", $"共筛选到 {(e.Records == null ? 0 : e.Records.Length)} 条结果。", AntdUI.TAlignFrom.Top);
+        }
+
         #endregion
 
         #region 分页与数据
@@ -390,6 +392,7 @@ namespace Demo.Controls
 
         AntdUI.AntItem[] GetItemOne(int index, int start, string name, int age, AntdUI.CellTag[] tag = null)
         {
+            var random = new Random();
             int id = (index + 1);
 
             AntdUI.CellBadge online = null;
@@ -405,7 +408,7 @@ namespace Demo.Controls
 
             var address = AntdUI.Localization.GetLangI("Table.Data.Address" + id, null);
             if (address == null) address = AntdUI.Localization.GetLangI("Table.Data.AddressNum", null);
-            if (address == null) address = (new Random().Next(DateTime.Now.Second) > 5 ? "东湖" : "西湖") + "区湖底公园" + id + "号";
+            if (address == null) address = (random.Next(DateTime.Now.Second) > 5 ? "东湖" : "西湖") + "区湖底公园" + id + "号";
             else address += id;
 
             if (start == 1)
@@ -462,6 +465,7 @@ namespace Demo.Controls
             }
             else btns = new AntdUI.CellLink[] { new AntdUI.CellLink("delete", "Delete") };
 
+            int hobby = random.Next(0, 3);
             return new AntdUI.AntItem[]{
                 new AntdUI.AntItem("no", id),
                 new AntdUI.AntItem("check", false),
@@ -470,9 +474,10 @@ namespace Demo.Controls
                 new AntdUI.AntItem("radio", false),
                 new AntdUI.AntItem("online", online),
                 new AntdUI.AntItem("enable", start % 2 == 0),
-                new AntdUI.AntItem("age", DateTime.Now.Date.AddYears(-age)),
+                new AntdUI.AntItem("age", age),
+                new AntdUI.AntItem("hobby", hobby),
                 new AntdUI.AntItem("address", address),
-                new AntdUI.AntItem("date",DateTime.Now.Date.AddYears(-new System.Random().Next(DateTime.Now.Second))),
+                new AntdUI.AntItem("date",DateTime.Now.Date.AddYears(-random.Next(DateTime.Now.Second))),
                 new AntdUI.AntItem("tag",tag),
                 new AntdUI.AntItem("imgs", imgs),
                 new AntdUI.AntItem("btns", btns),

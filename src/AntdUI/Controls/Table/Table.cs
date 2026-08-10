@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections;
@@ -43,7 +30,7 @@ namespace AntdUI
         /// <summary>
         /// 表格列的配置
         /// </summary>
-        [Browsable(false), Description("表格列的配置"), Category("数据"), DefaultValue(null)]
+        [Browsable(false), Description("表格列的配置"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ColumnCollection Columns
         {
@@ -70,22 +57,23 @@ namespace AntdUI
         /// <summary>
         /// 数据数组
         /// </summary>
-        [Browsable(false), Description("数据数组"), Category("数据"), DefaultValue(null)]
+        [Browsable(false), Description("数据数组"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? DataSource
         {
             get => dataSource;
             set
             {
                 enableDir.Clear();
+                EditModeClose();
                 CellRanges = null;
                 dataSource = value;
                 SortData = null;
-                focusedCell = null;
-                ScrollBar.Clear();
-                selects.Clear();
+                focusedxy = null;
                 hovers = -1;
+                selectedIndex = new int[0];
                 ExtractHeaderFixed();
                 ExtractData();
+                OnUpdateSummaries();
                 if (LoadLayout()) Invalidate();
                 OnPropertyChanged(nameof(DataSource));
             }
@@ -95,7 +83,7 @@ namespace AntdUI
         /// <summary>
         /// 总结栏
         /// </summary>
-        [Browsable(false), Description("总结栏"), Category("数据"), DefaultValue(null)]
+        [Browsable(false), Description("总结栏"), Category(nameof(CategoryAttribute.Data)), DefaultValue(null)]
         public object? Summary
         {
             get => summary;
@@ -108,27 +96,11 @@ namespace AntdUI
             }
         }
 
-        /// <summary>
-        /// 获取指定行的数据
-        /// </summary>
-        /// <param name="index">序号</param>
-        /// <returns>行</returns>
-        public IRow? this[int index]
-        {
-            get
-            {
-                if (dataTmp == null || dataTmp.rows.Length == 0) return null;
-                if (index < 0 || dataTmp.rows.Length - 1 < index) return null;
-                if (SortData == null) return dataTmp.rows[index];
-                return dataTmp.rows[SortData[index]];
-            }
-        }
-
         Color? fore;
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -146,7 +118,7 @@ namespace AntdUI
         /// <summary>
         /// 固定表头
         /// </summary>
-        [Description("固定表头"), Category("外观"), DefaultValue(true)]
+        [Description("固定表头"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool FixedHeader
         {
             get => fixedHeader;
@@ -164,7 +136,7 @@ namespace AntdUI
         /// <summary>
         /// 显示表头
         /// </summary>
-        [Description("显示表头"), Category("外观"), DefaultValue(true)]
+        [Description("显示表头"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool VisibleHeader
         {
             get => visibleHeader;
@@ -183,7 +155,7 @@ namespace AntdUI
         /// <summary>
         /// 手动调整列头宽度
         /// </summary>
-        [Description("手动调整列头宽度"), Category("行为"), DefaultValue(false)]
+        [Description("手动调整列头宽度"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool EnableHeaderResizing
         {
             get => enableHeaderResizing;
@@ -199,20 +171,26 @@ namespace AntdUI
         /// <summary>
         /// 列拖拽排序
         /// </summary>
-        [Description("列拖拽排序"), Category("行为"), DefaultValue(false)]
+        [Description("列拖拽排序"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ColumnDragSort { get; set; }
 
         /// <summary>
         /// 焦点离开清空选中
         /// </summary>
-        [Description("焦点离开清空选中"), Category("行为"), DefaultValue(false)]
+        [Description("焦点离开清空选中"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool LostFocusClearSelection { get; set; }
+
+        /// <summary>
+        /// 鼠标点击穿透
+        /// </summary>
+        [Description("鼠标点击穿透"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool MouseClickPenetration { get; set; } = true;
 
         bool bordered = false;
         /// <summary>
         /// 显示列边框
         /// </summary>
-        [Description("显示列边框"), Category("外观"), DefaultValue(false)]
+        [Description("显示列边框"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Bordered
         {
             get => bordered;
@@ -229,7 +207,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius
         {
             get => radius;
@@ -246,7 +224,7 @@ namespace AntdUI
         /// <summary>
         /// 滚动条从表头下方开始绘制（避免遮挡表头）
         /// </summary>
-        [Description("滚动条从表头下方开始绘制"), Category("外观"), DefaultValue(false)]
+        [Description("滚动条从表头下方开始绘制"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ScrollBarAvoidHeader
         {
             get => scrollBarAvoidHeader;
@@ -269,25 +247,25 @@ namespace AntdUI
         /// <summary>
         /// 行复制
         /// </summary>
-        [Description("行/列复制"), Category("行为"), DefaultValue(true)]
+        [Description("行/列复制"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool ClipboardCopy { get; set; } = true;
 
         /// <summary>
         /// 是否启用单元格复制
         /// </summary>
-        [Description("是否启用单元格复制"), Category("行为"), DefaultValue(false)]
+        [Description("是否启用单元格复制"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ClipboardCopyFocusedCell { get; set; }
 
         /// <summary>
         /// 列宽自动调整模式
         /// </summary>
-        [Description("列宽自动调整模式"), Category("行为"), DefaultValue(ColumnsMode.Auto)]
+        [Description("列宽自动调整模式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(ColumnsMode.Auto)]
         public ColumnsMode AutoSizeColumnsMode { get; set; } = ColumnsMode.Auto;
 
         /// <summary>
         /// 虚拟模式
         /// </summary>
-        [Description("虚拟模式"), Category("外观"), DefaultValue(false)]
+        [Description("虚拟模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool VirtualMode { get; set; }
 
         #region 间距
@@ -295,7 +273,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(null)]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? Gap
         {
             get
@@ -314,7 +292,7 @@ namespace AntdUI
         /// <summary>
         /// 间距
         /// </summary>
-        [Description("间距"), Category("外观"), DefaultValue(typeof(Size), "12, 12")]
+        [Description("间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "12, 12")]
         public Size Gaps
         {
             get => _gap;
@@ -330,7 +308,7 @@ namespace AntdUI
         /// <summary>
         /// 单元格内间距
         /// </summary>
-        [Description("单元格内间距"), Category("外观"), DefaultValue(6)]
+        [Description("单元格内间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int? GapCell { get; set; } = 6;
 
         [Description("单元格调整高度"), Category("边框"), DefaultValue(null)]
@@ -340,7 +318,7 @@ namespace AntdUI
         /// <summary>
         /// 树间距
         /// </summary>
-        [Description("树间距"), Category("外观"), DefaultValue(12)]
+        [Description("树间距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(12)]
         public int GapTree
         {
             get => _gapTree;
@@ -357,7 +335,7 @@ namespace AntdUI
         /// <summary>
         /// 行高
         /// </summary>
-        [Description("行高"), Category("外观"), DefaultValue(null)]
+        [Description("行高"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? RowHeight
         {
             get => rowHeight;
@@ -374,7 +352,7 @@ namespace AntdUI
         /// <summary>
         /// 表头行高
         /// </summary>
-        [Description("表头行高"), Category("外观"), DefaultValue(null)]
+        [Description("表头行高"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? RowHeightHeader
         {
             get => rowHeightHeader;
@@ -395,7 +373,7 @@ namespace AntdUI
         /// <summary>
         /// 复选框大小
         /// </summary>
-        [Description("复选框大小"), Category("外观"), DefaultValue(16)]
+        [Description("复选框大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(16)]
         public int CheckSize
         {
             get => _checksize;
@@ -412,7 +390,7 @@ namespace AntdUI
         /// <summary>
         /// 开关大小
         /// </summary>
-        [Description("开关大小"), Category("外观"), DefaultValue(16)]
+        [Description("开关大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(16)]
         public int SwitchSize
         {
             get => _switchsize;
@@ -428,25 +406,25 @@ namespace AntdUI
         /// <summary>
         /// 树开关按钮大小
         /// </summary>
-        [Description("树开关按钮大小"), Category("外观"), DefaultValue(16)]
+        [Description("树开关按钮大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(16)]
         public int TreeButtonSize { get; set; } = 16;
 
         /// <summary>
         /// 拖拽手柄大小
         /// </summary>
-        [Description("拖拽手柄大小"), Category("外观"), DefaultValue(24)]
+        [Description("拖拽手柄大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(24)]
         public int DragHandleSize { get; set; } = 24;
 
         /// <summary>
         /// 拖拽手柄图标大小
         /// </summary>
-        [Description("拖拽手柄图标大小"), Category("外观"), DefaultValue(14)]
+        [Description("拖拽手柄图标大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(14)]
         public int DragHandleIconSize { get; set; } = 14;
 
         /// <summary>
         /// 排序大小
         /// </summary>
-        [Description("排序大小"), Category("外观"), DefaultValue(null)]
+        [Description("排序大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? SortOrderSize { get; set; }
 
         #endregion
@@ -456,46 +434,62 @@ namespace AntdUI
         /// <summary>
         /// 焦点列样式
         /// </summary>
-        [Description("焦点列样式"), Category("外观"), DefaultValue(null)]
+        [Description("焦点列样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public TableCellFocusedStyle? CellFocusedStyle { get; set; }
 
         /// <summary>
         /// 焦点列背景色
         /// </summary>
-        [Description("焦点列背景色"), Category("外观"), DefaultValue(null)]
+        [Description("焦点列背景色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? CellFocusedBg { get; set; }
 
         /// <summary>
         /// 焦点列边框色
         /// </summary>
-        [Description("焦点列边框色"), Category("外观"), DefaultValue(null)]
+        [Description("焦点列边框色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? CellFocusedBorder { get; set; }
 
         /// <summary>
         /// 当前获得焦点的列
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Column? FocusedColumn => focusedCell?.COLUMN;
+        public Column? FocusedColumn => FocusedCell?.COLUMN;
 
         /// <summary>
         /// 当前获得焦点的行
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public object? FocusedRow => focusedCell?.ROW.RECORD;
+        public object? FocusedRow => FocusedCell?.ROW.RECORD;
 
-        CELL? focusedCell;
         /// <summary>
         /// 当前获得焦点的单元格
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CELL? FocusedCell
         {
-            get => focusedCell;
-            private set
+            get
             {
-                if (focusedCell == value) return;
-                focusedCell = value;
-                if (value != null) OnCellFocused(value.ROW.RECORD, value.ROW.INDEX, value.INDEX, value.COLUMN, value.RECT, new MouseEventArgs(MouseButtons.Left, 1, value.RECT.X, value.RECT.Y, 1));
+                if (focusedxy == null) return null;
+                var row = rows?[focusedxy[1]];
+                if (row == null) return null;
+                return row.cells[focusedxy[0]];
+            }
+        }
+
+        int[]? focusedxy;
+        public void SetFocusedCell(CELL? value)
+        {
+            if (value == null)
+            {
+                if (focusedxy == null) return;
+                focusedxy = null;
+                Invalidate();
+            }
+            else
+            {
+                if (focusedxy != null && (focusedxy[0] == value.INDEX && focusedxy[1] == value.ROW.INDEX)) return;
+                focusedxy = new int[] { value.INDEX, value.ROW.INDEX };
+                OnCellFocused(value.ROW.RECORD, value.ROW.Type, value.ROW.INDEX, value.INDEX, value.COLUMN, value.RECT);
                 Invalidate();
             }
         }
@@ -505,7 +499,7 @@ namespace AntdUI
         #region 为空
 
         bool empty = true;
-        [Description("是否显示空样式"), Category("外观"), DefaultValue(true)]
+        [Description("是否显示空样式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(true)]
         public bool Empty
         {
             get => empty;
@@ -519,7 +513,7 @@ namespace AntdUI
         }
 
         string? emptyText;
-        [Description("数据为空显示文字"), Category("外观"), DefaultValue(null)]
+        [Description("数据为空显示文字"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Localizable(true)]
         public string? EmptyText
         {
@@ -533,14 +527,14 @@ namespace AntdUI
             }
         }
 
-        [Description("数据为空显示图片"), Category("外观"), DefaultValue(null)]
+        [Description("数据为空显示图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? EmptyImage { get; set; }
 
         bool emptyHeader = false;
         /// <summary>
         /// 空是否显示表头
         /// </summary>
-        [Description("空是否显示表头"), Category("外观"), DefaultValue(false)]
+        [Description("空是否显示表头"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool EmptyHeader
         {
             get => emptyHeader;
@@ -561,7 +555,7 @@ namespace AntdUI
         /// <summary>
         /// 表格行悬浮背景色
         /// </summary>
-        [Description("表格行悬浮背景色"), Category("外观"), DefaultValue(null)]
+        [Description("表格行悬浮背景色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? RowHoverBg
         {
@@ -578,7 +572,7 @@ namespace AntdUI
         /// <summary>
         /// 表格行选中背景色
         /// </summary>
-        [Description("表格行选中背景色"), Category("外观"), DefaultValue(null)]
+        [Description("表格行选中背景色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? RowSelectedBg
         {
@@ -596,7 +590,7 @@ namespace AntdUI
         /// <summary>
         /// 表格行选中字色
         /// </summary>
-        [Description("表格行选中字色"), Category("外观"), DefaultValue(null)]
+        [Description("表格行选中字色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? RowSelectedFore
         {
@@ -630,7 +624,7 @@ namespace AntdUI
         /// <summary>
         /// 表格边框颜色
         /// </summary>
-        [Description("表格边框颜色"), Category("外观"), DefaultValue(null)]
+        [Description("表格边框颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BorderColor
         {
@@ -654,6 +648,7 @@ namespace AntdUI
         /// <summary>
         /// 高精度边框
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Obsolete("use BorderRenderMode")]
         [Description("高精度边框"), Category("边框"), DefaultValue(null)]
         public bool? BorderHigh
@@ -677,7 +672,7 @@ namespace AntdUI
         /// <summary>
         /// 表头字体
         /// </summary>
-        [Description("表头字体"), Category("外观"), DefaultValue(null)]
+        [Description("表头字体"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Font? ColumnFont
         {
             get => columnfont;
@@ -694,7 +689,7 @@ namespace AntdUI
         /// <summary>
         /// 表头背景色
         /// </summary>
-        [Description("表头背景色"), Category("外观"), DefaultValue(null)]
+        [Description("表头背景色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ColumnBack
         {
@@ -712,7 +707,7 @@ namespace AntdUI
         /// <summary>
         /// 表头文本色
         /// </summary>
-        [Description("表头文本色"), Category("外观"), DefaultValue(null)]
+        [Description("表头文本色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ColumnFore
         {
@@ -736,7 +731,7 @@ namespace AntdUI
         /// <summary>
         /// 选中行（1开始）
         /// </summary>
-        [Browsable(false), Description("选中行（1开始）"), Category("数据"), DefaultValue(-1)]
+        [Browsable(false), Description("选中行（1开始）"), Category(nameof(CategoryAttribute.Data)), DefaultValue(-1)]
         public int SelectedIndex
         {
             get
@@ -749,6 +744,7 @@ namespace AntdUI
                 if (SetIndex(value))
                 {
                     Invalidate();
+                    OnUpdateSummaries();
                     OnPropertyChanged(nameof(SelectedIndex));
                     OnSelectIndexChanged();
                 }
@@ -760,7 +756,7 @@ namespace AntdUI
         /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Editor("System.Windows.Forms.Design.ListControlStringCollectionEditor", typeof(UITypeEditor))]
-        [Browsable(false), Description("选中多行"), Category("数据")]
+        [Browsable(false), Description("选中多行"), Category(nameof(CategoryAttribute.Data))]
         public int[] SelectedIndexs
         {
             get => selectedIndex;
@@ -769,8 +765,9 @@ namespace AntdUI
                 if (selectedIndex == value) return;
                 selectedIndex = value;
                 Invalidate();
-                OnPropertyChanged(nameof(SelectedIndexs));
+                OnUpdateSummaries();
                 OnSelectIndexChanged();
+                OnPropertyChanged(nameof(SelectedIndexs));
             }
         }
 
@@ -790,7 +787,7 @@ namespace AntdUI
             {
                 if (string.Join("", selectedIndex) == value.ToString()) return false;
                 selectedIndex = new int[1] { value };
-                if (focusedCell != null && rows?.Length > value) FocusedCell = rows[value].cells[focusedCell.INDEX];
+                if (focusedxy != null && dataLen >= value) focusedxy[1] = value;
                 return true;
             }
         }
@@ -812,23 +809,8 @@ namespace AntdUI
         /// <summary>
         /// 多选行
         /// </summary>
-        [Description("多选行"), Category("行为"), DefaultValue(false)]
+        [Description("多选行"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool MultipleRows { get; set; }
-
-        /// <summary>
-        /// 返回当前树表格字段名
-        /// </summary>
-        public string? KeyTreeCurrent
-        {
-            get
-            {
-                foreach (Column col in Columns)
-                {
-                    if (col.KeyTree != null && !string.IsNullOrEmpty(col.KeyTree)) return col.KeyTree;
-                }
-                return null;
-            }
-        }
 
         /// <summary>
         /// 当前视图的数据行数
@@ -838,15 +820,35 @@ namespace AntdUI
             get
             {
                 if (dataTmp == null || dataTmp.rows.Length == 0) return 0;
-                int count = dataTmp.rows.Length;
-                var keyTree = KeyTreeCurrent;
-                if (keyTree == null) return count;
-                for (int i = 0; i < count; i++)
+                int count = 0;
+                foreach (var it in dataTmp.rows)
                 {
-                    var value_tree = dataTmp.rows[i][keyTree];
-                    if (value_tree is IList list) count += list.Count;
+                    if (it.add) count++;
                 }
                 return count;
+            }
+        }
+
+        bool summaryCustomize = false;
+        [Description("是否启用内置汇总定制功能（可右键菜单自定义切换)"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
+        public bool SummaryCustomize
+        {
+            get => summaryCustomize;
+            set
+            {
+                if (summaryCustomize == value) return;
+                summaryCustomize = value;
+                if (value)
+                {
+                    var cols = SummaryColumns;
+                    if (cols == null || cols.Length == 0)
+                    {
+                        if (columns != null && columns.Count > 0) columns[0].SetSummaryItem(string.Empty);//设置为空文本
+                    }
+                    OnUpdateSummaries();
+                }
+                else Summary = null;
+                SummaryCustomizeChanged?.Invoke(this, new BoolEventArgs(value));
             }
         }
 
@@ -855,26 +857,50 @@ namespace AntdUI
         /// <summary>
         /// 默认是否展开
         /// </summary>
-        [Description("默认是否展开"), Category("外观"), DefaultValue(false)]
+        [Description("默认是否展开"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool DefaultExpand { get; set; }
 
         /// <summary>
         /// 处理快捷键
         /// </summary>
-        [Description("处理快捷键"), Category("行为"), DefaultValue(true)]
+        [Description("处理快捷键"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool HandShortcutKeys { get; set; } = true;
+
+        /// <summary>
+        /// 显示复选背景
+        /// </summary>
+        [Description("显示复选背景"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool ShowCheckBg { get; set; } = true;
 
         /// <summary>
         /// 省略文字提示
         /// </summary>
-        [Description("省略文字提示"), Category("行为"), DefaultValue(true)]
+        [Description("省略文字提示"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool ShowTip { get; set; } = true;
+
+        /// <summary>
+        /// 筛选实时生效
+        /// </summary>
+        [Description("筛选实时生效"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
+        public bool FilterRealTime { get; set; }
+
+        /// <summary>
+        /// 筛选显示复选背景
+        /// </summary>
+        [Description("筛选显示复选背景"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
+        public bool? FilterShowCheckBg { get; set; }
+
+        /// <summary>
+        /// 筛选启用排序
+        /// </summary>
+        [Description("筛选启用排序"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
+        public bool? FilterSortOrder { get; set; }
 
         /// <summary>
         /// 超出文字提示配置
         /// </summary>
         [Browsable(false)]
-        [Description("超出文字提示配置"), Category("行为"), DefaultValue(null)]
+        [Description("超出文字提示配置"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(null)]
         public TooltipConfig? TooltipConfig { get; set; }
 
         /// <summary>
@@ -889,7 +915,7 @@ namespace AntdUI
         /// <summary>
         /// 编辑模式
         /// </summary>
-        [Description("编辑模式"), Category("行为"), DefaultValue(TEditMode.None)]
+        [Description("编辑模式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TEditMode.None)]
         public TEditMode EditMode
         {
             get => editmode;
@@ -905,37 +931,43 @@ namespace AntdUI
         /// <summary>
         /// 编辑模式下的默认文本选择动作
         /// </summary>
-        [Description("编辑模式下的默认文本选择动作"), Category("行为"), DefaultValue(TEditSelection.None)]
+        [Description("编辑模式下的默认文本选择动作"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TEditSelection.None)]
         public TEditSelection EditSelection { get; set; } = TEditSelection.None;
 
         /// <summary>
         /// 编辑模式输入框样式
         /// </summary>
-        [Description("编辑模式输入框样式"), Category("行为"), DefaultValue(TEditInputStyle.Default)]
+        [Description("编辑模式输入框样式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TEditInputStyle.Default)]
         public TEditInputStyle EditInputStyle { get; set; } = TEditInputStyle.Default;
 
         /// <summary>
         /// 编辑模式自动高度
         /// </summary>
-        [Description("编辑模式自动高度"), Category("行为"), DefaultValue(false)]
+        [Description("编辑模式自动高度"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool EditAutoHeight { get; set; }
+
+        /// <summary>
+        /// 失去焦点退出编辑模式
+        /// </summary>
+        [Description("失去焦点退出编辑模式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
+        public bool EditLostFocus { get; set; } = true;
+
+        #endregion
 
         /// <summary>
         /// 树表格的箭头样式
         /// </summary>
-        [Description("树表格的箭头样式"), Category("行为"), DefaultValue(TableTreeStyle.Button)]
+        [Description("树表格的箭头样式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(TableTreeStyle.Button)]
         public TableTreeStyle TreeArrowStyle { get; set; } = TableTreeStyle.Button;
 
         /// <summary>
         /// 动画时长（ms）
         /// </summary>
-        [Description("动画时长（ms）"), Category("行为"), DefaultValue(100)]
+        [Description("动画时长（ms）"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(100)]
         public int AnimationTime { get; set; } = 100;
 
-        #endregion
-
         bool pauseLayout = false;
-        [Browsable(false), Description("暂停布局"), Category("行为"), DefaultValue(false)]
+        [Browsable(false), Description("暂停布局"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool PauseLayout
         {
             get => pauseLayout;
@@ -947,6 +979,8 @@ namespace AntdUI
                 OnPropertyChanged(nameof(PauseLayout));
             }
         }
+
+        bool IsPauseLayout => pauseLayout || pauseLayoutByCheckAll;
 
         #endregion
 
@@ -964,6 +998,63 @@ namespace AntdUI
         #endregion
 
         #region 方法
+
+        #region 数据
+
+        /// <summary>
+        /// 选中真实行
+        /// </summary>
+        public int[] SelectedIndexsReal()
+        {
+            if (SortData == null || selectedIndex.Length < 1) return selectedIndex;
+            if (selectedIndex.Length == 1 && selectedIndex[0] == 0) return selectedIndex;
+            var list = new List<int>(SortData.Length);
+            foreach (var it in selectedIndex) list.Add(SortData[it - 1] + 1);
+            return list.ToArray();
+        }
+
+        /// <summary>
+        /// 选中真实行数据
+        /// </summary>
+        public object[] SelectedsReal()
+        {
+            if (rows == null || SortData == null || selectedIndex.Length < 1) return new object[0];
+            if (selectedIndex.Length == 1 && selectedIndex[0] == 0) return new object[0];
+            var dir = rows.RealDir();
+            var list = new List<object>(SortData.Length);
+            foreach (var it in selectedIndex)
+            {
+                if (dir.TryGetValue((SortData[it - 1]), out var r)) list.Add(r);
+            }
+            return list.ToArray();
+        }
+
+        /// <summary>
+        /// 获取指定行的数据
+        /// </summary>
+        /// <param name="index">序号</param>
+        /// <returns>行</returns>
+        public IRow? this[int index] => GetRow(index);
+
+        /// <summary>
+        /// 获取指定行的数据
+        /// </summary>
+        /// <param name="index">序号</param>
+        /// <returns>行</returns>
+        public IRow? GetRow(int index)
+        {
+            if (dataTmp == null || dataTmp.rows.Length == 0) return null;
+            if (index < 0 || dataTmp.rows.Length - 1 < index) return null;
+            if (SortData == null || SortData.Length - 1 < index) return dataTmp.rows[index];
+            return dataTmp.rows[SortData[index]];
+        }
+
+        /// <summary>
+        /// 行总数
+        /// </summary>
+        public int RowCount => dataLen;
+
+        #endregion
 
         /// <summary>
         /// 刷新界面
@@ -991,13 +1082,84 @@ namespace AntdUI
             }
         }
 
-        List<int> enableDir = new List<int>();
+        #region 选中行
+
+        /// <summary>
+        /// 设置选中行
+        /// </summary>
+        /// <param name="record">行数据</param>
+        /// <param name="expand">是否展开关联父级</param>
+        public void SetSelected(object record, bool expand = false)
+        {
+            if (rows == null) return;
+            for (int i = 0; i < rows.Length; i++)
+            {
+                var row = rows.Record(record);
+                if (row == null) return;
+                SelectedIndex = row.INDEX;
+                if (expand && !row.SHOW)
+                {
+                    ExpandUp(rows, i);
+                    if (LoadLayout()) Invalidate();
+                }
+            }
+        }
+
+        void ExpandUp(RowList rows, int i)
+        {
+            var it = rows[i];
+            if (it == null) return;
+            var id = it.Depth - 1;
+            while (true)
+            {
+                if (i < 1) return;
+                i--;
+                it = rows[i];
+                if (it == null) return;
+                if (it.CanExpand)
+                {
+                    if (it.Depth == id)
+                    {
+                        if (it.RD != null)
+                        {
+                            it.RD.expand = true;
+                            it.RD.SetValue("__EXPAND__", true);
+                        }
+                        id = it.Depth - 1;
+                        if (id < 0) return;
+                    }
+                }
+            }
+        }
+
+
+        #endregion
+
+        #region 禁用行
+
+        List<object> enableDir = new List<object>();
         /// <summary>
         /// 获取行使能
         /// </summary>
         /// <param name="i">行</param>
         /// <returns>是否禁用</returns>
-        public bool GetRowEnable(int i) => enableDir.Contains(i);
+        public bool GetRowEnable(int i)
+        {
+            var row = rows?[i];
+            if (row == null) return true;
+            return GetRowEnable(row.RECORD);
+        }
+
+        /// <summary>
+        /// 获取行使能
+        /// </summary>
+        /// <param name="record">行对象</param>
+        /// <returns>是否禁用</returns>
+        public bool GetRowEnable(object record)
+        {
+            if (enableDir.Contains(record)) return false;
+            return true;
+        }
 
         /// <summary>
         /// 设置行使能
@@ -1005,28 +1167,46 @@ namespace AntdUI
         /// <param name="i">行</param>
         /// <param name="value">值</param>
         /// <param name="ui">是否刷新ui</param>
-        /// <returns>成功失败</returns>
         public void SetRowEnable(int i, bool value = true, bool ui = true)
+        {
+            var row = rows?[i];
+            if (row == null) return;
+            SetRowEnable(row.RECORD, value, ui);
+        }
+
+        /// <summary>
+        /// 设置行使能
+        /// </summary>
+        /// <param name="record">行对象</param>
+        /// <param name="value">值</param>
+        /// <param name="ui">是否刷新ui</param>
+        public void SetRowEnable(object record, bool value = true, bool ui = true)
         {
             if (value)
             {
-                if (enableDir.Contains(i)) enableDir.Remove(i);
+                if (enableDir.Contains(record)) enableDir.Remove(record);
                 else return;
             }
             else
             {
-                if (enableDir.Contains(i)) return;
-                else enableDir.Add(i);
+                if (enableDir.Contains(record)) return;
+                else enableDir.Add(record);
             }
-            if (rows == null) return;
             try
             {
-                var selectRow = rows[i + 1];
-                selectRow.ENABLE = value;
-                if (ui) Invalidate();
+                var row = rows?.Record(record);
+                if (row == null) return;
+                if (row.RECORD == record)
+                {
+                    row.ENABLE = value;
+                    if (ui) Invalidate();
+                    return;
+                }
             }
             catch { }
         }
+
+        #endregion
 
         #region 滚动
 
@@ -1050,78 +1230,66 @@ namespace AntdUI
         /// <returns>返回滚动量</returns>
         public int ScrollLine(object record, bool force = false)
         {
-            if (rows == null || !ScrollBar.ShowY) return 0;
-            foreach (var row in rows)
+            if (rows == null) return 0;
+            var row = rows.Record(record);
+            if (row == null)
             {
-                if (row.RECORD == record)
+                if (VirtualMode && _RowHeight.HasValue)
                 {
-                    int i = Array.IndexOf(rows, row);
-                    if (i < 0) return 0;
-                    return ScrollLine(i, rows, force);
+                    if (dataTmp == null) return 0;
+                    int i = dataTmp.FindRecord(record), len = dataTmp.rows.Length * _RowHeight.Value;
+                    var prog = (_RowHeight.Value * i) * 1F / len;
+                    int y = (int)Math.Round(len * prog);
+                    return ScrollLine(y, y + _RowHeight.Value, RealRegionRow(rows.List), force);
                 }
+                return 0;
             }
-            return 0;
+            return ScrollLine(row.INDEX, rows!, force);
         }
 
-        int ScrollLine(int i, RowTemplate[] rows, bool force = false)
+        /// <summary>
+        /// 内容滚动到最下面
+        /// </summary>
+        public void ScrollToEnd()
         {
-            if (!ScrollBar.ShowY) return 0;
-            int sy = ScrollBar.ValueY;
+            if (ScrollBar.ShowY) ScrollBar.Value = ScrollBar.Max;
+        }
+
+        int ScrollLine(int i, RowList rows, bool force = false)
+        {
             if (VirtualMode && _RowHeight.HasValue)
             {
                 if (dataTmp == null) return 0;
                 int len = dataTmp.rows.Length * _RowHeight.Value;
                 var prog = (_RowHeight.Value * i) * 1F / len;
                 int y = (int)Math.Round(len * prog);
-                if (force)
-                {
-                    if (fixedHeader) ScrollBar.ValueY = y - rows[0].RECT.Height;
-                    else ScrollBar.ValueY = y;
-                    return sy - ScrollBar.ValueY;
-                }
-                else
-                {
-                    int b = y + _RowHeight.Value;
-                    if (visibleHeader && fixedHeader)
-                    {
-                        if (y - rows[0].RECT.Height < sy || b > sy + rect_read.Height)
-                        {
-                            if (fixedHeader) ScrollBar.ValueY = y - rows[0].RECT.Height;
-                            else ScrollBar.ValueY = y;
-                            return sy - ScrollBar.ValueY;
-                        }
-                    }
-                    else if (y < sy || b > sy + rect_read.Height)
-                    {
-                        if (fixedHeader) ScrollBar.ValueY = y - rows[0].RECT.Height;
-                        else ScrollBar.ValueY = y;
-                        return sy - ScrollBar.ValueY;
-                    }
-                }
-                return 0;
+                return ScrollLine(y, y + _RowHeight.Value, RealRegionRow(rows.List), force);
             }
-            var selectRow = rows[i];
-            if (force)
+            var it = rows[i];
+            if (it == null) return 0;
+            return ScrollLine(it.RECT, RealRegionRow(rows.List), force);
+        }
+        Rectangle RealRegionRow(RowTemplate[] rows)
+        {
+            int x = rect_read.X, width = rect_read.Width, y = rect_read.Y, height = rect_read.Height;
+            if (fixedHeader && visibleHeader)
             {
-                if (fixedHeader) ScrollBar.ValueY = rows[i].RECT.Y - rows[0].RECT.Height;
-                else ScrollBar.ValueY = rows[i].RECT.Y;
-                return sy - ScrollBar.ValueY;
+                var rect = rows[0].RECT;
+                y = rect.Bottom;
+                height -= rect.Height;
             }
-            else
+            if (sFixedB != -1 && rect_fixed_B.HasValue) height -= rect_fixed_B.Value.Height;
+            return new Rectangle(x, y, width, height);
+        }
+        int ScrollLine(Rectangle rect_cel, Rectangle rect, bool force = false) => ScrollLine(rect_cel.Y, rect_cel.Bottom, rect, force);
+        int ScrollLine(int y, int b, Rectangle rect, bool force = false)
+        {
+            if (ScrollBar.ShowY)
             {
-                if (visibleHeader && fixedHeader)
+                int sy = ScrollBar.ValueY, visibleTop = sy + rect.Y, visibleBottom = visibleTop + rect.Height;
+                if (force || y < visibleTop || b > visibleBottom)
                 {
-                    if (selectRow.RECT.Y - rows[0].RECT.Height < sy || selectRow.RECT.Bottom > sy + rect_read.Height)
-                    {
-                        if (fixedHeader) ScrollBar.ValueY = rows[i].RECT.Y - rows[0].RECT.Height;
-                        else ScrollBar.ValueY = rows[i].RECT.Y;
-                        return sy - ScrollBar.ValueY;
-                    }
-                }
-                else if (selectRow.RECT.Y < sy || selectRow.RECT.Bottom > sy + rect_read.Height)
-                {
-                    if (fixedHeader) ScrollBar.ValueY = rows[i].RECT.Y - rows[0].RECT.Height;
-                    else ScrollBar.ValueY = rows[i].RECT.Y;
+                    ScrollBar.ValueY = y - rect.Y;
                     return sy - ScrollBar.ValueY;
                 }
             }
@@ -1136,23 +1304,10 @@ namespace AntdUI
         /// <returns>返回滚动量</returns>
         public int ScrollColumn(int i, bool force = false)
         {
-            if (rows == null || !ScrollBar.ShowX) return 0;
-            int sx = ScrollBar.ValueX;
-            var rect = rows[0].cells[i].RECT;
-            if (force)
-            {
-                ScrollBar.ValueX = rect.X;
-                return sx - ScrollBar.ValueX;
-            }
-            else
-            {
-                if (rect.X < sx || rect.Right > sx + rect_read.Width)
-                {
-                    ScrollBar.ValueX = rect.X;
-                    return sx - ScrollBar.ValueX;
-                }
-            }
-            return 0;
+            if (rows == null) return 0;
+            var cel = rows.First.cells[i];
+            var rect = cel.RECT;
+            return ScrollColumn(rect, RealRegionFixedColumn(cel.COLUMN.INDEX_REAL), force);
         }
 
         /// <summary>
@@ -1160,31 +1315,20 @@ namespace AntdUI
         /// </summary>
         /// <param name="column">表头 key</param>
         /// <param name="force">是否强制滚动</param>
+        /// <param name="selectCell">是否选中为焦点单元格</param>
         /// <returns>返回滚动量</returns>
-        public int ScrollColumn(string column, bool force = false)
+        public int ScrollColumn(string column, bool force = false, bool select = false)
         {
-            if (rows == null || !ScrollBar.ShowX) return 0;
-            int sx = ScrollBar.ValueX;
-            foreach (TCellColumn cellColumn in rows[0].cells)
+            if (select)
             {
-                if (cellColumn.COLUMN.Key == column)
-                {
-                    var rect = cellColumn.RECT;
-                    if (force)
-                    {
-                        ScrollBar.ValueX = rect.X;
-                        return sx - ScrollBar.ValueX;
-                    }
-                    else
-                    {
-                        if (rect.X < sx || rect.Right > sx + rect_read.Width)
-                        {
-                            ScrollBar.ValueX = rect.X;
-                            return sx - ScrollBar.ValueX;
-                        }
-                    }
-                    return 0;
-                }
+                var col = GetColumnByFieldKey(column);
+                if (col == null) return 0;
+                return ScrollColumn(col, force, select);
+            }
+            if (rows == null) return 0;
+            foreach (var cellColumn in rows.First.cells)
+            {
+                if (cellColumn.COLUMN.Key == column) return ScrollColumn(cellColumn.RECT, RealRegionFixedColumn(cellColumn.COLUMN.INDEX_REAL), force);
             }
             return 0;
         }
@@ -1194,30 +1338,62 @@ namespace AntdUI
         /// </summary>
         /// <param name="column">表头</param>
         /// <param name="force">是否强制滚动</param>
+        /// <param name="select">是否选中为焦点单元格</param>
         /// <returns>返回滚动量</returns>
-        public int ScrollColumn(Column column, bool force = false)
+        public int ScrollColumn(Column column, bool force = false, bool select = false)
         {
-            if (rows == null || !ScrollBar.ShowX) return 0;
-            int sx = ScrollBar.ValueX;
-            foreach (TCellColumn cellColumn in rows[0].cells)
+            if (select)
             {
-                if (cellColumn.COLUMN == column)
+                if (rows == null || rows.Length == 0) return 0;
+                int focusedY = focusedxy == null || focusedxy.Length < 2 ? 0 : focusedxy[1];
+                var row = rows[focusedY];
+                if (row == null) return 0;
+                foreach (var cellColumn in row.cells)
                 {
-                    var rect = cellColumn.RECT;
-                    if (force)
+                    if (cellColumn.COLUMN == column)
                     {
-                        ScrollBar.ValueX = rect.X;
-                        return sx - ScrollBar.ValueX;
+                        int x = ScrollColumn(cellColumn.RECT, RealRegionFixedColumn(column.INDEX_REAL), force);
+                        if (select) SetFocusedCell(cellColumn);
+                        return x;
                     }
-                    else
-                    {
-                        if (rect.X < sx || rect.Right > sx + rect_read.Width)
-                        {
-                            ScrollBar.ValueX = rect.X;
-                            return sx - ScrollBar.ValueX;
-                        }
-                    }
-                    return 0;
+                }
+                return 0;
+            }
+            if (rows == null) return 0;
+            foreach (var cellColumn in rows.First.cells)
+            {
+                if (cellColumn.COLUMN == column) return ScrollColumn(cellColumn.RECT, RealRegionFixedColumn(column.INDEX_REAL), force);
+            }
+            return 0;
+        }
+
+        Rectangle RealRegionFixedColumn(int col)
+        {
+            int x = rect_read.X, width = rect_read.Width, y = rect_read.Y, height = rect_read.Height;
+            if (showFixedColumnL && rect_fixed_L.HasValue)
+            {
+                if (!fixedColumnL!.Contains(col))
+                {
+                    x = rect_fixed_L.Value.Right;
+                    width -= rect_fixed_L.Value.Width;
+                }
+            }
+            if (showFixedColumnR && rect_fixed_R.HasValue)
+            {
+                if (!fixedColumnR!.Contains(col)) width -= rect_fixed_R.Value.Width;
+            }
+            return new Rectangle(x, y, width, height);
+        }
+        int ScrollColumn(Rectangle rect_cel, Rectangle rect, bool force = false) => ScrollColumn(rect_cel.X, rect_cel.Right, rect, force);
+        int ScrollColumn(int x, int r, Rectangle rect, bool force = false)
+        {
+            if (ScrollBar.ShowX)
+            {
+                int sx = ScrollBar.ValueX, visibleLeft = sx + rect.X, visibleRight = visibleLeft + rect.Width;
+                if (force || x < visibleLeft || r > visibleRight)
+                {
+                    ScrollBar.ValueX = x - rect.X;
+                    return sx - ScrollBar.ValueX;
                 }
             }
             return 0;
@@ -1231,18 +1407,16 @@ namespace AntdUI
         /// <param name="row">行</param>
         public bool CopyData(int row)
         {
-            if (rows != null)
+            try
             {
-                try
-                {
-                    var _row = rows[row];
-                    var vals = new List<string?>(_row.cells.Length);
-                    foreach (var cell in _row.cells) vals.Add(cell.ToString());
-                    this.ClipboardSetText(string.Join("\t", vals));
-                    return true;
-                }
-                catch { }
+                var _row = rows?[row];
+                if (_row == null) return false;
+                var vals = new List<string?>(_row.cells.Length);
+                foreach (var cell in _row.cells) vals.Add(cell.ToString());
+                this.ClipboardSetText(string.Join("\t", vals));
+                return true;
             }
+            catch { }
             return false;
         }
 
@@ -1260,6 +1434,7 @@ namespace AntdUI
                     foreach (var it in row)
                     {
                         var _row = rows[it];
+                        if (_row == null) continue;
                         var vals = new List<string?>(_row.cells.Length);
                         foreach (var cell in _row.cells) vals.Add(cell.ToString());
                         rowtmp.Add(string.Join("\t", vals));
@@ -1279,19 +1454,12 @@ namespace AntdUI
         /// <param name="column">列</param>
         public bool CopyData(int row, int column)
         {
-            if (rows != null)
-            {
-                try
-                {
-                    var _row = rows[row];
-                    var vals = _row.cells[column].ToString();
-                    if (vals == null) return false;
-                    this.ClipboardSetText(vals);
-                    return true;
-                }
-                catch { }
-            }
-            return false;
+            var _row = rows?[row];
+            if (_row == null) return false;
+            var vals = _row.cells[column].ToString();
+            if (vals == null) return false;
+            this.ClipboardSetText(vals);
+            return true;
         }
 
         /// <summary>
@@ -1321,9 +1489,7 @@ namespace AntdUI
             if (SortData == null)
             {
                 if (dataTmp == null || dataTmp.rows.Length == 0) return new int[0];
-                var list = new int[dataTmp.rows.Length];
-                for (int i = 0; i < dataTmp.rows.Length; i++) list[i] = i;
-                return list;
+                return dataTmp.GetInts();
             }
             else return SortData;
         }
@@ -1344,18 +1510,8 @@ namespace AntdUI
         public object[] SortList()
         {
             if (dataTmp == null || dataTmp.rows.Length == 0) return new object[0];
-            if (SortData == null)
-            {
-                var list = new object[dataTmp.rows.Length];
-                for (int i = 0; i < dataTmp.rows.Length; i++) list[i] = dataTmp.rows[i].record;
-                return list;
-            }
-            else
-            {
-                var list = new List<object>(dataTmp.rows.Length);
-                foreach (var i in SortData) list.Add(dataTmp.rows[i].record);
-                return list.ToArray();
-            }
+            if (SortData == null) return dataTmp.GetRecord();
+            else return dataTmp.GetRecord(SortData);
         }
 
         /// <summary>
@@ -1369,24 +1525,53 @@ namespace AntdUI
                 if (LoadLayout()) Invalidate();
                 return;
             }
-            if (dataTmp == null || dataTmp.rows.Length == 0) return;
-            var list = new List<int>(dataTmp.rows.Length);
-            foreach (var it in data)
+            if (dataTmp == null) return;
+            lock (dataTmp)
             {
-                int index = SetSortList(it, dataTmp.rows);
-                if (index > -1) list.Add(index);
+                var rows = dataTmp.rows;
+                if (rows.Length == 0) return;
+                var list = new List<int>(rows.Length);
+                foreach (var it in data)
+                {
+                    var index = GetRowIndex(it, rows);
+                    if (index.HasValue) list.Add(index.Value);
+                }
+                SortData = list.ToArray();
             }
-            SortData = list.ToArray();
             if (LoadLayout()) Invalidate();
         }
 
-        int SetSortList(object it, IRow[] rows)
+        /// <summary>
+        /// 按列SortMode排序
+        /// </summary>
+        /// <param name="col">列</param>
+        public void Sort(Column col)
+        {
+            bool emptySortData = SortData == null;
+            if (col.SortMode == SortMode.ASC) SortDataASC(col);
+            else if (col.SortMode == SortMode.DESC) SortDataDESC(col);
+            else SortData = null;
+            if (emptySortData && SortData == null) return;
+            LoadLayout();
+            Invalidate();
+            OnSortRows(col.INDEX);
+        }
+
+        int? GetRowIndex(object it, IRow[] rows)
         {
             for (int i = 0; i < rows.Length; i++)
             {
                 if (rows[i].record == it) return i;
             }
-            return -1;
+            return null;
+        }
+        int? GetRowIndexReal(object record, IRow[] rows)
+        {
+            foreach (var it in rows)
+            {
+                if (it.record == record) return it.i;
+            }
+            return null;
         }
 
         /// <summary>
@@ -1446,18 +1631,16 @@ namespace AntdUI
         /// <param name="column">列</param>
         public Rectangle CellRectangle(int row, int column)
         {
-            if (rows != null)
+            try
             {
-                try
-                {
-                    var _row = rows[row];
-                    var cel = _row.cells[column];
-                    var db = CellContains(rows, false, 0, 0);
-                    if (db == null) return RealRect(cel.RECT, 0, 0);
-                    else return RealRect(cel.RECT, db.offset_xi, db.offset_y);
-                }
-                catch { }
+                var _row = rows?[row];
+                if (_row == null) return Rectangle.Empty;
+                var cel = _row.cells[column];
+                var db = CellContains(rows!.List, false, 0, 0);
+                if (db == null) return RealRect(cel.RECT, 0, 0);
+                else return RealRect(cel.RECT, db.offset_xi, db.offset_y);
             }
+            catch { }
             return Rectangle.Empty;
         }
 
@@ -1485,10 +1668,11 @@ namespace AntdUI
                 dir_columns = new Dictionary<string, Column>(dataTmp.columns.Length);
                 var columns = new Dictionary<string, DataColumn>(dataTmp.columns.Length);
                 foreach (var column in dataTmp.columns) columns.Add(column.key, new DataColumn(column.key) { Caption = column.text });
-                foreach (TCellColumn item in rows[0].cells)
+                foreach (var item in rows.List[0].cells)
                 {
-                    dir_columns.Add(item.COLUMN.Key, item.COLUMN);
-                    if (!string.IsNullOrWhiteSpace(item.value) && columns.TryGetValue(item.COLUMN.Key, out var find)) find.Caption = item.value;
+                    var column = item.COLUMN;
+                    dir_columns.Add(column.Key, column);
+                    if (!string.IsNullOrWhiteSpace(column.Title) && columns.TryGetValue(column.Key, out var find)) find.Caption = column.Title;
                 }
                 foreach (var item in columns) dt.Columns.Add(item.Value);
             }
@@ -1497,7 +1681,7 @@ namespace AntdUI
 
             if (toString)
             {
-                foreach (var row in dataTmp.rows)
+                dataTmp.ForRow(row =>
                 {
                     var data = new List<object?>(row.cells.Count);
                     foreach (var cell in row.cells)
@@ -1519,11 +1703,11 @@ namespace AntdUI
                         else data.Add(obj);
                     }
                     dt.Rows.Add(data.ToArray());
-                }
+                });
             }
             else
             {
-                foreach (var row in dataTmp.rows)
+                dataTmp.ForRow(row =>
                 {
                     var data = new List<object?>(row.cells.Count);
                     foreach (var cell in row.cells)
@@ -1533,7 +1717,7 @@ namespace AntdUI
                         data.Add(obj);
                     }
                     dt.Rows.Add(data.ToArray());
-                }
+                });
             }
             return dt;
         }
@@ -1546,44 +1730,22 @@ namespace AntdUI
         /// <param name="value">展开或折叠</param>
         public void ExpandAll(bool value = true)
         {
-            if (ExpandChanged == null)
+            if (dataTmp == null) return;
+            int count = 0;
+            foreach (var it in dataTmp.RowsCache)
             {
-                if (value)
+                if (it.expand == value) continue;
+                if (OnExpandChanged(it.record, value))
                 {
-                    if (rows == null) return;
-                    rows_Expand = new List<object>(rows.Length - 1);
-                    for (int i = 1; i < rows.Length; i++)
-                    {
-                        var record = rows[i].RECORD;
-                        if (record == null) continue;
-                        rows_Expand.Add(record);
-                    }
-                }
-                else rows_Expand.Clear();
-            }
-            else
-            {
-                if (value)
-                {
-                    if (rows == null) return;
-                    var temp = rows_Expand;
-                    rows_Expand = new List<object>(rows.Length - 1);
-                    rows_Expand.AddRange(temp);
-                    for (int i = 1; i < rows.Length; i++)
-                    {
-                        var record = rows[i].RECORD;
-                        if (record == null || rows_Expand.Contains(record)) continue;
-                        rows_Expand.Add(record);
-                        ExpandChanged(this, new TableExpandEventArgs(record, false));
-                    }
-                }
-                else
-                {
-                    foreach (var it in rows_Expand) ExpandChanged(this, new TableExpandEventArgs(it, false));
-                    rows_Expand.Clear();
+                    it.expand = value;
+                    if (it.SetValue("__EXPAND__", value) && isMVVM) continue;
+                    count++;
                 }
             }
-            if (LoadLayout()) Invalidate();
+            if (count > 0)
+            {
+                if (LoadLayout()) Invalidate();
+            }
         }
 
         /// <summary>
@@ -1593,22 +1755,20 @@ namespace AntdUI
         /// <param name="value">展开或折叠</param>
         public void Expand(object record, bool value = true)
         {
-            if (value)
+            if (dataTmp == null) return;
+            if (OnExpandChanged(record, value))
             {
-                if (rows_Expand.Contains(record)) return;
-                rows_Expand.Add(record);
-                ExpandChanged?.Invoke(this, new TableExpandEventArgs(record, true));
-            }
-            else
-            {
-                if (rows_Expand.Contains(record))
+                foreach (var it in dataTmp.RowsCache)
                 {
-                    rows_Expand.Remove(record);
-                    ExpandChanged?.Invoke(this, new TableExpandEventArgs(record, false));
+                    if (it.record == record)
+                    {
+                        it.expand = value;
+                        if (it.SetValue("__EXPAND__", value) && isMVVM) return;
+                        if (LoadLayout()) Invalidate();
+                        return;
+                    }
                 }
-                else return;
             }
-            if (LoadLayout()) Invalidate();
         }
 
         #endregion
@@ -1616,7 +1776,7 @@ namespace AntdUI
         public CELL? HitTest(int x, int y)
         {
             if (rows == null) return null;
-            return CellContains(rows, false, x, y)?.cell;
+            return CellContains(rows.List, false, x, y)?.cell;
         }
 
         public CELL? HitTest(int x, int y, out int i_row, out int i_cel)
@@ -1626,7 +1786,7 @@ namespace AntdUI
                 i_row = i_cel = 0;
                 return null;
             }
-            var db = CellContains(rows, false, x, y);
+            var db = CellContains(rows.List, false, x, y);
             if (db == null)
             {
                 i_row = i_cel = 0;
@@ -1647,7 +1807,7 @@ namespace AntdUI
                 r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
                 return null;
             }
-            var db = CellContains(rows, false, x, y);
+            var db = CellContains(rows.List, false, x, y);
             if (db == null)
             {
                 r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
@@ -1666,7 +1826,7 @@ namespace AntdUI
             }
         }
 
-        public CELL? HitTest(int x, int y, out int r_x, out int r_y, out int offset_x, out int offset_xi, out int offset_y, out int i_row, out int i_cel, out int mode)
+        public CELL? HitTest(int x, int y, out int r_x, out int r_y, out int offset_x, out int offset_xi, out int offset_y, out int i_row, out int i_cel, out CELLDBMode mode)
         {
             if (rows == null)
             {
@@ -1674,10 +1834,11 @@ namespace AntdUI
                 r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
                 return null;
             }
-            var db = CellContains(rows, false, x, y);
+            var db = CellContains(rows.List, false, x, y);
             if (db == null)
             {
-                mode = r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
+                mode = CELLDBMode.None;
+                r_x = r_y = offset_x = offset_xi = offset_y = i_row = i_cel = 0;
                 return null;
             }
             else
@@ -1704,7 +1865,7 @@ namespace AntdUI
                 if (rect.Width == 0 || rect.Height == 0) return null;
                 LoadLayout(rect);
                 var bmp = new Bitmap(rect.Width, rect.Height);
-                using (var g = Graphics.FromImage(bmp).High())
+                using (var g = Graphics.FromImage(bmp).High(Dpi))
                 {
                     try
                     {
@@ -1730,7 +1891,9 @@ namespace AntdUI
             if (ThreadState == null)
             {
                 if (rows == null) return;
-                var rect = rows[row].RECT;
+                var it = rows[row];
+                if (it == null) return;
+                var rect = it.RECT;
                 int sy = ScrollBar.ValueY;
                 Invalidate(new Rectangle(rect.X, rect.Y - sy, rect.Width, rect.Height));
             }
@@ -1740,7 +1903,9 @@ namespace AntdUI
             if (ThreadState == null)
             {
                 if (rows == null) return;
-                var rect = rows[row].cells[column].RECT;
+                var it = rows[row];
+                if (it == null) return;
+                var rect = it.cells[column].RECT;
                 int sx = ScrollBar.ValueX, sy = ScrollBar.ValueY;
                 Invalidate(new Rectangle(rect.X - sx, rect.Y - sy, rect.Width, rect.Height));
             }
@@ -1831,7 +1996,7 @@ namespace AntdUI
     /// <summary>
     /// 复选框表头
     /// </summary>
-    public class ColumnCheck : Column
+    public class ColumnCheck : ColumnICheck
     {
         public ColumnCheck(string key) : base(key, "")
         {
@@ -1938,17 +2103,12 @@ namespace AntdUI
         internal bool NoTitle { get; set; } = true;
 
         public Func<bool, object?, int, int, bool>? Call { get; set; }
-
-        /// <summary>
-        /// 插槽
-        /// </summary>
-        public new Func<object?, object, int, object?>? Render { get; }
     }
 
     /// <summary>
     /// 单选框表头
     /// </summary>
-    public class ColumnRadio : Column
+    public class ColumnRadio : ColumnICheck
     {
         /// <summary>
         /// 单选框表头
@@ -1971,17 +2131,12 @@ namespace AntdUI
         }
 
         public Func<bool, object?, int, int, bool>? Call { get; set; }
-
-        /// <summary>
-        /// 插槽
-        /// </summary>
-        public new Func<object?, object, int, object?>? Render { get; }
     }
 
     /// <summary>
     /// 开关表头
     /// </summary>
-    public class ColumnSwitch : Column
+    public class ColumnSwitch : ColumnICheck
     {
         /// <summary>
         /// 开关表头
@@ -2009,11 +2164,49 @@ namespace AntdUI
         }
 
         public Func<bool, object?, int, int, bool>? Call { get; set; }
+    }
+
+    public class ColumnICheck : Column
+    {
+        public ColumnICheck(string key, string title) : base(key, title)
+        {
+        }
+
+        public ColumnICheck(string key, string title, ColumnAlign align) : base(key, title, align) { }
 
         /// <summary>
         /// 插槽
         /// </summary>
         public new Func<object?, object, int, object?>? Render { get; }
+
+        #region 插槽
+
+        internal Func<object?, bool>? _in;
+        internal Func<bool, object?>? _out;
+        public ColumnICheck SetRender(Func<object?, bool> IN, Func<bool, object?> OUT)
+        {
+            _in = IN;
+            _out = OUT;
+            return this;
+        }
+        public ColumnICheck SetRender<T>(Func<T, bool> IN, Func<bool, object?> OUT)
+        {
+            _in = value =>
+            {
+                if (value is T t) return IN(t);
+                throw new Exception("error value type");
+            };
+            _out = OUT;
+            return this;
+        }
+        public ColumnICheck SetRenderClear()
+        {
+            _in = null;
+            _out = null;
+            return this;
+        }
+
+        #endregion
     }
 
     public class TemplateColumn : Column
@@ -2131,6 +2324,38 @@ namespace AntdUI
                 return null;
             }
         }
+
+        public int? MaxCount { get; set; }
+
+        /// <summary>
+        /// 图标大小 (默认按CELL大小决定)
+        /// </summary>
+        public int? IconMaxSize { get; set; }
+
+        #region 设置
+
+        public ColumnSelect SetItems(params SelectItem[] list)
+        {
+            Items = new List<SelectItem>(list);
+            return this;
+        }
+        public ColumnSelect SetItems(IList<SelectItem> list)
+        {
+            Items = new List<SelectItem>(list);
+            return this;
+        }
+        public ColumnSelect SetMaxCount(int? value)
+        {
+            MaxCount = value;
+            return this;
+        }
+        public ColumnSelect SetIconMaxSize(int? value)
+        {
+            IconMaxSize = value;
+            return this;
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -2208,7 +2433,7 @@ namespace AntdUI
             get
             {
                 if (PARENT?.rows == null || PARENT.rows.Length == 0) return -1;
-                foreach (var col in PARENT.rows[0].cells)
+                foreach (var col in PARENT.rows.First.cells)
                 {
                     if (col.COLUMN == this) return col.INDEX;
                 }
@@ -2339,7 +2564,7 @@ namespace AntdUI
                     Invalidate();
                     return;
                 }
-                foreach (var item in PARENT.rows[0].cells)
+                foreach (var item in PARENT.rows.First.cells)
                 {
                     if (item.COLUMN.SortOrder) item.COLUMN.sortMode = SortMode.NONE;
                 }
@@ -2387,20 +2612,53 @@ namespace AntdUI
         /// </summary>
         /// <param name="value">数据</param>
         /// <returns></returns>
-        public string? GetDisplayText(object? value)
+        public string? GetDisplayText(object? value) => GetDisplayText(value, DisplayFormat);
+
+        /// <summary>
+        /// 返回格式化的字符串
+        /// </summary>
+        /// <param name="value">数据</param>
+        /// <param name="format">格式化</param>
+        /// <returns></returns>
+        internal static string? GetDisplayText(object? value, string? format)
         {
-            if (value == null || value == DBNull.Value) return null;
+            if (value.IsNull()) return null;
             else
             {
-                if (DisplayFormat == null || string.IsNullOrEmpty(DisplayFormat)) return value?.ToString();
+                if (format == null || string.IsNullOrEmpty(format))
+                {
+                    if (value is IList<ICell> cells)
+                    {
+                        var cs = new List<string?>(cells.Count);
+                        foreach (var it in cells)
+                        {
+                            var str = it.ToString();
+                            if (str != null) cs.Add(str);
+                        }
+                        if (cs.Count > 0) return string.Join(" ", cs);
+                    }
+                    return value?.ToString();
+                }
                 try
                 {
-                    if (DisplayFormat.Contains("{0:")) return string.Format(DisplayFormat, value);
-                    return string.Format("{0:" + DisplayFormat + "}", value);
+                    if (format.Contains("{0:")) return string.Format(format, value);
+                    return string.Format("{0:" + format + "}", value);
                 }
-                catch { return value?.ToString(); }
+                catch
+                {
+                    return value?.ToString();
+                }
             }
         }
+
+        #endregion
+
+        #region 汇总
+
+        /// <summary>
+        /// 汇总栏选项
+        /// </summary>
+        public SummaryItemOption? SummaryItem { get; set; }
 
         #endregion
 
@@ -2662,6 +2920,29 @@ namespace AntdUI
 
         #endregion
 
+        #region 汇总
+
+        public Column SetSummaryItem(TSummaryType summaryType)
+        {
+            SummaryItem = new SummaryItemOption(summaryType);
+            return this;
+        }
+        public Column SetSummaryItem(TSummaryType summaryType, string format)
+        {
+            SummaryItem = new SummaryItemOption(summaryType, format);
+            return this;
+        }
+        public Column SetSummaryItem(string text)
+        {
+            SummaryItem = new SummaryItemOption(TSummaryType.Text)
+            {
+                DisplayText = text
+            };
+            return this;
+        }
+
+        #endregion
+
         /// <summary>
         /// 设置列可拖拽
         /// </summary>
@@ -2725,6 +3006,12 @@ namespace AntdUI
         }
 
         #endregion
+
+        internal bool EqualsKeyTree(string? value)
+        {
+            if (value == null) return false;
+            return KeyTree == value;
+        }
     }
 
     #endregion

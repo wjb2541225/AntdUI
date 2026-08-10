@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.Drawing;
 
@@ -32,10 +19,10 @@ namespace AntdUI
         {
             if (Fore.HasValue) g.DrawText(Text, Font ?? font, Fore.Value, Rect, Table.StringFormat(PARENT.COLUMN));
             else g.DrawText(Text, Font ?? font, fore, Rect, Table.StringFormat(PARENT.COLUMN));
-            if (PrefixSvg != null) g.GetImgExtend(PrefixSvg, RectL, Fore ?? fore.Color);
+            if (PrefixSvg != null) g.Svg(PrefixSvg, RectL, Fore ?? fore.Color);
             else if (Prefix != null) g.Image(Prefix, RectL);
 
-            if (SuffixSvg != null) g.GetImgExtend(SuffixSvg, RectR, Fore ?? fore.Color);
+            if (SuffixSvg != null) g.Svg(SuffixSvg, RectR, Fore ?? fore.Color);
             else if (Suffix != null) g.Image(Suffix, RectR);
         }
 
@@ -56,7 +43,7 @@ namespace AntdUI
             return new Size(size.Width, size.Height);
         }
 
-        Rectangle RectL, RectR;
+        public Rectangle RectL, RectR;
         public override void SetRect(Canvas g, Font font, Rectangle rect, Size size, int maxwidth, TableGaps gap)
         {
             int width = rect.Width;

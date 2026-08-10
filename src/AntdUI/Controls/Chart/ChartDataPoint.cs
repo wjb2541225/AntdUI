@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System.ComponentModel;
 using System.Drawing;
@@ -31,43 +18,43 @@ namespace AntdUI
         /// <summary>
         /// 标签
         /// </summary>
-        [Description("标签"), Category("数据")]
+        [Description("标签"), Category(nameof(CategoryAttribute.Data))]
         public string? Label { get; set; }
 
         /// <summary>
         /// X轴值
         /// </summary>
-        [Description("X轴值"), Category("数据")]
+        [Description("X轴值"), Category(nameof(CategoryAttribute.Data))]
         public double X { get; set; }
 
         /// <summary>
         /// Y轴值
         /// </summary>
-        [Description("Y轴值"), Category("数据")]
+        [Description("Y轴值"), Category(nameof(CategoryAttribute.Data))]
         public double Y { get; set; }
 
         /// <summary>
         /// 半径值（用于气泡图等）
         /// </summary>
-        [Description("半径值"), Category("数据")]
+        [Description("半径值"), Category(nameof(CategoryAttribute.Data))]
         public double Radius { get; set; }
 
         /// <summary>
         /// 颜色
         /// </summary>
-        [Description("颜色"), Category("外观")]
+        [Description("颜色"), Category(nameof(CategoryAttribute.Appearance))]
         public Color? Color { get; set; }
 
         /// <summary>
         /// 是否可见
         /// </summary>
-        [Description("是否可见"), Category("行为"), DefaultValue(true)]
+        [Description("是否可见"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Visible { get; set; } = true;
 
         /// <summary>
         /// 工具提示文本
         /// </summary>
-        [Description("工具提示文本"), Category("行为")]
+        [Description("工具提示文本"), Category(nameof(CategoryAttribute.Behavior))]
         public string? Tooltip { get; set; }
 
         /// <summary>

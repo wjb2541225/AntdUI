@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Drawing;
@@ -36,44 +23,50 @@ namespace AntdUI
 
         public ScrollBar(FlowLayoutPanel control)
         {
+            Dpi = Config.Dpi;
             EnabledY = true;
             Invalidate = rect =>
             {
                 if (rect.HasValue) control.Invalidate(rect.Value);
                 else control.Invalidate();
             };
-            Init();
+            Init(control);
         }
         public ScrollBar(FlowPanel control, bool enabledY = true, bool enabledX = false)
         {
+            Dpi = control.Dpi;
             ChangeSize = () => control.IOnSizeChanged();
             Invalidate = rect => control.IOnSizeChanged();
             EnabledX = enabledX;
             EnabledY = enabledY;
-            Init();
+            Init(control);
         }
         public ScrollBar(StackPanel control)
         {
+            Dpi = control.Dpi;
             ChangeSize = () => control.IOnSizeChanged();
             Invalidate = rect => control.IOnSizeChanged();
             if (control.Vertical) EnabledY = true;
             else EnabledX = true;
-            Init();
+            Init(control);
         }
         public ScrollBar(ILayeredForm control, TAMode colorScheme)
         {
+            Dpi = control.Dpi;
             Back = false;
             ChangeSize = () => control.Print();
             Invalidate = rect => control.Print();
             EnabledY = true;
             EnabledX = false;
-            Init();
+            Init(control);
         }
 
         #endregion
 
+        public float Dpi { get; private set; }
         public ScrollBar(IControl control, bool enabledY = true, bool enabledX = false, int radius = 0, bool radiusy = false)
         {
+            Dpi = control.Dpi;
             Radius = radius;
             RB = radiusy;
             Invalidate = rect =>
@@ -84,15 +77,16 @@ namespace AntdUI
             ChangeSize = () => control.IOnSizeChanged();
             EnabledX = enabledX;
             EnabledY = enabledY;
-            Init();
-            if (control is IScrollBar scroll) Target = scroll;
+            Init(control);
         }
 
-        void Init()
+        void Init(object tag)
         {
-            SIZE = (int)(16 * Config.Dpi);
-            SIZE_BAR = (int)(6 * Config.Dpi);
-            SIZE_MINIY = (int)(Config.ScrollMinSizeY * Config.Dpi);
+            SIZE = (int)(16 * Dpi);
+            SIZE_BAR = (int)(6 * Dpi);
+            SIZE_MINIY = (int)((Config.ScrollMinSizeY ?? SystemInformation.VerticalScrollBarThumbHeight) * Dpi);
+            SIZE_MINIX = (int)((Config.ScrollMinSizeX ?? SystemInformation.HorizontalScrollBarThumbWidth) * Dpi);
+            if (tag is IScrollBar scroll) Target = scroll;
         }
 
         Action? ChangeSize;
@@ -113,7 +107,8 @@ namespace AntdUI
         /// </summary>
         public int SIZE_BAR { get; set; } = 6;
 
-        public int SIZE_MINIY { get; set; } = 30;
+        public int SIZE_MINIY { get; set; } = 26;
+        public int SIZE_MINIX { get; set; } = 26;
 
         #endregion
 
@@ -317,12 +312,8 @@ namespace AntdUI
         public void SizeChange(Rectangle rect)
         {
             Rect = rect;
-            if (SIZE > 0)
-            {
-                RectX = new Rectangle(rect.X, rect.Bottom - SIZE, rect.Width, SIZE);
-                RectY = new Rectangle(rect.Right - SIZE, rect.Top, SIZE, rect.Height);
-            }
-            else RectX = RectY = rect;
+            RectX = new Rectangle(rect.X, rect.Bottom - SIZE, rect.Width, SIZE);
+            RectY = new Rectangle(rect.Right - SIZE, rect.Top, SIZE, rect.Height);
             SetShow(oldx, oldy);
         }
 
@@ -337,46 +328,45 @@ namespace AntdUI
             SetShow(oldx, oldy);
         }
 
+        /// <summary>
+        /// 设置容器虚拟宽度+区域
+        /// </summary>
+        public void SetVrSize(int x, int y, Rectangle rect)
+        {
+            Rect = rect;
+            RectX = new Rectangle(rect.X, rect.Bottom - SIZE, rect.Width, SIZE);
+            RectY = new Rectangle(rect.Right - SIZE, rect.Top, SIZE, rect.Height);
+            oldx = x;
+            oldy = y;
+            SetShow(oldx, oldy);
+        }
+
         #region 设置是否显示
 
         string show_oldx = "", show_oldy = "";
         void SetShow(int x, int y) => SetShow(x, RectX.Width, y, RectY.Height);
         void SetShow(int x, int x2, int y, int y2)
         {
-            string show_x = x + "_" + x2, show_y = y + "_" + y2;
+            string show_x = x + "_" + x2 + "_" + showX, show_y = y + "_" + y2 + "_" + showY;
             if (show_oldx == show_x && show_oldy == show_y) return;
             show_oldx = show_x;
             show_oldy = show_y;
-            if (x2 > 0 && x > 0 && x > x2)
+
+            bool showYmp = y2 > 0 && y > 0 && y > y2;
+
+            if (x2 > 0 && x > 0)
             {
-                maxX = x;
-                ShowX = maxX > x2;
-                if (ShowX)
+                if (x > x2) SetX(x, x2);
+                else
                 {
-                    int valueI = x - x2;
-                    if (valueX > valueI) ValueX = valueI;
+                    if (showYmp && x + SIZE > x2) SetX(x + SIZE, x2);
+                    else SetX();
                 }
             }
-            else
-            {
-                maxX = valueX = 0;
-                ShowX = false;
-            }
-            if (y2 > 0 && y > 0 && y > y2)
-            {
-                maxY = y;
-                ShowY = maxY > y2;
-                if (ShowY)
-                {
-                    int valueI = y - y2;
-                    if (valueY > valueI) ValueY = valueI;
-                }
-            }
-            else
-            {
-                maxY = valueY = 0;
-                ShowY = false;
-            }
+            else SetX();
+
+            if (showYmp) SetY(y, y2);
+            else SetY();
 
             if (showX && showY)
             {
@@ -384,6 +374,36 @@ namespace AntdUI
                 maxY += SIZE;
             }
             else if (showY) maxX += SIZE;
+        }
+        void SetY(int y, int y2)
+        {
+            maxY = y;
+            ShowY = maxY > y2;
+            if (showY)
+            {
+                int valueI = y - y2;
+                if (valueY > valueI) ValueY = valueI;
+            }
+        }
+        void SetY()
+        {
+            maxY = valueY = 0;
+            ShowY = false;
+        }
+        void SetX(int x, int x2)
+        {
+            maxX = x;
+            ShowX = maxX > x2;
+            if (ShowX)
+            {
+                int valueI = x - x2;
+                if (valueX > valueI) ValueX = valueI;
+            }
+        }
+        void SetX()
+        {
+            maxX = valueX = 0;
+            ShowX = false;
         }
 
         #endregion
@@ -393,7 +413,7 @@ namespace AntdUI
         #region 渲染
 
         public virtual void Paint(Canvas g) => Paint(g, Colour.TextBase.Get(nameof(ScrollBar)));
-        public virtual void Paint(Canvas g, TAMode colorScheme) => Paint(g, Colour.TextBase.Get(nameof(ScrollBar), colorScheme));
+        public virtual void Paint(Canvas g, TAMode colorScheme) => Paint(g, Colour.TextBase.Get(colorScheme, nameof(ScrollBar)));
         public virtual void Paint(Canvas g, Color baseColor)
         {
             if (SIZE == 0) return;
@@ -410,7 +430,7 @@ namespace AntdUI
                             {
                                 if (Radius > 0)
                                 {
-                                    float radius = Radius * Config.Dpi;
+                                    float radius = Radius * Dpi;
                                     using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                     {
                                         g.Fill(brush, path);
@@ -425,13 +445,13 @@ namespace AntdUI
                             {
                                 if (RB && Radius > 0)
                                 {
-                                    float radius = Radius * Config.Dpi;
-                                    using (var path = Helper.RoundPath(new Rectangle(RectX.X, RectX.Y, RectX.Width, RectX.Height), radius, false, false, true, true))
+                                    float radius = Radius * Dpi;
+                                    using (var path = RectX.RoundPath(radius, false, false, true, true))
                                     {
                                         g.Fill(brush, path);
                                     }
                                 }
-                                else g.Fill(brush, new Rectangle(RectX.X, RectX.Y, RectX.Width, RectX.Height));
+                                else g.Fill(brush, RectX);
                             }
                         }
                     }
@@ -446,7 +466,7 @@ namespace AntdUI
                         {
                             if (Radius > 0)
                             {
-                                float radius = Radius * Config.Dpi;
+                                float radius = Radius * Dpi;
                                 using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                 {
                                     g.Fill(brush, path);
@@ -465,8 +485,8 @@ namespace AntdUI
                         {
                             if (RB && Radius > 0)
                             {
-                                float radius = Radius * Config.Dpi;
-                                using (var path = Helper.RoundPath(new Rectangle(RectX.X, RectX.Y, RectX.Width, RectX.Height), radius, false, false, true, true))
+                                float radius = Radius * Dpi;
+                                using (var path = RectX.RoundPath(radius, false, false, true, true))
                                 {
                                     g.Fill(brush, path);
                                 }
@@ -488,7 +508,7 @@ namespace AntdUI
                             var rectX = new Rectangle(RectX.X, RectX.Y, RectX.Width - RectY.Width, RectX.Height);
                             if (Radius > 0)
                             {
-                                float radius = Radius * Config.Dpi;
+                                float radius = Radius * Dpi;
                                 using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                 {
                                     g.Fill(brush, path);
@@ -520,7 +540,7 @@ namespace AntdUI
                         {
                             if (Radius > 0)
                             {
-                                float radius = Radius * Config.Dpi;
+                                float radius = Radius * Dpi;
                                 using (var path = Helper.RoundPath(RectY, radius, false, RT, RB, false))
                                 {
                                     g.Fill(brush, path);
@@ -539,8 +559,8 @@ namespace AntdUI
                         {
                             if (RB && Radius > 0)
                             {
-                                float radius = Radius * Config.Dpi;
-                                using (var path = Helper.RoundPath(new Rectangle(RectX.X, RectX.Y, RectX.Width, RectX.Height), radius, false, false, true, true))
+                                float radius = Radius * Dpi;
+                                using (var path = RectX.RoundPath(radius, false, false, true, true))
                                 {
                                     g.Fill(brush, path);
                                 }
@@ -618,26 +638,30 @@ namespace AntdUI
 
         RectangleF RectSliderX()
         {
-            float read = RectX.Width - (showY ? SIZE : 0), width = ((RectX.Width * 1F) / maxX) * read;
-            if (width < SIZE) width = SIZE;
-            float x = (valueX * 1.0F / (maxX - RectX.Width)) * (read - width), gap = (RectX.Height - SIZE_BAR) / 2F;
-            return new RectangleF(RectX.X + x + gap, RectX.Y + gap, width - gap * 2, SIZE_BAR);
+            float gap = (RectX.Height - SIZE_BAR) / 2F, gap2 = gap * 2, min = SIZE_MINIX + gap2,
+                read = RectX.Width - (showY ? SIZE : 0), width = ((RectX.Width * 1F) / maxX) * read;
+            if (width < min) width = min;
+            else if (width < SIZE) width = SIZE;
+            float x = (valueX * 1F / (maxX - RectX.Width)) * (read - width);
+            return new RectangleF(RectX.X + x + gap, RectX.Y + gap, width - gap2, SIZE_BAR);
         }
 
         RectangleF RectSliderY()
         {
-            float gap = (RectY.Width - SIZE_BAR) / 2, min = SIZE_MINIY + gap * 2, read = RectY.Height - (showX ? SIZE : 0), height = ((RectY.Height * 1F) / maxY) * read;
+            float gap = (RectY.Width - SIZE_BAR) / 2F, gap2 = gap * 2, min = SIZE_MINIY + gap2,
+                read = RectY.Height - (showX ? SIZE : 0), height = ((RectY.Height * 1F) / maxY) * read;
             if (height < min) height = min;
             else if (height < SIZE) height = SIZE;
-            float y = (valueY * 1.0F / (maxY - RectY.Height)) * (read - height);
-            return new RectangleF(RectY.X + gap, RectY.Y + y + gap, SIZE_BAR, height - gap * 2);
+            float y = (valueY * 1F / (maxY - RectY.Height)) * (read - height);
+            return new RectangleF(RectY.X + gap, RectY.Y + y + gap, SIZE_BAR, height - gap2);
         }
 
         RectangleF RectSliderFullX()
         {
             float read = RectX.Width - (showY ? SIZE : 0), width = ((RectX.Width * 1F) / maxX) * read;
-            if (width < SIZE) width = SIZE;
-            float x = (valueX * 1.0F / (maxX - RectX.Width)) * (read - width);
+            if (width < SIZE_MINIX) width = SIZE_MINIX;
+            else if (width < SIZE) width = SIZE;
+            float x = (valueX * 1F / (maxX - RectX.Width)) * (read - width);
             return new RectangleF(RectX.X + x, RectX.Y, width, RectX.Height);
         }
         RectangleF RectSliderFullY()
@@ -645,7 +669,7 @@ namespace AntdUI
             float read = RectY.Height - (showX ? SIZE : 0), height = ((RectY.Height * 1F) / maxY) * read;
             if (height < SIZE_MINIY) height = SIZE_MINIY;
             else if (height < SIZE) height = SIZE;
-            float y = (valueY * 1.0F / (maxY - RectY.Height)) * (read - height);
+            float y = (valueY * 1F / (maxY - RectY.Height)) * (read - height);
             return new RectangleF(RectY.X, RectY.Y + y, RectY.Width, height);
         }
 
@@ -940,6 +964,15 @@ namespace AntdUI
         {
             if (EnabledY) SetVrSize(oldx, len);
             else SetVrSize(len, oldy);
+        }
+
+        /// <summary>
+        /// 设置容器虚拟宽度+区域
+        /// </summary>
+        public void SetVrSize(int len, Rectangle rect)
+        {
+            if (EnabledY) SetVrSize(oldx, len, rect);
+            else SetVrSize(len, oldy, rect);
         }
 
         public bool MouseDown(Point e) => MouseDown(e.X, e.Y);

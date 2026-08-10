@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -44,7 +31,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -64,7 +51,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Back
         {
@@ -82,7 +69,7 @@ namespace AntdUI
         /// <summary>
         /// 进度条颜色
         /// </summary>
-        [Description("进度条颜色"), Category("外观"), DefaultValue(null)]
+        [Description("进度条颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? Fill
         {
@@ -96,13 +83,30 @@ namespace AntdUI
             }
         }
 
+        string? fillExtend;
+        /// <summary>
+        /// 进度条渐变色
+        /// </summary>
+        [Description("进度条渐变色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public string? FillExtend
+        {
+            get => fillExtend;
+            set
+            {
+                if (fillExtend == value) return;
+                fillExtend = value;
+                Invalidate();
+                OnPropertyChanged(nameof(FillExtend));
+            }
+        }
+
         #endregion
 
         int radius = 0;
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius
         {
             get => radius;
@@ -119,7 +123,7 @@ namespace AntdUI
         /// <summary>
         /// 形状
         /// </summary>
-        [Description("形状"), Category("外观"), DefaultValue(TShapeProgress.Round)]
+        [Description("形状"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TShapeProgress.Round)]
         public TShapeProgress Shape
         {
             get => shape;
@@ -138,7 +142,7 @@ namespace AntdUI
         /// <summary>
         /// 文本
         /// </summary>
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -161,7 +165,7 @@ namespace AntdUI
         /// <summary>
         /// 单位文本
         /// </summary>
-        [Description("单位文本"), Category("外观"), DefaultValue("%")]
+        [Description("单位文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue("%")]
         [Localizable(true)]
         public string? TextUnit
         {
@@ -182,7 +186,7 @@ namespace AntdUI
         /// <summary>
         /// 使用系统文本
         /// </summary>
-        [Description("使用系统文本"), Category("外观"), DefaultValue(false)]
+        [Description("使用系统文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool UseSystemText
         {
             get => useSystemText;
@@ -198,13 +202,13 @@ namespace AntdUI
         /// <summary>
         /// 使文本居中显示
         /// </summary>
-        [Description("使文本居中显示"), Category("外观"), DefaultValue(false)]
+        [Description("使文本居中显示"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool UseTextCenter { get; set; }
 
         /// <summary>
         /// 显示进度文本小数点位数
         /// </summary>
-        [Description("显示进度文本小数点位数"), Category("外观"), DefaultValue(0)]
+        [Description("显示进度文本小数点位数"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int ShowTextDot { get; set; }
 
         #endregion
@@ -213,7 +217,7 @@ namespace AntdUI
         /// <summary>
         /// 状态
         /// </summary>
-        [Description("状态"), Category("外观"), DefaultValue(TType.None)]
+        [Description("状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TType.None)]
         public TType State
         {
             get => state;
@@ -227,11 +231,23 @@ namespace AntdUI
             }
         }
 
+        /// <summary>
+        /// 仪表盘进度条缺口角度，可取值 0 ~ 295
+        /// </summary>
+        [Description("仪表盘进度条缺口角度，可取值 0 ~ 295"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
+        public int GapDegree { get; set; }
+
+        /// <summary>
+        /// 仪表盘进度条缺口位置
+        /// </summary>
+        [Description("仪表盘进度条缺口位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlignMini.Bottom)]
+        public TAlignMini GapPlacement { get; set; } = TAlignMini.Bottom;
+
         float iconratio = .7F;
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(.7F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.7F)]
         public float IconRatio
         {
             get => iconratio;
@@ -250,7 +266,7 @@ namespace AntdUI
         /// <summary>
         /// 圆形进度下的图标
         /// </summary>
-        [Description("圆形进度下的图标"), Category("外观"), DefaultValue(null)]
+        [Description("圆形进度下的图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? IconCircle
         {
             get => icon;
@@ -266,7 +282,7 @@ namespace AntdUI
         /// <summary>
         /// 圆形进度下的图标SVG
         /// </summary>
-        [Description("圆形进度下的图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("圆形进度下的图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvgCircle
         {
             get => iconSvg;
@@ -281,19 +297,19 @@ namespace AntdUI
         /// <summary>
         /// 圆形图标是否旋转
         /// </summary>
-        [Description("圆形图标是否旋转"), Category("外观"), DefaultValue(false)]
+        [Description("圆形图标是否旋转"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool IconCircleAngle { get; set; }
 
         /// <summary>
         /// 圆形图标边距
         /// </summary>
-        [Description("圆形图标边距"), Category("外观"), DefaultValue(8)]
+        [Description("圆形图标边距"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(8)]
         public int IconCirclePadding { get; set; } = 8;
 
         /// <summary>
         /// 圆形图标颜色
         /// </summary>
-        [Description("圆形图标颜色"), Category("外观"), DefaultValue(null)]
+        [Description("圆形图标颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Color? IconCircleColor { get; set; }
 
         /// <summary>
@@ -307,7 +323,7 @@ namespace AntdUI
         /// <summary>
         /// 进度条比例
         /// </summary>
-        [Description("进度条比例"), Category("外观"), DefaultValue(.4F)]
+        [Description("进度条比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.4F)]
         public float ValueRatio
         {
             get => valueratio;
@@ -327,7 +343,7 @@ namespace AntdUI
         /// <summary>
         /// 进度条
         /// </summary>
-        [Description("进度条 0F-1F"), Category("数据"), DefaultValue(0F)]
+        [Description("进度条 0F-1F"), Category(nameof(CategoryAttribute.Data)), DefaultValue(0F)]
         public float Value
         {
             get => _value;
@@ -339,7 +355,7 @@ namespace AntdUI
                 _value = value;
                 ThreadValue?.Dispose();
                 ThreadValue = null;
-                if (Config.HasAnimation(nameof(Progress)) && IsHandleCreated && Animation > 0)
+                if (Config.HasAnimation(nameof(Progress), Name) && IsHandleCreated && Animation > 0)
                 {
                     var t = AntdUI.Animation.TotalFrames(10, Animation);
                     if (_value > _value_show)
@@ -384,7 +400,7 @@ namespace AntdUI
         /// <summary>
         /// Value格式化时发生
         /// </summary>
-        [Description("Value格式化时发生"), Category("行为")]
+        [Description("Value格式化时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event ProgressFormatEventHandler? ValueFormatChanged;
 
         #endregion
@@ -394,7 +410,7 @@ namespace AntdUI
         /// <summary>
         /// 加载状态
         /// </summary>
-        [Description("加载状态"), Category("外观"), DefaultValue(false)]
+        [Description("加载状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading
         {
             get => loading;
@@ -427,13 +443,13 @@ namespace AntdUI
         /// <summary>
         /// 动画铺满
         /// </summary>
-        [Description("动画铺满"), Category("外观"), DefaultValue(false)]
+        [Description("动画铺满"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool LoadingFull { get; set; }
 
         /// <summary>
         /// 动画时长
         /// </summary>
-        [Description("动画时长"), Category("外观"), DefaultValue(200)]
+        [Description("动画时长"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(200)]
         public int Animation { get; set; } = 200;
 
         #region 步骤
@@ -442,7 +458,7 @@ namespace AntdUI
         /// <summary>
         /// 进度条总共步数
         /// </summary>
-        [Description("进度条总共步数"), Category("外观"), DefaultValue(3)]
+        [Description("进度条总共步数"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(3)]
         public int Steps
         {
             get => steps;
@@ -459,7 +475,7 @@ namespace AntdUI
         /// <summary>
         /// 步数大小
         /// </summary>
-        [Description("步数大小"), Category("外观"), DefaultValue(14)]
+        [Description("步数大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(14)]
         public int StepSize
         {
             get => stepSize;
@@ -476,7 +492,7 @@ namespace AntdUI
         /// <summary>
         /// 步数间隔
         /// </summary>
-        [Description("步数间隔"), Category("外观"), DefaultValue(2)]
+        [Description("步数间隔"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(2)]
         public int StepGap
         {
             get => stepGap;
@@ -490,6 +506,12 @@ namespace AntdUI
         }
 
         #endregion
+
+        /// <summary>
+        /// 分段集合
+        /// </summary>
+        [Description("分段集合"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public ProgressSegment[]? Segments { get; set; }
 
         #region 动画
 
@@ -550,7 +572,7 @@ namespace AntdUI
         /// <summary>
         /// 任务栏中显示进度
         /// </summary>
-        [Description("任务栏中显示进度"), Category("外观"), DefaultValue(false)]
+        [Description("任务栏中显示进度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool ShowInTaskbar
         {
             get => showInTaskbar;
@@ -643,26 +665,7 @@ namespace AntdUI
             var g = e.Canvas;
             var rect = e.Rect.PaddingRect(Padding);
             if (rect.Width == 0 || rect.Height == 0) return;
-            Color color;
-            switch (state)
-            {
-                case TType.Success:
-                    color = fill ?? Colour.Success.Get(nameof(Progress), ColorScheme);
-                    break;
-                case TType.Info:
-                    color = fill ?? Colour.Info.Get(nameof(Progress), ColorScheme);
-                    break;
-                case TType.Warn:
-                    color = fill ?? Colour.Warning.Get(nameof(Progress), ColorScheme);
-                    break;
-                case TType.Error:
-                    color = fill ?? Colour.Error.Get(nameof(Progress), ColorScheme);
-                    break;
-                case TType.None:
-                default:
-                    color = fill ?? Colour.Primary.Get(nameof(Progress), ColorScheme);
-                    break;
-            }
+            var color = GetStateColor(state, fill);
             switch (shape)
             {
                 case TShapeProgress.Circle:
@@ -685,69 +688,44 @@ namespace AntdUI
             base.OnDraw(e);
         }
 
+        Color GetStateColor(TType state, Color? fill)
+        {
+            switch (state)
+            {
+                case TType.Success: return fill ?? Colour.Success.Get(ColorScheme, nameof(Progress), Name);
+                case TType.Info: return fill ?? Colour.Info.Get(ColorScheme, nameof(Progress), Name);
+                case TType.Warn: return fill ?? Colour.Warning.Get(ColorScheme, nameof(Progress), Name);
+                case TType.Error: return fill ?? Colour.Error.Get(ColorScheme, nameof(Progress), Name);
+                case TType.None:
+                default: return fill ?? Colour.Primary.Get(ColorScheme, nameof(Progress), Name);
+            }
+        }
+
         void PaintShapeMini(Canvas g, Rectangle rect, Color color)
         {
             var _back = back ?? Color.FromArgb(40, color);
             var font_size = g.MeasureString("100" + TextUnit, Font);
             rect.IconRectL(font_size.Height, out var icon_rect, out var text_rect, iconratio);
             if (icon_rect.Width == 0 || icon_rect.Height == 0) return;
-            using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
+            using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(Progress), Name)))
             {
                 string textShow = ValueFormatChanged?.Invoke(this, new FloatEventArgs(_value_show)) ?? (useSystemText ? Text ?? "" : (_value_show * 100F).ToString("F" + ShowTextDot) + TextUnit);
                 g.String(textShow, Font, brush, new Rectangle(text_rect.X + 8, text_rect.Y, text_rect.Width - 8, text_rect.Height), FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrap);
             }
 
-            int w = radius == 0 ? (int)Math.Round(icon_rect.Width * .2F) : (int)(radius * Config.Dpi);
-            g.DrawEllipse(_back, w, icon_rect);
-
-            #region 进度条
-
-            int max = 0;
-            if (_value_show > 0)
-            {
-                max = (int)Math.Round(360 * _value_show);
-                using (var brush = new Pen(color, w))
-                {
-                    brush.StartCap = brush.EndCap = LineCap.Round;
-                    g.DrawArc(brush, icon_rect, -90, max);
-                }
-            }
-            if (loading && AnimationLoadingValue > 0)
-            {
-                if (_value_show > 0)
-                {
-                    float alpha = 60 * (1F - AnimationLoadingValue);
-                    using (var brush = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Progress), ColorScheme)), w))
-                    {
-                        brush.StartCap = brush.EndCap = LineCap.Round;
-                        g.DrawArc(brush, icon_rect, -90, (int)(max * AnimationLoadingValue));
-                    }
-                }
-                else if (LoadingFull)
-                {
-                    max = 360;
-                    float alpha = 80 * (1F - AnimationLoadingValue);
-                    using (var brush = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Progress), ColorScheme)), w))
-                    {
-                        brush.StartCap = brush.EndCap = LineCap.Round;
-                        g.DrawArc(brush, icon_rect, -90, (int)(max * AnimationLoadingValue));
-                    }
-                }
-            }
-
-            #endregion
+            int w = radius == 0 ? (int)Math.Round(icon_rect.Width * .2F) : (int)(radius * Dpi);
+            PaintProgressCircle(g, icon_rect, color, _back, w);
         }
         void PaintShapeSteps(Canvas g, Rectangle rect_t, Rectangle rect, Color color)
         {
-            var _back = back ?? Colour.FillSecondary.Get(nameof(Progress), ColorScheme);
+            var _back = back ?? Colour.FillSecondary.Get(ColorScheme, nameof(Progress), Name);
             var font_size = g.MeasureString("100" + TextUnit, Font);
-            int pro_gap = (int)(stepGap * Config.Dpi), pro_h = (int)(font_size.Height * valueratio);
-            float pro_w = (int)(stepSize * Config.Dpi), has_x = 0;
+            int pro_gap = (int)(stepGap * Dpi), pro_h = (int)(font_size.Height * valueratio);
+            float pro_w = (int)(stepSize * Dpi), has_x = 0;
             int pro_y = rect.Y + (rect.Height - pro_h) / 2;
 
             var prog = steps * _value_show;
             using (var brush = new SolidBrush(_back))
-            using (var brush_fill = new SolidBrush(color))
             {
                 if (pro_w <= 0)
                 {
@@ -772,17 +750,13 @@ namespace AntdUI
                         rects.Add(new RectangleF(rect.X + has_x, pro_y, pro_w, pro_h));
                         has_x += pro_w + pro_gap;
                     }
+                    var rect_prog = new Rectangle(rect.X, rect.Y, (int)Math.Ceiling(has_x), rect.Height);
                     if (prog > 0)
                     {
                         float tmpw = LoadingFull ? rect.Width : 0;
-                        for (int i = 0; i < steps; i++)
+                        using (var brush_fill = fillExtend.BrushEx(rect_prog, color, 90F))
                         {
-                            if (prog > i) g.Fill(brush_fill, rects[i]);
-                            else
-                            {
-                                g.Fill(brush, rects[i]);
-                                tmpw = rects[i].Right;
-                            }
+                            PaintShapeSteps(g, brush, brush_fill, steps, prog, rects, ref tmpw);
                         }
                         if (loading && AnimationLoadingValue > 0 && tmpw > 0)
                         {
@@ -790,7 +764,7 @@ namespace AntdUI
                             {
                                 foreach (var it in rects) path.AddRectangle(it);
                                 var alpha = 60 * (1F - AnimationLoadingValue);
-                                using (var brush_prog = new SolidBrush(Helper.ToColor(alpha, Colour.TextBase.Get(nameof(Progress), ColorScheme))))
+                                using (var brush_prog = new SolidBrush(Helper.ToColor(alpha, Colour.TextBase.Get(ColorScheme, nameof(Progress), Name))))
                                 {
                                     var state = g.Save();
                                     g.SetClip(new RectangleF(rect.X, rect.Y, tmpw * _value_show * AnimationLoadingValue, rect.Height));
@@ -808,7 +782,7 @@ namespace AntdUI
                             {
                                 foreach (var it in rects) path.AddRectangle(it);
                                 var alpha = 80 * (1F - AnimationLoadingValue);
-                                using (var brush_prog = new SolidBrush(Helper.ToColor(alpha, Colour.TextBase.Get(nameof(Progress), ColorScheme))))
+                                using (var brush_prog = new SolidBrush(Helper.ToColor(alpha, Colour.TextBase.Get(ColorScheme, nameof(Progress), Name))))
                                 {
                                     var state = g.Save();
                                     g.SetClip(new RectangleF(rect.X, rect.Y, rect.Width * AnimationLoadingValue, rect.Height));
@@ -828,7 +802,7 @@ namespace AntdUI
             if (state == TType.None)
             {
                 int has_x2 = (int)Math.Ceiling(has_x + pro_h / 2);
-                using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
+                using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(Progress), Name)))
                 {
                     string textShow = ValueFormatChanged?.Invoke(this, new FloatEventArgs(_value_show)) ?? (useSystemText ? Text ?? "" : (_value_show * 100F).ToString("F" + ShowTextDot) + TextUnit);
                     g.String(textShow, Font, brush, new Rectangle(rect.X + has_x2, rect.Y, rect.Width - has_x2, rect.Height), FormatFlags.Left | FormatFlags.VerticalCenter | FormatFlags.NoWrap);
@@ -841,10 +815,22 @@ namespace AntdUI
                 g.PaintIcons(state, new Rectangle((rect.X + has_x2 + size_font_w) - ico_size, rect_t.Y + (rect_t.Height - ico_size) / 2, ico_size, ico_size), "Progress", ColorScheme);
             }
         }
+        void PaintShapeSteps(Canvas g, Brush brush, Brush brush_fill, int steps, float prog, List<RectangleF> rects, ref float tmpw)
+        {
+            for (int i = 0; i < steps; i++)
+            {
+                if (prog > i) g.Fill(brush_fill, rects[i]);
+                else
+                {
+                    g.Fill(brush, rects[i]);
+                    tmpw = rects[i].Right;
+                }
+            }
+        }
         void PaintShapeRound(Canvas g, Rectangle rect_t, Rectangle rect, Color color, bool round)
         {
-            var _back = back ?? Colour.FillSecondary.Get(nameof(Progress), ColorScheme);
-            float _radius = radius * Config.Dpi;
+            var _back = back ?? Colour.FillSecondary.Get(ColorScheme, nameof(Progress), Name);
+            float _radius = radius * Dpi;
             if (round) _radius = rect.Height;
 
             if (state == TType.None)
@@ -865,7 +851,7 @@ namespace AntdUI
                     rect.Height = pro_h;
                     PaintProgress(g, _radius, rect, _back, color);
 
-                    using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
+                    using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(Progress), Name)))
                     {
                         g.String(textShow, Font, brush, rect_t, s_c);
                     }
@@ -911,7 +897,7 @@ namespace AntdUI
                         rect.Width -= size_font_w;
                         if (rect.Width > 0) PaintProgress(g, _radius, rect, _back, color);
 
-                        using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
+                        using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(Progress), Name)))
                         {
                             g.String(textShow, Font, brush, rect_rext, FormatFlags.Right | FormatFlags.VerticalCenter | FormatFlags.NoWrap);
                         }
@@ -934,19 +920,19 @@ namespace AntdUI
         }
         void PaintShapeCircle(Canvas g, Rectangle rect, Color color)
         {
-            var _back = back ?? Colour.FillSecondary.Get(nameof(Progress), ColorScheme);
+            var _back = back ?? Colour.FillSecondary.Get(ColorScheme, nameof(Progress), Name);
 
             int prog_size;
             if (rect.Width == rect.Height) prog_size = rect.Width;
             else if (rect.Width > rect.Height) prog_size = rect.Height;
             else prog_size = rect.Width;
-            int w = radius == 0 ? (int)Math.Round(prog_size * .04F) : (int)(radius * Config.Dpi);
+            int w = radius == 0 ? (int)Math.Round(prog_size * .04F) : (int)(radius * Dpi);
             prog_size -= w;
             var rect_prog = new Rectangle(rect.X + (rect.Width - prog_size) / 2, rect.Y + (rect.Height - prog_size) / 2, prog_size, prog_size);
 
             if (HasIcon)
             {
-                int iconSize = prog_size - radius - (int)(IconCirclePadding * Config.Dpi), gap = (rect_prog.Width - iconSize) / 2;
+                int iconSize = prog_size - radius - (int)(IconCirclePadding * Dpi), gap = (rect_prog.Width - iconSize) / 2;
                 if (IconCircleAngle)
                 {
                     var state = g.Save();
@@ -958,7 +944,7 @@ namespace AntdUI
                         g.RotateTransform(_value_show * 360F);
                         var ico_rect = new Rectangle(xy2, xy2, iconSize, iconSize);
                         if (icon != null) g.Image(icon, ico_rect);
-                        if (iconSvg != null) g.GetImgExtend(iconSvg, ico_rect, IconCircleColor ?? Color.FromArgb(30, _back));
+                        if (iconSvg != null) g.Svg(iconSvg, ico_rect, IconCircleColor ?? Color.FromArgb(30, _back));
                     }
                     finally { g.Restore(state); }
                 }
@@ -967,53 +953,17 @@ namespace AntdUI
                     int xy = (rect_prog.Width - iconSize) / 2;
                     var ico_rect = new Rectangle(rect_prog.X + xy, rect_prog.Y + xy, iconSize, iconSize);
                     if (icon != null) g.Image(icon, ico_rect);
-                    if (iconSvg != null) g.GetImgExtend(iconSvg, ico_rect, Color.FromArgb(30, _back));//增加透明度}
-                }
-            }
-            g.DrawEllipse(_back, w, rect_prog);
-
-            #region 进度条
-
-            int max = 0;
-            if (_value_show > 0)
-            {
-                max = (int)Math.Round(360 * _value_show);
-                using (var brush = new Pen(color, w))
-                {
-                    brush.StartCap = brush.EndCap = LineCap.Round;
-                    g.DrawArc(brush, rect_prog, -90, max);
-                }
-            }
-            if (loading && AnimationLoadingValue > 0)
-            {
-                if (_value_show > 0)
-                {
-                    float alpha = 60 * (1F - AnimationLoadingValue);
-                    using (var brush = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Progress), ColorScheme)), w))
-                    {
-                        brush.StartCap = brush.EndCap = LineCap.Round;
-                        g.DrawArc(brush, rect_prog, -90, (int)(max * AnimationLoadingValue));
-                    }
-                }
-                else if (LoadingFull)
-                {
-                    max = 360;
-                    float alpha = 80 * (1F - AnimationLoadingValue);
-                    using (var brush = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Progress), ColorScheme)), w))
-                    {
-                        brush.StartCap = brush.EndCap = LineCap.Round;
-                        g.DrawArc(brush, rect_prog, -90, (int)(max * AnimationLoadingValue));
-                    }
+                    if (iconSvg != null) g.Svg(iconSvg, ico_rect, Color.FromArgb(30, _back));//增加透明度}
                 }
             }
 
-            #endregion
+            PaintProgressCircle(g, rect_prog, color, _back, w);
 
             if (_value_show > 0)
             {
                 if (state == TType.None)
                 {
-                    using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
+                    using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(Progress), Name)))
                     {
                         string textShow = ValueFormatChanged?.Invoke(this, new FloatEventArgs(_value_show)) ?? (useSystemText ? Text ?? "" : (_value_show * 100F).ToString("F" + ShowTextDot) + TextUnit);
                         g.String(textShow, Font, brush, rect, s_c);
@@ -1027,10 +977,91 @@ namespace AntdUI
             }
             else
             {
-                using (var brush = new SolidBrush(fore ?? Colour.Text.Get(nameof(Progress), ColorScheme)))
+                using (var brush = new SolidBrush(fore ?? Colour.Text.Get(ColorScheme, nameof(Progress), Name)))
                 {
                     string textShow = ValueFormatChanged?.Invoke(this, new FloatEventArgs(_value_show)) ?? (useSystemText ? Text ?? "" : (_value_show * 100F).ToString("F" + ShowTextDot) + TextUnit);
                     g.String(textShow, Font, brush, rect, s_c);
+                }
+            }
+        }
+        void PaintProgressCircle(Canvas g, Rectangle rect, Color color, Color back, float size)
+        {
+            int gapMin, gapMax;
+            if (GapDegree > 0)
+            {
+                int gapTmp = Math.Min(GapDegree, 295);
+                gapMax = 360 - gapTmp;
+                int center;
+                switch (GapPlacement)
+                {
+                    case TAlignMini.Top: center = 270; break;
+                    case TAlignMini.Right: center = 0; break;
+                    case TAlignMini.Left: center = 180; break;
+                    case TAlignMini.Bottom:
+                    default: center = 90; break;
+                }
+                gapMin = center + gapTmp / 2;// 起始角 = 中心 + 半缺口
+                if (gapMax == 360) g.DrawEllipse(back, size, rect);
+                else g.DrawArc(back, size, rect, gapMin, gapMax);
+            }
+            else
+            {
+                gapMin = -90;
+                gapMax = 360;
+                g.DrawEllipse(back, size, rect);
+            }
+
+            int max = 0;
+            if (_value_show > 0)
+            {
+                max = (int)Math.Round(gapMax * _value_show);
+                using (var brush = new Pen(color, size))
+                {
+                    brush.StartCap = brush.EndCap = LineCap.Round;
+                    if (Helper.BrushEx(fillExtend, out var colors, out var positions))
+                    {
+                        using (var path = new GraphicsPath())
+                        {
+                            path.AddArc(rect, gapMin, max);
+                            g.DrawNativePathGradient(path, size, colors, positions);
+                        }
+                    }
+                    else g.DrawArc(brush, rect, gapMin, max);
+                }
+            }
+            if (Segments != null && Segments.Length > 0)
+            {
+                for (int i = Segments.Length - 1; i > -1; i--)
+                {
+                    var seg = Segments[i];
+                    float sweep = gapMax * seg.Value;
+                    using (var brush = new Pen(GetStateColor(seg.State, seg.Fill), size))
+                    {
+                        brush.StartCap = brush.EndCap = LineCap.Round;
+                        g.DrawArc(brush, rect, gapMin, sweep);
+                    }
+                }
+            }
+            if (loading && AnimationLoadingValue > 0)
+            {
+                if (_value_show > 0)
+                {
+                    float alpha = 60 * (1F - AnimationLoadingValue);
+                    using (var brush = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Progress), Name)), size))
+                    {
+                        brush.StartCap = brush.EndCap = LineCap.Round;
+                        g.DrawArc(brush, rect, gapMin, (int)(max * AnimationLoadingValue));
+                    }
+                }
+                else if (LoadingFull)
+                {
+                    max = gapMax;
+                    float alpha = 80 * (1F - AnimationLoadingValue);
+                    using (var brush = new Pen(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Progress), Name)), size))
+                    {
+                        brush.StartCap = brush.EndCap = LineCap.Round;
+                        g.DrawArc(brush, rect, gapMin, (int)(max * AnimationLoadingValue));
+                    }
                 }
             }
         }
@@ -1046,17 +1077,22 @@ namespace AntdUI
                     var _w = rect.Width * _value_show;
                     if (_w > radius)
                     {
-                        using (var path_prog = new RectangleF(rect.X, rect.Y, _w, rect.Height).RoundPath(radius))
+                        var rect_prog = new RectangleF(rect.X, rect.Y, _w, rect.Height);
+                        using (var path_prog = rect_prog.RoundPath(radius))
                         {
-                            g.Fill(color, path_prog);
+                            using (var brush_fill = fillExtend.BrushEx(rect_prog, color, 90F))
+                            {
+                                g.Fill(brush_fill, path_prog);
+                            }
                         }
+                        PaintSegments(g, radius, rect.X, rect.Y, rect.Width, rect.Height);
                         if (loading && AnimationLoadingValue > 0)
                         {
                             handloading = false;
                             var alpha = 60 * (1F - AnimationLoadingValue);
                             using (var path_prog = new RectangleF(rect.X, rect.Y, _w * AnimationLoadingValue, rect.Height).RoundPath(radius))
                             {
-                                g.Fill(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Progress), ColorScheme)), path_prog);
+                                g.Fill(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Progress), Name)), path_prog);
                             }
                         }
                     }
@@ -1064,19 +1100,20 @@ namespace AntdUI
                     {
                         using (var bmp = new Bitmap(rect.Width, rect.Height))
                         {
-                            using (var g2 = Graphics.FromImage(bmp).High())
+                            using (var g2 = Graphics.FromImage(bmp).High(Dpi))
                             {
                                 using (var path_prog = new RectangleF(-_w, 0, _w * 2, rect.Height).RoundPath(radius))
                                 {
                                     g2.Fill(color, path_prog);
                                 }
+                                PaintSegments(g2, radius, 0, 0, rect.Width, rect.Height);
                                 if (loading && AnimationLoadingValue > 0)
                                 {
                                     handloading = false;
                                     var alpha = 60 * (1F - AnimationLoadingValue);
                                     using (var path_prog = new RectangleF(-_w, 0, _w * 2 * AnimationLoadingValue, rect.Height).RoundPath(radius))
                                     {
-                                        g2.Fill(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Progress), ColorScheme)), path_prog);
+                                        g2.Fill(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Progress), Name)), path_prog);
                                     }
                                 }
                             }
@@ -1092,7 +1129,7 @@ namespace AntdUI
                 if (loading && AnimationLoadingValue > 0 && handloading && LoadingFull)
                 {
                     var alpha = 80 * (1F - AnimationLoadingValue);
-                    using (var brush = new SolidBrush(Helper.ToColor(alpha, Colour.BgBase.Get(nameof(Progress), ColorScheme))))
+                    using (var brush = new SolidBrush(Helper.ToColor(alpha, Colour.BgBase.Get(ColorScheme, nameof(Progress), Name))))
                     {
                         using (var path_prog = new RectangleF(rect.X, rect.Y, rect.Width * AnimationLoadingValue, rect.Height).RoundPath(radius))
                         {
@@ -1101,6 +1138,95 @@ namespace AntdUI
                     }
                 }
             }
+        }
+
+        void PaintSegments(Canvas g, float radius, int x, int y, int w, int h)
+        {
+            if (Segments != null && Segments.Length > 0)
+            {
+                GraphicsPath? path = null;
+                for (int i = Segments.Length - 1; i > -1; i--)
+                {
+                    var seg = Segments[i];
+                    var _w = w * seg.Value;
+                    if (_w > radius)
+                    {
+                        using (var path_prog_seg = new RectangleF(x, y, _w, h).RoundPath(radius))
+                        {
+                            g.Fill(GetStateColor(seg.State, seg.Fill), path_prog_seg);
+                        }
+                    }
+                    else
+                    {
+                        if (path == null) path = new Rectangle(x, y, w, h).RoundPath(radius);
+                        var state = g.Save();
+                        g.SetClip(path);
+                        using (var path_prog_seg = new RectangleF(x - h, y, _w + h, h).RoundPath(radius))
+                        {
+                            g.Fill(GetStateColor(seg.State, seg.Fill), path_prog_seg);
+                        }
+                        g.Restore(state);
+                    }
+                }
+                path?.Dispose();
+            }
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// 分段进度条的段项。
+    /// </summary>
+    public class ProgressSegment
+    {
+        float _value = 0F;
+        /// <summary>
+        /// 段宽占比，0-1。
+        /// </summary>
+        [Description("段宽占比 0-1"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0F)]
+        public float Value
+        {
+            get => _value;
+            set
+            {
+                if (_value == value) return;
+                if (value < 0) value = 0;
+                else if (value > 1) value = 1;
+                _value = value;
+            }
+        }
+
+        /// <summary>
+        /// 段填充颜色
+        /// </summary>
+        [Description("段填充颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? Fill { get; set; }
+
+        /// <summary>
+        /// 段状态颜色映射
+        /// </summary>
+        [Description("段状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TType.None)]
+        public TType State { get; set; } = TType.None;
+
+        #region 设置链式
+
+        public ProgressSegment SetValue(float value)
+        {
+            Value = value;
+            return this;
+        }
+
+        public ProgressSegment SetFill(Color? value)
+        {
+            Fill = value;
+            return this;
+        }
+
+        public ProgressSegment SetState(TType value)
+        {
+            State = value;
+            return this;
         }
 
         #endregion

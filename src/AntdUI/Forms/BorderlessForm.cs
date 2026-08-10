@@ -1,28 +1,13 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using static Vanara.PInvoke.DwmApi;
-using static Vanara.PInvoke.User32;
 
 namespace AntdUI
 {
@@ -34,8 +19,7 @@ namespace AntdUI
                 ControlStyles.UserPaint |
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.OptimizedDoubleBuffer |
-                ControlStyles.ResizeRedraw |
-                ControlStyles.DoubleBuffer, true);
+                ControlStyles.ResizeRedraw, true);
             UpdateStyles();
             base.FormBorderStyle = FormBorderStyle.None;
         }
@@ -53,7 +37,7 @@ namespace AntdUI
         /// <summary>
         /// 阴影大小
         /// </summary>
-        [Description("阴影大小"), Category("外观"), DefaultValue(10)]
+        [Description("阴影大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(10)]
         public int Shadow
         {
             get => shadow;
@@ -80,17 +64,17 @@ namespace AntdUI
         /// <summary>
         /// 使用DWM阴影
         /// </summary>
-        [Description("使用DWM阴影"), Category("行为"), DefaultValue(true)]
+        [Description("使用DWM阴影"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool UseDwm { get; set; } = true;
 
-        [Description("鼠标穿透"), Category("行为"), DefaultValue(false)]
+        [Description("鼠标穿透"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ShadowPierce { get; set; }
 
         Color shadowColor = Color.FromArgb(100, 0, 0, 0);
         /// <summary>
         /// 阴影颜色
         /// </summary>
-        [Description("阴影颜色"), Category("外观"), DefaultValue(typeof(Color), "100, 0, 0, 0")]
+        [Description("阴影颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "100, 0, 0, 0")]
         public Color ShadowColor
         {
             get => shadowColor;
@@ -104,7 +88,7 @@ namespace AntdUI
         }
 
         int borderWidth = 1;
-        [Description("边框宽度"), Category("外观"), DefaultValue(1)]
+        [Description("边框宽度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(1)]
         public int BorderWidth
         {
             get => borderWidth;
@@ -116,12 +100,12 @@ namespace AntdUI
             }
         }
 
-        Color borderColor = Color.FromArgb(180, 0, 0, 0);
+        Color? borderColor;
         /// <summary>
         /// 边框颜色
         /// </summary>
-        [Description("边框颜色"), Category("外观"), DefaultValue(typeof(Color), "180, 0, 0, 0")]
-        public Color BorderColor
+        [Description("边框颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
+        public Color? BorderColor
         {
             get => borderColor;
             set
@@ -136,7 +120,7 @@ namespace AntdUI
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(0)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(0)]
         public int Radius
         {
             get => radius;
@@ -153,7 +137,7 @@ namespace AntdUI
         /// <summary>
         /// 确定窗体是否出现在 Windows 任务栏中
         /// </summary>
-        [Description("确定窗体是否出现在 Windows 任务栏中"), Category("行为"), DefaultValue(true)]
+        [Description("确定窗体是否出现在 Windows 任务栏中"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public new bool ShowInTaskbar
         {
             get => base.ShowInTaskbar;
@@ -228,28 +212,28 @@ namespace AntdUI
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
         {
-            var msg = (WindowMessage)m.Msg;
+            var msg = (Win32.User32.WindowMessage)m.Msg;
             switch (msg)
             {
-                case WindowMessage.WM_ERASEBKGND:
+                case Win32.User32.WindowMessage.WM_ERASEBKGND:
                     m.Result = IntPtr.Zero;
                     return;
-                case WindowMessage.WM_ACTIVATE:
-                case WindowMessage.WM_NCPAINT:
+                case Win32.User32.WindowMessage.WM_ACTIVATE:
+                case Win32.User32.WindowMessage.WM_NCPAINT:
                     DwmArea();
                     break;
-                case WindowMessage.WM_NCHITTEST:
+                case Win32.User32.WindowMessage.WM_NCHITTEST:
                     m.Result = TRUE;
                     return;
-                case WindowMessage.WM_SIZE:
+                case Win32.User32.WindowMessage.WM_SIZE:
                     WmSize(ref m);
                     break;
-                case WindowMessage.WM_MOUSEMOVE:
-                case WindowMessage.WM_NCMOUSEMOVE:
+                case Win32.User32.WindowMessage.WM_MOUSEMOVE:
+                case Win32.User32.WindowMessage.WM_NCMOUSEMOVE:
                     if (!is_resizable && Window.CanHandMessage && ReadMessage) ResizableMouseMove(PointToClient(MousePosition));
                     break;
-                case WindowMessage.WM_LBUTTONDOWN:
-                case WindowMessage.WM_NCLBUTTONDOWN:
+                case Win32.User32.WindowMessage.WM_LBUTTONDOWN:
+                case Win32.User32.WindowMessage.WM_NCLBUTTONDOWN:
                     if (!is_resizable && Window.CanHandMessage && ReadMessage) ResizableMouseDown();
                     break;
             }
@@ -267,9 +251,14 @@ namespace AntdUI
                 if (oldmargin == margin) return;
                 oldmargin = margin;
                 var v = 2;
-                Win32.DwmSetWindowAttribute(Handle, 2, ref v, 4);
-                DwmExtendFrameIntoClientArea(Handle, new MARGINS(margin));
+                Win32.DwmApi.DwmSetWindowAttribute(Handle, 2, ref v, 4);
+                Win32.DwmApi.DwmExtendFrameIntoClientArea(Handle, new Win32.DwmApi.MARGINS(margin));
             }
+        }
+
+        protected override void SetThemeOK(bool dark)
+        {
+            if (DwmEnabled) Win32.SetWindowBorderColor(Handle, BorderColor);
         }
 
         const nint SIZE_RESTORED = 0;
@@ -289,7 +278,7 @@ namespace AntdUI
             get
             {
                 CreateParams cp = base.CreateParams;
-                cp.Style |= (int)WindowStyles.WS_MINIMIZEBOX;
+                cp.Style |= (int)Win32.User32.WindowStyles.WS_MINIMIZEBOX;
                 return cp;
             }
         }
@@ -307,7 +296,7 @@ namespace AntdUI
                 else
                 {
                     if (UseDwm && OS.Win11) return;
-                    using (var path = rect.RoundPath(radius * Config.Dpi))
+                    using (var path = rect.RoundPath(radius * Dpi))
                     {
                         var region = new Region(path);
                         path.Widen(Pens.White);
@@ -323,7 +312,7 @@ namespace AntdUI
         #region 属性
 
         bool resizable = true;
-        [Description("调整窗口大小"), Category("行为"), DefaultValue(true)]
+        [Description("调整窗口大小"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool Resizable
         {
             get => resizable;
@@ -376,7 +365,7 @@ namespace AntdUI
         protected override void OnHandleCreated(EventArgs e)
         {
             if (UseDwm && OS.Version.Major >= 6) DwmEnabled = Win32.IsCompositionEnabled;
-            DisableProcessWindowsGhosting();
+            Win32.User32.DisableProcessWindowsGhosting();
             base.OnHandleCreated(e);
             HandMessage();
             DwmArea();
@@ -419,8 +408,8 @@ namespace AntdUI
                     }
                 });
             }
-            ReleaseCapture();
-            SendMessage(Handle, 0x0112, 61456 | 2, IntPtr.Zero);
+            Win32.User32.ReleaseCapture();
+            Win32.User32.SendMessage(Handle, 0x0112, 61456 | 2, IntPtr.Zero);
             end = false;
             if (handmax)
             {
@@ -449,10 +438,10 @@ namespace AntdUI
             if (winState == WState.Restore)
             {
                 var retval = HitTest(PointToClient(MousePosition));
-                if (retval != HitTestValues.HTNOWHERE)
+                if (retval != Win32.User32.HitTestValues.HTNOWHERE)
                 {
                     var mode = retval;
-                    if (mode != HitTestValues.HTCLIENT)
+                    if (mode != Win32.User32.HitTestValues.HTCLIENT)
                     {
                         SetCursorHit(mode);
                         return true;
@@ -471,10 +460,10 @@ namespace AntdUI
             if (winState == WState.Restore)
             {
                 var retval = HitTest(point);
-                if (retval != HitTestValues.HTNOWHERE)
+                if (retval != Win32.User32.HitTestValues.HTNOWHERE)
                 {
                     var mode = retval;
-                    if (mode != HitTestValues.HTCLIENT)
+                    if (mode != Win32.User32.HitTestValues.HTCLIENT)
                     {
                         SetCursorHit(mode);
                         return true;

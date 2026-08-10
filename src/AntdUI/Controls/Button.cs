@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -46,7 +33,7 @@ namespace AntdUI
         /// <summary>
         /// 原装背景颜色
         /// </summary>
-        [Description("原装背景颜色"), Category("外观"), DefaultValue(typeof(Color), "Transparent")]
+        [Description("原装背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Color), "Transparent")]
         public Color OriginalBackColor
         {
             get => base.BackColor;
@@ -59,7 +46,7 @@ namespace AntdUI
         /// <summary>
         /// 文字颜色
         /// </summary>
-        [Description("文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? ForeColor
         {
@@ -76,14 +63,14 @@ namespace AntdUI
         /// <summary>
         /// 悬停文字颜色
         /// </summary>
-        [Description("悬停文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ForeHover { get; set; }
 
         /// <summary>
         /// 激活文字颜色
         /// </summary>
-        [Description("激活文字颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活文字颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? ForeActive { get; set; }
 
@@ -95,7 +82,7 @@ namespace AntdUI
         /// <summary>
         /// 背景颜色
         /// </summary>
-        [Description("背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public new Color? BackColor
         {
@@ -113,7 +100,7 @@ namespace AntdUI
         /// <summary>
         /// 背景渐变色
         /// </summary>
-        [Description("背景渐变色"), Category("外观"), DefaultValue(null)]
+        [Description("背景渐变色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? BackExtend
         {
             get => backExtend;
@@ -129,14 +116,14 @@ namespace AntdUI
         /// <summary>
         /// 悬停背景颜色
         /// </summary>
-        [Description("悬停背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("悬停背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackHover { get; set; }
 
         /// <summary>
         /// 激活背景颜色
         /// </summary>
-        [Description("激活背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("激活背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? BackActive { get; set; }
 
@@ -144,7 +131,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片
         /// </summary>
-        [Description("背景图片"), Category("外观"), DefaultValue(null)]
+        [Description("背景图片"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public new Image? BackgroundImage
         {
             get => backImage;
@@ -161,7 +148,7 @@ namespace AntdUI
         /// <summary>
         /// 背景图片布局
         /// </summary>
-        [Description("背景图片布局"), Category("外观"), DefaultValue(TFit.Fill)]
+        [Description("背景图片布局"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TFit.Fill)]
         public new TFit BackgroundImageLayout
         {
             get => backFit;
@@ -182,7 +169,7 @@ namespace AntdUI
         /// <summary>
         /// Default模式背景颜色
         /// </summary>
-        [Description("Default模式背景颜色"), Category("外观"), DefaultValue(null)]
+        [Description("Default模式背景颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? DefaultBack
         {
@@ -200,7 +187,7 @@ namespace AntdUI
         /// <summary>
         /// Default模式边框颜色
         /// </summary>
-        [Description("Default模式边框颜色"), Category("外观"), DefaultValue(null)]
+        [Description("Default模式边框颜色"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         [Editor(typeof(Design.ColorEditor), typeof(UITypeEditor))]
         public Color? DefaultBorderColor
         {
@@ -240,14 +227,14 @@ namespace AntdUI
         /// <summary>
         /// 波浪大小
         /// </summary>
-        [Description("波浪大小"), Category("外观"), DefaultValue(4)]
+        [Description("波浪大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(4)]
         public int WaveSize { get; set; } = 4;
 
         int radius = 6;
         /// <summary>
         /// 圆角
         /// </summary>
-        [Description("圆角"), Category("外观"), DefaultValue(6)]
+        [Description("圆角"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(6)]
         public int Radius
         {
             get => radius;
@@ -264,7 +251,7 @@ namespace AntdUI
         /// <summary>
         /// 形状
         /// </summary>
-        [Description("形状"), Category("外观"), DefaultValue(TShape.Default)]
+        [Description("形状"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TShape.Default)]
         public TShape Shape
         {
             get => shape;
@@ -281,7 +268,7 @@ namespace AntdUI
         /// <summary>
         /// 指定显示图像还是文本
         /// </summary>
-        [Description("指定显示图像还是文本"), Category("外观"), DefaultValue(TButtonDisplayStyle.Default)]
+        [Description("指定显示图像还是文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TButtonDisplayStyle.Default)]
         public TButtonDisplayStyle DisplayStyle
         {
             get => displayStyle;
@@ -298,7 +285,7 @@ namespace AntdUI
         /// <summary>
         /// 类型
         /// </summary>
-        [Description("类型"), Category("外观"), DefaultValue(TTypeMini.Default)]
+        [Description("类型"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TTypeMini.Default)]
         public TTypeMini Type
         {
             get => type;
@@ -315,7 +302,7 @@ namespace AntdUI
         /// <summary>
         /// 幽灵属性，使按钮背景透明
         /// </summary>
-        [Description("幽灵属性，使按钮背景透明"), Category("外观"), DefaultValue(false)]
+        [Description("幽灵属性，使按钮背景透明"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Ghost
         {
             get => ghost;
@@ -331,14 +318,14 @@ namespace AntdUI
         /// <summary>
         /// 响应真实区域
         /// </summary>
-        [Description("响应真实区域"), Category("行为"), DefaultValue(false)]
+        [Description("响应真实区域"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool RespondRealAreas { get; set; }
 
         bool showArrow = false;
         /// <summary>
         /// 显示箭头
         /// </summary>
-        [Description("显示箭头"), Category("行为"), DefaultValue(false)]
+        [Description("显示箭头"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ShowArrow
         {
             get => showArrow;
@@ -355,7 +342,7 @@ namespace AntdUI
         /// <summary>
         /// 箭头链接样式
         /// </summary>
-        [Description("箭头链接样式"), Category("行为"), DefaultValue(false)]
+        [Description("箭头链接样式"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool IsLink
         {
             get => isLink;
@@ -371,16 +358,16 @@ namespace AntdUI
         /// <summary>
         /// 箭头角度
         /// </summary>
-        [Browsable(false), Description("箭头角度"), Category("外观"), DefaultValue(-1F)]
+        [Browsable(false), Description("箭头角度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(-1F)]
         public float ArrowProg { get; set; } = -1F;
 
-        #region 快捷键
+        #region 助记键
 
         bool useMnemonic = true;
         /// <summary>
-        /// 如助记键
+        /// 助记键
         /// </summary>
-        [Description("如果为 true，则前面有(&)号 的第一个字符将用作按钮的助记键"), Category("行为"), DefaultValue(true)]
+        [Description("如果为 true，则前面有(&)号 的第一个字符将用作按钮的助记键"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(true)]
         public bool UseMnemonic
         {
             get => useMnemonic;
@@ -395,10 +382,13 @@ namespace AntdUI
 
         protected override bool ProcessMnemonic(char charCode)
         {
-            if (UseMnemonic && Enabled && Visible && IsMnemonic(charCode, Text))
+            if (useMnemonic && CanProcessMnemonicBefore(charCode, text))
             {
-                PerformClick();
-                return true;
+                if (CanProcessMnemonicAfter())
+                {
+                    PerformClick();
+                    return true;
+                }
             }
             return base.ProcessMnemonic(charCode);
         }
@@ -412,7 +402,7 @@ namespace AntdUI
         /// 文本
         /// </summary>
         [Editor(typeof(System.ComponentModel.Design.MultilineStringEditor), typeof(UITypeEditor))]
-        [Description("文本"), Category("外观"), DefaultValue(null)]
+        [Description("文本"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public override string? Text
         {
 #pragma warning disable CS8764, CS8766
@@ -437,7 +427,7 @@ namespace AntdUI
         /// <summary>
         /// 文本位置
         /// </summary>
-        [Description("文本位置"), Category("外观"), DefaultValue(ContentAlignment.MiddleCenter)]
+        [Description("文本位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(ContentAlignment.MiddleCenter)]
         public ContentAlignment TextAlign
         {
             get => textAlign;
@@ -452,7 +442,7 @@ namespace AntdUI
         }
 
         int? virtualWidth;
-        [Description("虚拟宽度"), Category("外观"), DefaultValue(null)]
+        [Description("虚拟宽度"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public int? VirtualWidth
         {
             get => virtualWidth;
@@ -468,7 +458,7 @@ namespace AntdUI
         /// <summary>
         /// 文本居中显示(包含图标后)
         /// </summary>
-        [Description("文本居中显示(包含图标后)"), Category("外观"), DefaultValue(false)]
+        [Description("文本居中显示(包含图标后)"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool TextCenterHasIcon
         {
             get => textCenterHasIcon;
@@ -485,7 +475,7 @@ namespace AntdUI
         /// <summary>
         /// 文本超出自动处理
         /// </summary>
-        [Description("文本超出自动处理"), Category("行为"), DefaultValue(false)]
+        [Description("文本超出自动处理"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool AutoEllipsis
         {
             get => autoEllipsis;
@@ -503,7 +493,7 @@ namespace AntdUI
         /// <summary>
         /// 是否多行
         /// </summary>
-        [Description("是否多行"), Category("行为"), DefaultValue(false)]
+        [Description("是否多行"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool TextMultiLine
         {
             get => textMultiLine;
@@ -526,7 +516,7 @@ namespace AntdUI
         /// <summary>
         /// 图标比例
         /// </summary>
-        [Description("图标比例"), Category("外观"), DefaultValue(.7F)]
+        [Description("图标比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.7F)]
         public float IconRatio
         {
             get => iconratio;
@@ -543,7 +533,7 @@ namespace AntdUI
         /// <summary>
         /// 图标与文字间距比例
         /// </summary>
-        [Description("图标与文字间距比例"), Category("外观"), DefaultValue(.25F)]
+        [Description("图标与文字间距比例"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(.25F)]
         public float IconGap
         {
             get => icongap;
@@ -560,7 +550,7 @@ namespace AntdUI
         /// <summary>
         /// 图标
         /// </summary>
-        [Description("图标"), Category("外观"), DefaultValue(null)]
+        [Description("图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? Icon
         {
             get => icon;
@@ -577,7 +567,7 @@ namespace AntdUI
         /// <summary>
         /// 图标SVG
         /// </summary>
-        [Description("图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconSvg
         {
             get => iconSvg;
@@ -613,32 +603,32 @@ namespace AntdUI
         /// <summary>
         /// 图标大小
         /// </summary>
-        [Description("图标大小"), Category("外观"), DefaultValue(typeof(Size), "0, 0")]
+        [Description("图标大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(typeof(Size), "0, 0")]
         public Size IconSize { get; set; }
 
         /// <summary>
         /// 悬停图标
         /// </summary>
-        [Description("悬停图标"), Category("外观"), DefaultValue(null)]
+        [Description("悬停图标"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public Image? IconHover { get; set; }
 
         /// <summary>
         /// 悬停图标SVG
         /// </summary>
-        [Description("悬停图标SVG"), Category("外观"), DefaultValue(null)]
+        [Description("悬停图标SVG"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(null)]
         public string? IconHoverSvg { get; set; }
 
         /// <summary>
         /// 悬停图标动画时长
         /// </summary>
-        [Description("悬停图标动画时长"), Category("外观"), DefaultValue(200)]
+        [Description("悬停图标动画时长"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(200)]
         public int IconHoverAnimation { get; set; } = 200;
 
         TAlignMini iconPosition = TAlignMini.Left;
         /// <summary>
         /// 按钮图标组件的位置
         /// </summary>
-        [Description("按钮图标组件的位置"), Category("外观"), DefaultValue(TAlignMini.Left)]
+        [Description("按钮图标组件的位置"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAlignMini.Left)]
         public TAlignMini IconPosition
         {
             get => iconPosition;
@@ -665,7 +655,7 @@ namespace AntdUI
         /// <summary>
         /// 点击时自动改变选中状态
         /// </summary>
-        [Description("点击时自动改变选中状态"), Category("行为"), DefaultValue(false)]
+        [Description("点击时自动改变选中状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool AutoToggle { get; set; }
 
         bool toggle = false;
@@ -680,7 +670,7 @@ namespace AntdUI
             {
                 if (value == toggle) return;
                 toggle = value;
-                if (Config.HasAnimation(nameof(Button)))
+                if (Config.HasAnimation(nameof(Button), Name))
                 {
                     if (IconToggleAnimation > 0 && HasIcon && HasToggleIcon)
                     {
@@ -873,7 +863,7 @@ namespace AntdUI
         /// <summary>
         /// 加载状态
         /// </summary>
-        [Description("加载状态"), Category("外观"), DefaultValue(false)]
+        [Description("加载状态"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool Loading
         {
             get => loading;
@@ -904,7 +894,7 @@ namespace AntdUI
         /// <summary>
         /// 加载响应点击
         /// </summary>
-        [Description("加载响应点击"), Category("行为"), DefaultValue(false)]
+        [Description("加载响应点击"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool LoadingRespondClick { get; set; }
 
         /// <summary>
@@ -956,7 +946,7 @@ namespace AntdUI
         /// <summary>
         /// 组合模式
         /// </summary>
-        [Description("组合模式"), Category("外观"), DefaultValue(TJoinMode.None)]
+        [Description("组合模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TJoinMode.None)]
         public TJoinMode JoinMode
         {
             get => joinMode;
@@ -973,7 +963,7 @@ namespace AntdUI
         /// <summary>
         /// 连接左边
         /// </summary>
-        [Obsolete("use JoinMode"), Browsable(false), Description("连接左边"), Category("外观"), DefaultValue(false)]
+        [Obsolete("use JoinMode"), Browsable(false), Description("连接左边"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool JoinLeft
         {
             get => joinLeft;
@@ -990,7 +980,7 @@ namespace AntdUI
         /// <summary>
         /// 连接右边
         /// </summary>
-        [Obsolete("use JoinMode"), Browsable(false), Description("连接右边"), Category("外观"), DefaultValue(false)]
+        [Obsolete("use JoinMode"), Browsable(false), Description("连接右边"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public bool JoinRight
         {
             get => joinRight;
@@ -1016,9 +1006,9 @@ namespace AntdUI
         bool AnimationClick = false;
         float AnimationClickValue = 0;
 
-        public void ClickAnimation()
+        public virtual void ClickAnimation()
         {
-            if (WaveSize > 0 && Config.HasAnimation(nameof(Button)))
+            if (WaveSize > 0 && Config.HasAnimation(nameof(Button), Name))
             {
                 ThreadClick?.Dispose();
                 AnimationClickValue = 0;
@@ -1043,7 +1033,7 @@ namespace AntdUI
         #region 悬停动画
 
         bool _mouseDown = false;
-        [Description("激活状态"), Category("行为"), DefaultValue(false)]
+        [Description("激活状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ExtraMouseDown
         {
             get => _mouseDown;
@@ -1060,7 +1050,7 @@ namespace AntdUI
         bool AnimationIconHover = false;
         float AnimationIconHoverValue = 0F;
         bool _mouseHover = false;
-        [Description("悬停状态"), Category("行为"), DefaultValue(false)]
+        [Description("悬停状态"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool ExtraMouseHover
         {
             get => _mouseHover;
@@ -1072,9 +1062,8 @@ namespace AntdUI
                 SetCursor(value && enabled && !loading);
                 if (enabled)
                 {
-                    var backHover = GetColorO();
-                    int alpha = backHover.A;
-                    if (Config.HasAnimation(nameof(Button)))
+                    int alpha = GetColorO().A;
+                    if (Config.HasAnimation(nameof(Button), Name))
                     {
                         if (IconHoverAnimation > 0 && ((toggle && HasToggleIcon && (ToggleIconHoverSvg != null || ToggleIconHover != null)) || (HasIcon && (IconHoverSvg != null || IconHover != null))))
                         {
@@ -1210,14 +1199,14 @@ namespace AntdUI
             var g = e.Canvas;
             Rectangle rect = e.Rect.PaddingRect(Padding), rect_read = ReadRectangle;
             if (rect_read.Width == 0 || rect_read.Height == 0) return;
-            float _radius = (shape == TShape.Round || shape == TShape.Circle) ? rect_read.Height : radius * Config.Dpi;
+            float _radius = (shape == TShape.Round || shape == TShape.Circle) ? rect_read.Height : radius * Dpi;
             if (backImage != null) g.Image(rect_read, backImage, backFit, _radius, shape);
             bool is_default = type == TTypeMini.Default, enabled = Enabled;
             if (toggle && typeToggle.HasValue) is_default = typeToggle.Value == TTypeMini.Default;
             if (is_default)
             {
                 GetDefaultColorConfig(out var _fore, out var _color, out var _back_hover, out var _back_active);
-                using (var path = Path(rect_read, _radius))
+                using (var path = Helper.PathJoin(rect_read, _radius, shape, joinMode, joinLeft, joinRight))
                 {
                     #region 动画
 
@@ -1243,13 +1232,13 @@ namespace AntdUI
                     {
                         if (!ghost)
                         {
-                            if (WaveSize > 0) PaintShadow(g, rect_read, path, Colour.FillQuaternary.Get(nameof(Button), ColorScheme), _radius);
-                            g.Fill(defaultback ?? Colour.DefaultBg.Get(nameof(Button), ColorScheme), path);
+                            if (WaveSize > 0) PaintShadow(g, rect, rect_read, path, Colour.FillQuaternary.Get(ColorScheme, nameof(Button), Name), _radius);
+                            g.Fill(defaultback ?? Colour.DefaultBg.Get(ColorScheme, nameof(Button), Name), path);
                         }
                         if (borderWidth > 0)
                         {
                             PaintLoadingWave(g, path, rect_read);
-                            float border = borderWidth * Config.Dpi;
+                            float border = borderWidth * Dpi;
                             if (ExtraMouseDown)
                             {
                                 g.Draw(_back_active, border, path);
@@ -1258,7 +1247,7 @@ namespace AntdUI
                             else if (AnimationHover)
                             {
                                 var colorHover = Helper.ToColor(AnimationHoverValue, _back_hover);
-                                g.Draw(Colour.DefaultBorder.Get(nameof(Button), ColorScheme).BlendColors(colorHover), border, path);
+                                g.Draw(Colour.DefaultBorder.Get(ColorScheme, nameof(Button), Name).BlendColors(colorHover), border, path);
                                 PaintTextLoading(g, Text, _fore.BlendColors(colorHover), rect_read, enabled, _radius);
                             }
                             else if (ExtraMouseHover)
@@ -1269,7 +1258,7 @@ namespace AntdUI
                             else
                             {
                                 if (AnimationBlinkState && colorBlink.HasValue) g.Draw(colorBlink.Value, border, path);
-                                else g.Draw(defaultbordercolor ?? Colour.DefaultBorder.Get(nameof(Button), ColorScheme), border, path);
+                                else g.Draw(defaultbordercolor ?? Colour.DefaultBorder.Get(ColorScheme, nameof(Button), Name), border, path);
                                 PaintTextLoading(g, Text, _fore, rect_read, enabled, _radius);
                             }
                         }
@@ -1285,15 +1274,15 @@ namespace AntdUI
                     else
                     {
                         PaintLoadingWave(g, path, rect_read);
-                        if (!ghost) g.Fill(Colour.FillTertiary.Get(nameof(Button), "bgDisabled", ColorScheme), path);
-                        PaintTextLoading(g, Text, Colour.TextQuaternary.Get(nameof(Button), "foreDisabled", ColorScheme), rect_read, enabled, _radius);
+                        if (!ghost) g.Fill(Colour.FillTertiary.GetSymbol(ColorScheme, "bgDisabled", nameof(Button), Name), path);
+                        PaintTextLoading(g, Text, Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Button), Name), rect_read, enabled, _radius);
                     }
                 }
             }
             else
             {
                 GetColorConfig(out var _fore, out var _fore_hover, out var _fore_active, out var _back, out var _back_hover, out var _back_active);
-                using (var path = Path(rect_read, _radius))
+                using (var path = Helper.PathJoin(rect_read, _radius, shape, joinMode, joinLeft, joinRight))
                 {
                     #region 动画
 
@@ -1323,7 +1312,7 @@ namespace AntdUI
 
                         if (borderWidth > 0)
                         {
-                            float border = borderWidth * Config.Dpi;
+                            float border = borderWidth * Dpi;
                             if (ExtraMouseDown)
                             {
                                 g.Draw(_back_active, border, path);
@@ -1332,7 +1321,7 @@ namespace AntdUI
                             else if (AnimationHover)
                             {
                                 var colorHover = Helper.ToColor(AnimationHoverValue, _back_hover);
-                                g.Draw((enabled ? _back : Colour.FillTertiary.Get(nameof(Button), ColorScheme)).BlendColors(colorHover), border, path);
+                                g.Draw((enabled ? _back : Colour.FillTertiary.Get(ColorScheme, nameof(Button), Name)).BlendColors(colorHover), border, path);
                                 PaintTextLoading(g, Text, _back.BlendColors(colorHover), rect_read, enabled, _radius);
                             }
                             else if (ExtraMouseHover)
@@ -1362,12 +1351,12 @@ namespace AntdUI
                                 }
                                 else
                                 {
-                                    g.Draw(Colour.FillTertiary.Get(nameof(Button), ColorScheme), border, path);
-                                    PaintTextLoading(g, Text, Colour.TextQuaternary.Get(nameof(Button), "foreDisabled", ColorScheme), rect_read, enabled, _radius);
+                                    g.Draw(Colour.FillTertiary.Get(ColorScheme, nameof(Button), Name), border, path);
+                                    PaintTextLoading(g, Text, Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Button), Name), rect_read, enabled, _radius);
                                 }
                             }
                         }
-                        else PaintTextLoading(g, Text, enabled ? _back : Colour.TextQuaternary.Get(nameof(Button), "foreDisabled", ColorScheme), rect_read, enabled, _radius);
+                        else PaintTextLoading(g, Text, enabled ? _back : Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Button), Name), rect_read, enabled, _radius);
 
                         #endregion
                     }
@@ -1375,7 +1364,7 @@ namespace AntdUI
                     {
                         if (enabled)
                         {
-                            if (WaveSize > 0) PaintShadow(g, rect_read, path, _back.rgba(Config.Mode == TMode.Dark ? 0.15F : 0.1F), _radius);
+                            if (WaveSize > 0) PaintShadow(g, rect, rect_read, path, _back.rgba(Config.Mode == TMode.Dark ? 0.15F : 0.1F), _radius);
 
                             if (toggle)
                             {
@@ -1422,9 +1411,9 @@ namespace AntdUI
                         }
                         else
                         {
-                            g.Fill(Colour.FillTertiary.Get(nameof(Button), "bgDisabled", ColorScheme), path);
+                            g.Fill(Colour.FillTertiary.GetSymbol(ColorScheme, "bgDisabled", nameof(Button), Name), path);
                             PaintLoadingWave(g, path, rect_read);
-                            PaintTextLoading(g, Text, Colour.TextQuaternary.Get(nameof(Button), "foreDisabled", ColorScheme), rect_read, enabled, _radius);
+                            PaintTextLoading(g, Text, Colour.TextQuaternary.GetSymbol(ColorScheme, "foreDisabled", nameof(Button), Name), rect_read, enabled, _radius);
                         }
                     }
                 }
@@ -1437,9 +1426,9 @@ namespace AntdUI
         /// <summary>
         /// 绘制阴影
         /// </summary>
-        void PaintShadow(Canvas g, Rectangle rect, GraphicsPath path, Color color, float radius)
+        protected virtual void PaintShadow(Canvas g, Rectangle rect_t, Rectangle rect, GraphicsPath path, Color color, float radius)
         {
-            float wave = (WaveSize * Config.Dpi / 2);
+            float wave = (WaveSize * Dpi / 2);
             using (var path_shadow = new RectangleF(rect.X, rect.Y + wave, rect.Width, rect.Height).RoundPath(radius))
             {
                 path_shadow.AddPath(path, false);
@@ -1451,7 +1440,7 @@ namespace AntdUI
         {
             if (loading && LoadingWaveValue > 0)
             {
-                using (var brush = new SolidBrush(LoadingWaveColor ?? Colour.Fill.Get(nameof(Button), ColorScheme)))
+                using (var brush = new SolidBrush(LoadingWaveColor ?? Colour.Fill.Get(ColorScheme, nameof(Button), Name)))
                 {
                     if (LoadingWaveValue >= 1) g.Fill(brush, path);
                     else if (LoadingWaveCount > 0)
@@ -1459,7 +1448,7 @@ namespace AntdUI
                         var state = g.Save();
                         g.SetClip(path);
                         g.ResetTransform();
-                        int len = (int)(LoadingWaveSize * Config.Dpi), count = LoadingWaveCount * 2 + 2;
+                        int len = (int)(LoadingWaveSize * Dpi), count = LoadingWaveCount * 2 + 2;
                         if (count < 6) count = 6;
                         if (LoadingWaveVertical)
                         {
@@ -1570,11 +1559,11 @@ namespace AntdUI
         {
             if (enabled && (hasFocus && Config.FocusBorderEnabled) && WaveSize > 0)
             {
-                float wave = (WaveSize * Config.Dpi / 2), wave2 = wave * 2, r = radius + wave;
+                float wave = (WaveSize * Dpi / 2), wave2 = wave * 2, r = radius + wave;
                 var rect_focus = new RectangleF(rect_read.X - wave, rect_read.Y - wave, rect_read.Width + wave2, rect_read.Height + wave2);
-                using (var path_focus = Path(rect_focus, r))
+                using (var path_focus = Helper.PathJoin(rect_focus, r, shape, joinMode, joinLeft, joinRight))
                 {
-                    g.Draw(Colour.PrimaryBorder.Get(nameof(Button), ColorScheme), wave, path_focus);
+                    g.Draw(Colour.PrimaryBorder.Get(ColorScheme, nameof(Button), Name), wave, path_focus);
                 }
             }
             bool has_loading = loading && LoadingValue > -1;
@@ -1682,18 +1671,11 @@ namespace AntdUI
 
         void PaintTextArrow(Canvas g, Rectangle rect, Color color)
         {
-            using (var pen = new Pen(color, 2F * Config.Dpi))
+            using (var pen = new Pen(color, 2F * Dpi))
             {
                 pen.StartCap = pen.EndCap = LineCap.Round;
-                if (isLink)
-                {
-                    float size_arrow = rect.Width / 2F;
-                    g.TranslateTransform(rect.X + size_arrow, rect.Y + size_arrow);
-                    g.RotateTransform(-90F);
-                    g.DrawLines(pen, new RectangleF(-size_arrow, -size_arrow, rect.Width, rect.Height).TriangleLines(ArrowProg));
-                    g.ResetTransform();
-                }
-                else g.DrawLines(pen, rect.TriangleLines(ArrowProg));
+                if (isLink) g.DrawLines(pen, rect.TriangleLinesVertical(ArrowProg));
+                else g.DrawLines(pen, rect.TriangleLinesHorizontal(ArrowProg));
             }
         }
 
@@ -1856,7 +1838,7 @@ namespace AntdUI
         {
             if (IconSize.Width > 0 && IconSize.Height > 0)
             {
-                int w = (int)(IconSize.Width * Config.Dpi), h = (int)(IconSize.Height * Config.Dpi);
+                int w = (int)(IconSize.Width * Dpi), h = (int)(IconSize.Height * Dpi);
                 return new Rectangle(rect_read.X + (rect_read.Width - w) / 2, rect_read.Y + (rect_read.Height - h) / 2, w, h);
             }
             else
@@ -1929,7 +1911,7 @@ namespace AntdUI
         {
             if (IconSize.Width > 0 && IconSize.Height > 0)
             {
-                int w = (int)(IconSize.Width * Config.Dpi), h = (int)(IconSize.Height * Config.Dpi);
+                int w = (int)(IconSize.Width * Dpi), h = (int)(IconSize.Height * Dpi);
                 return new Rectangle(rectl.X + (rectl.Width - w) / 2, rectl.Y + (rectl.Height - h) / 2, w, h);
             }
             else return rectl;
@@ -1948,49 +1930,12 @@ namespace AntdUI
             }
             if (iconSvg != null)
             {
-                using (var _bmp = SvgExtend.GetImgExtend(iconSvg, rect, color))
-                {
-                    if (_bmp != null)
-                    {
-                        g.Image(_bmp, rect, opacity);
-                        count++;
-                    }
-                }
+                if (g.Svg(iconSvg, rect, opacity, color)) count++;
             }
             return count > 0;
         }
 
         #endregion
-
-        public GraphicsPath Path(RectangleF rect, float radius)
-        {
-            if (shape == TShape.Circle)
-            {
-                var path = new GraphicsPath();
-                path.AddEllipse(rect);
-                return path;
-            }
-            switch (joinMode)
-            {
-                case TJoinMode.Left:
-                    return rect.RoundPath(radius, true, false, false, true);
-                case TJoinMode.Right:
-                    return rect.RoundPath(radius, false, true, true, false);
-                case TJoinMode.LR:
-                case TJoinMode.TB:
-                    return rect.RoundPath(0);
-                case TJoinMode.Top:
-                    return rect.RoundPath(radius, true, true, false, false);
-                case TJoinMode.Bottom:
-                    return rect.RoundPath(radius, false, false, true, true);
-                case TJoinMode.None:
-                default:
-                    if (joinLeft && joinRight) return rect.RoundPath(0);
-                    else if (joinRight) return rect.RoundPath(radius, true, false, false, true);
-                    else if (joinLeft) return rect.RoundPath(radius, false, true, true, false);
-                    return rect.RoundPath(radius);
-            }
-        }
 
         #endregion
 
@@ -2011,24 +1956,24 @@ namespace AntdUI
             switch (type)
             {
                 case TTypeMini.Default:
-                    if (borderWidth > 0) color = Colour.PrimaryHover.Get(nameof(Button), ColorScheme);
-                    else color = Colour.FillSecondary.Get(nameof(Button), ColorScheme);
+                    if (borderWidth > 0) color = Colour.PrimaryHover.Get(ColorScheme, nameof(Button), Name);
+                    else color = Colour.FillSecondary.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Success:
-                    color = Colour.SuccessHover.Get(nameof(Button), ColorScheme);
+                    color = Colour.SuccessHover.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Error:
-                    color = Colour.ErrorHover.Get(nameof(Button), ColorScheme);
+                    color = Colour.ErrorHover.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Info:
-                    color = Colour.InfoHover.Get(nameof(Button), ColorScheme);
+                    color = Colour.InfoHover.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Warn:
-                    color = Colour.WarningHover.Get(nameof(Button), ColorScheme);
+                    color = Colour.WarningHover.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Primary:
                 default:
-                    color = Colour.PrimaryHover.Get(nameof(Button), ColorScheme);
+                    color = Colour.PrimaryHover.Get(ColorScheme, nameof(Button), Name);
                     break;
             }
             if (BackHover.HasValue) color = BackHover.Value;
@@ -2037,17 +1982,17 @@ namespace AntdUI
 
         void GetDefaultColorConfig(out Color Fore, out Color Color, out Color backHover, out Color backActive)
         {
-            Fore = Colour.DefaultColor.Get(nameof(Button), ColorScheme);
-            Color = Colour.Primary.Get(nameof(Button), ColorScheme);
+            Fore = Colour.DefaultColor.Get(ColorScheme, nameof(Button), Name);
+            Color = Colour.Primary.Get(ColorScheme, nameof(Button), Name);
             if (borderWidth > 0)
             {
-                backHover = Colour.PrimaryHover.Get(nameof(Button), ColorScheme);
-                backActive = Colour.PrimaryActive.Get(nameof(Button), ColorScheme);
+                backHover = Colour.PrimaryHover.Get(ColorScheme, nameof(Button), Name);
+                backActive = Colour.PrimaryActive.Get(ColorScheme, nameof(Button), Name);
             }
             else
             {
-                backHover = Colour.FillSecondary.Get(nameof(Button), ColorScheme);
-                backActive = Colour.Fill.Get(nameof(Button), ColorScheme);
+                backHover = Colour.FillSecondary.Get(ColorScheme, nameof(Button), Name);
+                backActive = Colour.Fill.Get(ColorScheme, nameof(Button), Name);
             }
             if (toggle)
             {
@@ -2105,49 +2050,43 @@ namespace AntdUI
             switch (type)
             {
                 case TTypeMini.Error:
-                    Back = Colour.Error.Get(nameof(Button), ColorScheme);
-                    Fore = Colour.ErrorColor.Get(nameof(Button), ColorScheme);
-                    backHover = Colour.ErrorHover.Get(nameof(Button), ColorScheme);
-                    backActive = Colour.ErrorActive.Get(nameof(Button), ColorScheme);
+                    Back = Colour.Error.Get(ColorScheme, nameof(Button), Name);
+                    Fore = Colour.ErrorColor.Get(ColorScheme, nameof(Button), Name);
+                    backHover = Colour.ErrorHover.Get(ColorScheme, nameof(Button), Name);
+                    backActive = Colour.ErrorActive.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Success:
-                    Back = Colour.Success.Get(nameof(Button), ColorScheme);
-                    Fore = Colour.SuccessColor.Get(nameof(Button), ColorScheme);
-                    backHover = Colour.SuccessHover.Get(nameof(Button), ColorScheme);
-                    backActive = Colour.SuccessActive.Get(nameof(Button), ColorScheme);
+                    Back = Colour.Success.Get(ColorScheme, nameof(Button), Name);
+                    Fore = Colour.SuccessColor.Get(ColorScheme, nameof(Button), Name);
+                    backHover = Colour.SuccessHover.Get(ColorScheme, nameof(Button), Name);
+                    backActive = Colour.SuccessActive.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Info:
-                    Back = Colour.Info.Get(nameof(Button), ColorScheme);
-                    Fore = Colour.InfoColor.Get(nameof(Button), ColorScheme);
-                    backHover = Colour.InfoHover.Get(nameof(Button), ColorScheme);
-                    backActive = Colour.InfoActive.Get(nameof(Button), ColorScheme);
+                    Back = Colour.Info.Get(ColorScheme, nameof(Button), Name);
+                    Fore = Colour.InfoColor.Get(ColorScheme, nameof(Button), Name);
+                    backHover = Colour.InfoHover.Get(ColorScheme, nameof(Button), Name);
+                    backActive = Colour.InfoActive.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Warn:
-                    Back = Colour.Warning.Get(nameof(Button), ColorScheme);
-                    Fore = Colour.WarningColor.Get(nameof(Button), ColorScheme);
-                    backHover = Colour.WarningHover.Get(nameof(Button), ColorScheme);
-                    backActive = Colour.WarningActive.Get(nameof(Button), ColorScheme);
+                    Back = Colour.Warning.Get(ColorScheme, nameof(Button), Name);
+                    Fore = Colour.WarningColor.Get(ColorScheme, nameof(Button), Name);
+                    backHover = Colour.WarningHover.Get(ColorScheme, nameof(Button), Name);
+                    backActive = Colour.WarningActive.Get(ColorScheme, nameof(Button), Name);
                     break;
                 case TTypeMini.Primary:
                 default:
-                    Back = Colour.Primary.Get(nameof(Button), ColorScheme);
-                    Fore = Colour.PrimaryColor.Get(nameof(Button), ColorScheme);
-                    backHover = Colour.PrimaryHover.Get(nameof(Button), ColorScheme);
-                    backActive = Colour.PrimaryActive.Get(nameof(Button), ColorScheme);
+                    Back = Colour.Primary.Get(ColorScheme, nameof(Button), Name);
+                    Fore = Colour.PrimaryColor.Get(ColorScheme, nameof(Button), Name);
+                    backHover = Colour.PrimaryHover.Get(ColorScheme, nameof(Button), Name);
+                    backActive = Colour.PrimaryActive.Get(ColorScheme, nameof(Button), Name);
                     break;
             }
         }
 
-        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding).ReadRect((WaveSize + borderWidth / 2F) * Config.Dpi, shape, joinMode, joinLeft, joinRight);
+        public override Rectangle ReadRectangle => ClientRectangle.PaddingRect(Padding).ReadRect((WaveSize + borderWidth / 2F) * Dpi, shape, joinMode, joinLeft, joinRight);
 
-        public override GraphicsPath RenderRegion
-        {
-            get
-            {
-                var rect = ReadRectangle;
-                return Path(rect, (shape == TShape.Round || shape == TShape.Circle) ? rect.Height : radius * Config.Dpi);
-            }
-        }
+        public override GraphicsPath RenderRegion => Helper.PathJoin(ReadRectangle, radius, Dpi, shape, joinMode, joinLeft, joinRight);
+
         #endregion
 
         #endregion
@@ -2159,7 +2098,7 @@ namespace AntdUI
             if (RespondRealAreas)
             {
                 var rect_read = ReadRectangle;
-                using (var path = Path(rect_read, radius * Config.Dpi))
+                using (var path = Helper.PathJoin(rect_read, radius, Dpi, shape, joinMode, joinLeft, joinRight))
                 {
                     ExtraMouseHover = path.IsVisible(e.X, e.Y);
                 }
@@ -2222,7 +2161,7 @@ namespace AntdUI
 
         #region 事件
 
-        [Description("Toggle 改变时发生"), Category("行为")]
+        [Description("Toggle 改变时发生"), Category(nameof(CategoryAttribute.Behavior))]
         public event BoolEventHandler? ToggleChanged;
 
         protected virtual void OnToggleChanged(bool e) => ToggleChanged?.Invoke(this, new BoolEventArgs(e));
@@ -2235,7 +2174,7 @@ namespace AntdUI
         /// 自动大小
         /// </summary>
         [Browsable(true)]
-        [Description("自动大小"), Category("外观"), DefaultValue(false)]
+        [Description("自动大小"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(false)]
         public override bool AutoSize
         {
             get => base.AutoSize;
@@ -2256,7 +2195,7 @@ namespace AntdUI
         /// <summary>
         /// 自动大小模式
         /// </summary>
-        [Description("自动大小模式"), Category("外观"), DefaultValue(TAutoSize.None)]
+        [Description("自动大小模式"), Category(nameof(CategoryAttribute.Appearance)), DefaultValue(TAutoSize.None)]
         public TAutoSize AutoSizeMode
         {
             get => autoSize;
@@ -2283,14 +2222,14 @@ namespace AntdUI
             return PSize;
         }
 
-        public Size PSize
+        public virtual Size PSize
         {
             get
             {
-                return Helper.GDI(g =>
+                return this.GDI(g =>
                 {
                     var font_size = MeasureText(g, Text, out int txt_height);
-                    int icon_size = (int)(txt_height * iconratio), gap = (int)(txt_height * 1.02F), wave = (int)(WaveSize * Config.Dpi), wave2 = wave;
+                    int icon_size = (int)(txt_height * iconratio), gap = (int)(txt_height * 1.02F), wave = (int)(WaveSize * Dpi), wave2 = wave;
                     int height = Math.Max(font_size.Height, icon_size);
                     if (Shape == TShape.Circle || string.IsNullOrEmpty(Text) || displayStyle == TButtonDisplayStyle.Image)
                     {
@@ -2398,7 +2337,7 @@ namespace AntdUI
                 if (RespondRealAreas)
                 {
                     var rect_read = ReadRectangle;
-                    using (var path = Path(rect_read, radius * Config.Dpi))
+                    using (var path = Helper.PathJoin(rect_read, radius, Dpi, shape, joinMode, joinLeft, joinRight))
                     {
                         return path.IsVisible(x, y);
                     }
@@ -2438,7 +2377,7 @@ namespace AntdUI
         /// 是否存在焦点
         /// </summary>
         [Browsable(false)]
-        [Description("是否存在焦点"), Category("行为"), DefaultValue(false)]
+        [Description("是否存在焦点"), Category(nameof(CategoryAttribute.Behavior)), DefaultValue(false)]
         public bool HasFocus
         {
             get => hasFocus;

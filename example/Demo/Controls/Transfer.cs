@@ -1,21 +1,8 @@
-// COPYRIGHT (C) Tom. ALL RIGHTS RESERVED.
-// THE AntdUI PROJECT IS AN WINFORM LIBRARY LICENSED UNDER THE Apache-2.0 License.
-// LICENSED UNDER THE Apache License, VERSION 2.0 (THE "License")
-// YOU MAY NOT USE THIS FILE EXCEPT IN COMPLIANCE WITH THE License.
-// YOU MAY OBTAIN A COPY OF THE LICENSE AT
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING, SOFTWARE
-// DISTRIBUTED UNDER THE LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-// SEE THE LICENSE FOR THE SPECIFIC LANGUAGE GOVERNING PERMISSIONS AND
-// LIMITATIONS UNDER THE License.
-// GITCODE: https://gitcode.com/AntdUI/AntdUI
-// GITEE: https://gitee.com/AntdUI/AntdUI
-// GITHUB: https://github.com/AntdUI/AntdUI
-// CSDN: https://blog.csdn.net/v_132
-// QQ: 17379620
+// Copyright (C) Tom <17379620>. All Rights Reserved.
+// AntdUI WinForm Library | Licensed under Apache-2.0 License
+// Gitee: https://gitee.com/AntdUI/AntdUI
+// GitHub: https://github.com/AntdUI/AntdUI
+// GitCode: https://gitcode.com/AntdUI/AntdUI
 
 using System;
 using System.Collections.Generic;
@@ -25,8 +12,8 @@ namespace Demo.Controls
 {
     public partial class Transfer : UserControl, AntdUI.IEventListener
     {
-        Form form;
-        public Transfer(Form _form)
+        AntdUI.BaseForm form;
+        public Transfer(AntdUI.BaseForm _form)
         {
             form = _form;
             InitializeComponent();
@@ -40,7 +27,7 @@ namespace Demo.Controls
             var items = new List<AntdUI.TransferItem>(10);
             for (int i = 0; i <= 10; i++) items.Add(new AntdUI.TransferItem(AntdUI.Localization.Get("Transfer.Content", "选项") + (i + 1), i));
             // 设置穿梭框数据源
-            transfer1.Items = items;
+            transfer1.Items.AddRange(items);
 
             label_source.Suffix = transfer1.GetSourceItems().Count + AntdUI.Localization.Get("Transfer.Items", "项");
             label_target.Suffix = transfer1.GetTargetItems().Count + AntdUI.Localization.Get("Transfer.Items", "项");
@@ -80,8 +67,8 @@ namespace Demo.Controls
             int count = random.Next(10, 40);
             var items = new List<AntdUI.TransferItem>(count);
             for (int i = 1; i <= count; i++) items.Add(new AntdUI.TransferItem(AntdUI.Localization.Get("Transfer.Option", "新选项") + i, i));
-
-            transfer1.Items = items;
+            transfer1.Items.Clear();
+            transfer1.Items.AddRange(items);
             transfer1.Reload();
 
             // 更新源列表和目标列表的数量显示
