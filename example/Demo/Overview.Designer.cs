@@ -47,7 +47,7 @@ namespace Demo
             btn_mode.Location = new Point(972, 0);
             btn_mode.Name = "btn_mode";
             btn_mode.Radius = 0;
-            btn_mode.Size = new Size(46, 40);
+            btn_mode.Size = new Size(46, 48);
             btn_mode.TabIndex = 6;
             btn_mode.ToggleIconSvg = "MoonOutlined";
             btn_mode.WaveSize = 0;
@@ -63,7 +63,7 @@ namespace Demo
             btn_more.Name = "btn_more";
             btn_more.Placement = AntdUI.TAlignFrom.BR;
             btn_more.Radius = 0;
-            btn_more.Size = new Size(46, 40);
+            btn_more.Size = new Size(46, 48);
             btn_more.TabIndex = 9;
             btn_more.WaveSize = 0;
             btn_more.SelectedValueChanged += btn_more_Changed;
@@ -78,7 +78,7 @@ namespace Demo
             btn_global.Name = "btn_global";
             btn_global.Placement = AntdUI.TAlignFrom.BR;
             btn_global.Radius = 0;
-            btn_global.Size = new Size(46, 40);
+            btn_global.Size = new Size(46, 48);
             btn_global.TabIndex = 7;
             btn_global.WaveSize = 0;
             btn_global.SelectedValueChanged += btn_global_Changed;
@@ -91,7 +91,7 @@ namespace Demo
             btn_setting.Location = new Point(1064, 0);
             btn_setting.Name = "btn_setting";
             btn_setting.Radius = 0;
-            btn_setting.Size = new Size(46, 40);
+            btn_setting.Size = new Size(46, 48);
             btn_setting.TabIndex = 8;
             btn_setting.WaveSize = 0;
             btn_setting.Click += btn_setting_Click;
@@ -100,11 +100,11 @@ namespace Demo
             // 
             virtualPanel.Dock = DockStyle.Fill;
             virtualPanel.JustifyContent = AntdUI.TJustifyContent.SpaceEvenly;
-            virtualPanel.Location = new Point(0, 40);
+            virtualPanel.Location = new Point(0, 48);
             virtualPanel.Name = "virtualPanel";
             virtualPanel.Shadow = 20;
             virtualPanel.ShadowOpacityAnimation = true;
-            virtualPanel.Size = new Size(1300, 680);
+            virtualPanel.Size = new Size(1300, 672);
             virtualPanel.TabIndex = 2;
             virtualPanel.Waterfall = true;
             virtualPanel.ItemClick += ItemClick;
@@ -133,7 +133,7 @@ namespace Demo
             windowBar.Name = "windowBar";
             windowBar.ShowButton = true;
             windowBar.ShowIcon = true;
-            windowBar.Size = new Size(1300, 40);
+            windowBar.Size = new Size(1300, 48);
             windowBar.SubText = "Overview";
             windowBar.TabIndex = 0;
             windowBar.Text = "AntdUI";
@@ -149,7 +149,7 @@ namespace Demo
             txt_search.Padding = new Padding(0, 2, 0, 2);
             txt_search.PlaceholderText = "输入关键字搜索...";
             txt_search.PrefixSvg = "SearchOutlined";
-            txt_search.Size = new Size(168, 40);
+            txt_search.Size = new Size(168, 48);
             txt_search.TabIndex = 9;
             txt_search.PrefixClick += txt_search_PrefixClick;
             txt_search.TextChanged += txt_search_TextChanged;
@@ -160,7 +160,7 @@ namespace Demo
             colorTheme.Location = new Point(932, 0);
             colorTheme.Name = "colorTheme";
             colorTheme.Padding = new Padding(5);
-            colorTheme.Size = new Size(40, 40);
+            colorTheme.Size = new Size(40, 48);
             colorTheme.TabIndex = 8;
             colorTheme.ValueChanged += colorTheme_ValueChanged;
             // 

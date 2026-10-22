@@ -205,8 +205,27 @@ namespace AntdUI
             {
                 return null;
             }
-            if (Hexadecimal) return ((long)num).ToString("X", CultureInfo.InvariantCulture);
-            return num.Value.ToString((thousandsSeparator ? "N" : "F") + DecimalPlaces.ToString(CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
+            if (Hexadecimal)
+            {
+                return ((long)num.Value).ToString("X", CultureInfo.InvariantCulture);
+            }
+
+            // 如果不控制小数位（小于等于0），直接转字符串
+            if (DecimalPlaces <= 0)
+            {
+                // 如果不需要千分位，直接返回
+                if (!thousandsSeparator)
+                    return num.Value.ToString(CultureInfo.CurrentCulture);
+
+                return num.Value.ToString("#,##0.################", CultureInfo.CurrentCulture);
+            }
+
+            // 如果大于0，最多显示 N 位小数，不自动补0
+            string format = thousandsSeparator
+                ? "#,##0." + new string('#', DecimalPlaces)
+                : "0." + new string('#', DecimalPlaces);
+
+            return num.Value.ToString(format, CultureInfo.CurrentCulture);
         }
 
         /// <summary>
