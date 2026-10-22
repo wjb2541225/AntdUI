@@ -75,6 +75,7 @@ namespace Demo.Controls
             input2.TabIndex = 2;
             input2.Text = "0";
             input2.Value = 0D;
+            input2.WaveSize = 0;
             // 
             // input3
             // 

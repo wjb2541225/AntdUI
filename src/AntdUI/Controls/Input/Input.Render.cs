@@ -73,7 +73,18 @@ namespace AntdUI
                     PaintScroll(g, rect_read, _radius);
                     if (borderWidth > 0)
                     {
-                        var borWidth = borderWidth * Dpi;
+                        // 1. 强制线条物理宽度为设定的值，不随 DPI 缩放产生小数（比如 1.25f）
+                        var borWidth = borderWidth;
+
+                        // 2. 保存画布当前状态，并向右下角平移 0.5 像素
+                        // 【核心原理】：GDI+ 绘制 1px 线条时，坐标在整数上会跨越两个像素导致发虚。偏移 0.5 像素可让线条完美落入物理像素中心。
+                        var state = g.Save();
+                        g.TranslateTransform(0.5f, 0.5f);
+
+                        // 3. 如果控件是直角（Radius == 0），关闭抗锯齿做到绝对锐利；如果是圆角，保持 AntiAlias
+                        var oldSmoothing = g.SmoothingMode;
+                        if (_radius <= 0) g.SmoothingMode = SmoothingMode.None;
+
                         if (Variant == TVariant.Underlined)
                         {
                             if (AnimationHover) g.DrawLine(_border.BlendColors(AnimationHoverValue, _borderHover), borWidth, rect_read.X, rect_read.Bottom, rect_read.Right, rect_read.Bottom);
@@ -90,6 +101,10 @@ namespace AntdUI
                             else if (AnimationBlinkState && colorBlink.HasValue) g.Draw(colorBlink.Value, borWidth, path);
                             else g.Draw(_border, borWidth, path);
                         }
+
+                        // 4. 恢复原有的抗锯齿模式，并还原画布状态（非常重要，否则会影响里面的文字渲染）
+                        g.SmoothingMode = oldSmoothing;
+                        g.Restore(state);
                     }
                 }
                 else
@@ -100,7 +115,18 @@ namespace AntdUI
                     PaintText(g, fore, rect_read.Right, rect_read.Bottom);
                     PaintOtherBor(g, rect_read, _radius, _back, _border, _borderActive);
                     PaintScroll(g, rect_read, _radius);
-                    if (borderWidth > 0) g.Draw(_border, borderWidth * Dpi, path);
+                    if (borderWidth > 0)
+                    {
+                        var stateDisable = g.Save();
+                        g.TranslateTransform(0.5f, 0.5f);
+                        var oldSmoothingDisable = g.SmoothingMode;
+                        if (_radius <= 0) g.SmoothingMode = SmoothingMode.None;
+
+                        g.Draw(_border, borderWidth, path);
+
+                        g.SmoothingMode = oldSmoothingDisable;
+                        g.Restore(stateDisable);
+                    }
                 }
             }
         }
