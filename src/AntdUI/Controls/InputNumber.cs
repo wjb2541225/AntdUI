@@ -147,6 +147,27 @@ namespace AntdUI
             }
         }
 
+        private bool strictDecimalControl = false;
+
+        [Description("是否严格控制小数位（自动补0）")]
+        [Category("Data")]
+        [DefaultValue(false)]
+        public bool StrictDecimalControl
+        {
+            get
+            {
+                return strictDecimalControl;
+            }
+            set
+            {
+                if (strictDecimalControl != value)
+                {
+                    strictDecimalControl = value;
+                    Text = GetNumberText(Value);
+                }
+            }
+        }
+
         bool thousandsSeparator = false;
         /// <summary>
         /// 是否显示千分隔符
@@ -209,6 +230,12 @@ namespace AntdUI
             {
                 return ((long)num.Value).ToString("X", CultureInfo.InvariantCulture);
             }
+            if (StrictDecimalControl)
+            {
+                if (Hexadecimal) return ((long)num).ToString("X", CultureInfo.InvariantCulture);
+                return num.Value.ToString((thousandsSeparator ? "N" : "F") + DecimalPlaces.ToString(CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
+            }
+
 
             // 如果不控制小数位（小于等于0），直接转字符串
             if (DecimalPlaces <= 0)
@@ -272,7 +299,7 @@ namespace AntdUI
             string keyInput = key.ToString();
             if (char.IsDigit(key)) return true; // 数字可以
             else if (keyInput.Equals(numberFormatInfo.NumberGroupSeparator) || keyInput.Equals(numberFormatInfo.NegativeSign)) return true;
-            else if (keyInput.Equals(numberFormatInfo.NumberDecimalSeparator)) return decimalPlaces > 0;
+            else if (keyInput.Equals(numberFormatInfo.NumberDecimalSeparator)) return decimalPlaces > 0 || !StrictDecimalControl;
             else if (key == '\b') return true;// Backspace键可以
             else if (Hexadecimal && ((key >= 'a' && key <= 'f') || (key >= 'A' && key <= 'F'))) return true;// 十六进制数字可以
             else if (key == '。')
